@@ -66,6 +66,10 @@ exercises:
   landmine_belt_squat: {name: Landmine belt squat, equipment: [landmine], implement: landmine, muscles: [quads, glutes], tags: [lower, squat], load_mode: last_used}
   leg_press: {name: Leg press, equipment: [leg_press], implement: machine, muscles: [quads, glutes], tags: [lower, squat], load_mode: last_used, hevy_title: Leg Press (Machine)}
   bulgarian_split_squat: {name: DB Bulgarian split squat, equipment: [dumbbells, flat_bench], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral, eccentric_heavy, deep_lunge], regressions: [step_up_db], deload_swap: step_up_db, load_mode: e1rm, hevy_title: Bulgarian Split Squat}
+  bodyweight_split_squat: {name: Bodyweight split squat, equipment: [bodyweight], muscles: [quads, glutes], tags: [lower, lunge, unilateral], load_mode: bodyweight}
+  air_squat: {name: Air squat, equipment: [bodyweight], muscles: [quads, glutes], tags: [lower, squat, conditioning], load_mode: bodyweight}
+  single_leg_glute_bridge: {name: Single-leg glute bridge, equipment: [bodyweight], muscles: [glutes, hamstrings], tags: [lower, hinge], load_mode: bodyweight}
+  band_row: {name: Band row, equipment: [bands], muscles: [back], tags: [upper, pull_h], load_mode: none}
   reverse_lunge_db: {name: DB reverse lunge, equipment: [dumbbells], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral], regressions: [step_up_db], load_mode: e1rm}
   step_up_db: {name: DB step-up, equipment: [dumbbells, plyo_box], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral, concentric], load_mode: e1rm}
   smith_split_squat: {name: Smith machine split squat, equipment: [smith_machine], implement: smith_machine, muscles: [quads, glutes], tags: [lower, lunge, unilateral], regressions: [step_up_db], load_mode: last_used}

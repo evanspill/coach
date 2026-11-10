@@ -1,6 +1,7 @@
 # Movement readiness ladders. Nothing is banned forever: each family climbs one rung at a time.
 rules:
   exposures_to_advance: 3        # clean exposures at the current rung (brief: ~2-3; conservative end)
+  min_days_at_rung: 14           # and at least two weeks at the rung (tissue adaptation lags performance)
   max_session_pain_to_advance: 2 # pain <= 2/10 during the session
   regress_on_session_pain_above: 2
   regress_on_next_day_flare: true

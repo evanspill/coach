@@ -89,6 +89,7 @@ class Family(Model):
 
 class ProgressionRules(LooseModel):
     exposures_to_advance: int
+    min_days_at_rung: int = 14
     max_session_pain_to_advance: float
     regress_on_session_pain_above: float
     regress_on_next_day_flare: bool

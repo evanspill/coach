@@ -113,11 +113,14 @@ def can_advance(fs: FamilyState, day: dt.date, progressions: MovementProgression
         return False
     if fs.hold_until and day < fs.hold_until:
         return False
+    since = fs.history[-1].date if fs.history else None
+    if since is not None and (day - since).days < progressions.rules.min_days_at_rung:
+        return False
     return fs.clean_exposures() >= progressions.rules.exposures_to_advance
 
 
 def _move(fs: FamilyState, day: dt.date, to: int, reason: str) -> RungEvent:
-    ev = RungEvent(date=day, from_rung=fs.rung, to_rung=to, reason=reason)
+    ev = RungEvent(date=day, from_rung=fs.rung, to_rung=to, reason=reason, evidence=fs.clean_exposures())
     fs.history.append(ev)
     fs.rung = to
     fs.exposures = []
@@ -156,11 +159,17 @@ def validate_change(
         delta = a.rung - b.rung
         if abs(delta) > 1:
             errors.append(f"{fam}: rung {b.rung} -> {a.rung} moves more than one rung")
-        if delta == 1 and not can_advance(b, after.updated, progressions):
-            errors.append(
-                f"{fam}: advance to rung {a.rung} without criteria "
-                f"({b.clean_exposures()}/{progressions.rules.exposures_to_advance} clean exposures)"
-            )
+        if delta == 1:
+            ev = a.history[-1] if a.history else None
+            need = progressions.rules.exposures_to_advance
+            held = b.hold_until is not None and ev is not None and ev.date < b.hold_until
+            if ev is None or ev.to_rung != a.rung or ev.evidence < need or held:
+                have = ev.evidence if ev else b.clean_exposures()
+                errors.append(
+                    f"{fam}: advance to rung {a.rung} without criteria ({have}/{need} clean exposures"
+                    + (", regression hold active" if held else "")
+                    + ")"
+                )
     return errors
 
 

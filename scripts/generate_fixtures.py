@@ -59,7 +59,7 @@ def whoop_and_wellness():
     recovery, sleep, cycles, wellness = [], [], [], []
     base_ln = math.log(62)
     for i, d in enumerate(days()):
-        ln = base_ln + rng.gauss(0, 0.11) + 0.03 * math.sin(i / 9)
+        ln = base_ln + rng.gauss(0, 0.09) + 0.03 * math.sin(i / 9)
         rhr = 50 + rng.gauss(0, 1.3)
         sleep_h = 7.4 + rng.gauss(0, 0.5)
         if d in BAD_STREAK:
@@ -70,10 +70,10 @@ def whoop_and_wellness():
             ln -= 0.35
             rhr += 2
         elif d in MID_DIP:
-            ln -= 0.18
+            ln -= 0.10
             rhr += 1
         hrv = round(math.exp(ln), 1)
-        rec = 58 + 260 * (ln - base_ln) - 3.0 * (rhr - 50) + rng.gauss(0, 5)
+        rec = 66 + 150 * (ln - base_ln) - 2.5 * (rhr - 50) + rng.gauss(0, 6)
         if d in BAD_STREAK:
             rec = min(rec, 28 - rng.random() * 8)
         if d in SINGLE_LOW:

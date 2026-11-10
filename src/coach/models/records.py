@@ -97,6 +97,7 @@ class RungEvent(Model):
     from_rung: int
     to_rung: int
     reason: str
+    evidence: int = 0  # clean exposures at the old rung when the move happened
 
 
 class Exposure(Model):

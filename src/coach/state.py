@@ -183,7 +183,7 @@ class State:
         return [SessionRecord.model_validate(r["data"]) for r in self.metric_records("session", start, end)]
 
     def gear(self) -> list[Gear]:
-        return [Gear.model_validate(r["data"]) for r in self.metric_records("gear")]
+        return [Gear.model_validate(g) for g in (self.read_json("metrics/gear.json") or [])]
 
     def checkins(self, start: dt.date | None = None, end: dt.date | None = None) -> list[Checkin]:
         """Merged per date: Intervals fields first, then Hevy-note tags, then chat check-ins."""

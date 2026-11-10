@@ -280,8 +280,8 @@ def run_block(
 ) -> SessionBlock:
     segs = []
     terrain = "treadmill" if location == "gym" else "flat"
-    if mp_finish_min > 0 and miles > 3:
-        mp_miles = round(mp_finish_min * 60 / 450, 1)
+    if mp_finish_min > 0 and miles >= 8:
+        mp_miles = round(min(mp_finish_min * 60 / 450, miles * 0.25), 1)
         segs.append(
             RunSegment(
                 label=f"{label} (easy)", zone=zone, distance_mi=round(miles - mp_miles, 1), terrain=terrain

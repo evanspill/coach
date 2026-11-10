@@ -158,9 +158,9 @@ def sync(
                 c.model_dump(mode="json", exclude_none=True),
             )
         )
-    gear = run("intervals_gear", sources.intervals.gear) or []
-    for g in gear:
-        items.append(("gear", g.id, today, g.model_dump(mode="json")))
+    gear = run("intervals_gear", sources.intervals.gear)
+    if gear is not None:
+        state.write_json("metrics/gear.json", [g.model_dump(mode="json") for g in gear])
 
     changed = state.upsert_metrics(
         items, replace_kinds_in={"session": (start, today)} if (hevy_w or acts or whoop_w) else None

@@ -127,7 +127,16 @@ def categories(s: Session, library: ExerciseLibrary, battery: TestBattery | None
             cats.add("hypertrophy")
         if b.kind == "power":
             cats.add("neural")
-        q = sum((seg.duration_min or 0) * seg.reps for seg in b.run if seg.zone in QUALITY_ZONES)
+        q = sum(
+            (
+                seg.duration_min
+                if seg.duration_min is not None
+                else (seg.distance_mi or 0) * DEFAULT_THRESHOLD_PACE / 60
+            )
+            * seg.reps
+            for seg in b.run
+            if seg.zone in QUALITY_ZONES
+        )
         if q >= 8:
             cats.add("run_quality")
         if any(seg.zone in {"Z1", "Z2", "MP"} and seg.modality != "walk" for seg in b.run):

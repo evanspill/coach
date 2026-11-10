@@ -153,17 +153,19 @@ class WeekBuilder:
     def lower_threshold(self, day, miles):
         P = self.P()
         hinge = P.main_lift("hinge")
-        reps = max(3, round(miles * 0.6))
+        rep_mi = round(5 * 60 / self.ctx.zones.threshold_pace_s_per_mi, 2)
+        reps = max(2, min(5, int(miles * 0.55 / rep_mi)))
+        easy = max(0.5, round(miles - reps * rep_mi, 1))
         run = SessionBlock(
             kind="run",
             title="Threshold intervals",
             run=[
-                RunSegment(label="Easy", zone="Z2", distance_mi=round(miles * 0.4, 1), terrain="treadmill"),
+                RunSegment(label="Easy", zone="Z2", distance_mi=easy, terrain="treadmill"),
                 RunSegment(
-                    label="Threshold reps",
+                    label="Threshold reps (5 min)",
                     zone="T",
-                    duration_min=5,
-                    reps=min(reps, 5),
+                    distance_mi=rep_mi,
+                    reps=reps,
                     recovery_min=1.5,
                     terrain="treadmill",
                 ),
@@ -585,17 +587,21 @@ class WeekBuilder:
 
     def quality_run(self, day, miles, short: bool = False):
         P = self.P("track")
-        reps = 3 if short else (4 if self.bi >= 3 else 3)
+        rep_min = 4 if short else 6
+        rep_mi = round(rep_min * 60 / self.ctx.zones.threshold_pace_s_per_mi, 2)
+        reps = max(2, min(5, int(miles * 0.45 / rep_mi)))
+        cool = 0.8
+        warm = max(1.0, round(miles - reps * rep_mi - cool, 1))
         seg = [
-            RunSegment(label="Warm-up miles", zone="Z2", distance_mi=round(max(1.0, miles * 0.45), 1)),
+            RunSegment(label="Warm-up miles", zone="Z2", distance_mi=warm),
             RunSegment(
-                label="Threshold reps",
+                label=f"Threshold reps ({rep_min} min)",
                 zone="T",
-                duration_min=6 if not short else 4,
+                distance_mi=rep_mi,
                 reps=reps,
                 recovery_min=2,
             ),
-            RunSegment(label="Cool-down jog", zone="Z1", distance_mi=1.0),
+            RunSegment(label="Cool-down jog", zone="Z1", distance_mi=cool),
         ]
         return D.make_session(
             self.ctx,

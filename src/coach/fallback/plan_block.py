@@ -67,7 +67,7 @@ PILLARS = {
             mode="build", description="hypertrophy: 4 d/wk, 12-16 hard sets/muscle", med=3, deload_med=2
         ),
         "glycolytic": PillarPlan(mode="maintain", description="1 metcon + 1 threshold", med=2, deload_med=1),
-        "aerobic": PillarPlan(mode="build", description="ramp 15 -> 25 mi/wk", med=150, deload_med=90),
+        "aerobic": PillarPlan(mode="build", description="ramp 15 -> 25 mi/wk", med=90, deload_med=60),
     },
     3: {
         "neural": PillarPlan(mode="maintain", description="strides/sprints 1x/wk", med=1, deload_med=1),
