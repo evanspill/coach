@@ -83,7 +83,10 @@ day, minus a safety margin for the oversubscription cut-off). They live in `athl
 and never set training paces or race-day pacing directly. At every transition week the coach checks each one: the
 threshold pace the goal needs, the athlete's measured threshold pace and its trend, and when the trend gets there
 versus the last planned race that counts. If it is behind on an observed trend (two or more run tests), a proposal offers the first later edition the projection
-reaches; the annual review puts the alternative (a run-focused season) to the athlete. Each upcoming marathon gets
+reaches; the annual review puts the alternative (a run-focused season) to the athlete. The same check covers a **HYROX World Championships age-group slot** (placement, not
+a time standard: Pro-division results only, compared with the age-group winner's time at the targeted qualifier)
+and **CrossFit Quarterfinals** (top 25% of the Open, Rx), which stays `building` until the Rx skills are competent
+and the overhead, Olympic and kipping families are unlocked. Each upcoming marathon gets
 its own **race target**, a stepping stone set from what fitness will support on race day and approved by the
 athlete. Race-day pacing comes from current fitness; an approved target is paced only if fitness supports it.
 
@@ -138,3 +141,5 @@ Single studies, mouse studies, or hype never change my programming. Every cited 
 - 2026-11-10: long-term goals (Boston qualifier, age-graded) with feasibility checks every transition; race targets
   from fitness as approved stepping stones; race-day pacing from current fitness; Riegel + 10-min penalty until a
   marathon result exists (athlete-approved).
+- 2026-11-10: HYROX World Championships age-group slot and CrossFit Quarterfinals added as long-term goals
+  (athlete-approved).

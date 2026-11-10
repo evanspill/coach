@@ -23,8 +23,8 @@
     },
     "outcomes": [
       "Qualify for the Boston Marathon (age-group standard with a safety margin), via stepping-stone marathons",
-      "CrossFit Open",
-      "Hyrox",
+      "CrossFit Open -> Quarterfinals (top 25% Rx) once the Rx skills and movement families are rebuilt",
+      "Hyrox -> a World Championships age-group slot (Pro division)",
       "Longevity",
       "Train with no exercise limitations (rebuild back and shoulder capacity until every movement family is unlocked)"
     ],
@@ -52,6 +52,54 @@
         "source": "https://www.baa.org/races/boston-marathon/enter/qualify/history-qualifying-times (men's standards, 2027 table; cut-offs 2024-2027 ranged 4:34-6:51)",
         "assumed_gain_pct_per_year": 8.0,
         "max_gain_pct_per_year": 12.0
+      },
+      {
+        "id": "hyrox-worlds",
+        "name": "HYROX World Championships age-group slot",
+        "kind": "event_placement",
+        "race_kind": "hyrox",
+        "event": "HYROX World Championships",
+        "event_date": "2028-06-15",
+        "date_confirmed": false,
+        "qualifying_closes_days_before": 30,
+        "division": "pro",
+        "place": 1,
+        "age_band_years": 5,
+        "reference_times": [],
+        "assumed_gain_pct_per_year": null,
+        "max_gain_pct_per_year": 10.0,
+        "source": "https://maintain.hyrox.com/rulebooks/HYROX_RulebookSingles_EN.pdf (26/27 season: qualifying from Pro division races; one slot per age group per qualifying event; initial offers only, no roll-down). Event date and window are estimates until HYROX publishes them."
+      },
+      {
+        "id": "crossfit-quarterfinals",
+        "name": "CrossFit Quarterfinals",
+        "kind": "open_percentile",
+        "race_kind": "crossfit_open",
+        "event": "CrossFit Quarterfinals",
+        "event_date": "2028-03-13",
+        "date_confirmed": false,
+        "qualifying_closes_days_before": 7,
+        "division": "rx",
+        "top_pct": 25,
+        "prerequisite_skills": [
+          "kipping_pull_up",
+          "chest_to_bar",
+          "toes_to_bar",
+          "bar_muscle_up",
+          "power_clean",
+          "squat_clean",
+          "snatch",
+          "overhead_squat",
+          "jerk"
+        ],
+        "prerequisite_families": [
+          "overhead",
+          "olympic",
+          "kipping"
+        ],
+        "assumed_gain_pct_per_year": null,
+        "max_gain_pct_per_year": 0.0,
+        "source": "https://games.crossfit.com/article/a-guide-to-competing-in-crossfit-in-2027 (top 25% worldwide of each individual and age-group division advance from the Open; 2027 Quarterfinals Mar 15-22). 2028 date is an estimate."
       }
     ]
   },

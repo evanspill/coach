@@ -12,20 +12,28 @@ class GoalCheck(Model):
     """One feasibility check of a long-term goal (written at every transition week, or on demand)."""
 
     date: dt.date
+    kind: str = "marathon_time"
     event_date: dt.date
     qualify_by: dt.date
     age_on_event: int
-    standard_s: int | None  # None: no standard for this age in the config
-    required_s: int | None  # standard minus margin
-    required_threshold_s_per_mi: float | None
-    current_threshold_s_per_mi: float | None
+    # generic view: what the goal needs vs where the athlete is (lower is better for every kind here)
+    metric: str = ""  # e.g. "marathon time", "HYROX Pro time", "Open percentile"
+    unit: str = ""  # "s" or "%"
+    required_value: float | None = None
+    current_value: float | None = None
+    missing: list[str] = Field(default_factory=list)  # prerequisites not met yet
+    # marathon_time detail
+    standard_s: int | None = None  # None: no standard for this age in the config
+    required_s: int | None = None  # standard minus margin
+    required_threshold_s_per_mi: float | None = None
+    current_threshold_s_per_mi: float | None = None
     threshold_source: str = ""
     predicted_marathon_s: int | None = None  # what current threshold pace supports (Riegel)
     rate_pct_per_year: float | None = None  # threshold-pace improvement used for the projection
     rate_basis: str = ""
     projected_date: dt.date | None = None  # when threshold pace reaches the requirement at that rate
     deadline: dt.date | None = None  # the last planned marathon that counts (or qualify_by)
-    status: Literal["achieved", "on_track", "behind", "unknown"]
+    status: Literal["achieved", "on_track", "behind", "building", "unknown"]
     note: str = ""
 
 

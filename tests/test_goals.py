@@ -116,8 +116,9 @@ def test_goal_progress_timeline_and_race_target(b1):
     hist = assess.threshold_history(ctx)
     cur = assess.current_threshold(ctx, hist)
     checks = assess.goal_progress(ctx, today)
-    assert len(checks) == len(ctx.cfg.profile.goals.long_term) == 1
+    assert len(checks) == len(ctx.cfg.profile.goals.long_term) == 3
     i, c = checks[0]
+    assert {c.kind for _, c in checks} == {"marathon_time", "event_placement", "open_percentile"}
     rec = ctx.state.get("goal_progress", ctx.cfg.profile.goals.long_term[0].id)
     assert rec.latest == c
     if cur is not None:
@@ -192,3 +193,68 @@ def test_penalty_until_a_marathon_result(b1):
         EventResult(event_id="marathon-2027", date=dt.date(2027, 10, 17), result_time_s=12000),
     )
     assert assess.marathon_model(ctx)[1] == 0
+
+
+HYROX = LongTermGoal(
+    id="hx",
+    name="HYROX Worlds slot",
+    kind="event_placement",
+    race_kind="hyrox",
+    event="HYROX World Championships",
+    event_date=dt.date(2028, 6, 15),
+    qualifying_closes_days_before=30,
+    division="pro",
+    reference_times=[{"event": "HYROX X", "date": "2027-05-01", "age_group": "35-39", "time": "1:05:00"}],
+    assumed_gain_pct_per_year=None,
+    max_gain_pct_per_year=10,
+)
+CF = LongTermGoal(
+    id="qf",
+    name="CrossFit Quarterfinals",
+    kind="open_percentile",
+    race_kind="crossfit_open",
+    event="CrossFit Quarterfinals",
+    event_date=dt.date(2028, 3, 13),
+    qualifying_closes_days_before=7,
+    division="rx",
+    top_pct=25,
+)
+
+
+def test_placement_goal():
+    assert G.age_group(35) == "35-39" and G.age_group(33) == "30-34"
+    c = G.check_placement(HYROX, ID, [], [], TODAY)
+    assert c.status == "unknown" and c.required_value == 3900 and "first race" in c.note
+    one = G.check_placement(HYROX, ID, [], [(dt.date(2027, 3, 1), 4500.0)], TODAY)
+    assert one.status == "unknown" and "no trend" in one.rate_basis and "+15.4%" in one.note
+    two = G.check_placement(
+        HYROX, ID, [], [(dt.date(2027, 3, 1), 4500.0), (dt.date(2027, 9, 1), 4300.0)], TODAY
+    )
+    assert two.status in {"on_track", "behind"} and two.rate_pct_per_year and two.rate_pct_per_year > 0
+    assert G.check_placement(HYROX, ID, [], [(dt.date(2027, 3, 1), 3800.0)], TODAY).status == "achieved"
+    noref = HYROX.model_copy(update={"reference_times": []})
+    assert "no reference time for 35-39" in G.check_placement(noref, ID, [], [], TODAY).note
+
+
+def test_percentile_goal():
+    assert G.check_percentile(CF, ID, [], ["Bar muscle-up"], TODAY).status == "building"
+    assert G.check_percentile(CF, ID, [], [], TODAY).status == "unknown"
+    assert G.check_percentile(CF, ID, [(dt.date(2027, 3, 1), 20.0)], [], TODAY).status == "achieved"
+    better = [(dt.date(2027, 3, 1), 45.0), (dt.date(2028, 3, 1), 30.0)]
+    c = G.check_percentile(CF, ID, better, [], dt.date(2028, 3, 5))
+    assert (
+        c.rate_pct_per_year == pytest.approx(15.0, abs=0.1) and c.status == "behind"
+    )  # ~4 months past the window
+    early = [(dt.date(2026, 3, 1), 60.0), (dt.date(2027, 3, 1), 40.0)]
+    assert G.check_percentile(CF, ID, early, [], dt.date(2027, 3, 5)).status == "on_track"
+
+
+def test_prerequisites_and_description(b1):
+    ctx, _, _ = b1
+    qf = next(g for g in ctx.cfg.profile.goals.long_term if g.kind == "open_percentile")
+    missing = assess.missing_prerequisites(ctx, qf)
+    assert any("muscle-up" in m.lower() for m in missing) and any("unlocked" in m for m in missing)
+    c = G.check_percentile(qf, ctx.cfg.profile.identity, [], missing, TODAY)
+    assert assess.describe_check(qf.name, c).startswith("CrossFit Quarterfinals: building.")
+    hx = next(g for g in ctx.cfg.profile.goals.long_term if g.kind == "event_placement")
+    assert assess.goal_timeline_proposal(ctx, ctx.cfg.profile.goals.long_term.index(hx), c, TODAY) is None

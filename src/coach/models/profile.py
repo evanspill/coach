@@ -33,21 +33,53 @@ class AgeStandard(Model):
     time: str  # H:MM:SS
 
 
+class ReferenceTime(Model):
+    """A placement benchmark looked up from official results, e.g. the Pro age-group winner at a qualifying event."""
+
+    event: str
+    date: dt.date
+    age_group: str  # e.g. "30-34"
+    time: str  # H:MM:SS
+    source: str = ""
+
+
 class LongTermGoal(Model):
-    """A goal that may take more than one season, e.g. a qualifying time. The coach tracks feasibility at every
-    transition week and proposes moving the target event when the projection says it won't be reached in time."""
+    """A goal that may take more than one season. The coach checks feasibility at every transition week and never
+    changes a long-term goal without the athlete's approval.
+
+    kinds:
+      marathon_time    an age-graded qualifying time (Boston): standards, margin_s
+      event_placement  a championship slot won by placing in an age group (HYROX Worlds): division, place,
+                       reference_times (age-group results the coach looks up for the races being targeted)
+      open_percentile  a percentile of a worldwide online stage (CrossFit Open -> Quarterfinals): top_pct, division,
+                       prerequisite skills and movement families (Rx needs them)"""
 
     id: str
     name: str
-    kind: Literal["marathon_time"]
+    kind: Literal["marathon_time", "event_placement", "open_percentile"]
+    race_kind: Literal["marathon", "crossfit_open", "hyrox", "half_marathon", "other"] = "marathon"
     event: str  # the event the goal qualifies for
     event_date: dt.date  # the edition targeted; age is taken on this day
-    qualifying_closes_days_before: int  # last day a qualifying race counts, relative to event_date
-    standards: list[AgeStandard] = Field(default_factory=list)  # age-graded (sex from identity)
-    target_time: str | None = None  # a fixed time instead of age-graded standards
-    margin_s: int = 0  # how far under the standard to aim (oversubscribed events)
-    source: str = ""  # where the standards came from
-    assumed_gain_pct_per_year: float = 8.0  # threshold-pace improvement assumed before there are two tests
+    date_confirmed: bool = True  # False: an estimate until the organiser publishes the date
+    qualifying_closes_days_before: int = 0  # last day a qualifying result counts, relative to event_date
+    standards: list[AgeStandard] = Field(
+        default_factory=list
+    )  # marathon_time: age-graded (sex from identity)
+    target_time: str | None = None  # marathon_time: a fixed time instead of age-graded standards
+    margin_s: int = 0  # marathon_time: how far under the standard to aim (oversubscribed events)
+    division: str | None = None  # results count only in this division (e.g. "pro", "rx")
+    place: int = 1  # event_placement: age-group place that earns the slot
+    age_band_years: int = 5  # event_placement: width of age groups
+    reference_times: list[ReferenceTime] = Field(default_factory=list)
+    top_pct: float | None = None  # open_percentile: e.g. 25 = top 25% worldwide
+    prerequisite_skills: list[str] = Field(default_factory=list)  # skills.yaml ids that must be competent
+    prerequisite_families: list[str] = Field(
+        default_factory=list
+    )  # movement families that must be at the top rung
+    source: str = ""  # where the qualification rules came from
+    assumed_gain_pct_per_year: float | None = (
+        8.0  # improvement assumed before an observed trend (None: wait for data)
+    )
     max_gain_pct_per_year: float = 12.0  # cap on the observed rate when projecting (gains slow down)
 
     @property

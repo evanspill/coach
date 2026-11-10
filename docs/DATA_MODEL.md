@@ -110,7 +110,7 @@ capture and kept what changes a coaching decision:
 | Training journal (reflections, wins, struggles, life events) | `JournalEntry` | Context numbers miss (work stress, a great session, a family event). The review reads it before judging the numbers; wins feed "celebrate real progress". |
 | Injury / illness log | `HealthEvent` | Replaces a single "current illness" flag with history: onset, region, severity, resolution and who cleared a red flag. Lets reviews and the physio see patterns. |
 | Availability calendar (travel, closures, busy days) | `Availability` | Coaches plan around life. The Sunday plan now applies it automatically (no-gym days get travel sessions). |
-| Competition results | `EventResult` | Results history beyond test days (Open scores, race splits); feeds the post-event review and the season review. |
+| Competition results | `EventResult` | Results history beyond test days (Open scores, race splits); feeds the post-event review, the season review and the long-term goal checks (`division`, `age_group`, `place_in_age_group`, `top_pct` for the Open percentile). |
 | Bloodwork | `LabResult` per marker | Trends over panels need structured values, not prose. Still "discuss with your physician" only. |
 | Tape measurements | `Measurement` | Waist and other girths complement the noisy bioimpedance body-fat trend. |
 | Coach's notes on the athlete | `Note` (rendered to `notes.md`) | Structured, dated, categorised facts instead of free text; still readable as one page. |

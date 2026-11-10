@@ -24,7 +24,12 @@ workout releases (Thursday nights), after an event (post-event review).
   movement is competent and within rungs, otherwise scaled; shoulder rules apply; re-attempt only with a clear
   pacing gain and Green readiness. Fill the competition session's movements once released (validate it).
 - **Hyrox:** pacing for runs vs stations, transitions, fuelling, the fixed simulation as the rehearsal.
-- **Post-event:** record the result in `event_results` (`coach record add event_results '{...}'`) and append the review to the event plan within 3 days.
+- **Post-event:** record the result in `event_results` (`coach record add event_results '{...}'`) with `division`,
+  `age_group`, `place_in_age_group` and, for the Open, the worldwide `top_pct` from the leaderboard; these feed the
+  long-term goal checks (`coach goals --check`). Append the review to the event plan within 3 days.
+- **HYROX goal:** only Pro-division results count toward a World Championships slot. When a qualifying race is
+  picked, look up the place-1 time for the athlete's age group at that event's previous edition (official results),
+  and propose adding it to the goal's `reference_times` (a config change, so a proposal).
 
 ## Writes
 `event_plans`, `event_results`, adjusted week plans (validated), proposals (`race_plan`).

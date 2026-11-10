@@ -82,8 +82,11 @@ class EventResult(Model):
     date: dt.date
     result_time_s: int | None = None
     score: str | None = None  # e.g. Open "212 reps"
-    division: str | None = None  # e.g. rx / scaled
+    division: str | None = None  # e.g. rx / scaled / pro / open
     placement: str | None = None
+    age_group: str | None = None  # e.g. "30-34"
+    place_in_age_group: int | None = None
+    top_pct: float | None = None  # worldwide percentile rank, e.g. 18.5 = top 18.5% (CrossFit Open)
     splits: list[dict[str, Any]] = Field(default_factory=list)
     conditions: dict[str, Any] = Field(default_factory=dict)
     notes: str = ""

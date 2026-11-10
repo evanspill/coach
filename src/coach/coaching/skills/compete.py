@@ -31,7 +31,7 @@ def race_pacing(ctx: Context, race_id: str) -> dict:
     else:
         chosen, why = fitness, "No approved race target: pacing from current fitness."
     long_term = []
-    for g in ctx.cfg.profile.goals.long_term:
+    for g in (g for g in ctx.cfg.profile.goals.long_term if g.kind == "marathon_time"):
         rec = ctx.state.get("goal_progress", g.id)
         if rec and rec.latest and rec.latest.required_s:
             long_term.append(

@@ -364,6 +364,32 @@ def marathon_model(ctx: Context) -> tuple[float, int, str]:
     )
 
 
+def _results(ctx: Context, goal):
+    """Event results that count for a goal: races of its kind, in its division (if it names one), oldest first."""
+    ids = {r.id for r in ctx.cfg.profile.races if r.kind == goal.race_kind}
+    out = []
+    for key in ctx.state.keys("event_results"):
+        e = ctx.state.get("event_results", key)
+        if (
+            e
+            and e.event_id in ids
+            and (not goal.division or (e.division or "").lower() == goal.division.lower())
+        ):
+            out.append(e)
+    return sorted(out, key=lambda e: e.date)
+
+
+def missing_prerequisites(ctx: Context, goal) -> list[str]:
+    skills = ctx.cfg.skills.skills
+    out = [skills[s].name for s in goal.prerequisite_skills if s in skills and not skills[s].competent]
+    for fam in goal.prerequisite_families:
+        top = len(ctx.cfg.progressions.families[fam].rungs) - 1
+        st = ctx.movement.families.get(fam)
+        if st is None or st.rung < top:
+            out.append(f"{fam} unlocked ({ctx.cfg.progressions.families[fam].rungs[top].name})")
+    return out
+
+
 def goal_progress(ctx: Context, today: dt.date) -> list[tuple[int, GoalCheck]]:
     """Check every long-term goal, append the check to goal_progress, return (goal index, check)."""
     hist = threshold_history(ctx)
@@ -371,8 +397,15 @@ def goal_progress(ctx: Context, today: dt.date) -> list[tuple[int, GoalCheck]]:
     prof = ctx.cfg.profile
     out = []
     for i, goal in enumerate(prof.goals.long_term):
-        k, pen, _ = marathon_model(ctx)
-        c = G.check(goal, prof.identity, prof.races, hist, cur, today, k, pen)
+        if goal.kind == "marathon_time":
+            k, pen, _ = marathon_model(ctx)
+            c = G.check(goal, prof.identity, prof.races, hist, cur, today, k, pen)
+        elif goal.kind == "event_placement":
+            res = [(e.date, float(e.result_time_s)) for e in _results(ctx, goal) if e.result_time_s]
+            c = G.check_placement(goal, prof.identity, prof.races, res, today)
+        else:
+            res = [(e.date, e.top_pct) for e in _results(ctx, goal) if e.top_pct is not None]
+            c = G.check_percentile(goal, prof.identity, res, missing_prerequisites(ctx, goal), today)
         rec = ctx.state.get("goal_progress", goal.id) or GoalProgress(goal_id=goal.id)
         rec.checks = [x for x in rec.checks if x.date != today] + [c]
         ctx.state.put("goal_progress", rec)
@@ -381,6 +414,13 @@ def goal_progress(ctx: Context, today: dt.date) -> list[tuple[int, GoalCheck]]:
 
 
 def describe_check(name: str, c: GoalCheck) -> str:
+    if c.kind != "marathon_time":
+        fmt = (lambda v: fmt_duration(v)) if c.unit == "s" else (lambda v: f"top {v:g}%")
+        need = f"needs {fmt(c.required_value)}" if c.required_value is not None else ""
+        now = f"now {fmt(c.current_value)}" if c.current_value is not None else ""
+        when = f"projected {c.projected_date:%b %Y}" if c.projected_date else ""
+        parts = [p for p in (need, now, when, c.rate_basis if c.rate_basis else "", c.note) if p]
+        return f"{name}: {c.status.replace('_', ' ')}. " + "; ".join(parts) + "."
     if c.required_s is None or c.required_threshold_s_per_mi is None:
         return f"{name}: {c.note}"
     need = f"{fmt_duration(c.required_s)} (needs threshold ~{fmt_pace(c.required_threshold_s_per_mi)})"
@@ -398,7 +438,8 @@ def goal_timeline_proposal(ctx: Context, index: int, c: GoalCheck, today: dt.dat
     season-focus trade-off. On the assumed rate alone (one test) the check is reported, not acted on."""
     goal = ctx.cfg.profile.goals.long_term[index]
     if (
-        c.status != "behind"
+        goal.kind != "marathon_time"
+        or c.status != "behind"
         or c.current_threshold_s_per_mi is None
         or not c.rate_basis.startswith("observed")
     ):
@@ -449,12 +490,12 @@ def propose_race_targets(ctx: Context, today: dt.date, horizon_days: int = 550) 
     if cur is None:
         return []
     goals = ctx.cfg.profile.goals.long_term
+    mg = next((g for g in goals if g.kind == "marathon_time"), None)
     k, pen, model = marathon_model(ctx)
-    rate, basis = G.gain_rate(
-        hist,
-        goals[0].assumed_gain_pct_per_year if goals else 0.0,
-        goals[0].max_gain_pct_per_year if goals else 0.0,
+    rate_or_none, basis = G.gain_rate(
+        hist, mg.assumed_gain_pct_per_year if mg else None, mg.max_gain_pct_per_year if mg else 0.0
     )
+    rate = rate_or_none or 0.0  # no trend: assume no improvement by race day
     noise = ctx.cfg.tests.tests["run_tt_30"].typical_error_pct if "run_tt_30" in ctx.cfg.tests.tests else 2.0
     out = []
     for race in ctx.cfg.profile.races:
@@ -469,7 +510,9 @@ def propose_race_targets(ctx: Context, today: dt.date, horizon_days: int = 550) 
         lt = [
             describe_check(g.name, c)
             for g in goals
-            if (rec := ctx.state.get("goal_progress", g.id)) and (c := rec.latest)
+            if g.kind == "marathon_time"
+            and (rec := ctx.state.get("goal_progress", g.id))
+            and (c := rec.latest)
         ]
         rationale = (
             f"Threshold {fmt_pace(cur[0])} ({cur[1]}) projected to {fmt_pace(pace)} by race day at {rate:g}%/yr "

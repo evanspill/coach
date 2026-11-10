@@ -36,6 +36,11 @@ description: Intake, testing and goal setting. Runs the intake questionnaire (on
    change a long-term goal silently. Each upcoming marathon gets a `race_target` proposal: what the threshold trend
    supports on race day, rounded up to the minute (re-proposed only when the prediction moves by more than the run
    test's typical error). Race targets are stepping stones; they are never set from the long-term goal.
+   Other goal kinds: `event_placement` (HYROX Worlds age-group slot: latest Pro time vs the age group's reference
+   time; trend from the athlete's own results, no assumed rate) and `open_percentile` (CrossFit Quarterfinals: Rx
+   top 25%; `building` until the prerequisite skills are competent and the movement families are unlocked, so the
+   path runs through `technique` and `rehab`, not through more conditioning). Only marathon goals get automatic
+   timeline proposals; the others are reported, and the annual review decides.
 5. Starting rungs after the baseline week: conservative; only advance a family's starting rung with a physio's
    recommendation or clean test exposures (via `rehab`).
 

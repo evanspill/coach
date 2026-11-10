@@ -140,3 +140,16 @@ Each entry: **decision** - why - how to reverse.
     After the first marathon the penalty drops and `learn` can calibrate the exponent from the real result.
 63. **`config_change` proposals without a patch record the config lock when approved**, so a change made to the
     files with the athlete's OK (like this one) is still approved, locked and in the changelog.
+64. **HYROX World Championships age-group slot as a long-term goal** (athlete-approved). There is no time standard:
+    from the 2026/27 season, slots come from Pro-division races, one per age group per qualifying event, initial
+    offers only (HYROX 26/27 rulebook). So the goal is placement-based: the athlete's latest Pro time vs the
+    place-1 time for their age group at the targeted qualifier (`reference_times`, looked up from official results
+    when a race is picked). No assumed improvement rate: the trend comes from the athlete's own Pro results. Target
+    edition 2028 (date an estimate until HYROX publishes it). - Reverse: remove the goal.
+65. **CrossFit Quarterfinals as a long-term goal** (athlete-approved): top 25% worldwide of the division in the Open
+    (CrossFit 2027 season guide), Rx. Status is `building` while the Rx prerequisites are missing (bar muscle-up,
+    chest-to-bar, toes-to-bar, kipping pull-ups, the Olympic lifts, overhead squat, jerk; overhead/Olympic/kipping
+    families unlocked), because for this athlete the limiter is skill and shoulder/back capacity, not engine. Then
+    the Open percentile trend decides. Target 2028 Open (date an estimate). - Reverse: remove the goal.
+66. **Only marathon goals get automatic timeline proposals.** Placement and percentile goals move in yearly steps
+    and depend on season focus, so their checks are reported and the annual review decides with the athlete.

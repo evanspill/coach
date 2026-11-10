@@ -118,6 +118,15 @@ def check_config_consistency(cfg: Config) -> None:
                     errors.append(
                         f"family {fam_name} rung {i}: exercise '{ex_id}' declares {ex.family}/{ex.rung}"
                     )
+    for g in cfg.profile.goals.long_term:
+        for sk in g.prerequisite_skills:
+            if sk not in cfg.skills.skills:
+                errors.append(f"goal {g.id}: prerequisite skill '{sk}' not in skills.yaml")
+        for fam in g.prerequisite_families:
+            if fam not in cfg.progressions.families:
+                errors.append(f"goal {g.id}: prerequisite family '{fam}' unknown")
+        if g.kind == "open_percentile" and g.top_pct is None:
+            errors.append(f"goal {g.id}: open_percentile needs top_pct")
     errors += _check_training(cfg)
     if errors:
         raise ValueError("config inconsistent:\n  " + "\n  ".join(errors))
