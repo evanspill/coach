@@ -175,9 +175,7 @@ def gap_analysis(ctx: Context, ts: TestSet) -> dict[str, float]:
                 continue
             tgt = b["target"][0] if isinstance(b["target"], list) else b["target"]
             val = r.comparable_value if r.comparable_value is not None else r.value
-            if b["metric"] == "bw_ratio":
-                pct = val / bw / tgt * 100
-            elif b["metric"] == "bw_ratio_per_hand":
+            if b["metric"] == "bw_ratio" or b["metric"] == "bw_ratio_per_hand":
                 pct = val / bw / tgt * 100
             elif b["metric"] == "threshold_pace_s_per_mi":
                 pct = tgt / val * 100

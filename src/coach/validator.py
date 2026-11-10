@@ -240,11 +240,11 @@ def validate_session(
 
     # --- run location / daylight ---
     home = cfg.profile.identity.home
-    if s.location == "track" or (
-        s.location == "outdoor" and S.categories(s, lib, cfg.tests) & {"run_quality"}
-    ):
-        if not in_daylight(s.date, s.start_time, s.expected_minutes, home.lat, home.lon):
-            v.append(Violation("DAYLIGHT", "track/quality work must fit inside daylight", s.id))
+    is_track_or_quality = s.location == "track" or (
+        s.location == "outdoor" and bool(S.categories(s, lib, cfg.tests) & {"run_quality"})
+    )
+    if is_track_or_quality and not in_daylight(s.date, s.start_time, s.expected_minutes, home.lat, home.lon):
+        v.append(Violation("DAYLIGHT", "track/quality work must fit inside daylight", s.id))
     return v
 
 

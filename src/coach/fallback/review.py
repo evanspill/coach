@@ -113,7 +113,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         f"- **Adherence:** {done}/{total} sessions ({pct}%)"
         + (f"; missed {', '.join(missed)}" if missed else ""),
         f"- **Running:** {run_actual} mi actual vs {run_plan} mi planned",
-        f"- **Readiness:** "
+        "- **Readiness:** "
         + (
             ", ".join(f"{s} x{states.count(s)}" for s in ("green", "yellow", "red") if states.count(s))
             or "n/a"
@@ -121,8 +121,8 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         f"- **Recovery avg:** {rec}  |  **Sleep avg:** {sleep} h",
         f"- **Weight (7-day avg):** {w_now} kg"
         + (f" ({w_now - w_prev:+.2f} vs last week)" if w_now and w_prev else ""),
-        f"- **Peak joint ratings:** " + ", ".join(f"{k} {v}" for k, v in joints.items()),
-        f"- **Planned hard sets:** "
+        "- **Peak joint ratings:** " + ", ".join(f"{k} {v}" for k, v in joints.items()),
+        "- **Planned hard sets:** "
         + ", ".join(
             f"{m} {v:g}"
             for m, v in sorted(planned_sets.items())

@@ -236,7 +236,7 @@ def _travel_session(ctx: Context, day: dt.date, original: Session) -> Session:
         "full_body",
         "Travel: bodyweight strength",
         "Keep the habit; no equipment needed",
-        [D.warmup("upper", P), circuit, cond, D.cooldown(P)],
+        [D.warmup("full", P), circuit, cond, D.cooldown(P)],
         location="travel",
     )
 

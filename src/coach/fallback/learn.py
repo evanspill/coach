@@ -42,8 +42,8 @@ def calibration(ctx: Context, day: dt.date, weeks: int = 8) -> tuple[str, object
                 "calibration",
                 "learn",
                 f"Trial: Green recovery cut-off {th.recovery_green_min} -> {new}",
-                f"4-week N=1 trial. Metric: next-day session RPE and completion on 'new Green' days. Stop rule: revert if RPE on those days "
-                f">= Yellow-day mean + 0.5 or any joint flag.",
+                "4-week N=1 trial. Metric: next-day session RPE and completion on 'new Green' days. Stop rule: revert if RPE on those days "
+                ">= Yellow-day mean + 0.5 or any joint flag.",
                 f"Yellow days predicted RPE only +{diff:.2f} vs Green over {weeks} weeks (n={len(y)}).",
                 day,
                 before={"recovery_green_min": th.recovery_green_min},

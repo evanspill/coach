@@ -141,7 +141,9 @@ def sync(
     hevy_w = run("hevy", lambda: sources.hevy.workouts(start, today)) or []
     acts = run("intervals_activities", lambda: sources.intervals.activities(start, today)) or []
     zones = state.zones() or {}
-    merged = merge_sessions(whoop_w, [*hevy_w, *acts], zones.get("lthr"))
+    merged = merge_sessions(
+        whoop_w, [*hevy_w, *acts], zones.get("lthr") or 165
+    )  # default LTHR until the first TT
     for s in merged:
         s.planned_session_id = _plan_link(state, s)
         items.append(("session", _session_key(s), s.date, s.model_dump(mode="json", exclude_none=True)))

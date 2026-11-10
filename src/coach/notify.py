@@ -13,7 +13,7 @@ def _headline(rec: DayRecord) -> str:
         return f"Rest. {s.intent}"
     main = ""
     for b in s.blocks:
-        if b.kind in {"strength", "test"} and b.items:
+        if b.kind == "strength" and b.items:
             it = b.items[0]
             load = f" @ {it.load_note}" if it.load_note and it.load_kg else ""
             main = f" Main: {it.sets}x{it.reps or ''} {it.exercise_id.replace('_', ' ')}{load}."

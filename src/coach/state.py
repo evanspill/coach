@@ -198,7 +198,7 @@ class State:
         for c in raw:
             by_date.setdefault(c.date, []).append(c)
         merged = []
-        for day, cs in sorted(by_date.items()):
+        for _day, cs in sorted(by_date.items()):
             cs.sort(key=lambda c: CHECKIN_PRIORITY.get(c.source, 9))
             base = cs[0].model_copy(deep=True)
             for other in cs[1:]:

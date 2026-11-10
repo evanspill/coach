@@ -67,7 +67,7 @@ RUN_SHARE = {
 
 
 def _sets(n: int, week_type: str) -> int:
-    return max(1, math.ceil(n * 0.55)) if week_type in D.DELOAD_LIKE else n
+    return max(1, math.floor(n * 0.55 + 0.5)) if week_type in D.DELOAD_LIKE else n
 
 
 class WeekBuilder:
