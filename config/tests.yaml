@@ -1,0 +1,220 @@
+# Test battery. Rep-maxes only (no true 1RMs), at the current movement-readiness rung.
+# Variant factors convert a result to the reference variant so blocks stay comparable (estimates; the variant is always recorded).
+standard_conditions:
+  time_of_day: "09:00-10:30, same as training"
+  readiness_required: [green, yellow]
+  reschedule_window_days: 2
+  warmup: "General: 5 min easy erg, then the session's joint-specific warm-up (McGill Big 3 before lower-body tests)."
+tests:
+  broad_jump:
+    name: Standing broad jump
+    quality: neural power
+    pillar: neural
+    category: power
+    protocol: {procedure: "3 attempts, measured heel-to-start line, best counts. 2 practice jumps at ~80%.", rest: "90 s between attempts"}
+    equipment: [bodyweight]
+    location: gym
+    safety: "Stop if any knee/Achilles pain. Stick the landing; no attempt counts if you fall back."
+    metric: distance
+    unit: cm
+    scoring: best_of
+    conditions: "Same floor (gym turf), same shoes, fresh: first after warm-up."
+  hinge_rm:
+    name: Hinge 3-5RM (current hinge rung)
+    quality: maximal strength (posterior chain)
+    pillar: force
+    category: strength
+    protocol: {procedure: "Work up in 4-6 sets to a 3-5RM at RPE 9 (1 rep in reserve). No grinding, stop on any technique break or back discomfort > 2/10.", rest: "3 min"}
+    equipment: [trap_bar]
+    location: gym
+    safety: "Rep-max only, never a true 1RM. Belt optional. Stop on pain > 2/10."
+    metric: e1rm
+    unit: kg
+    scoring: epley_e1rm
+    family: hinge
+    reference_variant: trap_bar_deadlift_high
+    variants:
+      trap_bar_deadlift_high: 1.0
+      trap_bar_deadlift_low: 1.05
+      block_pull: 1.08
+      conventional_deadlift: 1.10
+  squat_rm:
+    name: Squat 5RM (current squat rung)
+    quality: maximal strength (knee dominant)
+    pillar: force
+    category: strength
+    protocol: {procedure: "Work up to a 5RM at RPE 9 on the current squat rung (box height recorded).", rest: "3 min"}
+    equipment: [safety_squat_bar, power_rack, plyo_box]
+    location: gym
+    safety: "Safeties set. Stop on back discomfort > 2/10."
+    metric: e1rm
+    unit: kg
+    scoring: epley_e1rm
+    family: squat
+    reference_variant: ssb_box_squat
+    variants:
+      ssb_box_squat: 1.0
+      ssb_squat: 0.97
+      high_bar_back_squat: 0.92
+  db_press_5rm:
+    name: Neutral-grip DB press 5RM
+    quality: upper-body pressing strength
+    pillar: force
+    category: strength
+    protocol: {procedure: "Work up to a 5RM (per-hand dumbbell) at RPE 9.", rest: "2-3 min"}
+    equipment: [dumbbells, flat_bench]
+    location: gym
+    safety: "Shoulder pain > 2/10 ends the test."
+    metric: e1rm
+    unit: kg
+    scoring: epley_e1rm
+    reference_variant: db_bench_press_neutral
+    variants: {db_bench_press_neutral: 1.0}
+  pullups_max:
+    name: Strict pull-ups, max reps
+    quality: relative pulling strength
+    pillar: force
+    category: strength
+    protocol: {procedure: "One set, dead hang start, chin over bar, full lockout each rep. No kipping.", rest: "n/a"}
+    equipment: [pullup_bar]
+    location: gym
+    safety: "Stop on shoulder pain > 2/10."
+    metric: reps
+    unit: reps
+    scoring: max_reps
+  run_tt_30:
+    name: 30-minute solo time trial
+    quality: threshold (LTHR, threshold pace)
+    pillar: aerobic
+    category: run
+    protocol: {procedure: "15 min easy + 4 strides, then run 30 min as hard as you can sustain evenly. Lap at 10:00. Avg HR and pace of the final 20 min give LTHR and threshold pace.", rest: "n/a"}
+    equipment: [bodyweight]
+    location: outdoor
+    route: farmington_river_trail
+    indoor_variant: {route: gym_treadmill, incline_pct: 1.0, location: gym}
+    safety: "If you have not run consistently, the coach may substitute run_submax_drift. Stop with any chest pain, dizziness or calf/Achilles pain."
+    metric: threshold_pace
+    unit: s_per_mi
+    scoring: lthr_from_last20
+    heat_adjustment: {per_f_above_60: 0.6, per_f_below_40: 0.3}
+  run_submax_drift:
+    name: Submaximal Zone 2 drift run (40 min)
+    quality: aerobic fitness estimate (low risk)
+    pillar: aerobic
+    category: run
+    protocol: {procedure: "10 min easy, then 30 min at a locked HR (≈ 75% of estimated max). Record pace for each half.", rest: "n/a"}
+    equipment: [bodyweight]
+    location: outdoor
+    route: farmington_river_trail
+    safety: "Use when a full 30-min TT is judged too risky after a low-volume period."
+    metric: threshold_pace_estimate
+    unit: s_per_mi
+    scoring: submax_estimate
+  z2_drift_60:
+    name: 60-minute Zone 2 cardiac drift test
+    quality: aerobic durability
+    pillar: aerobic
+    category: run
+    protocol: {procedure: "60 min at a locked Zone 2 pace (flat course or treadmill 1%). Compare HR:pace between halves.", rest: "n/a"}
+    equipment: [bodyweight]
+    location: outdoor
+    route: farmington_river_trail
+    safety: "Abort if HR exceeds the Z2 ceiling + 10 bpm."
+    metric: drift_pct
+    unit: pct
+    scoring: cardiac_drift
+    pass_below: 5.0
+  row_2k:
+    name: 2 km row
+    quality: engine (aerobic power)
+    pillar: glycolytic
+    category: engine
+    protocol: {procedure: "Damper 5-6 (drag factor 120-130 recorded). Even split strategy.", rest: "n/a"}
+    equipment: [rowerg]
+    location: gym
+    safety: "Neutral spine at the catch; stop on back pain."
+    metric: time
+    unit: s
+    scoring: row_watts
+  bike_10min:
+    name: Echo bike 10-minute max calories
+    quality: engine (glycolytic power)
+    pillar: glycolytic
+    category: engine
+    protocol: {procedure: "10 min for max calories, even pacing.", rest: "n/a"}
+    equipment: [echo_bike]
+    location: gym
+    safety: "None beyond standard."
+    metric: calories
+    unit: cal
+    scoring: max_reps
+  benchmark_wod:
+    name: "Coach Benchmark A (repeated exactly)"
+    quality: mixed-modal capacity
+    pillar: glycolytic
+    category: engine
+    protocol: {procedure: "4 rounds for time: 500 m row, 15 KB swings (53 lb), 10 box step-overs (24 in), 10 burpees. 20 min cap.", rest: "n/a"}
+    equipment: [rowerg, kettlebells, plyo_box]
+    location: gym
+    safety: "No overhead work, back-friendly hinge."
+    metric: time
+    unit: s
+    scoring: time
+  open_repeat:
+    name: Past CrossFit Open workout repeat
+    quality: Open readiness
+    pillar: glycolytic
+    category: engine
+    protocol: {procedure: "Workout chosen by assess at block start; must pass the shoulder rules (no fatigued high-rep overhead snatching; substitute if needed). Repeat exactly at block end.", rest: "n/a"}
+    equipment: [bodyweight]
+    location: gym
+    safety: "Movement substitutions respect current rungs and skills.yaml."
+    metric: score
+    unit: reps
+    scoring: max_reps
+  hyrox_sim:
+    name: Hyrox simulation segment (fixed)
+    quality: compromised running / Hyrox engine
+    pillar: glycolytic
+    category: engine
+    protocol: {procedure: "4 x [1 km treadmill run + station]: 1000 m SkiErg, 50 m sled push (Torque Tank M1, fixed resistance), 50 m sled pull, 1000 m row. For time.", rest: "n/a"}
+    equipment: [treadmill, skierg, sled, rowerg]
+    location: gym
+    safety: "Standard."
+    metric: time
+    unit: s
+    scoring: time
+  body_comp:
+    name: Body composition (7-day average)
+    quality: body composition
+    pillar: body
+    category: body
+    protocol: {procedure: "Withings scale every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).", rest: "n/a"}
+    equipment: []
+    location: home
+    safety: "Bioimpedance body fat is noisy: use the trend. Optional DEXA for an anchor."
+    metric: weight_kg
+    unit: kg
+    scoring: seven_day_avg
+    passive: true
+  vitals:
+    name: RHR / HRV baselines (28-day)
+    quality: autonomic baseline
+    pillar: body
+    category: body
+    protocol: {procedure: "Computed from Whoop: 28-day mean RHR and ln(rMSSD).", rest: "n/a"}
+    equipment: []
+    location: home
+    safety: "n/a"
+    metric: rhr_bpm
+    unit: bpm
+    scoring: rolling_baseline
+    passive: true
+batteries:
+  baseline: [broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp, vitals]
+  always_tracked: [hinge_rm, db_press_5rm, body_comp, vitals]
+  block_candidates:
+    B1: [hinge_rm, squat_rm, db_press_5rm, pullups_max, broad_jump, row_2k, run_tt_30]
+    B2: [hinge_rm, squat_rm, db_press_5rm, run_tt_30, body_comp]
+    B3: [run_tt_30, z2_drift_60, hyrox_sim, row_2k]
+    B4: [run_tt_30, hyrox_sim]

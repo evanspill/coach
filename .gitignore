@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+# progress photos and any raw API dumps never go in git
+state/photos/
+state/raw/
+*.raw.json

@@ -1,0 +1,13 @@
+# Behaviour settings. Threshold changes live in athlete_context.json and need an approved proposal.
+push:
+  enabled: false          # shadow mode: plans are built and validated, pushes are dry-run only
+approval:
+  weekly_plan: manual     # manual | auto
+  daily_adjustments: auto # small changes are applied automatically
+  manual_if:
+    - session_type_swap   # session swapped for a different type
+    - deload_pulled_forward
+paused: false
+notification_detail: normal   # brief | normal
+validator:
+  max_attempts: 3             # Claude revisions before the deterministic fallback
