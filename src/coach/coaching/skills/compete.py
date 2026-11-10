@@ -3,14 +3,48 @@
 import datetime as dt
 
 from coach.coaching.context import Context
+from coach.engine import goals as G
 from coach.engine.units import fmt_duration, fmt_pace
 
+goal_seconds = G.hms
 
-def goal_seconds(goal: str) -> int:
-    parts = [int(x) for x in goal.split(":")]
-    while len(parts) < 3:
-        parts.insert(0, 0)
-    return parts[0] * 3600 + parts[1] * 60 + parts[2]
+
+def race_pacing(ctx: Context, race_id: str) -> dict:
+    """Race-day pace from current fitness. An approved target is used only if fitness supports it (within the run
+    test's typical error); otherwise the plan paces from fitness and says so. Long-term goals are shown, never paced."""
+    from coach.coaching.skills.assess import marathon_model
+
+    k, pen, model = marathon_model(ctx)
+    fitness = G.marathon_from_threshold(ctx.zones.threshold_pace_s_per_mi, k, pen)
+    noise = ctx.cfg.tests.tests["run_tt_30"].typical_error_pct if "run_tt_30" in ctx.cfg.tests.tests else 2.0
+    t = ctx.state.get("race_targets", race_id)
+    if t is not None and t.status == "approved":
+        target = G.hms(t.target_time)
+        if target >= fitness * (1 - noise / 100):
+            chosen, why = target, f"Approved target {t.target_time}; current fitness supports it."
+        else:
+            chosen, why = (
+                fitness,
+                f"Approved target {t.target_time} is faster than current fitness supports: pacing from fitness. "
+                "Run the first half at this pace; only press after 20 mi if it feels controlled.",
+            )
+    else:
+        chosen, why = fitness, "No approved race target: pacing from current fitness."
+    long_term = []
+    for g in ctx.cfg.profile.goals.long_term:
+        rec = ctx.state.get("goal_progress", g.id)
+        if rec and rec.latest and rec.latest.required_s:
+            long_term.append(
+                f"Long-term: {g.name} needs {fmt_duration(rec.latest.required_s)} "
+                f"(status: {rec.latest.status.replace('_', ' ')}). Not used for pacing."
+            )
+    return {
+        "pace_s_per_mi": chosen / G.MARATHON_MI,
+        "fitness_s": fitness,
+        "model": model,
+        "why": why,
+        "long_term": long_term,
+    }
 
 
 def taper_volumes(base_weekly_miles: float) -> list[float]:
@@ -25,20 +59,16 @@ def marathon_plan(ctx: Context, race_id: str | None = None) -> str:
         else ctx.cfg.profile.race("marathon")
     )
     assert race is not None, "no marathon in races"
-    target = goal_seconds(ctx.cfg.profile.goals.marathon_target)
-    pace = target / 26.2188
     z = ctx.zones
+    pacing = race_pacing(ctx, race.id)
+    pace = pacing["pace_s_per_mi"]
     lines = [
         f"# Race plan: {race.name} ({race.date}){'' if race.confirmed else ' - DATE NOT CONFIRMED'}",
         "",
-        f"**Goal:** {fmt_duration(target)} = {fmt_pace(pace)} average. Current threshold pace {fmt_pace(z.threshold_pace_s_per_mi)} "
-        f"(goal MP is {pace / z.threshold_pace_s_per_mi:.0%} of threshold pace: "
-        + (
-            "realistic"
-            if pace / z.threshold_pace_s_per_mi >= 1.06
-            else "aggressive: re-check after the next TT"
-        )
-        + ").",
+        f"**Pacing for:** {fmt_duration(pace * G.MARATHON_MI)} = {fmt_pace(pace)} average. {pacing['why']}",
+        f"Current threshold pace {fmt_pace(z.threshold_pace_s_per_mi)} supports about {fmt_duration(pacing['fitness_s'])} "
+        f"({pacing['model']}).",
+        *pacing["long_term"],
         "",
         "## Pacing",
         f"- Miles 1-3: {fmt_pace(pace + 10)}-{fmt_pace(pace + 5)} (settle, HR below {z.hr('MP')[0]}).",

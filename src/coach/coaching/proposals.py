@@ -90,12 +90,12 @@ def approve(state: Store, pid: str, day: dt.date, cfg: Config, note: str = "") -
             plan.approval = "approved"
             state.put_ref(p.target, plan)
             actions.append(f"approved {p.target}")
-    elif p.kind == "block_goal" and p.target:
-        goal = state.get_ref(p.target)
-        if goal:
-            goal.status = "approved"
-            state.put_ref(p.target, goal)
-            actions.append(f"approved goal {goal.block_id}")
+    elif p.kind in {"block_goal", "race_target"} and p.target:
+        rec = state.get_ref(p.target)
+        if rec:
+            rec.status = "approved"
+            state.put_ref(p.target, rec)
+            actions.append(f"approved {p.target}")
     elif p.payload and "records" in p.payload:
         for ref, content in p.payload["records"].items():
             state.put_ref(ref, content)
@@ -107,6 +107,10 @@ def approve(state: Store, pid: str, day: dt.date, cfg: Config, note: str = "") -
         actions.append(
             f"config patched: {'.'.join(p.payload['config_patch']['path'])} = {p.payload['config_patch']['value']}"
         )
+        log_changelog(state, day, p)
+    elif p.kind == "config_change":  # a change already made to the files with the athlete's OK: lock it in
+        record_config_lock(state, load_config(cfg.root), p.id, day)
+        actions.append("config lock recorded")
         log_changelog(state, day, p)
     p.status = "approved"
     p.history.append(ProposalEvent(at=day, status="approved", note=note))

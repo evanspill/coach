@@ -9,6 +9,6 @@ pillars:
     - {test: db_press_5rm, metric: bw_ratio_per_hand, target: [0.42, 0.5], note: "per-hand DB e1RM; ≈ 1.25 x BW bench equivalent"}
     - {test: pullups_max, metric: reps, target: [12, 15]}
   aerobic:
-    - {test: run_tt_30, metric: threshold_pace_s_per_mi, target: 420, note: "≈ 7:00/mi threshold supports a sub-3:16 marathon (7:29/mi)"}
+    - {test: run_tt_30, metric: threshold_pace_s_per_mi, target: 420, note: "stepping stone: ≈ 7:00/mi threshold supports ~3:16 (Riegel). The Boston goal needs more; see goal_progress"}
   glycolytic:
     - {test: row_2k, metric: watts_per_kg, target: 3.4, note: "≈ 6:50 2k at 95 kg"}

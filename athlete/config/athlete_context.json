@@ -1,7 +1,8 @@
 {
   "schema_version": 1,
   "identity": {
-    "age": 33,
+    "birth_year": 1993,
+    "birth_month": 3,
     "sex": "male",
     "height_cm": 188,
     "timezone": "America/New_York",
@@ -20,13 +21,38 @@
         12
       ]
     },
-    "marathon_target": "3:15:59",
     "outcomes": [
-      "Sub-3:16 marathon",
+      "Qualify for the Boston Marathon (age-group standard with a safety margin), via stepping-stone marathons",
       "CrossFit Open",
       "Hyrox",
       "Longevity",
       "Train with no exercise limitations (rebuild back and shoulder capacity until every movement family is unlocked)"
+    ],
+    "long_term": [
+      {
+        "id": "boston-qualifier",
+        "name": "Boston qualifier",
+        "kind": "marathon_time",
+        "event": "Boston Marathon",
+        "event_date": "2029-04-16",
+        "qualifying_closes_days_before": 213,
+        "standards": [
+          {
+            "min_age": 18,
+            "max_age": 34,
+            "time": "2:55:00"
+          },
+          {
+            "min_age": 35,
+            "max_age": 39,
+            "time": "3:00:00"
+          }
+        ],
+        "margin_s": 300,
+        "source": "https://www.baa.org/races/boston-marathon/enter/qualify/history-qualifying-times (men's standards, 2027 table; cut-offs 2024-2027 ranged 4:34-6:51)",
+        "assumed_gain_pct_per_year": 8.0,
+        "max_gain_pct_per_year": 12.0
+      }
     ]
   },
   "races": [
@@ -36,7 +62,7 @@
       "kind": "marathon",
       "date": "2027-10-17",
       "confirmed": false,
-      "goal": "sub-3:16"
+      "goal": "first marathon; stepping stone toward a Boston qualifier (the coach proposes the race target from test results)"
     },
     {
       "id": "open-2027",
@@ -89,6 +115,10 @@
       "lthr": 165,
       "threshold_pace_s_per_mi": 480,
       "note": "used until the first time trial"
+    },
+    "marathon_prediction": {
+      "riegel_exponent": 1.06,
+      "no_marathon_penalty_s": 600
     }
   },
   "routes": {

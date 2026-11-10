@@ -132,6 +132,32 @@ def cmd_readiness(args):
     return ctx.readiness().model_dump(mode="json")
 
 
+def cmd_goals(args):
+    """Long-term goals: the latest feasibility check (or a new one with --check) and race targets."""
+    from coach.coaching.skills import assess
+
+    today = _today(args)
+    ctx = build(today=today)
+    out: dict = {"goals": [], "race_targets": {}}
+    if args.check:
+        checks = dict(assess.goal_progress(ctx, today))
+    for i, g in enumerate(ctx.cfg.profile.goals.long_term):
+        rec = ctx.state.get("goal_progress", g.id)
+        c = checks.get(i) if args.check else (rec.latest if rec else None)
+        out["goals"].append(
+            {
+                "id": g.id,
+                "summary": assess.describe_check(g.name, c) if c else "not checked yet (coach goals --check)",
+                "check": c.model_dump(mode="json") if c else None,
+            }
+        )
+    for r in ctx.cfg.profile.races:
+        t = ctx.state.get("race_targets", r.id)
+        if t:
+            out["race_targets"][r.id] = {"target": t.target_time, "status": t.status}
+    return out
+
+
 def cmd_context(args):
     today = _today(args)
     ctx = build(today=today)
@@ -638,6 +664,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("sync", help="fetch, normalize and store new data (idempotent)")
     sub.add_parser("status", help="today's context: block/week/day, test day, approvals, flags")
     sub.add_parser("readiness", help="today's readiness with reasons")
+    gl = sub.add_parser("goals", help="long-term goal feasibility + race targets")
+    gl.add_argument("--check", action="store_true", help="run a new feasibility check and record it")
     c = sub.add_parser("context", help="everything Claude needs to plan")
     c.add_argument("--week", action="store_true")
     c.add_argument("--block", action="store_true")
@@ -718,6 +746,7 @@ COMMANDS = {
     "sync": cmd_sync,
     "status": cmd_status,
     "readiness": cmd_readiness,
+    "goals": cmd_goals,
     "context": cmd_context,
     "validate": cmd_validate,
     "push": cmd_push,

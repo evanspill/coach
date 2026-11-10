@@ -33,6 +33,11 @@ feeds the next block's outline.
 
 ## Annual review
 Year-over-year trends, what worked, what to change; trigger the intake refresh (`assess`).
+**Long-term goals** (`coach goals`): show each goal's checks over the year (threshold pace trend vs what the goal
+needs, projected date vs deadline). If a goal is `behind`, put the trade-off to the athlete explicitly and let them
+choose: keep the date and make next season run-focused (more mileage; the Open/Hyrox become secondary), or accept the
+pending `goal_timeline` proposal that moves the target edition. Then shape `season.yaml` from their answer (a config
+change, so it is a proposal).
 
 ## Writes
 Reports `week_reviews`, `block_reviews`, `annual_reviews` via `coach record add <report> --key <id> --file review.md`.

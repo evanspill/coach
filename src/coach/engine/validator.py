@@ -473,6 +473,8 @@ def thresholds_fingerprint(cfg: Config) -> str:
             if k not in {"supplements", "supplements_note"}
         },
         "progression_rules": cfg.progressions.rules.model_dump(mode="json"),
+        "long_term_goals": [g.model_dump(mode="json") for g in p.goals.long_term],
+        "marathon_prediction": p.running.marathon_prediction.model_dump(mode="json"),
     }
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:16]
 

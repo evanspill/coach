@@ -46,7 +46,7 @@ tests/                     pytest (CI: ruff + pytest + config check + 120-day si
   `coach macrocycle regenerate`, `coach test schedule|score`, `coach log "<message>"`,
   `coach simulate --days 120 --from 2026-11-16`, `coach form-check <family> --by coach|physio`,
   `coach collections`, `coach record add|list|get <collection> ['<json>' | --file draft.json]`,
-  `coach health resolve <id> --by doctor`.
+  `coach health resolve <id> --by doctor`, `coach goals [--check]`.
 - **Athlete data is read and written only through `coach` commands** (never edit `athlete/data/` by hand): they
   validate every record against its model. Journal entries, health events, availability, lab results, measurements,
   event results and notes all use `coach record add <collection> '<json>'` (or `coach log` for chat messages).
@@ -68,7 +68,7 @@ tests/                     pytest (CI: ruff + pytest + config check + 120-day si
 | Food, macros, MacroFactor, supplements, bloodwork trends | `fuel` |
 | "Plan my race", Open strategy, taper | `compete` |
 | "How am I doing / progressing?", charts, weekly or block review | `review` (`coach report ...`) |
-| Goal changes, add/move a race, new block | `assess` / `plan-block` (after `coach macrocycle regenerate`) |
+| Goal changes, add/move a race, new block, "am I on track for Boston?" | `assess` / `plan-block` (after `coach macrocycle regenerate`); `coach goals` |
 | "Swap today's pressing" | `adjust-day` -> `design-session` -> validate -> show before/after -> apply after OK |
 | "Approve the plan / the block goal" | `coach approve week` / `coach approve block-goal` (then push) |
 | "Retest X" | `assess` |

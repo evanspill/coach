@@ -162,6 +162,14 @@ def _transition(
     if phase == "end":
         ctx.state.save_report("block_reviews", review.block_review(ctx, bid), bid)
         log.append(f"review: block review written for {bid}")
+    # long-term goals: feasibility check every transition; behind -> a timeline proposal (never a silent change)
+    for i, check in assess.goal_progress(ctx, today):
+        g = ctx.cfg.profile.goals.long_term[i]
+        log.append("assess: " + assess.describe_check(g.name, check))
+        tp = assess.goal_timeline_proposal(ctx, i, check, today)
+        if tp:
+            log.append(f"assess: {tp.title} ({tp.id})")
+    log += assess.propose_race_targets(ctx, today)
     goal, _ = assess.propose_goal(ctx, new_block, ts)
     prop = assess.save_goal_proposal(ctx, goal, today)
     log.append(

@@ -23,6 +23,7 @@ from coach.models import (
     TestSet,
     WeekPlan,
 )
+from coach.models.goals import GoalProgress, RaceTarget
 from coach.models.journal import (
     Availability,
     EventResult,
@@ -78,6 +79,16 @@ COLLECTIONS: dict[str, Collection] = {
         Collection("macrocycle", "singleton", "macrocycle.json", Macrocycle, "the year (code-generated)"),
         Collection("block_goals", "doc", "blocks/{key}/goal.json", BlockGoal, "block goal + guardrails"),
         Collection("block_outlines", "doc", "blocks/{key}/outline.json", BlockOutline, "block outline"),
+        Collection(
+            "goal_progress",
+            "doc",
+            "goals/{key}.json",
+            GoalProgress,
+            "long-term goal feasibility checks, by goal id",
+        ),
+        Collection(
+            "race_targets", "doc", "events/{key}/target.json", RaceTarget, "coach's race target, by race id"
+        ),
         Collection("test_sets", "doc", "blocks/{a}/tests_{b}.json", TestSet, "test results, key block:phase"),
         Collection("week_plans", "doc", "weeks/{key}/plan.json", WeekPlan, "weekly plan"),
         Collection(

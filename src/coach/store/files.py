@@ -150,7 +150,7 @@ class Store:
     @staticmethod
     def key_of(name: str, obj: Any) -> str:
         if isinstance(obj, BaseModel):
-            for f in ("id", "week_id", "block_id", "event_id"):
+            for f in ("id", "week_id", "block_id", "event_id", "goal_id", "race_id"):
                 v = getattr(obj, f, None)
                 if v:
                     if name == "test_sets":

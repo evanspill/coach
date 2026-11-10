@@ -177,6 +177,8 @@ class Proposal(Model):
         "config_change",
         "session_swap",
         "calorie_phase",
+        "race_target",
+        "goal_timeline",
     ]
     created: dt.date
     created_by: str  # skill name

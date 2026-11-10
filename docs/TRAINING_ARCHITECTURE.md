@@ -76,6 +76,17 @@ duration is topped up with Zone 2 bike; the +10% rule averages the last three no
 chest 6-14, back 10-20, shoulders 6-16; Block 2 12-16 (hamstrings 10-16, glutes 12-20); Block 3 4-9 (MED);
 Block 4 2-8. Deload weeks ~40-65% of those.
 
+## Long-term goals and race targets
+
+Some goals take more than a season (e.g. a Boston qualifier: the age-group standard on the target edition's race
+day, minus a safety margin for the oversubscription cut-off). They live in `athlete_context.json goals.long_term`
+and never set training paces or race-day pacing directly. At every transition week the coach checks each one: the
+threshold pace the goal needs, the athlete's measured threshold pace and its trend, and when the trend gets there
+versus the last planned race that counts. If it is behind on an observed trend (two or more run tests), a proposal offers the first later edition the projection
+reaches; the annual review puts the alternative (a run-focused season) to the athlete. Each upcoming marathon gets
+its own **race target**, a stepping stone set from what fitness will support on race day and approved by the
+athlete. Race-day pacing comes from current fitness; an approved target is paced only if fitness supports it.
+
 ## Evidence basis
 
 Every rule above is either backed by research, or a practitioner convention we keep on purpose and say so.
@@ -100,6 +111,8 @@ section was written; the monthly `learn` audit re-checks them and proposes chang
 | Protein 2.2-2.4 g/kg (top of range in a cut), every 3-4 h | 1.4-2.0 g/kg for most exercisers; 2.3-3.1 g/kg may help keep lean mass in a deficit ([ISSN, Jäger et al. 2017](https://doi.org/10.1186/s12970-017-0177-8)) | high |
 | Carbs by day (3-5.5 g/kg), 1-4 g/kg pre, 30-60 (up to 90) g/h during long sessions | Joint position stand on nutrition and athletic performance ([Thomas, Erdman & Burke 2016](https://pmc.ncbi.nlm.nih.gov/articles/PMC5596471)) | high |
 | Energy availability check (~30 kcal/kg FFM/day) | Low energy availability -> REDs ([IOC consensus 2023](https://pubmed.ncbi.nlm.nih.gov/37752011/)); the cut-off is an indicator, not a hard threshold | high (concept) / moderate (cut-off) |
+| Marathon prediction from threshold pace: Riegel T2 = T1 x (D2/D1)^1.06, + 10 min until the athlete has a marathon result | Riegel's power law ([Riegel 1981, *American Scientist* 69:285-290](https://nku.edu/~longa/classes/mat375/docs/CrossCountry/riegel.pdf)) is calibrated on elite records; in recreational runners it held up to the half but underestimated marathon times by 10+ min for half the runners, and weekly mileage predicted better ([Vickers & Vertosick 2016](https://pmc.ncbi.nlm.nih.gov/articles/PMC5000509)) | moderate (bias) / practice (penalty size) |
+| Long-term goal projection: threshold pace improves ~8%/yr until two run tests 8+ weeks apart exist, observed trend capped at 12%/yr | Coach's assumption, no direct evidence; recalibrated from the athlete's own tests (`learn`) | practice |
 | Heat routing by temp + dew point, ice/dark -> indoors | Practitioner heat-index heuristic | practice |
 | Neck check for illness; red-flag list | Clinical sports-medicine heuristic; cardiac warning signs | practice / clinical |
 | McGill Big 3 before lower-body days | Clinical low-back practice (trunk endurance); athlete-specific choice | practice |
@@ -122,3 +135,6 @@ Single studies, mouse studies, or hype never change my programming. Every cited 
 - 2026-11-10: evidence basis added; loads from the latest exposure (not 8-week best), warm-up ramps, rest-day and
   session-length rules, energy-availability / monotony / 80/20 / sleep flags, extra red flags, extreme-cold routing,
   top-of-range protein in a cut, top movement rungs gated by 21 days + a form check, long-run growth <= 1 mi/week.
+- 2026-11-10: long-term goals (Boston qualifier, age-graded) with feasibility checks every transition; race targets
+  from fitness as approved stepping stones; race-day pacing from current fitness; Riegel + 10-min penalty until a
+  marathon result exists (athlete-approved).

@@ -7,10 +7,12 @@ from typing import Any
 
 from coach.coaching import proposals
 from coach.coaching.context import Context
+from coach.engine import goals as G
 from coach.engine import testing as T
 from coach.engine.loads import e1rm
-from coach.engine.units import fmt_pace
+from coach.engine.units import fmt_duration, fmt_pace
 from coach.models import BlockGoal, MacroBlock, SessionRecord, TestSet
+from coach.models.goals import GoalCheck, GoalProgress, RaceTarget
 from coach.models.plans import GoalTarget, Guardrail
 from coach.models.records import ThresholdZones
 
@@ -320,4 +322,181 @@ def block_result(goal: BlockGoal, end: TestSet) -> dict:
                     "held": ok,
                 }
             )
+    return out
+
+
+# --- long-term goals and race targets -------------------------------------------------------------------
+
+
+def threshold_history(ctx: Context) -> list[tuple[dt.date, float]]:
+    """Measured threshold paces from every scored run test (one point per test date)."""
+    seen: dict[dt.date, float] = {}
+    for key in ctx.state.keys("test_sets"):
+        ts = ctx.state.get("test_sets", key)
+        for r in ts.results if ts else []:
+            if "threshold_pace_s_per_mi" in r.details:
+                seen[r.date] = float(r.details["threshold_pace_s_per_mi"])
+    return sorted(seen.items())
+
+
+def current_threshold(ctx: Context, history: list[tuple[dt.date, float]]) -> tuple[float, str] | None:
+    if history:
+        return history[-1][1], f"run test {history[-1][0]}"
+    z = ctx.state.get("zones")
+    return (float(z.threshold_pace_s_per_mi), z.source or "zones") if z else None
+
+
+def marathon_model(ctx: Context) -> tuple[float, int, str]:
+    """(Riegel exponent, penalty s, basis): the penalty applies until the athlete has a marathon result."""
+    mp = ctx.cfg.profile.running.marathon_prediction
+    marathons = {r.id for r in ctx.cfg.profile.races if r.kind == "marathon"}
+    done = [
+        e
+        for k in ctx.state.keys("event_results")
+        if (e := ctx.state.get("event_results", k)) and e.event_id in marathons and e.result_time_s
+    ]
+    if done:
+        return mp.riegel_exponent, 0, f"Riegel k={mp.riegel_exponent:g}; own marathon result on file"
+    return (
+        mp.riegel_exponent,
+        mp.no_marathon_penalty_s,
+        f"Riegel k={mp.riegel_exponent:g} + {mp.no_marathon_penalty_s // 60} min (no marathon result yet)",
+    )
+
+
+def goal_progress(ctx: Context, today: dt.date) -> list[tuple[int, GoalCheck]]:
+    """Check every long-term goal, append the check to goal_progress, return (goal index, check)."""
+    hist = threshold_history(ctx)
+    cur = current_threshold(ctx, hist)
+    prof = ctx.cfg.profile
+    out = []
+    for i, goal in enumerate(prof.goals.long_term):
+        k, pen, _ = marathon_model(ctx)
+        c = G.check(goal, prof.identity, prof.races, hist, cur, today, k, pen)
+        rec = ctx.state.get("goal_progress", goal.id) or GoalProgress(goal_id=goal.id)
+        rec.checks = [x for x in rec.checks if x.date != today] + [c]
+        ctx.state.put("goal_progress", rec)
+        out.append((i, c))
+    return out
+
+
+def describe_check(name: str, c: GoalCheck) -> str:
+    if c.required_s is None or c.required_threshold_s_per_mi is None:
+        return f"{name}: {c.note}"
+    need = f"{fmt_duration(c.required_s)} (needs threshold ~{fmt_pace(c.required_threshold_s_per_mi)})"
+    if c.current_threshold_s_per_mi is None:
+        return f"{name}: target {need}; {c.note}"
+    now = (
+        f"now {fmt_pace(c.current_threshold_s_per_mi)}, supports ~{fmt_duration(c.predicted_marathon_s or 0)}"
+    )
+    when = f"projected {c.projected_date:%b %Y}" if c.projected_date else "no projection"
+    return f"{name}: {c.status.replace('_', ' ')}. Target {need}; {now}; {when} vs deadline {c.deadline} ({c.rate_basis})."
+
+
+def goal_timeline_proposal(ctx: Context, index: int, c: GoalCheck, today: dt.date):
+    """Behind on an observed trend: propose the first later edition the projection reaches, and name the
+    season-focus trade-off. On the assumed rate alone (one test) the check is reported, not acted on."""
+    goal = ctx.cfg.profile.goals.long_term[index]
+    if (
+        c.status != "behind"
+        or c.current_threshold_s_per_mi is None
+        or not c.rate_basis.startswith("observed")
+    ):
+        return None
+    event = goal.event_date
+    for _ in range(4):
+        event = G.same_slot_next_year(event)
+        moved = goal.model_copy(update={"event_date": event})
+        age = ctx.cfg.profile.identity.age_on(event)
+        std = G.standard_for(moved, age)
+        if std is None:
+            continue
+        k, pen, _ = marathon_model(ctx)
+        need = G.threshold_for_marathon(std - goal.margin_s, k, pen)
+        when = G.project(c.current_threshold_s_per_mi, need, c.rate_pct_per_year or 0, today)
+        if when is not None and when <= moved.qualify_by:
+            break
+    else:
+        return None
+    return proposals.create(
+        ctx.state,
+        "goal_timeline",
+        "assess",
+        f"{goal.name}: move the target to {goal.event} {event.year}",
+        f"target edition {goal.event_date} -> {event} (qualify by {moved.qualify_by}); age {age} standard "
+        f"{fmt_duration(std)}. Alternative: keep the date and make the next season run-focused (more mileage, "
+        f"the Open/Hyrox as secondary) - decide in the annual review.",
+        describe_check(goal.name, c),
+        today,
+        before=str(goal.event_date),
+        after=str(event),
+        target=f"config/goals.long_term/{goal.id}",
+        payload={
+            "config_patch": {
+                "file": "athlete_context.json",
+                "path": ["goals", "long_term", index, "event_date"],
+                "value": event.isoformat(),
+            }
+        },
+    )
+
+
+def propose_race_targets(ctx: Context, today: dt.date, horizon_days: int = 550) -> list[str]:
+    """Upcoming marathons: target = what the threshold trend supports on race day (Riegel), rounded up to the minute.
+    Re-proposed only when the prediction moves by more than the run test's typical error."""
+    hist = threshold_history(ctx)
+    cur = current_threshold(ctx, hist)
+    if cur is None:
+        return []
+    goals = ctx.cfg.profile.goals.long_term
+    k, pen, model = marathon_model(ctx)
+    rate, basis = G.gain_rate(
+        hist,
+        goals[0].assumed_gain_pct_per_year if goals else 0.0,
+        goals[0].max_gain_pct_per_year if goals else 0.0,
+    )
+    noise = ctx.cfg.tests.tests["run_tt_30"].typical_error_pct if "run_tt_30" in ctx.cfg.tests.tests else 2.0
+    out = []
+    for race in ctx.cfg.profile.races:
+        if race.kind != "marathon" or not (today < race.date <= today + dt.timedelta(days=horizon_days)):
+            continue
+        pace = G.threshold_on(cur[0], rate, today, race.date)
+        predicted = G.marathon_from_threshold(pace, k, pen)
+        target_s = math.ceil(predicted / 60) * 60
+        prev = ctx.state.get("race_targets", race.id)
+        if prev and abs(prev.predicted_s - predicted) / prev.predicted_s * 100 <= noise:
+            continue
+        lt = [
+            describe_check(g.name, c)
+            for g in goals
+            if (rec := ctx.state.get("goal_progress", g.id)) and (c := rec.latest)
+        ]
+        rationale = (
+            f"Threshold {fmt_pace(cur[0])} ({cur[1]}) projected to {fmt_pace(pace)} by race day at {rate:g}%/yr "
+            f"({basis}); {model} -> {fmt_duration(predicted)}. Re-checked every block and in the taper."
+            + (" Long-term: " + " ".join(lt) if lt else "")
+        )
+        t = RaceTarget(
+            race_id=race.id,
+            set_on=today,
+            target_time=fmt_duration(target_s),
+            predicted_s=predicted,
+            basis=f"{cur[1]}, {basis}",
+            status="pending",
+            rationale=rationale,
+        )
+        ctx.state.put("race_targets", t)
+        p = proposals.create(
+            ctx.state,
+            "race_target",
+            "assess",
+            f"Race target: {race.name}",
+            f"{t.target_time}" + (f" (was {prev.target_time})" if prev else ""),
+            rationale,
+            today,
+            before=prev.target_time if prev else None,
+            after=t.target_time,
+            target=ctx.state.ref("race_targets", race.id),
+        )
+        out.append(f"assess: race target proposed for {race.name}: {t.target_time} ({p.id})")
     return out

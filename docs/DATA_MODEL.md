@@ -67,6 +67,8 @@ erDiagram
 | `macrocycle` | singleton | `Macrocycle` | `athlete/data/macrocycle.json` | the year (code-generated) |
 | `block_goals` | doc | `BlockGoal` | `athlete/data/blocks/{key}/goal.json` | block goal + guardrails |
 | `block_outlines` | doc | `BlockOutline` | `athlete/data/blocks/{key}/outline.json` | block outline |
+| `goal_progress` | doc | `GoalProgress` | `athlete/data/goals/{key}.json` | long-term goal feasibility checks, by goal id |
+| `race_targets` | doc | `RaceTarget` | `athlete/data/events/{key}/target.json` | coach's race target, by race id |
 | `test_sets` | doc | `TestSet` | `athlete/data/blocks/{a}/tests_{b}.json` | test results, key block:phase |
 | `week_plans` | doc | `WeekPlan` | `athlete/data/weeks/{key}/plan.json` | weekly plan |
 | `day_records` | doc | `DayRecord` | `athlete/data/days/{key}.json` | daily readiness, adjustments, notification |

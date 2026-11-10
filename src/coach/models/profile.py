@@ -15,11 +15,44 @@ class Home(Model):
 
 
 class Identity(Model):
-    age: int
+    birth_year: int
+    birth_month: int = Field(ge=1, le=12)
     sex: Literal["male", "female"]
     height_cm: float
     timezone: str
     home: Home
+
+    def age_on(self, day: dt.date) -> int:
+        """Age on a given day. With only the birth month known, a day in the birth month counts as after the birthday."""
+        return day.year - self.birth_year - (1 if day.month < self.birth_month else 0)
+
+
+class AgeStandard(Model):
+    min_age: int
+    max_age: int
+    time: str  # H:MM:SS
+
+
+class LongTermGoal(Model):
+    """A goal that may take more than one season, e.g. a qualifying time. The coach tracks feasibility at every
+    transition week and proposes moving the target event when the projection says it won't be reached in time."""
+
+    id: str
+    name: str
+    kind: Literal["marathon_time"]
+    event: str  # the event the goal qualifies for
+    event_date: dt.date  # the edition targeted; age is taken on this day
+    qualifying_closes_days_before: int  # last day a qualifying race counts, relative to event_date
+    standards: list[AgeStandard] = Field(default_factory=list)  # age-graded (sex from identity)
+    target_time: str | None = None  # a fixed time instead of age-graded standards
+    margin_s: int = 0  # how far under the standard to aim (oversubscribed events)
+    source: str = ""  # where the standards came from
+    assumed_gain_pct_per_year: float = 8.0  # threshold-pace improvement assumed before there are two tests
+    max_gain_pct_per_year: float = 12.0  # cap on the observed rate when projecting (gains slow down)
+
+    @property
+    def qualify_by(self) -> dt.date:
+        return self.event_date - dt.timedelta(days=self.qualifying_closes_days_before)
 
 
 class BodyCompGoal(Model):
@@ -30,8 +63,8 @@ class BodyCompGoal(Model):
 
 class Goals(Model):
     body_composition: BodyCompGoal
-    marathon_target: str
     outcomes: list[str]
+    long_term: list[LongTermGoal] = Field(default_factory=list)
 
 
 class Race(Model):
@@ -40,7 +73,7 @@ class Race(Model):
     kind: Literal["marathon", "crossfit_open", "hyrox", "half_marathon", "other"]
     date: dt.date
     confirmed: bool
-    goal: str | None = None
+    goal: str | None = None  # the athlete's own words; the coach's approved race target lives in race_targets
     workout_dates: list[dt.date] = Field(default_factory=list)
     note: str | None = None
 
@@ -120,6 +153,14 @@ class DefaultZones(Model):
     note: str = ""
 
 
+class MarathonPrediction(Model):
+    """Threshold pace -> marathon time. Riegel's formula underestimates recreational runners' marathon times (by 10+ min
+    for half the runners in Vickers & Vertosick 2016), so a penalty applies until the athlete has a marathon result."""
+
+    riegel_exponent: float = 1.06
+    no_marathon_penalty_s: int = 600
+
+
 class Running(Model):
     status: str
     ramp_start_miles: tuple[float, float]
@@ -129,6 +170,7 @@ class Running(Model):
     hold_every_nth_week: int
     gait_analysis_recommended: bool
     default_zones: DefaultZones = DefaultZones(lthr=165, threshold_pace_s_per_mi=480)
+    marathon_prediction: MarathonPrediction = MarathonPrediction()
 
 
 class AthleteProfile(Model):

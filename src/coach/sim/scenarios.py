@@ -462,11 +462,33 @@ def sc_compete_taper(c: Check) -> None:
     vols = [w.run_miles for w in ol.weeks if w.type == "taper"]
     c.that(len(vols) == 3 and vols[0] > vols[1] > vols[2], f"3-week taper with falling volume {vols}")
     c.that(abs(vols[0] / 44 - 0.8) < 0.02 and abs(vols[2] / 44 - 0.4) < 0.02, "taper ~80/60/40%")
+    from coach.engine import goals as G
+    from coach.engine.units import fmt_pace
+    from coach.models.goals import RaceTarget
+
     md = compete.marathon_plan(ctx)
+    fit = compete.race_pacing(ctx, "marathon-2027")["fitness_s"]
     c.that(
-        ("7:28/mi" in md or "7:29/mi" in md) and "60-90 g carbs/h" in md and "Contingencies" in md,
-        "race plan has pacing, fuelling and contingencies",
+        fmt_pace(fit / G.MARATHON_MI) in md and "60-90 g carbs/h" in md and "Contingencies" in md,
+        "race plan paces from current fitness, with fuelling and contingencies",
     )
+    for t, expect_fit in ((fit - 1200, True), (fit + 300, False)):  # 20 min too fast vs 5 min slower
+        ctx.state.put(
+            "race_targets",
+            RaceTarget(
+                race_id="marathon-2027",
+                set_on=dt.date(2027, 9, 26),
+                target_time=G.fmt_hms(t),
+                predicted_s=fit,
+                basis="scenario",
+                status="approved",
+            ),
+        )
+        p = compete.race_pacing(ctx, "marathon-2027")
+        c.that(
+            (abs(p["pace_s_per_mi"] * G.MARATHON_MI - fit) < 2) == expect_fit,
+            "an approved target faster than fitness is not paced; a feasible one is",
+        )
     ctx.state.save_report("event_plans", md, "marathon-2027")
 
 

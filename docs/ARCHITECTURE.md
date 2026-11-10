@@ -150,7 +150,7 @@ src/coach/
   config.py      loads + cross-checks athlete/config
   integrations/  base ABCs, normalize (raw -> models), mock, live, sync (in), push (out)
   engine/        calculations (readiness, loads, paces, weather, nutrition, macrocycle, deloads, running, testing,
-                 movement, gear, parsing) + validator; pure functions, no I/O
+                 movement, gear, parsing, goals) + validator; pure functions, no I/O
   coaching/      daily (coordinator), context, fill (loads/paces), records (submit pipeline), proposals, notify,
                  skills/ (deterministic stand-in per skill; templates.py builds sessions from training.yaml)
   sim/, demo/    simulated athlete + demo athlete config/fixtures for tests and `coach simulate`
@@ -164,6 +164,7 @@ src/coach/
 | `coach/integrations/sync.py` | Incremental, idempotent sync; merges Whoop + Hevy + Intervals into one session record |
 | `coach/integrations/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled` |
 | `coach/engine/validator.py` | Every guardrail, with stable rule codes |
+| `coach/engine/goals.py` | Long-term goal feasibility (age-graded standard, Riegel threshold <-> marathon, trend projection) |
 | `coach/coaching/fill.py` | Fills loads (current e1RM -> rounded implement, + warm-up ramp for primary lifts) and paces/HR (zones) into plans |
 | `coach/coaching/records.py` | The one submit path for records Claude writes: fill -> validate -> save -> summary/proposal (`coach record add --file`) |
 | `coach/coaching/proposals.py` | Proposals (targets are `collection/key` refs), approve/reject, config lock + changelog |

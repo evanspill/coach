@@ -28,6 +28,14 @@ description: Intake, testing and goal setting. Runs the intake questionnaire (on
    the trade-off in `rationale`. Also propose the calorie phase (cut / recomp / lean gain / maintenance) from the
    body-composition trend. Submit with `coach record add block_goals --file /tmp/goal.json` (saved as pending and a
    `block_goal` proposal is opened). **Block goals always need approval.**
+4b. **Long-term goals and race targets** (every transition week, including after the baseline; the fallback does
+   this in `daily._transition`): `coach goals --check` records a feasibility check per long-term goal in
+   `athlete_context.json goals.long_term` (age-graded standard on the target event's day minus the margin, the
+   threshold pace that needs, and when the threshold trend gets there). If it is `behind` on an observed trend
+   (two run tests 8+ weeks apart; on the assumed rate it is only reported), a `goal_timeline` proposal offers the first later edition the projection reaches; say so plainly, with the numbers, and never
+   change a long-term goal silently. Each upcoming marathon gets a `race_target` proposal: what the threshold trend
+   supports on race day, rounded up to the minute (re-proposed only when the prediction moves by more than the run
+   test's typical error). Race targets are stepping stones; they are never set from the long-term goal.
 5. Starting rungs after the baseline week: conservative; only advance a family's starting rung with a physio's
    recommendation or clean test exposures (via `rehab`).
 
@@ -36,6 +44,7 @@ description: Intake, testing and goal setting. Runs the intake questionnaire (on
 - `test_sets` (via `coach test score`)
 - `block_goals` (`BlockGoal`) + its `block_goal` proposal (via `coach record add block_goals --file ...`)
 - `zones`
+- `goal_progress` (via `coach goals --check`), `race_targets` + `race_target` / `goal_timeline` proposals
 
 ## May call
 `plan-week` (baseline/transition week), `design-session` (test sessions), `rehab` (starting rungs).
@@ -44,4 +53,5 @@ description: Intake, testing and goal setting. Runs the intake questionnaire (on
 - Schedule true 1RMs, or a test above the current rung.
 - Approve its own goal, or let plan-block finalize before approval.
 - Put a full-effort TT in the baseline when the coach judged it too risky without saying so in the proposal.
+- Set a race target from a long-term goal instead of measured fitness, or quietly move a long-term goal.
 - Invent a test result: missing data is reported, and the test is rescheduled.

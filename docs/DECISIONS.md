@@ -120,3 +120,23 @@ Each entry: **decision** - why - how to reverse.
     force-push, `git reset --hard` and reading `.env` files. Everything else still prompts. - Reverse: delete the file.
 58. **Config lock re-recorded as the initial approval** after the audit added `weather.extreme_cold_f` and the session
     rules (pre-launch, no athlete history; approved by the athlete). From go-live, threshold changes need a proposal.
+
+## Long-term goals (athlete-approved 2026-11-10)
+59. **The marathon goal is a Boston qualifier, tracked as a long-term goal**, not a single "marathon target". Config
+    holds the event, the target edition (Boston 2029 to start: 36 on race day, men's 35-39 standard 3:00:00), a
+    5-minute margin for the oversubscription cut-off (2024-2027 cut-offs ranged 4:34-6:51) and the BAA source. Birth
+    year and month replace a fixed age, so the age group follows the edition. - Reverse: remove `goals.long_term`.
+60. **Feasibility is checked at every transition week** (`goal_progress`, `coach goals --check`): required threshold
+    pace vs the measured trend (assumed 8%/yr until two run tests 8+ weeks apart; observed trend capped at 12%/yr,
+    both coach assumptions to recalibrate). Behind on an observed trend (not the assumed rate) -> a `goal_timeline` proposal (config patch moving the edition);
+    the run-focused-season alternative goes to the annual review. Never a silent change.
+61. **Race targets are stepping stones set from fitness**, proposed per marathon after each test week and approved
+    by the athlete (`race_targets`), re-proposed only when the prediction moves more than the run test's typical
+    error. **Race-day pacing comes from current fitness**; an approved target faster than fitness supports is not
+    paced, and a long-term goal is shown but never paced.
+62. **Marathon predictions carry a 10-minute penalty until the athlete has a marathon result**: Riegel's formula
+    underestimated recreational runners' marathon times by 10+ min for half the runners (Vickers & Vertosick 2016).
+    This makes the Boston requirement stricter for now (2:55 needs ~5:57/mi threshold, vs ~6:17/mi on Riegel alone).
+    After the first marathon the penalty drops and `learn` can calibrate the exponent from the real result.
+63. **`config_change` proposals without a patch record the config lock when approved**, so a change made to the
+    files with the athlete's OK (like this one) is still approved, locked and in the changelog.
