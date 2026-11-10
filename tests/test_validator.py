@@ -229,3 +229,31 @@ def test_config_change_needs_approved_proposal(b1):
     )
     assert validate_config_lock(cfg, {"fingerprint": good["fingerprint"], "approved_by": "p-1"}, set())
     assert validate_config_lock(cfg, None, set())
+
+
+def test_joint_flag_swaps_use_regressions(P):
+    """adjust-day swaps restricted exercises via the library's regressions instead of dropping work."""
+    from coach.fallback.adjust_day import _resubstitute
+    from coach.fallback.design import Picker
+
+    ctx, plan = P
+    tue = plan.sessions[1]
+    blk(tue, "hypertrophy").items.append(Prescription(exercise_id="dips", sets=3, reps=8, rir=2))
+    picker = Picker(
+        ctx,
+        "training",
+        "gym",
+        restricted={"shoulder_extension_loaded", "overhead", "kipping", "overhead_ballistic"},
+    )
+    changes = []
+    _resubstitute(tue, picker, changes, "active joint flag (shoulders)")
+    ids = [it.exercise_id for b in tue.blocks for it in b.items]
+    assert "dips" not in ids and "push_up" in ids
+    assert any("Dips -> Push-up" in c.what for c in changes)
+    flag = JointFlag(
+        region="shoulders",
+        since=dt.date(2026, 11, 28),
+        restricted_tags=sorted(picker.restricted),
+        reason="test",
+    )
+    assert "JOINT_RESTRICTED" not in codes(plan, ctx, joint_flags=[flag])
