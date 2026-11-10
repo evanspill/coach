@@ -39,13 +39,17 @@ D = dt.date(2027, 1, 10)
         (dict(rec_today=30, rec_y=25), [], "red"),  # two days <= 33
         (dict(rec_today=80, hrv_drop=0.2, drop_days=3), [], "red"),  # HRV below band 3 days
         (dict(rec_today=80, rhr_add=6), [], "red"),
-        (dict(rec_today=90), [Checkin(date=D, shoulders=4)], "red"),  # joint >= 4 beats a great recovery
         (
             dict(rec_today=90),
-            [Checkin(date=D - dt.timedelta(days=1), back=3), Checkin(date=D, back=3)],
+            [Checkin(date=D, joints={"shoulders": 4})],
+            "red",
+        ),  # joint >= 4 beats a great recovery
+        (
+            dict(rec_today=90),
+            [Checkin(date=D - dt.timedelta(days=1), joints={"back": 3}), Checkin(date=D, joints={"back": 3})],
             "red",
         ),
-        (dict(rec_today=90), [Checkin(date=D, knees_achilles=3)], "yellow"),
+        (dict(rec_today=90), [Checkin(date=D, joints={"knees_achilles": 3})], "yellow"),
     ],
 )
 def test_readiness_states_and_precedence(kw, checkins, expect):
@@ -63,12 +67,15 @@ def test_missing_recovery_is_unknown():
 def test_joint_flag_sets_and_clears():
     restricted = load_config().progressions.joint_flags
     cis = [
-        Checkin(date=D - dt.timedelta(days=3), shoulders=3),
-        Checkin(date=D - dt.timedelta(days=2), shoulders=3),
+        Checkin(date=D - dt.timedelta(days=3), joints={"shoulders": 3}),
+        Checkin(date=D - dt.timedelta(days=2), joints={"shoulders": 3}),
     ]
     flags = readiness.joint_flags(cis, D, restricted, TH)
     assert flags and flags[0].region == "shoulders" and "overhead" in flags[0].restricted_tags
-    cis += [Checkin(date=D - dt.timedelta(days=1), shoulders=2), Checkin(date=D, shoulders=2)]
+    cis += [
+        Checkin(date=D - dt.timedelta(days=1), joints={"shoulders": 2}),
+        Checkin(date=D, joints={"shoulders": 2}),
+    ]
     assert not readiness.joint_flags(cis, D, restricted, TH)
 
 

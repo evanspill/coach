@@ -1,6 +1,6 @@
 ---
 name: adjust-day
-description: Daily autoregulation. Applies readiness (Whoop recovery, HRV trend, RHR, joints), joint flags, weather and same-day bar speed to today's session, and sets today's recovery prescription (Normatec, mobility) and fuelling (via fuel). Small changes only; anything bigger hands off to replan. Runs every morning.
+description: Daily autoregulation. Applies readiness (Whoop recovery, HRV trend, RHR, joints), joint flags, weather and same-day bar speed to today's session, and sets today's recovery prescription (recovery tools, mobility) and fuelling (via fuel). Small changes only; anything bigger hands off to replan. Runs every morning.
 ---
 
 # adjust-day
@@ -24,8 +24,9 @@ description: Daily autoregulation. Applies readiness (Whoop recovery, HRV trend,
   faster -> small increase.
 - **Safety first:** red flag -> stop (rest, see a doctor); illness neck check (`docs/SAFETY.md`). Safety downgrades
   apply immediately; other session-type swaps follow `approval.manual_if` in `config/coach.yaml`.
-- **Recovery prescription:** after high-strain days (Whoop strain > 16, threshold, long runs, Hyrox) -> Normatec
-  20-30 min at the gym and an evening soft-tissue/mobility routine targeted at the loaded areas; magnesium at night.
+- **Recovery prescription:** after high-strain days (day strain above `high_strain`, threshold, long runs, Hyrox) -> the athlete's recovery
+  prescriptions in `athlete_context.json` `recovery` (post-session tool, evening mobility targeted at the loaded areas,
+  nightly routine).
 - Call `fuel` for today's macros and the peri-workout cue; `rehab` for gated movements.
 
 ## Writes

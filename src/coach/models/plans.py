@@ -229,6 +229,7 @@ class BlockOutline(Model):
 
 class MacroBlock(Model):
     id: str
+    key: str = ""  # block key in config/season.yaml
     index: int
     name: str
     focus: str

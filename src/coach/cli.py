@@ -419,7 +419,7 @@ def cmd_macrocycle(args):
     today = _today(args)
     st, cfg = State(), load_config()
     old = st.macrocycle()
-    new = M.generate(cfg.profile, today)
+    new = M.generate(cfg.profile, cfg.season, today)
     v = validate_macrocycle(new)
     if v:
         return {"valid": False, "violations": [str(x) for x in v]}
@@ -526,7 +526,12 @@ def cmd_simulate(args):
     start = dt.date.fromisoformat(args.start)
     echo = (lambda *_a, **_k: None) if args.quiet else print
     res = simulate(
-        args.days, start, Path(args.out) if args.out else None, echo=echo, scenarios=not args.no_scenarios
+        args.days,
+        start,
+        Path(args.out) if args.out else None,
+        echo=echo,
+        scenarios=not args.no_scenarios,
+        config=args.config,
     )
     summary = {
         "days": len(res.days),
@@ -605,6 +610,12 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--out", help="directory for the simulated COACH_HOME (default: a temp dir)")
     s.add_argument("--quiet", action="store_true")
     s.add_argument("--no-scenarios", action="store_true")
+    s.add_argument(
+        "--config",
+        default="demo",
+        choices=["demo", "active"],
+        help="demo = bundled demo athlete (default); active = your config/ replayed against the demo fixtures",
+    )
     sc = sub.add_parser("scenarios", help="run only the per-skill scenarios")
     sc.add_argument("--skill")
     return p

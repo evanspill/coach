@@ -13,7 +13,7 @@ import math
 import random
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parents[1] / "src" / "coach" / "fixtures"
+OUT = Path(__file__).resolve().parents[1] / "src" / "coach" / "demo" / "fixtures"
 START = dt.date(2026, 9, 17)
 END = dt.date(2027, 3, 21)
 BASELINE = dt.date(2026, 11, 16)

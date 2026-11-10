@@ -17,15 +17,22 @@ BLOCK_RANK = {
     "mobility": 5,
     "cooldown": 6,
 }
-TEST_RANK = {"power": 1, "strength": 2, "run": 4, "engine": 4, "body": 5}
+TEST_RANK = {"power": 1, "strength_lower": 2, "strength_upper": 2, "run": 4, "engine": 4, "body": 5}
 HARD_RIR = 4.0
 QUALITY_ZONES = {"T", "Z5", "Z3"}
 DEFAULT_THRESHOLD_PACE = 480
 
 
+def _test_stress(test_id: str) -> str:
+    from coach.config import load_config
+
+    t = load_config().tests.tests.get(test_id)
+    return t.stress if t else "none"
+
+
 def block_rank(kind: str, test_id: str | None, battery: TestBattery | None) -> int:
     if kind == "test" and test_id and battery and test_id in battery.tests:
-        return TEST_RANK[battery.tests[test_id].category]
+        return TEST_RANK.get(battery.tests[test_id].slot, 3)
     return BLOCK_RANK.get(kind, 3)
 
 
@@ -78,7 +85,7 @@ def is_lower_body(s: Session, library: ExerciseLibrary) -> bool:
                 ex = library.get(it.exercise_id)
                 if ex and "lower" in ex.tags and ex.has_tag("hinge", "squat", "lunge", "plyo", "sprint"):
                     return True
-            if b.kind == "test" and b.test_id in {"hinge_rm", "squat_rm", "broad_jump"}:
+            if b.kind == "test" and b.test_id and _test_stress(b.test_id) in {"lower_heavy", "neural"}:
                 return True
     return False
 
@@ -90,7 +97,7 @@ def has_hard_lower_lifting(s: Session, library: ExerciseLibrary) -> bool:
                 ex = library.get(it.exercise_id)
                 if ex and "lower" in ex.tags and ex.has_tag("hinge", "squat", "lunge") and (it.rir or 0) <= 3:
                     return True
-        if b.kind == "test" and b.test_id in {"hinge_rm", "squat_rm"}:
+        if b.kind == "test" and b.test_id and _test_stress(b.test_id) == "lower_heavy":
             return True
     return False
 
@@ -106,16 +113,9 @@ def categories(s: Session, library: ExerciseLibrary, battery: TestBattery | None
         cats.update({"long_run", "run_quality"})
     for b in s.blocks:
         if b.kind == "test" and b.test_id and battery and b.test_id in battery.tests:
-            cat = battery.tests[b.test_id].category
-            cats.add(
-                {
-                    "strength": "lower_heavy" if b.test_id in {"hinge_rm", "squat_rm"} else "upper_heavy",
-                    "run": "run_quality",
-                    "engine": "glycolytic",
-                    "power": "neural",
-                    "body": "none",
-                }[cat]
-            )
+            stress = battery.tests[b.test_id].stress
+            if stress != "none":
+                cats.add(stress)
         if b.metcon is not None and b.metcon.time_cap_min >= 6:
             cats.add("glycolytic")
         if b.kind == "strength":

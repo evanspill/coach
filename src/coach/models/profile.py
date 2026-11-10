@@ -45,14 +45,6 @@ class Race(Model):
     note: str | None = None
 
 
-class Season(Model):
-    start: dt.date
-    post_open_weeks: int = 1
-    marathon_build_weeks: int = 13
-    taper_weeks: int = 3
-    reset_weeks: int = 2
-
-
 class Thresholds(Model):
     recovery_green_min: int
     recovery_red_max: int
@@ -98,6 +90,33 @@ class NutritionRules(Model):
     intra_threshold_minutes: int
     supplements: list[str]
     supplements_note: str
+    estimate_kcal_per_kg: float = 33
+    calorie_phase_settings: dict[str, str] = Field(default_factory=dict)
+    peri_workout: dict[str, str] = Field(default_factory=dict)
+
+
+class CheckinRegion(Model):
+    label: str
+    words: list[str]
+    intervals_field: str | None = None
+
+
+class CheckinConfig(Model):
+    regions: dict[str, CheckinRegion]
+    intervals_fields: dict[str, str] = Field(default_factory=dict)
+
+
+class RecoveryConfig(Model):
+    after_hard_session: str
+    evening_mobility: str
+    nightly: str
+    areas: dict[str, str]
+
+
+class DefaultZones(Model):
+    lthr: int
+    threshold_pace_s_per_mi: int
+    note: str = ""
 
 
 class Running(Model):
@@ -108,6 +127,7 @@ class Running(Model):
     max_weekly_increase_pct: float
     hold_every_nth_week: int
     gait_analysis_recommended: bool
+    default_zones: DefaultZones = DefaultZones(lthr=165, threshold_pace_s_per_mi=480)
 
 
 class AthleteProfile(Model):
@@ -115,7 +135,6 @@ class AthleteProfile(Model):
     identity: Identity
     goals: Goals
     races: list[Race]
-    season: Season
     injury_history: LooseModel
     schedule: LooseModel
     running: Running
@@ -127,6 +146,15 @@ class AthleteProfile(Model):
     weather: WeatherRules
     nutrition: NutritionRules
     travel_equipment: list[str]
+    checkin: CheckinConfig
+    recovery: RecoveryConfig
+    intake_questions: list[str] = Field(default_factory=list)
+    notes_seed: list[str] = Field(default_factory=list)
+    race_gear_checklist: str = ""
+    emergency_number: str = "911"
+
+    def race(self, kind: str) -> Race | None:
+        return next((r for r in self.races if r.kind == kind), None)
 
     @field_validator("races")
     @classmethod

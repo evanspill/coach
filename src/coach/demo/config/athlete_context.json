@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "age": 33,
+    "sex": "male",
+    "height_cm": 188,
+    "timezone": "America/New_York",
+    "home": {
+      "name": "Canton, CT",
+      "lat": 41.8226,
+      "lon": -72.897
+    }
+  },
+  "goals": {
+    "body_composition": {
+      "target_weight_kg": 90.7,
+      "target_weight_lb": 200,
+      "target_body_fat_pct": [
+        10,
+        12
+      ]
+    },
+    "marathon_target": "3:15:59",
+    "outcomes": [
+      "Sub-3:16 marathon",
+      "CrossFit Open",
+      "Hyrox",
+      "Longevity",
+      "Train with no exercise limitations (rebuild back and shoulder capacity until every movement family is unlocked)"
+    ]
+  },
+  "races": [
+    {
+      "id": "marathon-2027",
+      "name": "Fall marathon",
+      "kind": "marathon",
+      "date": "2027-10-17",
+      "confirmed": false,
+      "goal": "sub-3:16"
+    },
+    {
+      "id": "open-2027",
+      "name": "CrossFit Open 2027",
+      "kind": "crossfit_open",
+      "date": "2027-02-18",
+      "workout_dates": [
+        "2027-02-18",
+        "2027-02-25",
+        "2027-03-04"
+      ],
+      "confirmed": false,
+      "note": "Release dates reported, not yet confirmed by CrossFit."
+    }
+  ],
+  "injury_history": {
+    "summary": "Past low-back and shoulder injuries. Background only: nothing is banned forever; movement readiness ladders gate the sensitive families.",
+    "regions": [
+      "low_back",
+      "shoulders"
+    ],
+    "physio_assessment_recommended": true
+  },
+  "schedule": {
+    "sessions_per_day": 1,
+    "start_window": [
+      "09:00",
+      "10:00"
+    ],
+    "default_start": "09:30",
+    "training_days": "any",
+    "two_a_days": false,
+    "session_length": "coach decides per session"
+  },
+  "running": {
+    "status": "returning",
+    "ramp_start_miles": [
+      10,
+      12
+    ],
+    "runs_per_week_at_start": 3,
+    "cadence_target_spm": [
+      170,
+      180
+    ],
+    "max_weekly_increase_pct": 10,
+    "hold_every_nth_week": 4,
+    "gait_analysis_recommended": true,
+    "default_zones": {
+      "lthr": 165,
+      "threshold_pace_s_per_mi": 480,
+      "note": "used until the first time trial"
+    }
+  },
+  "routes": {
+    "farmington_river_trail": {
+      "kind": "trail",
+      "surface": "paved/flat",
+      "use": [
+        "easy",
+        "long",
+        "time_trial"
+      ],
+      "location": "outdoor"
+    },
+    "west_hartford_reservoir": {
+      "kind": "trail",
+      "surface": "mixed/rolling",
+      "use": [
+        "easy",
+        "long"
+      ],
+      "location": "outdoor"
+    },
+    "canton_hs_track": {
+      "kind": "track",
+      "use": [
+        "quality"
+      ],
+      "location": "track",
+      "note": "Daylight and non-school hours only; public-use hours unconfirmed."
+    },
+    "gym_treadmill": {
+      "kind": "treadmill",
+      "use": [
+        "easy",
+        "quality",
+        "time_trial_indoor"
+      ],
+      "location": "gym",
+      "incline_pct": 1.0
+    }
+  },
+  "gear": {
+    "owned": [
+      "lifting belt",
+      "knee sleeves",
+      "gymnastics grips",
+      "lifting straps",
+      "Garmin fenix",
+      "Garmin Running Dynamics Pod",
+      "foam roller",
+      "bands",
+      "Theragun",
+      "lacrosse ball"
+    ],
+    "shoe_alert_miles": [
+      250,
+      300
+    ]
+  },
+  "recovery_tools": [
+    "foam roller",
+    "bands",
+    "Theragun",
+    "lacrosse ball",
+    "Normatec boots (work gym)"
+  ],
+  "no_access": [
+    "sauna",
+    "cold plunge",
+    "home gym equipment",
+    "belt squat machine"
+  ],
+  "thresholds": {
+    "recovery_green_min": 67,
+    "recovery_red_max": 33,
+    "hrv_baseline_days": 60,
+    "hrv_trend_days": 7,
+    "hrv_swc_sd": 0.5,
+    "hrv_below_days_yellow": 2,
+    "hrv_below_days_red": 3,
+    "rhr_baseline_days": 60,
+    "rhr_yellow_delta": 3,
+    "rhr_red_delta": 5,
+    "joint_yellow": 3,
+    "joint_red": 4,
+    "joint_flag_rating": 3,
+    "joint_flag_consecutive": 2,
+    "sustained_red_days": 3,
+    "sustained_red_window": 5,
+    "vbt_slow_pct": 10,
+    "vbt_fast_pct": 5,
+    "high_strain": 16,
+    "weekly_run_increase_pct": 10,
+    "long_run_max_fraction": 0.3,
+    "long_run_max_fraction_low_volume": 0.4,
+    "long_run_rule_min_weekly_miles": 20,
+    "long_run_max_increase_mi": 1.0,
+    "pain_rule_max": 2,
+    "shoe_alert_miles": 250
+  },
+  "weather": {
+    "slow_sum_f": 130,
+    "indoor_sum_f": 150,
+    "slow_pace_s_per_mi": [
+      15,
+      30
+    ],
+    "icy_temp_c": 0,
+    "icy_precip_hours": 12
+  },
+  "nutrition": {
+    "protein_g_per_kg": [
+      2.2,
+      2.4
+    ],
+    "fat_floor_g": 100,
+    "carb_g_per_kg": {
+      "high": 5.5,
+      "moderate": 4.0,
+      "low": 3.0
+    },
+    "intra_session_carbs_g_per_h": [
+      45,
+      60
+    ],
+    "intra_threshold_minutes": 75,
+    "supplements": [
+      "Thorne whey",
+      "creatine 5 g",
+      "beta-alanine 3.2-4 g",
+      "Basic Nutrients",
+      "fish oil",
+      "vitamin D",
+      "magnesium bisglycinate 400 mg PM",
+      "FiberMend",
+      "phosphatidylserine",
+      "LMNT",
+      "beet juice + matcha pre-workout"
+    ],
+    "supplements_note": "Context only. The coach never changes doses.",
+    "estimate_kcal_per_kg": 33,
+    "peri_workout": {
+      "pre": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha",
+      "during": "during: {lo}-{hi} g carbs/h + sodium (session > {minutes} min)",
+      "after": "after: 40 g protein + carbs within 2 h",
+      "easy_day": "Easy day: normal meals, protein at each; magnesium tonight.",
+      "rest_day": "Rest day: protein spread over 4 meals; magnesium tonight."
+    },
+    "calorie_phase_settings": {
+      "cut": "MacroFactor: weight loss ~0.5% BW/week (coached, moderate); protein high",
+      "recomp": "MacroFactor: maintenance-to-slight deficit (recomposition); protein high",
+      "lean_gain": "MacroFactor: lean gain ~0.25% BW/week",
+      "maintenance": "MacroFactor: maintenance, fuel-matched to training load"
+    }
+  },
+  "travel_equipment": [
+    "bodyweight",
+    "bands"
+  ],
+  "checkin": {
+    "regions": {
+      "back": {
+        "label": "low back",
+        "words": [
+          "back",
+          "low back",
+          "lowback"
+        ],
+        "intervals_field": "BackFeel"
+      },
+      "shoulders": {
+        "label": "shoulders",
+        "words": [
+          "shoulder",
+          "shoulders",
+          "sh"
+        ],
+        "intervals_field": "ShoulderFeel"
+      },
+      "knees_achilles": {
+        "label": "knees/Achilles",
+        "words": [
+          "knee",
+          "knees",
+          "achilles",
+          "ka"
+        ],
+        "intervals_field": "KneeAchillesFeel"
+      }
+    },
+    "intervals_fields": {
+      "SessionRPE": "session_rpe",
+      "Enjoyment": "enjoyment",
+      "Soreness": "soreness",
+      "BarSpeed": "bar_speed_mps"
+    }
+  },
+  "recovery": {
+    "after_hard_session": "Normatec boots 20-30 min at the gym after the session",
+    "evening_mobility": "evening 10-15 min soft tissue + mobility ({area}): foam roller, lacrosse ball, bands, Theragun",
+    "nightly": "magnesium bisglycinate at night",
+    "areas": {
+      "lower": "hips/hamstrings/calves",
+      "upper": "T-spine/shoulders/hips"
+    }
+  },
+  "intake_questions": [
+    "Training history: years lifting / running / CrossFit; best lifts and race times (with dates)?",
+    "Back and shoulder history: what happened, what aggravates them now, any imaging or physio notes?",
+    "Exercises you love / hate / want to get back to?",
+    "Typical week: work hours, commute, travel frequency, which days are hardest to train?",
+    "Sleep: usual bed/wake time, how often < 7 h, anything that disrupts it?",
+    "Stress (1-5) and main sources right now?",
+    "Nutrition: current MacroFactor goal and weekly calories; any foods you avoid?",
+    "What would make this year a success for you, beyond the race goals?"
+  ],
+  "notes_seed": [
+    "Past low-back and shoulder injuries: rebuild capacity via movement-readiness ladders; nothing banned forever.",
+    "No home equipment; all training at the work gym. No sauna/cold plunge."
+  ],
+  "race_gear_checklist": "Race shoes (>= 30 mi of break-in, < 250 mi), Garmin fenix charged + Running Dynamics Pod, gels counted, Body Glide, throwaway layer, bib/pins.",
+  "emergency_number": "911"
+}

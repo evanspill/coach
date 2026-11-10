@@ -7,36 +7,6 @@ from coach.engine.paces import Zones
 from coach.models import Session, SessionRecord
 from coach.models.library import ExerciseLibrary
 
-# When an exercise has no history, estimate its e1RM from a related lift (factor of that lift's e1RM).
-# DB factors are per dumbbell.
-RELATED = {
-    "trap_bar_deadlift_low": ("trap_bar_deadlift_high", 0.95),
-    "block_pull": ("trap_bar_deadlift_high", 0.92),
-    "conventional_deadlift": ("trap_bar_deadlift_high", 0.9),
-    "rdl_barbell": ("trap_bar_deadlift_high", 0.6),
-    "rdl_db": ("trap_bar_deadlift_high", 0.24),
-    "single_leg_rdl_db": ("trap_bar_deadlift_high", 0.16),
-    "ssb_squat": ("ssb_box_squat", 0.97),
-    "high_bar_back_squat": ("ssb_box_squat", 1.0),
-    "goblet_squat": ("ssb_box_squat", 0.3),
-    "bulgarian_split_squat": ("ssb_box_squat", 0.2),
-    "reverse_lunge_db": ("ssb_box_squat", 0.2),
-    "step_up_db": ("ssb_box_squat", 0.17),
-    "incline_db_press": ("db_bench_press_neutral", 0.85),
-    "landmine_press": ("db_bench_press_neutral", 1.2),
-    "close_grip_bench": ("db_bench_press_neutral", 2.2),
-    "barbell_bench_press": ("db_bench_press_neutral", 2.4),
-    "half_kneeling_landmine_press": ("db_bench_press_neutral", 0.9),
-    "seated_db_press_neutral": ("db_bench_press_neutral", 0.7),
-    "standing_db_press": ("db_bench_press_neutral", 0.62),
-    "barbell_strict_press": ("db_bench_press_neutral", 1.5),
-    "push_press": ("db_bench_press_neutral", 1.9),
-    "chest_supported_db_row": ("db_bench_press_neutral", 0.9),
-    "hang_power_clean": ("trap_bar_deadlift_high", 0.42),
-    "power_clean": ("trap_bar_deadlift_high", 0.45),
-    "muscle_snatch": ("trap_bar_deadlift_high", 0.22),
-}
-
 
 class Filler:
     def __init__(
@@ -57,10 +27,10 @@ class Filler:
     def e1rm(self, ex_id: str) -> float | None:
         if ex_id not in self._e1rm_cache:
             v = L.best_recent_e1rm(self.history, ex_id, self.today, weeks=8)
-            if v is None and ex_id in RELATED:
-                src, factor = RELATED[ex_id]
-                base = L.best_recent_e1rm(self.history, src, self.today, weeks=8)
-                v = base * factor if base else None
+            est = self.lib.get(ex_id).estimate_from if self.lib.get(ex_id) else None
+            if v is None and est is not None:
+                base = L.best_recent_e1rm(self.history, est.exercise, self.today, weeks=8)
+                v = base * est.factor if base else None
             self._e1rm_cache[ex_id] = v
         return self._e1rm_cache[ex_id]
 

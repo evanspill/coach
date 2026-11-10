@@ -8,21 +8,19 @@ import yaml
 
 from coach.context import Context
 
-MILESTONES = {
-    "kipping_pull_up": (r"(\d+)\s*(?:unbroken|linked|in a row)?\s*kipping pull[- ]?ups?", {5: 2, 15: 3}),
-    "toes_to_bar": (r"(\d+)\s*(?:unbroken|linked|in a row)?\s*(?:t2b|toes[- ]to[- ]bar)", {5: 2, 10: 3}),
-    "strict_pull_up": (r"(\d+)\s*strict pull[- ]?ups?", {5: 2, 10: 3}),
-    "power_clean": (
-        r"power cleans? from the floor (?:feel|felt|look|looked) (?:solid|consistent|good)",
-        {0: 2},
-    ),
-}
 
+def skill_from_message(text: str, cfg=None) -> list[tuple[str, int]]:
+    """Milestone patterns per skill come from config/skills.yaml."""
+    if cfg is None:
+        from coach.config import load_config
 
-def skill_from_message(text: str) -> list[tuple[str, int]]:
+        cfg = load_config()
     out = []
     low = text.lower()
-    for skill, (pat, levels) in MILESTONES.items():
+    for skill, sk in cfg.skills.skills.items():
+        if sk.milestone is None:
+            continue
+        pat, levels = sk.milestone.pattern, sk.milestone.levels
         m = re.search(pat, low)
         if not m:
             continue

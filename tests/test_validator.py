@@ -66,7 +66,7 @@ def test_mcgill_before_lower_days(P):
     ctx, plan = P
     w = blk(plan.sessions[0], "warmup")
     w.items = [i for i in w.items if i.exercise_id != "bird_dog"]
-    assert "WARMUP_MCGILL" in codes(plan, ctx)
+    assert "WARMUP_REQUIRED" in codes(plan, ctx)
 
 
 def test_warmup_and_cooldown_required(P):

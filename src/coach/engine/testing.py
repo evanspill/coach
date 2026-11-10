@@ -7,25 +7,20 @@ from coach.engine.loads import e1rm
 from coach.models import TestResult
 from coach.models.library import TestBattery
 
-# Day offsets within the week (Mon = 0). Strength, run and engine land on separate days.
-BASELINE_DAYS = {"power": 0, "strength_lower": 0, "strength_upper": 1, "run": 3, "engine": 5, "body": 6}
-TRANSITION_DAYS = {"run": 3, "power": 4, "strength_lower": 4, "strength_upper": 4, "engine": 5, "body": 6}
-UPPER_TESTS = {"db_press_5rm", "pullups_max"}
-
 
 def test_slot(test_id: str, battery: TestBattery) -> str:
-    cat = battery.tests[test_id].category
-    if cat == "strength":
-        return "strength_upper" if test_id in UPPER_TESTS else "strength_lower"
-    return cat
+    return battery.tests[test_id].slot
 
 
 def schedule(week_start: dt.date, test_ids: list[str], battery: TestBattery, kind: str) -> dict[str, dt.date]:
-    days = BASELINE_DAYS if kind == "baseline" else TRANSITION_DAYS
-    out = {}
-    for t in test_ids:
-        out[t] = week_start + dt.timedelta(days=days[test_slot(t, battery)])
-    return out
+    """Day offsets per slot come from config/tests.yaml `schedule` (baseline | transition)."""
+    days = battery.schedule[kind]
+    return {t: week_start + dt.timedelta(days=days[test_slot(t, battery)]) for t in test_ids}
+
+
+def lower_is_better(test_id: str, battery: TestBattery) -> bool:
+    t = battery.tests.get(test_id)
+    return bool(t and t.lower_is_better)
 
 
 def reschedule_for_red(
@@ -150,18 +145,10 @@ def score(test_id: str, raw: dict, battery: TestBattery, day: dt.date) -> TestRe
     )
 
 
-def change_pct(before: TestResult, after: TestResult, lower_is_better: bool = False) -> float:
+def change_pct(before: TestResult, after: TestResult, lower_is_better: bool = False) -> float:  # noqa: FBT001
     a = before.comparable_value if before.comparable_value is not None else before.value
     b = after.comparable_value if after.comparable_value is not None else after.value
     if not a:
         return 0.0
     pct = (b - a) / a * 100
     return round(-pct if lower_is_better else pct, 2)
-
-
-LOWER_IS_BETTER = {"run_tt_30", "run_submax_drift", "z2_drift_60", "row_2k", "benchmark_wod", "hyrox_sim"}
-
-
-def TEST_RANK_ORDER(test_id: str, ctx) -> int:  # noqa: N802 - used as a sort key
-    cat = ctx.cfg.tests.tests[test_id].category
-    return {"power": 0, "strength": 1, "run": 2, "engine": 2, "body": 3}[cat]

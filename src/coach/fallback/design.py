@@ -45,7 +45,7 @@ class Picker:
         if (
             self.week_type in DELOAD_LIKE
             and block_kind not in {"warmup", "test"}
-            and ex.has_tag("eccentric_heavy", "high_impact")
+            and ex.has_tag(*self.ctx.cfg.training.rules.deload_banned_tags)
         ):
             return False
         if ex.skill and for_metcon:
@@ -83,190 +83,118 @@ def _items(*xs: Prescription | None) -> list[Prescription]:
     return [x for x in xs if x is not None]
 
 
+def _from_spec(
+    spec, P: Picker, block_kind: str, scale_fn=None, for_metcon: bool = False
+) -> Prescription | None:
+    """ItemSpec (config) -> Prescription, resolving families to the current rung and swapping what isn't allowed."""
+    if spec.family:
+        ex_id = P.main_lift(spec.family)
+    else:
+        target = spec.exercise
+        if spec.deload_exercise and P.week_type in DELOAD_LIKE:
+            target = spec.deload_exercise
+        ex_id = P.pick(target, for_metcon=for_metcon, block_kind=block_kind)
+    if ex_id is None:
+        return None
+    sets = scale_fn(spec.sets) if scale_fn else spec.sets
+    return Prescription(
+        exercise_id=ex_id,
+        sets=max(1, sets),
+        reps=spec.reps,
+        reps_max=spec.reps_max,
+        rir=spec.rir,
+        duration_s=spec.duration_s,
+        distance_m=spec.distance_m,
+        calories=spec.calories,
+        rest_s=spec.rest_s,
+        per_side=spec.per_side,
+        notes=spec.notes,
+        tempo=spec.tempo,
+    )
+
+
+def items_block(kind: str, specs, P: Picker, title: str = "", scale_fn=None) -> SessionBlock:
+    return SessionBlock(
+        kind=kind, title=title, items=_items(*(_from_spec(sp, P, kind, scale_fn) for sp in specs))
+    )  # type: ignore[arg-type]
+
+
 def warmup(kind: str, P: Picker) -> SessionBlock:
-    if kind in {"lower", "run", "full"}:
-        items = _items(
-            rx(P.pick("mcgill_curl_up", block_kind="warmup"), 1, 5, notes="10 s holds"),
-            rx(P.pick("side_plank", block_kind="warmup"), 1, duration_s=20, per_side=True),
-            rx(P.pick("bird_dog", block_kind="warmup"), 1, 6, per_side=True),
-            rx(P.pick("tib_raise", block_kind="warmup"), 1, 15),
-            rx(P.pick("pogo_hops", block_kind="warmup"), 2, 20)
-            if P.week_type not in DELOAD_LIKE
-            else rx(P.pick("ankle_rocker", block_kind="warmup"), 1, 10, per_side=True),
-            rx(P.pick("couch_stretch", block_kind="warmup"), 1, duration_s=45, per_side=True),
-        )
-        if kind == "full":
-            items += _items(
-                rx(P.pick("band_pull_apart", block_kind="warmup"), 1, 15),
-                rx(P.pick("thoracic_open_book", block_kind="warmup"), 1, 8, per_side=True),
-            )
-        return SessionBlock(
-            kind="warmup", title="Lower/run prep: McGill Big 3, tibs, pogos, couch stretch", items=items
-        )
-    if kind == "upper":
-        items = _items(
-            rx(P.pick("band_pull_apart", block_kind="warmup"), 2, 15),
-            rx(P.pick("scap_push_up", block_kind="warmup"), 1, 10),
-            rx(P.pick("thoracic_open_book", block_kind="warmup"), 1, 8, per_side=True),
-            rx(P.pick("bottoms_up_kb_press", block_kind="warmup"), 2, 5, per_side=True),
-            rx(
-                P.pick("crossover_symmetry_activation", block_kind="warmup"),
-                1,
-                1,
-                notes="activation sequence",
-            ),
-        )
-        return SessionBlock(kind="warmup", title="Shoulder prep", items=items)
-    items = _items(
-        rx(P.pick("cat_cow", block_kind="warmup"), 1, 8),
-        rx(P.pick("world_greatest_stretch", block_kind="warmup"), 1, 4, per_side=True),
-    )
-    return SessionBlock(kind="warmup", title="Easy mobility warm-up", items=items)
+    ws = P.ctx.cfg.training.item_set(kind, "warmups")
+    return items_block("warmup", ws.items, P, ws.title)
 
 
-def cooldown(P: Picker) -> SessionBlock:
-    return SessionBlock(
-        kind="cooldown",
-        title="~3 min easy + slow breathing to HR < 110, then hangs",
-        items=_items(
-            rx(P.pick("easy_cooldown", block_kind="cooldown"), 1, duration_s=180),
-            rx(P.pick("dead_hang", block_kind="cooldown"), 2, duration_s=30),
-        ),
-    )
+def cooldown(P: Picker, name: str = "standard") -> SessionBlock:
+    cs = P.ctx.cfg.training.item_set(name, "cooldowns")
+    return items_block("cooldown", cs.items, P, cs.title)
 
 
-def primer_lower(P: Picker) -> SessionBlock:
-    jump = P.pick("box_jump", block_kind="power")
-    return SessionBlock(
-        kind="power",
-        title="Neural primer",
-        items=_items(rx(jump, 3, 3, rest_s=60), rx(P.pick("med_ball_scoop_toss", block_kind="power"), 2, 3)),
-    )
-
-
-def primer_upper(P: Picker) -> SessionBlock:
-    return SessionBlock(
-        kind="power",
-        title="Upper primer",
-        items=_items(rx(P.pick("med_ball_chest_pass", block_kind="power"), 3, 5)),
-    )
-
-
-def sprints(P: Picker) -> SessionBlock:
-    s = P.pick("curve_sprint", block_kind="power")
-    return SessionBlock(
-        kind="power",
-        title="Alactic sprints: 6 x 10 s, full recovery",
-        items=_items(rx(s, 6, duration_s=10, rest_s=120)),
-    )
-
-
-SKILL_DRILLS = {
-    "kipping_pull_up": ["kip_swing", "hollow_hold"],
-    "toes_to_bar": ["kip_swing", "hanging_knee_raise"],
-    "power_clean": ["hang_power_clean", "clean_positions_empty_bar"],
-    "snatch": ["muscle_snatch", "snatch_positions_pvc"],
-    "overhead_squat": ["overhead_squat", "snatch_positions_pvc"],
-    "chest_to_bar": ["kipping_pull_up", "kip_swing"],
-    "peg_board": ["peg_board_ascent", "strict_pull_up"],
-}
+def item_set_block(kind: str, name: str, P: Picker, scale_fn=None) -> SessionBlock:
+    st = P.ctx.cfg.training.item_set(name)
+    return items_block(kind, st.items, P, st.title, scale_fn)
 
 
 def skill_block(P: Picker, week_number: int) -> SessionBlock | None:
     """10-12 min practice while fresh: 1-3 reps/set, <= 70% effort; rotates through skills not yet competent."""
-    pending = [k for k, s in P.ctx.cfg.skills.skills.items() if not s.competent and k in SKILL_DRILLS]
-    if not pending:
-        return None
-    chosen = [pending[(week_number + i) % len(pending)] for i in range(min(2, len(pending)))]
-    items = []
-    for sk in dict.fromkeys(chosen):
-        for drill in SKILL_DRILLS[sk]:
-            got = P.pick(drill, block_kind="skill")
-            if got:
-                items.append(
-                    rx(
-                        got,
-                        4,
-                        3,
-                        rir=4,
-                        notes=f"skill: {P.ctx.cfg.skills.skills[sk].name}; stop when mechanics degrade",
+    sp = P.ctx.cfg.training.skill_practice
+    skills = P.ctx.cfg.skills.skills
+    pending = [k for k, s in skills.items() if not s.competent and s.drills]
+    items: list[Prescription] = []
+    if pending:
+        chosen = [pending[(week_number + i) % len(pending)] for i in range(min(sp.per_session, len(pending)))]
+        for sk in dict.fromkeys(chosen):
+            for drill in skills[sk].drills:
+                got = P.pick(drill, block_kind="skill")
+                if got:
+                    items.append(
+                        Prescription(
+                            exercise_id=got,
+                            sets=sp.sets,
+                            reps=sp.reps,
+                            rir=sp.rir,
+                            notes=f"skill: {skills[sk].name}; stop when mechanics degrade",
+                        )
                     )
-                )
-                break
-    items = [i for i in items if i is not None]
+                    break
     if not items:
-        items = _items(
-            rx(P.pick("hollow_hold", block_kind="skill"), 3, duration_s=20),
-            rx(P.pick("arch_hold", block_kind="skill"), 3, duration_s=20),
-        )
+        for ex in sp.fallback:
+            got = P.pick(ex, block_kind="skill")
+            if got:
+                items.append(Prescription(exercise_id=got, sets=3, duration_s=20))
+    if not items:
+        return None
     return SessionBlock(kind="skill", title="Skill primer (10-12 min, fresh, <= 70%)", items=items)
 
 
-METCON_POOLS = {
-    "short": [
-        ("row_erg", dict(calories=12)),
-        ("kb_swing", dict(reps=15)),
-        ("burpee", dict(reps=10)),
-        ("wall_ball", dict(reps=15)),
-        ("toes_to_bar", dict(reps=10)),
-        ("box_step_over", dict(reps=12)),
-        ("echo_bike", dict(calories=10)),
-        ("strict_pull_up", dict(reps=5)),
-        ("db_hang_clean_and_press_low", dict(reps=10)),
-        ("ski_erg", dict(calories=12)),
-    ],
-    "hyrox": [
-        ("ski_erg", dict(distance_m=500)),
-        ("sled_push", dict(distance_m=25)),
-        ("sled_pull", dict(distance_m=25)),
-        ("burpee_broad_jump", dict(reps=10)),
-        ("row_erg", dict(distance_m=500)),
-        ("farmers_carry", dict(distance_m=100)),
-        ("sandbag_lunge", dict(distance_m=25)),
-        ("wall_ball", dict(reps=20)),
-    ],
-}
-
-
 def metcon_block(
-    P: Picker, stimulus: str, minutes: float, week_number: int, name: str | None = None
+    P: Picker, pool_name: str, minutes: float, week_number: int, name: str | None = None
 ) -> SessionBlock:
-    pool = METCON_POOLS["hyrox" if stimulus == "hyrox" else "short"]
-    n = 4 if stimulus == "hyrox" else 3
-    start = (week_number * 3) % len(pool)
+    pool = P.ctx.cfg.training.metcon_pools[pool_name]
+    moves = pool.movements
+    start = (week_number * 3) % len(moves)
     chosen: list[Prescription] = []
     seen: set[str] = set()
-    for i in range(len(pool)):
-        ex_id, kw = pool[(start + i) % len(pool)]
-        got = P.pick(ex_id, for_metcon=True, block_kind="conditioning")
-        if got and got not in seen:
-            seen.add(got)
-            chosen.append(Prescription(exercise_id=got, sets=1, **kw))
-        if len(chosen) == n:
+    for i in range(len(moves)):
+        sp = moves[(start + i) % len(moves)]
+        rx_ = _from_spec(sp, P, "conditioning", for_metcon=True)
+        if rx_ and rx_.exercise_id not in seen:
+            seen.add(rx_.exercise_id)
+            rx_.sets = 1
+            chosen.append(rx_)
+        if len(chosen) == pool.count:
             break
     if P.week_type in DELOAD_LIKE:
         minutes = max(6, round(minutes * 0.6))
-    if stimulus == "hyrox":
-        mc = Metcon(
-            name=name or "Hyrox threshold intervals",
-            format="intervals",
-            time_cap_min=minutes,
-            rounds=4,
-            movements=chosen,
-            stimulus="Threshold (~RPE 7-8): 400 m treadmill run between stations, steady not all-out; practise transitions",
-            scaling="Hold the run at threshold pace; reduce station distance before slowing the run",
-            score_type="time",
-        )
-    else:
-        mc = Metcon(
-            name=name or f"{int(minutes)}-min AMRAP",
-            format="amrap",
-            time_cap_min=minutes,
-            movements=chosen,
-            stimulus="Glycolytic, ~85-90% effort, sustainable pace with short breaks; no grinding",
-            scaling="Only movements at or below current rungs/skill levels; scale reps before load",
-            score_type="rounds_reps",
-        )
+    mc = Metcon(
+        name=name or pool.name.format(minutes=int(minutes)),
+        format=pool.format,
+        time_cap_min=minutes,
+        rounds=pool.rounds,  # type: ignore[arg-type]
+        movements=chosen,
+        stimulus=pool.stimulus,
+        scaling=pool.scaling,
+        score_type=pool.score_type,
+    )  # type: ignore[arg-type]
     return SessionBlock(kind="conditioning", title=mc.name, metcon=mc)
 
 
@@ -277,11 +205,13 @@ def run_block(
     location: str = "outdoor",
     mp_finish_min: float = 0,
     strides: int = 0,
+    mp_pace_s_per_mi: float = 450,
+    mp_from_miles: float = 8,
 ) -> SessionBlock:
     segs = []
     terrain = "treadmill" if location == "gym" else "flat"
-    if mp_finish_min > 0 and miles >= 8:
-        mp_miles = round(min(mp_finish_min * 60 / 450, miles * 0.25), 1)
+    if mp_finish_min > 0 and miles >= mp_from_miles:
+        mp_miles = round(min(mp_finish_min * 60 / mp_pace_s_per_mi, miles * 0.25), 1)
         segs.append(
             RunSegment(
                 label=f"{label} (easy)", zone=zone, distance_mi=round(miles - mp_miles, 1), terrain=terrain
@@ -366,34 +296,18 @@ def make_session(
     return s
 
 
-def recovery_session(ctx: Context, day: dt.date, minutes: int = 35, note: str = "") -> Session:
-    P = Picker(ctx, "deload", "home")
-    mob = SessionBlock(
-        kind="mobility",
-        title="Mobility: foam roller, bands, lacrosse ball",
-        items=_items(
-            rx(P.pick("foam_roll"), 1, duration_s=300),
-            rx(P.pick("hip_90_90"), 1, 8, per_side=True),
-            rx(P.pick("band_mobility"), 1, duration_s=300),
-            rx(P.pick("thoracic_open_book"), 1, 8, per_side=True),
-        ),
-    )
-    walk = SessionBlock(
-        kind="run",
-        title="Zone 1 walk",
-        run=[RunSegment(label="Z1 walk", zone="Z1", duration_min=minutes, modality="walk")],
-    )
-    s = make_session(
-        ctx,
-        day,
-        "recovery",
-        "recovery",
-        "Recovery: Z1 walk + mobility",
-        note or "Promote recovery; nothing hard.",
-        [walk, mob],
-        location="home",
-        route="neighbourhood walk",
-    )
+def recovery_session(ctx: Context, day: dt.date, minutes: int | None = None, note: str = "") -> Session:
+    """The `recovery` session template, optionally with a different walk length / intent."""
+    from coach.fallback.templates import build_session
+
+    s = build_session(ctx, "recovery", day, "deload", 0.0, week_number=day.isocalendar()[1])
+    if minutes is not None:
+        for seg in s.run_segments():
+            if seg.modality == "walk":
+                seg.duration_min = minutes
+    if note:
+        s.intent = note
+    s.expected_minutes = estimate_minutes(s, ctx.zones.threshold_pace_s_per_mi)
     s.carb_tier = "low"
     return s
 
@@ -412,15 +326,7 @@ def rest_session(ctx: Context, day: dt.date, reason: str) -> Session:
     )
 
 
-FILLERS = {
-    "quads": "leg_extension",
-    "hamstrings": "seated_leg_curl",
-    "glutes": "hip_thrust",
-    "chest": "cable_fly",
-    "back": "cable_row",
-    "shoulders": "lateral_raise_db",
-}
-LOWER = {"quads", "hamstrings", "glutes"}
+LOWER = {"quads", "hamstrings", "glutes", "calves", "adductors"}
 
 
 def balance_hard_sets(
@@ -498,7 +404,8 @@ def _add(sessions, muscle, ctx, ranges, sets, week_type, rir) -> bool:
     ]
     for s in targets:
         P = Picker(ctx, week_type, s.location)
-        ex_id = P.pick(FILLERS[muscle], block_kind="hypertrophy")
+        filler = ctx.cfg.training.fillers.get(muscle)
+        ex_id = P.pick(filler, block_kind="hypertrophy") if filler else None
         if not ex_id or any(it.exercise_id == ex_id for b in s.blocks for it in b.items):
             continue
         hyp = next((b for b in s.blocks if b.kind == "hypertrophy"), None)

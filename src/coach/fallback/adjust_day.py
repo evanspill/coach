@@ -26,14 +26,14 @@ HARD_TYPES = {
 }
 
 
-def _z2_block(location: str, minutes: int = 40) -> SessionBlock:
+def _z2_block(location: str, minutes: int = 40, zone: str = "Z2") -> SessionBlock:
     if location == "gym":
         seg = RunSegment(
-            label=f"{minutes} min Zone 2 (erg or treadmill)", zone="Z2", duration_min=minutes, modality="bike"
-        )
+            label=f"{minutes} min {zone} (erg or treadmill)", zone=zone, duration_min=minutes, modality="bike"
+        )  # type: ignore[arg-type]
     else:
-        seg = RunSegment(label=f"{minutes} min Zone 2 run", zone="Z2", duration_min=minutes)
-    return SessionBlock(kind="run", title=f"{minutes} min Zone 2 (replaces hard conditioning)", run=[seg])
+        seg = RunSegment(label=f"{minutes} min {zone} run", zone=zone, duration_min=minutes)  # type: ignore[arg-type]
+    return SessionBlock(kind="run", title=f"{minutes} min {zone} (replaces hard conditioning)", run=[seg])
 
 
 def _resubstitute(s: Session, P: Picker, changes: list[Change], why: str) -> None:
@@ -169,20 +169,23 @@ def adjust(
                     what=f"{session.title} -> Z1 walk + mobility", why=f"Red readiness ({why})", kind="small"
                 )
             )
-            session = D.recovery_session(ctx, day, 35, "Red: next 48 h are Z1 + mobility")
+            session = D.recovery_session(
+                ctx, day, cfg.training.rules.red_recovery_minutes, "Red: next 48 h are Z1 + mobility"
+            )
         elif state == "yellow":
+            yr = cfg.training.rules.yellow_replacement
             replaced = False
             for i, b in enumerate(session.blocks):
                 is_hard_cond = b.metcon is not None or any(seg.zone in {"T", "Z5", "Z3"} for seg in b.run)
                 if is_hard_cond and session.type not in {"test", "competition", "race"}:
-                    session.blocks[i] = _z2_block(session.location, 40)
+                    session.blocks[i] = _z2_block(session.location, int(yr["minutes"]), yr.get("zone", "Z2"))
                     replaced = True
             if session.type == "run_quality":
                 session.type = "run_easy"
             if replaced:
                 changes.append(
                     Change(
-                        what="metcon/threshold work -> 40 min Zone 2; primary strength kept",
+                        what=f"metcon/threshold work -> {yr['minutes']} min {yr.get('zone', 'Z2')}; primary strength kept",
                         why=f"Yellow readiness ({'; '.join(readiness.reasons)})",
                     )
                 )
@@ -264,21 +267,16 @@ def adjust(
     y_metrics = ctx.state.daily_metrics(day - dt.timedelta(days=1), day - dt.timedelta(days=1))
     y_strain = y_metrics[0].day_strain if y_metrics else None
     rx: list[str] = []
-    if s and (
-        s.type in {"run_long", "run_quality", "hyrox", "race", "competition"}
-        or (s.type == "test" and "run_tt_30" in s.tests)
-    ):
-        rx.append("Normatec boots 20-30 min at the gym after the session")
+    rc = cfg.profile.recovery
+    run_test = bool(s and s.type == "test" and any(cfg.tests.tests[t].slot == "run" for t in s.tests))
+    if s and (s.type in {"run_long", "run_quality", "hyrox", "race", "competition"} or run_test):
+        rx.append(rc.after_hard_session)
     if s and s.type in HARD_TYPES or (y_strain and y_strain > cfg.profile.thresholds.high_strain):
-        area = (
-            "hips/hamstrings/calves"
-            if s and s.type in {"run_long", "run_quality", "lower", "hyrox"}
-            else "T-spine/shoulders/hips"
-        )
-        rx.append(
-            f"evening 10-15 min soft tissue + mobility ({area}): foam roller, lacrosse ball, bands, Theragun"
-        )
-    rx.append("magnesium bisglycinate at night")
+        lower = bool(s and s.type in {"run_long", "run_quality", "lower", "hyrox"})
+        area = rc.areas.get("lower" if lower else "upper", "loaded areas")
+        rx.append(rc.evening_mobility.format(area=area))
+    if rc.nightly:
+        rx.append(rc.nightly)
     rec.recovery_prescription = rx
     # --- nutrition ---
     rec.nutrition = fuel.day_targets(ctx, day, plan, sources, s if s and s.type != "rest" else None)

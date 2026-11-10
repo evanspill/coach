@@ -5,6 +5,7 @@
   "blocks": [
     {
       "id": "2026-27-B1",
+      "key": "B1",
       "index": 1,
       "name": "Strength base -> CrossFit Open",
       "focus": "force build, then metcon/gymnastics sharpening into the Open",
@@ -23,6 +24,7 @@
     },
     {
       "id": "2026-27-B2",
+      "key": "B2",
       "index": 2,
       "name": "Hypertrophy + run ramp",
       "focus": "hypertrophy emphasis (12-16 hard sets/muscle/wk), run 15 -> 25 mi/wk",
@@ -35,6 +37,7 @@
     },
     {
       "id": "2026-27-B3",
+      "key": "B3",
       "index": 3,
       "name": "Marathon build + Hyrox engine",
       "focus": "35-50 mi/wk, compromised running, lifting at MED",
@@ -47,6 +50,7 @@
     },
     {
       "id": "2026-27-B4",
+      "key": "B4",
       "index": 4,
       "name": "Taper -> marathon -> reset",
       "focus": "3-week taper, race, 2-week structural reset",

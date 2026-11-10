@@ -6,75 +6,43 @@ numbers; Claude handles anything they can't, using the `log` skill.
 
 import re
 
-REGION_WORDS = {
-    "back": "back",
-    "lowback": "back",
-    "low back": "back",
-    "shoulder": "shoulders",
-    "shoulders": "shoulders",
-    "sh": "shoulders",
-    "knee": "knees_achilles",
-    "knees": "knees_achilles",
-    "achilles": "knees_achilles",
-    "ka": "knees_achilles",
-}
 
-_TAG_RE = re.compile(
-    r"\b(low back|lowback|back|shoulders?|sh|knees?|achilles|ka)\s*[:=]?\s*([1-5])\b",
-    re.IGNORECASE,
-)
+def vocabulary(cfg=None) -> tuple[dict[str, str], dict[str, str]]:
+    """(word -> joint region, word -> movement family) from config (checkin.regions words, family aliases)."""
+    if cfg is None:
+        from coach.config import load_config
+
+        cfg = load_config()
+    regions = {w.lower(): r for r, spec in cfg.profile.checkin.regions.items() for w in [r, *spec.words]}
+    families = {w.lower(): f for f, fam in cfg.progressions.families.items() for w in [f, *fam.aliases]}
+    return regions, families
+
+
+def _alt(words) -> str:
+    return "|".join(re.escape(w) for w in sorted(words, key=len, reverse=True))
+
+
 _RPE_RE = re.compile(r"\b(?:s?rpe)\s*[:=]?\s*(\d+(?:\.\d)?)", re.IGNORECASE)
 _ENJOY_RE = re.compile(r"\b(?:enjoy(?:ment|ed)?|fun)\s*[:=]?\s*([1-5])\b", re.IGNORECASE)
 _SORE_RE = re.compile(r"\bsore(?:ness)?\s*[:=]?\s*([1-5])\b", re.IGNORECASE)
 _VBT_RE = re.compile(r"\b(?:vbt|bar ?speed|velocity)\s*[:=]?\s*(0?\.\d+|\d\.\d+)\s*(?:m/s)?", re.IGNORECASE)
-_PAIN_RE = re.compile(
-    r"\b(hinge|deadlift|squat|press(?:ing)?|bench|overhead|ohp|pull[- ]?ups?|kipping|clean|snatch)\b[^.\n]{0,40}?"
-    r"(?:hurt|pain|discomfort|sore|ache|tweak)[^.\n]{0,25}?(\d+(?:\.\d)?)\s*/\s*10",
-    re.IGNORECASE,
-)
-_PAIN_RE2 = re.compile(
-    r"(?:hurt|pain|discomfort)[^.\n]{0,25}?(?:during|on|with)\s+(?:the\s+)?(hinge|deadlifts?|squats?|press(?:ing)?|bench|overhead|ohp|"
-    r"pull[- ]?ups?|kipping|cleans?|snatch(?:es)?)[^.\n]{0,25}?(\d+(?:\.\d)?)\s*/\s*10",
-    re.IGNORECASE,
-)
-FAMILY_WORDS = {
-    "hinge": "hinge",
-    "deadlift": "hinge",
-    "deadlifts": "hinge",
-    "squat": "squat",
-    "squats": "squat",
-    "press": "press",
-    "pressing": "press",
-    "bench": "press",
-    "overhead": "overhead",
-    "ohp": "overhead",
-    "pull-up": "kipping",
-    "pull-ups": "kipping",
-    "pullup": "kipping",
-    "pullups": "kipping",
-    "pull up": "kipping",
-    "pull ups": "kipping",
-    "kipping": "kipping",
-    "clean": "olympic",
-    "cleans": "olympic",
-    "snatch": "olympic",
-    "snatches": "olympic",
-}
 
 
-def parse_checkin_tag(text: str | None) -> dict:
-    """'back 2 shoulder 3 rpe 8 enjoy 4' -> {'back': 2, 'shoulders': 3, 'session_rpe': 8.0, 'enjoyment': 4}."""
+def parse_checkin_tag(text: str | None, cfg=None) -> dict:
+    """'back 2 shoulder 3 rpe 8 enjoy 4' -> {'joints': {'back': 2, 'shoulders': 3}, 'session_rpe': 8.0, 'enjoyment': 4}.
+    Region and family words come from config (checkin.regions, movement family aliases)."""
     if not text:
         return {}
+    region_words, family_words = vocabulary(cfg)
     out: dict = {}
-    for word, val in _TAG_RE.findall(text):
-        region = REGION_WORDS.get(
-            word.lower().rstrip("s") if word.lower() not in REGION_WORDS else word.lower()
-        )
-        if region is None:
-            region = REGION_WORDS.get(word.lower())
+    joints: dict[str, int] = {}
+    tag_re = re.compile(rf"\b({_alt(region_words)})s?\s*[:=]?\s*([1-5])\b", re.IGNORECASE)
+    for word, val in tag_re.findall(text):
+        region = region_words.get(word.lower())
         if region:
-            out[region] = int(val)
+            joints[region] = int(val)
+    if joints:
+        out["joints"] = joints
     if m := _RPE_RE.search(text):
         v = float(m.group(1))
         if 1 <= v <= 10:
@@ -85,9 +53,18 @@ def parse_checkin_tag(text: str | None) -> dict:
         out["soreness"] = int(m.group(1))
     if m := _VBT_RE.search(text):
         out["bar_speed_mps"] = float(m.group(1))
+    fam_alt = _alt(family_words)
+    pain_re = re.compile(
+        rf"\b({fam_alt})\b[^.\n]{{0,40}}?(?:hurt|pain|discomfort|sore|ache|tweak)[^.\n]{{0,25}}?(\d+(?:\.\d)?)\s*/\s*10",
+        re.IGNORECASE,
+    )
+    pain_re2 = re.compile(
+        rf"(?:hurt|pain|discomfort)[^.\n]{{0,25}}?(?:during|on|with)\s+(?:the\s+)?({fam_alt})[^.\n]{{0,25}}?(\d+(?:\.\d)?)\s*/\s*10",
+        re.IGNORECASE,
+    )
     pain: dict[str, float] = {}
-    for word, val in [*_PAIN_RE.findall(text), *_PAIN_RE2.findall(text)]:
-        fam = FAMILY_WORDS.get(word.lower().replace("_", "-"))
+    for word, val in [*pain_re.findall(text), *pain_re2.findall(text)]:
+        fam = family_words.get(word.lower())
         if fam:
             pain[fam] = max(pain.get(fam, 0.0), float(val))
     if pain:
@@ -95,9 +72,10 @@ def parse_checkin_tag(text: str | None) -> dict:
     if re.search(r"slept (?:badly|poorly|terrible|awful)|bad sleep|poor sleep", text, re.IGNORECASE):
         out["sleep_note"] = "slept badly"
     if re.search(r"stiff(?:er|ness)? (?:this morning|today|up)|more stiff", text, re.IGNORECASE):
-        out["stiffness_up"] = [
-            r for r in ("back", "shoulders", "knees_achilles") if r.split("_")[0][:4] in text.lower()
-        ] or ["back"]
+        low = text.lower()
+        out["stiffness_up"] = sorted(
+            {r for w, r in region_words.items() if re.search(rf"\b{re.escape(w)}", low)}
+        ) or [next(iter(set(region_words.values())), "back")]
     return out
 
 

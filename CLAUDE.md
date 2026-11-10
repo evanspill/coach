@@ -23,11 +23,13 @@ zones; `coach` fills loads from recent e1RM (rounded to real plates/DBs/KBs) and
 ```
 CLAUDE.md                  this file (routing + conventions)
 .claude/skills/<name>/     one coaching job per skill (SKILL.md + examples/)
-config/                    athlete_context.json, equipment, exercises, tests, benchmarks, skills,
-                           movement_progressions, coach.yaml (behaviour)
+config/                    the athlete: athlete_context.json, season.yaml (shape of the year), training.yaml
+                           (session/week templates + training rules), equipment, exercises, tests, benchmarks,
+                           skills, movement_progressions, coach.yaml (behaviour)
 docs/                      TRAINING_ARCHITECTURE (rules), COACH_VOICE, SAFETY, TESTING_PROTOCOL,
                            ARCHITECTURE, DECISIONS, SECURITY, SETUP
-src/coach/                 cli, models, integrations (+mocks), engine, validator, push, fallback/, sim/
+src/coach/                 the generic engine: cli, models, integrations (+mocks), engine, validator, push,
+                           fallback/, sim/, demo/ (demo athlete config + fixtures for tests and simulate)
 state/                     macrocycle, blocks/, weeks/, days/, checkins/, metcons/, proposals/, notes.md ...
 tests/                     pytest (CI: ruff + pytest + 120-day simulation)
 ```
@@ -40,7 +42,9 @@ tests/                     pytest (CI: ruff + pytest + 120-day simulation)
   `coach validate <file>|config`, `coach push --day|--week [--dry-run]`, `coach approve <id|week|block-goal>`,
   `coach reject <id> --reason ...`, `coach proposals`, `coach report <metric> --weeks N`,
   `coach macrocycle regenerate`, `coach test schedule|score`, `coach log "<message>"`,
-  `coach simulate --days 120 --from 2026-11-16`.
+  `coach simulate --days 120 --from 2026-11-16`, `coach form-check <family> --by coach|physio`.
+- To change the training approach, edit `config/season.yaml` / `config/training.yaml` (code holds no session content);
+  threshold changes still need an approved proposal.
 - `coach daily --fallback` is the deterministic safety net if you can't complete the daily run yourself.
 
 ## Routing: what the athlete says -> skill

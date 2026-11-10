@@ -26,8 +26,17 @@ def state_dir() -> Path:
     return Path(env) if env else repo_root() / "state"
 
 
+def demo_dir() -> Path:
+    """Bundled demo athlete: config + fixtures used by tests and `coach simulate`."""
+    return Path(__file__).resolve().parent / "demo"
+
+
 def fixtures_dir() -> Path:
-    return Path(__file__).resolve().parent / "fixtures"
+    return demo_dir() / "fixtures"
+
+
+def demo_config_dir() -> Path:
+    return demo_dir() / "config"
 
 
 def is_mock() -> bool:

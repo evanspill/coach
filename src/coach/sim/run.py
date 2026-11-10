@@ -31,14 +31,15 @@ class SimResult:
 
 
 @contextlib.contextmanager
-def sandbox(out_dir: Path | None = None):
-    """Temp COACH_HOME with a copy of config/ and an empty state/ (the repo's own state is never touched)."""
+def sandbox(out_dir: Path | None = None, config: str = "demo"):
+    """Temp COACH_HOME with a copy of the demo config (or the active config) and an empty state/.
+    The athlete's own state is never touched."""
     home = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="coach-sim-"))
     if (home / "config").exists():
         shutil.rmtree(home / "config")
     if (home / "state").exists():
         shutil.rmtree(home / "state")
-    shutil.copytree(paths.config_dir(), home / "config")
+    shutil.copytree(paths.demo_config_dir() if config == "demo" else paths.config_dir(), home / "config")
     (home / "state").mkdir(parents=True, exist_ok=True)
     saved = {k: os.environ.get(k) for k in ("COACH_HOME", "COACH_STATE_DIR", "COACH_TODAY", "COACH_MOCK")}
     os.environ.update({"COACH_HOME": str(home), "COACH_STATE_DIR": str(home / "state"), "COACH_MOCK": "1"})
@@ -58,8 +59,9 @@ def simulate(
     out_dir: Path | None = None,
     echo=print,
     scenarios: bool = True,
+    config: str = "demo",
 ) -> SimResult:
-    with sandbox(out_dir) as home:
+    with sandbox(out_dir, config) as home:
         res = SimResult(home=home)
         world = MockWorld.load()
         late = {dt.date.fromisoformat(d) for d in world.script.get("late_recovery_dates", [])}

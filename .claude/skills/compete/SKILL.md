@@ -12,9 +12,9 @@ workout releases (Thursday nights), after an event (post-event review).
 (races, goal times), `config/skills.yaml` (competent skills -> Rx vs scaled), weather forecast, `state/events/`.
 
 ## Procedure
-- **Marathon:** 3-week taper (~80 / 60 / 40% volume, intensity kept), race plan with goal pace (sub-3:16 =
-  ~7:28-7:29/mi) checked against current threshold pace, pacing by segment, fuelling (60-90 g carbs/h, sodium),
-  warm-up, gear check (shoes < 250 mi, pod, gels), contingencies (heat tiers, GI, calf twinge). Write
+- **Marathon:** 3-week taper (~80 / 60 / 40% volume, intensity kept), race plan with goal pace (from the goal time in
+  `athlete_context.json`) checked against current threshold pace, pacing by segment, fuelling (60-90 g carbs/h, sodium),
+  warm-up, gear check (`race_gear_checklist`), contingencies (heat tiers, GI, calf twinge). Write
   `state/events/<event>.md`; it is a proposal until approved.
 - **Open week:** attempt Friday after Thursday's release; plan where to break before you need to; Rx only if every
   movement is competent and within rungs, otherwise scaled; shoulder rules apply; re-attempt only with a clear

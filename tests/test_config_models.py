@@ -36,7 +36,7 @@ def test_profile_stores_no_current_weight():
 
 
 def test_macrocycle_from_race_anchors():
-    m = M.generate(load_config().profile, dt.date(2026, 11, 10))
+    m = M.generate(load_config().profile, load_config().season, dt.date(2026, 11, 10))
     assert m.baseline_start == dt.date(2026, 11, 16)
     assert [b.start for b in m.blocks] == [
         dt.date(2026, 11, 23),
@@ -51,7 +51,7 @@ def test_macrocycle_from_race_anchors():
 
 
 def test_macrocycle_gap_and_overlap_detected():
-    m = M.generate(load_config().profile, dt.date(2026, 11, 10))
+    m = M.generate(load_config().profile, load_config().season, dt.date(2026, 11, 10))
     m.blocks[1].start += dt.timedelta(days=7)
     assert any(v.code == "MACRO_GAP" and "gap" in v.message for v in validate_macrocycle(m))
     m.blocks[1].start -= dt.timedelta(days=14)

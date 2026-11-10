@@ -21,7 +21,6 @@ from coach.models import (
 from coach.state import State
 from coach.validator import ValidationContext
 
-DEFAULT_ZONES = {"lthr": 165, "threshold_pace_s_per_mi": 480}
 NON_NORMAL_WEEKS = {"deload", "transition", "taper", "reset"}
 
 
@@ -170,7 +169,8 @@ def build(state: State | None = None, cfg: Config | None = None, today: dt.date 
     week_index = ((clock.monday_of(today) - block.start).days // 7 + 1) if block else 0
     target = outline.week(week_index) if outline else None
     movement = state.movement_readiness() or mv.initial_state(cfg.progressions, today)
-    z = state.zones() or DEFAULT_ZONES
+    dz = cfg.profile.running.default_zones
+    z = state.zones() or {"lthr": dz.lthr, "threshold_pace_s_per_mi": dz.threshold_pace_s_per_mi}
     zones = Zones(lthr=int(z["lthr"]), threshold_pace_s_per_mi=int(z["threshold_pace_s_per_mi"]))
     return Context(
         cfg=cfg,

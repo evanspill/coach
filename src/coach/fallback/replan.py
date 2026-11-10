@@ -8,7 +8,7 @@ from coach.engine.deloads import pull_forward
 from coach.fallback import design as D
 from coach.fallback.plan_block import deload_ranges, targets_for
 from coach.fallback.plan_week import finalize, plan_week
-from coach.models import BlockOutline, Deviation, Metcon, Session, WeekPlan
+from coach.models import BlockOutline, Deviation, Session, WeekPlan
 from coach.models.plans import Revision
 from coach.validator import validate_outline
 
@@ -28,12 +28,12 @@ def reactive_deload(ctx: Context, today: dt.date, reason: str) -> tuple[BlockOut
     n = len(ol.weeks)
     new_deloads = pull_forward(ol.deload_weeks, next_week, n, comp)
     new = ol.model_copy(deep=True)
-    block_index = ctx.block.index
+    spec = ctx.cfg.season.spec(ctx.block.key)
     for w in new.weeks:
         if w.type in {"deload", "training"} and w.week_index not in comp:
             want = "deload" if w.week_index in new_deloads else "training"
             if want != w.type and w.week_index >= next_week:
-                keys, ranges = targets_for(block_index, want)
+                keys, ranges = targets_for(spec, want)
                 prev = ol.week(w.week_index - 1)
                 w.type = want  # type: ignore[assignment]
                 w.key_sessions = keys
@@ -119,24 +119,10 @@ def illness(ctx: Context, plan: WeekPlan, start: dt.date, end: dt.date | None, s
     return new
 
 
-def _easy_z2(ctx: Context, day: dt.date, minutes: int) -> Session:
-    from coach.models import RunSegment, SessionBlock
+def _easy_z2(ctx: Context, day: dt.date, minutes: int | None = None) -> Session:
+    from coach.fallback.templates import build_session
 
-    P = D.Picker(ctx, "deload", "gym")
-    blk = SessionBlock(
-        kind="run",
-        title=f"{minutes} min easy Zone 2 (bike or walk-run)",
-        run=[RunSegment(label="Easy Z2 bike", zone="Z2", duration_min=minutes, modality="bike")],
-    )
-    return D.make_session(
-        ctx,
-        day,
-        "return",
-        "run_easy",
-        "Graded return: easy Z2",
-        "Day 2 back: easy aerobic only",
-        [D.warmup("full", P), blk, D.cooldown(P)],
-    )
+    return build_session(ctx, "graded_return_z2", day, "deload", 0.0, day.isocalendar()[1])
 
 
 def travel(ctx: Context, plan: WeekPlan, dates: list[dt.date]) -> WeekPlan:
@@ -184,71 +170,24 @@ def travel(ctx: Context, plan: WeekPlan, dates: list[dt.date]) -> WeekPlan:
 
 
 def _travel_session(ctx: Context, day: dt.date, original: Session) -> Session:
-    from coach.models import SessionBlock
+    from coach.fallback.templates import build_session
 
-    P = D.Picker(ctx, "training", "travel")
-    if (
-        original.type in {"run_easy", "run_long", "run_quality", "recovery", "rest"}
-        and original.type != "rest"
-    ):
-        miles = max(2.0, sum(seg.distance_mi or 0 for seg in original.run_segments()) * 0.8)
-        return D.make_session(
-            ctx,
-            day,
-            "travel-run",
-            "run_easy",
-            "Travel run",
-            "Easy run wherever you are",
-            [D.warmup("run", P), D.run_block("Easy run (explore safely, daylight)", miles), D.cooldown(P)],
-            location="travel",
-        )
     if original.type == "rest":
         return original
-    circuit = SessionBlock(
-        kind="hypertrophy",
-        title="Hotel-room strength circuit",
-        items=D._items(
-            D.rx(P.pick("push_up"), 4, 12, 2),
-            D.rx(P.pick("bodyweight_split_squat"), 3, 12, 2, per_side=True),
-            D.rx(P.pick("single_leg_glute_bridge"), 3, 12, 2, per_side=True),
-            D.rx(P.pick("band_row"), 4, 15, 2),
-            D.rx(P.pick("band_pull_apart"), 3, 20),
-            D.rx(P.pick("dead_bug"), 3, 10),
-            D.rx(P.pick("side_plank"), 2, duration_s=30, per_side=True),
-        ),
-    )
-    cond = SessionBlock(
-        kind="conditioning",
-        title="Bodyweight intervals",
-        metcon=Metcon(
-            name="Bodyweight EMOM",
-            format="emom",
-            time_cap_min=10,
-            movements=D._items(D.rx(P.pick("burpee", for_metcon=True), 1, 8)),
-            stimulus="Moderate, sustainable",
-            score_type="none",
-        ),
-    )
-    return D.make_session(
-        ctx,
-        day,
-        "travel",
-        "full_body",
-        "Travel: bodyweight strength",
-        "Keep the habit; no equipment needed",
-        [D.warmup("full", P), circuit, cond, D.cooldown(P)],
-        location="travel",
-    )
+    wn = day.isocalendar()[1]
+    if original.type in {"run_easy", "run_long", "run_quality", "recovery"}:
+        miles = sum(seg.distance_mi or 0 for seg in original.run_segments() if seg.modality == "run") * 0.8
+        return build_session(ctx, "travel_run", day, "training", miles, wn)
+    return build_session(ctx, "travel_strength", day, "training", 0.0, wn)
 
 
 def _fix_back_to_back(ctx: Context, plan: WeekPlan) -> None:
     from coach.engine.sessions import categories
-    from coach.validator import FORBIDDEN_BACK_TO_BACK
 
     ordered = sorted(plan.sessions, key=lambda s: s.date)
     for a, b in zip(ordered, ordered[1:], strict=False):
         ca, cb = categories(a, ctx.cfg.library, ctx.cfg.tests), categories(b, ctx.cfg.library, ctx.cfg.tests)
-        if any(x in ca and y in cb for x, y in FORBIDDEN_BACK_TO_BACK):
+        if any(x in ca and y in cb for x, y in ctx.cfg.training.rules.forbidden_back_to_back):
             for blk in b.blocks:
                 if blk.metcon is not None and b.type in {"full_body", "upper", "lower"}:
                     blk.metcon.time_cap_min = 5  # becomes a short finisher, not glycolytic work

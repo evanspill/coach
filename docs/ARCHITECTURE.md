@@ -135,7 +135,7 @@ gantt
   CrossFit Open (reported) :milestone, 2027-02-18, 0d
   Marathon (placeholder)  :milestone, 2027-10-17, 0d
 ```
-Block 1 ends one week after the last Open workout (`season.post_open_weeks: 1`), not two; see DECISIONS.md.
+Block 1 ends one week after the last Open workout (`season.yaml` B1 `end_after_event.weeks_after: 1`), not two; see DECISIONS.md.
 
 ## Code map
 
@@ -150,6 +150,22 @@ Block 1 ends one week after the last Open workout (`season.post_open_weeks: 1`),
 | `coach/fill.py` | Fills loads (e1RM -> rounded implement) and paces/HR (zones) into plans |
 | `coach/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled` |
 | `coach/proposals.py` | Proposals, approve/reject, config lock + changelog |
-| `coach/fallback/` | Deterministic stand-in for each skill (used after 3 failed validations and in simulation) |
+| `coach/fallback/` | Deterministic stand-in for each skill (used after 3 failed validations and in simulation); `templates.py` builds sessions from `training.yaml` |
 | `coach/daily.py` | The coach-daily flow in deterministic mode (`coach daily --fallback`, simulation) |
 | `coach/sim/` | Simulated athlete, 120-day replay, per-skill scenarios |
+
+## Engine vs athlete files (prepares the two-repo split)
+
+| Engine (generic, reusable) | Athlete (private, tailored) |
+|---|---|
+| `src/coach/` (package, incl. `demo/` test athlete), `tests/`, `scripts/`, `.claude/skills/`, `.github/`, `pyproject.toml` | `config/` (all of it), `state/` |
+| `docs/ARCHITECTURE.md`, `SAFETY.md`, `COACH_VOICE.md`, `SECURITY.md`, `SETUP.md` | `CLAUDE.md` (role + routing for this athlete), `docs/TRAINING_ARCHITECTURE.md`, `TESTING_PROTOCOL.md`, `DECISIONS.md` (judgment calls for this athlete) |
+
+The engine reads everything athlete-specific from `COACH_HOME/config` and writes to `COACH_STATE_DIR`, so after the
+split the athlete repo just installs the engine (setup script) and keeps `config/` + `state/`.
+
+### Where the season and sessions come from
+`config/season.yaml` blocks are laid out by `engine/macrocycle.py` (forward from the season start, backward from the
+race-anchored last block, one `fill` block in between). `fallback/plan_block.py` turns a block spec into an outline;
+`fallback/plan_week.py` picks the week template for the week type and `fallback/templates.py` builds each session from
+its template (fixed items resolve to the current rung; generators size runs, pick metcons and skill drills).

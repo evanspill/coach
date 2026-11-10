@@ -14,9 +14,9 @@ active joint flags from `coach readiness`.
 ## Session rules (enforced by `coach validate`)
 - Structure: **warm-up -> (skill primer) -> speed/power -> heavy strength -> hypertrophy -> conditioning ->
   (mobility) -> cool-down**. Warm-up first, cool-down last, always.
-- Warm-ups: lower/run days = McGill Big 3 (curl-up, side plank, bird dog) + tib raises + pogo hops + couch
-  stretch; upper/CrossFit days = band pull-aparts, scap push-ups, T-spine open books, bottoms-up KB press,
-  Crossover Symmetry. Cool-down: ~3 min easy + slow breathing to HR < 110, then dead hangs.
+- Warm-ups and cool-downs come from `config/training.yaml` (`warmups`, `cooldowns`); lower-body days must include
+  everything in `rules.required_warmup.lower_body`. Prefer the athlete's session templates (`sessions`) as the
+  starting point and change them with a reason.
 - Exercises only from `config/exercises.yaml`, at or below the current rung (and its RIR cap), never with tags
   restricted by an active joint flag (use the exercise's `regressions`), only equipment available at the location.
 - Skill work (Olympic lifts, gymnastics) 10-12 min while fresh, 1-3 reps/set, <= 70% effort; **never in a metcon

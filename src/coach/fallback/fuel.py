@@ -19,7 +19,8 @@ def weekly_target(ctx: Context, week_start: dt.date, sources=None) -> tuple[floa
     if saved.get("weekly_kcal"):
         return float(saved["weekly_kcal"]), "MacroFactor target (told to the coach)"
     bw = ctx.bodyweight_kg()
-    return round(bw * 33 * 7), "estimate (33 kcal/kg/day) until MacroFactor data is connected"
+    per_kg = ctx.cfg.profile.nutrition.estimate_kcal_per_kg
+    return round(bw * per_kg * 7), f"estimate ({per_kg:g} kcal/kg/day) until MacroFactor data is connected"
 
 
 def day_targets(
@@ -33,7 +34,9 @@ def day_targets(
     tiers = {}
     for i in range(7):
         d = week_start + dt.timedelta(days=i)
-        tiers[d] = nut.carb_tier_for(sessions.get(d), sessions.get(d + dt.timedelta(days=1)))
+        tiers[d] = nut.carb_tier_for(
+            sessions.get(d), sessions.get(d + dt.timedelta(days=1)), ctx.cfg.training.rules.carb_tiers
+        )
     kcal, source = weekly_target(ctx, week_start, sources)
     days = nut.distribute_week(kcal, ctx.bodyweight_kg(), tiers, rules)
     today = next(d for d in days if d.date == day)

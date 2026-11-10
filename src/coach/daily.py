@@ -36,7 +36,7 @@ def bootstrap(state: State, cfg: Config, today: dt.date) -> list[str]:
     """One-time setup (coach init): macrocycle, starting rungs, config lock, notes, intake template."""
     done = []
     if state.macrocycle() is None:
-        state.write_json("macrocycle.json", macro_engine.generate(cfg.profile, today))
+        state.write_json("macrocycle.json", macro_engine.generate(cfg.profile, cfg.season, today))
         done.append("macrocycle generated")
     if state.movement_readiness() is None:
         state.write_json("movement_readiness.json", mv.initial_state(cfg.progressions, today))
@@ -45,15 +45,13 @@ def bootstrap(state: State, cfg: Config, today: dt.date) -> list[str]:
         proposals.record_config_lock(state, cfg, "initial", today)
         done.append("config lock recorded")
     if not state.exists("notes.md"):
-        state.write_text(
-            "notes.md",
-            "# Coach notes (durable facts)\n\n- Past low-back and shoulder injuries: rebuild capacity via movement-readiness ladders; nothing banned forever.\n- No home equipment; all training at the work gym. No sauna/cold plunge.\n",
-        )
+        seed = "".join(f"- {line}\n" for line in cfg.profile.notes_seed)
+        state.write_text("notes.md", "# Coach notes (durable facts)\n\n" + seed)
         done.append("notes.md created")
     if not state.exists("health.json"):
         state.write_json("health.json", {"red_flags": [], "illness": None, "travel": []})
     if not state.exists("athlete_intake.json"):
-        state.write_json("athlete_intake.json", assess.intake_template(today))
+        state.write_json("athlete_intake.json", assess.intake_template(today, cfg.profile.intake_questions))
         done.append("intake questionnaire template written (run it with the athlete in chat)")
     return done
 

@@ -11,11 +11,11 @@ from coach.sync import merge_sessions, sync
 
 
 def test_checkin_from_hevy_notes():
-    assert parse_checkin_tag("back 2 shoulder 3") == {"back": 2, "shoulders": 3}
+    assert parse_checkin_tag("back 2 shoulder 3") == {"joints": {"back": 2, "shoulders": 3}}
     t = parse_checkin_tag("Felt ok. back:1 knee 2 rpe 7.5 enjoy 4 bar speed 0.62")
     assert (
-        t["back"] == 1
-        and t["knees_achilles"] == 2
+        t["joints"]["back"] == 1
+        and t["joints"]["knees_achilles"] == 2
         and t["session_rpe"] == 7.5
         and t["enjoyment"] == 4
         and t["bar_speed_mps"] == 0.62

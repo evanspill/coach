@@ -141,7 +141,7 @@ def sc_assess_baseline(c: Check) -> None:
     c.that(goal.status == "pending" and p.status == "pending", "block goal needs approval")
     c.that(1 <= len(goal.guardrails) <= 2, "one primary goal + 1-2 guardrails")
     c.that(
-        goal.primary.test_id in ctx.cfg.tests.batteries["block_candidates"]["B1"],
+        goal.primary.test_id in ctx.cfg.season.spec("B1").goal.focus_tests,
         "primary goal measured by a configured test",
     )
     c.note(
@@ -232,8 +232,10 @@ def _adjust_case(
         synthetic_metrics(ctx.state, day, today_rec, yesterday_rec, hrv_drop, drop_days=drop_days)
         ctx = build(ctx.state, ctx.cfg, day)
         plan = plan_week.plan_week(ctx, clock.monday_of(day))
-        wb = plan_week.WeekBuilder(ctx, clock.monday_of(day), "training", 1)
-        s = getattr(wb, session_role)(day, 4.0)
+        from coach.fallback.templates import build_session
+
+        spec = ctx.cfg.season.spec(ctx.block.key) if ctx.block else None
+        s = build_session(ctx, session_role, day, "training", 4.0, day.isocalendar()[1], spec)
         plan.sessions = [x for x in plan.sessions if x.date != day] + [s]
         ctx.state.write_json(f"weeks/{plan.week_id}/plan.json", plan)
         rec = adjust_day.adjust(ctx, day, plan, None, weather or [])
@@ -493,7 +495,7 @@ def sc_log_messy(c: Check) -> None:
     r2 = log_skill.handle(ctx, "check in: back 2, shoulder 3, slept badly", day)
     ci = ctx.state.read_json(f"checkins/{day}.json")
     c.that(
-        ci["back"] == 2 and ci["shoulders"] == 3 and ci.get("sleep_note"),
+        ci["joints"]["back"] == 2 and ci["joints"]["shoulders"] == 3 and ci.get("sleep_note"),
         "check-in parsed (back 2, shoulder 3, slept badly)",
     )
     r3 = log_skill.handle(ctx, "metcon done, legs were toast", day)

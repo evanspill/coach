@@ -10,7 +10,7 @@ from coach.models import Checkin
 
 STOP_MESSAGE = (
     "Stop training now and get checked by a doctor today ({flags}). If it's chest pain, fainting or severe breathlessness, "
-    "call 911. I've paused all sessions until you tell me a doctor has cleared you."
+    "call {emergency}. I've paused all sessions until you tell me a doctor has cleared you."
 )
 
 
@@ -28,7 +28,7 @@ def handle(ctx: Context, text: str, day: dt.date) -> dict:
         ctx.health = health
         out["red_flags"] = flags
         out["records"].append("health.json")
-        out["reply"] = STOP_MESSAGE.format(flags=", ".join(flags))
+        out["reply"] = STOP_MESSAGE.format(flags=", ".join(flags), emergency=ctx.cfg.profile.emergency_number)
         return out
     illness = (
         classify_illness(text)
@@ -74,13 +74,15 @@ def handle(ctx: Context, text: str, day: dt.date) -> dict:
     if tag and not (is_metcon and set(tag) <= {"session_rpe"}):
         path = f"checkins/{day.isoformat()}.json"
         prev = ctx.state.read_json(path) or {"date": day.isoformat(), "source": "chat"}
-        merged = {**prev, **{k: v for k, v in tag.items() if k != "session_pain"}}
+        merged = {**prev, **{k: v for k, v in tag.items() if k not in {"session_pain", "joints"}}}
+        if "joints" in tag:
+            merged["joints"] = {**prev.get("joints", {}), **tag["joints"]}
         if "session_pain" in tag:
             merged["session_pain"] = {**prev.get("session_pain", {}), **tag["session_pain"]}
         Checkin.model_validate(merged)
         ctx.state.write_json(path, merged)
         out["records"].append(path)
-        parts = [f"{k} {v}" for k, v in tag.items() if k in {"back", "shoulders", "knees_achilles"}]
+        parts = [f"{k} {v}" for k, v in tag.get("joints", {}).items()]
         if "session_pain" in tag:
             fam, p = next(iter(tag["session_pain"].items()))
             parts.append(f"{fam} pain {p:g}/10")

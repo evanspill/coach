@@ -16,4 +16,6 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: pytest
+      - run: python -m coach validate config   # the athlete's own config/ + approved-change lock
       - run: python -m coach simulate --days 120 --from 2026-11-16 --quiet
+      - run: python -m coach simulate --days 120 --from 2026-11-16 --quiet --config active --no-scenarios

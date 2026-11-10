@@ -1,6 +1,6 @@
 ---
 name: rehab
-description: Return to unrestricted training and durability. Manages the movement readiness ladders (advance, hold, regress one rung at a time), the in-session pain rule, capacity and mobility work (McGill Big 3, carries, rotator cuff/Crossover Symmetry, hips/ankles/T-spine), tendon load during the running ramp, and when to recommend a physio.
+description: Return to unrestricted training and durability. Manages the movement readiness ladders (advance, hold, regress one rung at a time), the in-session pain rule, capacity and mobility work (trunk, shoulder, hips/ankles/T-spine), tendon load during the running ramp, and when to recommend a physio.
 ---
 
 # rehab
@@ -19,8 +19,8 @@ the floor yet?", region flags.
 - **Region flag** (>= 3 on 2 consecutive check-ins): the region's families drop one rung for the next week and the
   region's tags are restricted until it's <= 2 twice in a row.
 - Track "% of movement families fully unlocked" (reported in every block review).
-- Capacity work is part of every week: McGill Big 3 + carries (trunk), rotator cuff/scapular/overhead mobility
-  (Crossover Symmetry), hips/ankles/T-spine; tendon load (calves, tibs, pogos) during the running ramp.
+- Capacity work is part of every week (trunk, shoulder/scapular, hips/ankles/T-spine, tendon load during any
+  running ramp), using the warm-ups and item sets in `config/training.yaml` for the athlete's flagged regions.
 - Recommend a physiotherapist when a family regresses twice in 4 weeks, pain persists > 2 weeks, or anything
   matches a red flag.
 

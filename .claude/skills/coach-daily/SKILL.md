@@ -37,7 +37,7 @@ summary." (and the 9:05 catch-up variant). Never in chat unless the athlete asks
 Today: <session headline> (~<min> min, <location>). <main lift / miles>
 Weather: <call>                       (only if running outdoors)
 Fuel: <pre / during / after cue>
-Tonight: <Normatec / mobility / magnesium>
+Tonight: <recovery prescription>
 Changed: <what> (<why>)               (if anything changed)
 Waiting for your OK: <proposal ids + titles>
 Gear: <alerts>                        (when relevant)

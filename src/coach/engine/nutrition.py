@@ -5,31 +5,36 @@ import datetime as dt
 from coach.models import NutritionDay, Session
 from coach.models.profile import NutritionRules
 
-TIER_FOR_TYPE = {
-    "lower": "high",
-    "full_body": "high",
-    "run_long": "high",
-    "run_quality": "high",
-    "hyrox": "high",
-    "metcon": "high",
-    "test": "high",
-    "competition": "high",
-    "race": "high",
-    "upper": "moderate",
-    "sprint_upper": "moderate",
-    "run_easy": "moderate",
-    "recovery": "low",
-    "rest": "low",
+# Generic default; config/training.yaml rules.carb_tiers overrides it.
+DEFAULT_TIERS = {
+    "high": [
+        "lower",
+        "full_body",
+        "run_long",
+        "run_quality",
+        "hyrox",
+        "metcon",
+        "test",
+        "competition",
+        "race",
+    ],
+    "moderate": ["upper", "sprint_upper", "run_easy"],
+    "low": ["recovery", "rest"],
 }
 
 
-def carb_tier_for(session: Session | None, tomorrow: Session | None = None) -> str:
+def carb_tier_for(
+    session: Session | None, tomorrow: Session | None = None, tiers: dict[str, list[str]] | None = None
+) -> str:
     """High on hard days and the day before the long run; moderate on other training days; low on rest days."""
     if tomorrow is not None and tomorrow.type in {"run_long", "race"}:
         return "high"
     if session is None:
         return "low"
-    return TIER_FOR_TYPE.get(session.type, "moderate")
+    for tier, types in (tiers or DEFAULT_TIERS).items():
+        if session.type in types:
+            return tier
+    return "moderate"
 
 
 def distribute_week(
@@ -74,14 +79,24 @@ def distribute_week(
     return out
 
 
+DEFAULT_PERI = {
+    "pre": "Pre: 30-60 g carbs + sodium 60-90 min out",
+    "during": "during: {lo}-{hi} g carbs/h + sodium (session > {minutes} min)",
+    "after": "after: 30-40 g protein + carbs within 2 h",
+    "easy_day": "Easy day: normal meals, protein at each.",
+    "rest_day": "Rest day: protein spread over 4 meals.",
+}
+
+
 def peri_workout(session: Session | None, rules: NutritionRules) -> str:
+    text = {**DEFAULT_PERI, **rules.peri_workout}
     if session is None or session.type in {"rest"}:
-        return "Rest day: protein spread over 4 meals; magnesium tonight."
+        return text["rest_day"]
     if session.type == "recovery":
-        return "Easy day: normal meals, protein at each; magnesium tonight."
-    parts = ["Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha"]
+        return text["easy_day"]
+    parts = [text["pre"]]
     if session.expected_minutes > rules.intra_threshold_minutes:
         lo, hi = rules.intra_session_carbs_g_per_h
-        parts.append(f"during: {lo}-{hi} g carbs/h + sodium (session > {rules.intra_threshold_minutes} min)")
-    parts.append("after: 40 g protein + carbs within 2 h")
+        parts.append(text["during"].format(lo=lo, hi=hi, minutes=rules.intra_threshold_minutes))
+    parts.append(text["after"])
     return "; ".join(parts) + "."

@@ -15,7 +15,7 @@ Sunday: travel? gym closures?).
 1. Start from the outline week: type, run miles, long run, key sessions, hard-set ranges, pillar MEDs.
 2. Adjust for last week's review (focus points, adherence, flags). Any deviation from the outline goes in
    `deviations` with a reason (e.g. "held mileage at 28 instead of 31: three yellow days").
-3. Lay out days using the default microcycle in `docs/TRAINING_ARCHITECTURE.md` (one session/day, 9-10 AM start,
+3. Lay out days using the default microcycle in `docs/TRAINING_ARCHITECTURE.md` and the week templates in `config/training.yaml` (sessions/day and start window from `athlete_context.json` `schedule`,
    session length sized to purpose and capacity). Respect spacing: no forbidden back-to-back hard days, no hard
    lower lifting the day before the long run.
 4. Call `design-session` for each session (intent, stimulus, location, equipment, rungs, skill levels).

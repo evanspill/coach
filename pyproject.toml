@@ -19,7 +19,7 @@ coach = "coach.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-coach = ["fixtures/*.json"]
+coach = ["demo/fixtures/*.json", "demo/config/*.yaml", "demo/config/*.json", "demo/README.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -18,17 +18,6 @@ from coach.engine.weather import in_daylight
 from coach.models import BlockOutline, Macrocycle, MovementReadiness, Session, WeekPlan
 from coach.models.records import JointFlag
 
-FORBIDDEN_BACK_TO_BACK = [
-    ("glycolytic", "glycolytic"),
-    ("glycolytic", "run_quality"),
-    ("run_quality", "glycolytic"),
-    ("run_quality", "run_quality"),
-    ("lower_heavy", "lower_heavy"),
-    ("long_run", "run_quality"),
-    ("run_quality", "long_run"),
-    ("glycolytic", "long_run"),
-]
-MCGILL = {"mcgill_curl_up", "side_plank", "bird_dog"}
 NON_TRAINING = {"rest"}
 EXEMPT_STRUCTURE = {"rest", "recovery"}
 DELOAD_TYPES = {"deload", "transition", "taper", "reset"}
@@ -132,14 +121,14 @@ def validate_session(
             v.append(Violation("WARMUP_COOLDOWN", "session must start with a warm-up block", s.id))
         if not s.blocks or s.blocks[-1].kind != "cooldown" or not (s.blocks[-1].items or s.blocks[-1].run):
             v.append(Violation("WARMUP_COOLDOWN", "session must end with a cool-down block", s.id))
-    if S.is_lower_body(s, lib) and s.type not in EXEMPT_STRUCTURE:
+    required = set(cfg.training.rules.required_warmup.get("lower_body", []))
+    if required and S.is_lower_body(s, lib) and s.type not in EXEMPT_STRUCTURE:
         warm = {it.exercise_id for b in s.blocks if b.kind == "warmup" for it in b.items}
-        if not warm >= MCGILL:
+        if not warm >= required:
+            names = ", ".join(lib.get(x).name if lib.get(x) else x for x in sorted(required - warm))
             v.append(
                 Violation(
-                    "WARMUP_MCGILL",
-                    f"lower-body day needs McGill Big 3 in the warm-up (missing {sorted(MCGILL - warm)})",
-                    s.id,
+                    "WARMUP_REQUIRED", f"lower-body day is missing required warm-up work: {names}", s.id
                 )
             )
     ranks = [
@@ -202,7 +191,7 @@ def validate_session(
             if (
                 week_type in DELOAD_TYPES
                 and b.kind not in {"test", "warmup"}
-                and ex.has_tag("eccentric_heavy", "high_impact")
+                and ex.has_tag(*cfg.training.rules.deload_banned_tags)
             ):
                 v.append(
                     Violation(
@@ -300,7 +289,7 @@ def validate_week(plan: WeekPlan, ctx: ValidationContext) -> list[Violation]:
     for a, b in zip(ordered, ordered[1:], strict=False):
         if (b.date - a.date).days != 1:
             continue
-        for x, y in FORBIDDEN_BACK_TO_BACK:
+        for x, y in cfg.training.rules.forbidden_back_to_back:
             if x in cats[id(a)] and y in cats[id(b)]:
                 v.append(Violation("BACK_TO_BACK", f"{a.date:%a} {x} followed by {b.date:%a} {y}", b.id))
         if "long_run" in cats[id(b)] and S.has_hard_lower_lifting(a, lib):

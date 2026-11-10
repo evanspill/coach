@@ -3,7 +3,7 @@
 import datetime as dt
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from coach.models.common import Model
 
@@ -70,9 +70,9 @@ class SessionRecord(Model):
 
 class Checkin(Model):
     date: dt.date
-    back: int | None = Field(default=None, ge=1, le=5)
-    shoulders: int | None = Field(default=None, ge=1, le=5)
-    knees_achilles: int | None = Field(default=None, ge=1, le=5)
+    joints: dict[str, int] = Field(
+        default_factory=dict
+    )  # region (config/athlete_context.json checkin.regions) -> 1-5
     session_rpe: float | None = Field(default=None, ge=1, le=10)
     enjoyment: int | None = Field(default=None, ge=1, le=5)
     soreness: int | None = Field(default=None, ge=1, le=5)
@@ -83,13 +83,13 @@ class Checkin(Model):
     notes: str | None = None
     source: Literal["intervals", "hevy_notes", "chat", "simulated"] = "chat"
 
-    def joints(self) -> dict[str, int]:
-        out = {}
-        for region in ("back", "shoulders", "knees_achilles"):
-            v = getattr(self, region)
-            if v is not None:
-                out[region] = v
-        return out
+    @field_validator("joints")
+    @classmethod
+    def _ratings_1_to_5(cls, v: dict[str, int]) -> dict[str, int]:
+        for region, rating in v.items():
+            if not 1 <= rating <= 5:
+                raise ValueError(f"joint rating for {region} must be 1-5, got {rating}")
+        return v
 
 
 class Gear(Model):

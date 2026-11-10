@@ -22,6 +22,11 @@ Implement = Literal[
 LoadMode = Literal["e1rm", "last_used", "bodyweight", "kb", "none"]
 
 
+class EstimateFrom(Model):
+    exercise: str
+    factor: float
+
+
 class Exercise(Model):
     id: str
     name: str
@@ -38,6 +43,7 @@ class Exercise(Model):
     load_mode: LoadMode = "none"
     hevy_title: str | None = None
     hevy_template_id: str | None = None
+    estimate_from: "EstimateFrom | None" = None
 
     def has_tag(self, *tags: str) -> bool:
         return any(t in self.tags for t in tags)
@@ -86,6 +92,7 @@ class Rung(Model):
 
 class Family(Model):
     region: str
+    aliases: list[str] = Field(default_factory=list)
     rungs: list[Rung]
 
 
@@ -113,8 +120,15 @@ class SkillGate(Model):
     rung: int
 
 
+class Milestone(Model):
+    pattern: str
+    levels: dict[int, int]
+
+
 class Skill(Model):
     name: str
+    drills: list[str] = Field(default_factory=list)
+    milestone: Milestone | None = None
     levels: list[str]
     competent_level: int
     current_level: int
@@ -145,9 +159,15 @@ class TestDef(LooseModel):
     reference_variant: str | None = None
     family: str | None = None
     passive: bool = False
+    slot: str = "engine"
+    stress: str = "none"
+    lower_is_better: bool = False
+    goal_change_pct: float = 5.0
+    session: dict[str, Any] = Field(default_factory=dict)
 
 
 class TestBattery(Model):
     standard_conditions: dict[str, Any]
+    schedule: dict[str, dict[str, int]]
     tests: dict[str, TestDef]
     batteries: dict[str, Any]

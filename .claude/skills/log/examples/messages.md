@@ -2,7 +2,7 @@
 
 | Athlete says | Record written | Reply |
 |---|---|---|
-| "check in: back 2, shoulder 3, slept badly" | `checkins/<date>.json`: `{"back": 2, "shoulders": 3, "sleep_note": "slept badly", "source": "chat"}` | "Check-in logged: back 2, shoulders 3" |
+| "check in: back 2, shoulder 3, slept badly" | `checkins/<date>.json`: `{"joints": {"back": 2, "shoulders": 3}, "sleep_note": "slept badly", "source": "chat"}` | "Check-in logged: back 2, shoulders 3" |
 | "Finished the Hyrox sim: 4 rounds in 26:40, sled heavy on round 3, wall balls unbroken, RPE 8.5" | `metcons/<date>.json`: kind `hyrox_sim`, `time_s` 1600, `rounds` 4, `rpe` 8.5, movement notes (sled heavy r3, wall balls unbroken) | "Logged hyrox_sim: time_s=1600, rounds=4, rpe=8.5" |
 | "did the metcon - 4 rds + 12, wallballs unbroken, burpees slow, rpe 8" | `metcons/<date>.json`: rounds 4 + 12 reps, rpe 8 | "Logged metcon: rounds=4, extra_reps=12, rpe=8.0" |
 | "metcon done, legs were toast" | `metcons/<date>.json` (score missing) | follow-up: "What was the final score (time, or rounds + reps)?" |

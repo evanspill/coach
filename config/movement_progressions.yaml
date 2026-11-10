@@ -15,6 +15,7 @@ rules:
     If next-morning stiffness rises: drop that movement's load ~15% and use a 3 s eccentric for 2 weeks.
 families:
   hinge:
+    aliases: [hinge, deadlift, deadlifts, rdl]
     region: back
     rungs:
       - {name: Trap bar high handle, exercises: [trap_bar_deadlift_high], min_rir: 2}
@@ -22,12 +23,14 @@ families:
       - {name: Block pull, exercises: [block_pull], min_rir: 2}
       - {name: Conventional deadlift from the floor, exercises: [conventional_deadlift], min_rir: 1, min_days_before: 21, form_check: true}
   squat:
+    aliases: [squat, squats]
     region: back
     rungs:
       - {name: Safety squat bar box squat, exercises: [ssb_box_squat], min_rir: 2}
       - {name: Safety squat bar squat, exercises: [ssb_squat], min_rir: 2}
       - {name: High-bar back squat, exercises: [high_bar_back_squat], min_rir: 1, min_days_before: 21, form_check: true}
   press:
+    aliases: [press, pressing, bench]
     region: shoulders
     rungs:
       - {name: Neutral-grip DB press, exercises: [db_bench_press_neutral], min_rir: 2}
@@ -35,6 +38,7 @@ families:
       - {name: Converging press machine / close-grip bar, exercises: [converging_chest_press, close_grip_bench], min_rir: 2}
       - {name: Full barbell bench press, exercises: [barbell_bench_press], min_rir: 1, min_days_before: 21, form_check: true}
   overhead:
+    aliases: [overhead, ohp, shoulder press]
     region: shoulders
     rungs:
       - {name: Half-kneeling landmine press, exercises: [half_kneeling_landmine_press], min_rir: 2}
@@ -43,6 +47,7 @@ families:
       - {name: Barbell strict press, exercises: [barbell_strict_press], min_rir: 2, min_days_before: 21, form_check: true}
       - {name: Push press / jerk, exercises: [push_press, push_jerk], min_rir: 1, min_days_before: 21, form_check: true}
   olympic:
+    aliases: [clean, cleans, snatch, snatches]
     region: back
     rungs:
       - {name: Positions and drills, exercises: [snatch_positions_pvc, clean_positions_empty_bar], min_rir: 4}
@@ -50,6 +55,7 @@ families:
       - {name: Power variations from the floor, exercises: [power_clean, hang_power_snatch], min_rir: 3, min_days_before: 21, form_check: true}
       - {name: Full lifts from the floor, exercises: [squat_clean], min_rir: 2, min_days_before: 21, form_check: true}
   kipping:
+    aliases: [kipping, pull-up, pull-ups, pullup, pullups, pull up, pull ups]
     region: shoulders
     rungs:
       - {name: Strict pulling + hollow/arch, exercises: [], min_rir: 2}

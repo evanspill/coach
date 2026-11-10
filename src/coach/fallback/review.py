@@ -68,12 +68,12 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         if r and r.readiness:
             states.append(r.readiness.state)
     cis = ctx.state.checkins(plan.start, plan.end)
-    joints = {
-        k: max((getattr(c, k) or 0) for c in cis) if cis else None
-        for k in ("back", "shoulders", "knees_achilles")
-    }
+    regions = sorted({r for c in cis for r in c.joints})
+    joints = {r: max(c.joints.get(r, 0) for c in cis) for r in regions}
     bw = burnout_watch(ctx, plan.end)
     planned_sets = hard_sets(plan, ctx.cfg.library)
+    mb = ctx.macro.block_by_id(plan.block_id) if ctx.macro else None
+    tracked_muscles = set(ctx.cfg.season.spec(mb.key).hard_sets) if mb and mb.key else set(planned_sets)
     alerts = G.shoe_alerts(ctx.state.gear(), ctx.cfg.profile.thresholds.shoe_alert_miles)
     cadences = [s.cadence_spm for s in sessions if s.cadence_spm]
     went_well, to_fix, focus, questions = [], [], [], []
@@ -123,11 +123,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         + (f" ({w_now - w_prev:+.2f} vs last week)" if w_now and w_prev else ""),
         "- **Peak joint ratings:** " + ", ".join(f"{k} {v}" for k, v in joints.items()),
         "- **Planned hard sets:** "
-        + ", ".join(
-            f"{m} {v:g}"
-            for m, v in sorted(planned_sets.items())
-            if m in {"quads", "hamstrings", "glutes", "chest", "back", "shoulders"}
-        ),
+        + ", ".join(f"{m} {v:g}" for m, v in sorted(planned_sets.items()) if m in tracked_muscles),
         f"- **Enjoyment / RPE (2-wk vs prior):** {bw['enjoyment'][1]} vs {bw['enjoyment'][0]} / {bw['rpe'][1]} vs {bw['rpe'][0]}",
         "",
         "## What went well",

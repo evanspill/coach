@@ -205,7 +205,9 @@ class State:
                 for f, v in other.model_dump().items():
                     if f in {"date", "source"}:
                         continue
-                    if f == "session_pain":
+                    if f == "joints":
+                        base.joints = {**v, **base.joints}
+                    elif f == "session_pain":
                         base.session_pain = {**v, **base.session_pain}
                     elif f == "stiffness_up":
                         base.stiffness_up = sorted(set(base.stiffness_up) | set(v))

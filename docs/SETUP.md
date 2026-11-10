@@ -29,7 +29,14 @@ ruff check . && ruff format --check . && pytest
 - [ ] Setup script: `pip install -e ".[dev]"`.
 - [ ] Unset `COACH_MOCK` for live runs.
 
-### Whoop (and Withings)
+### Whoop (and Withings): two options
+- **No hosting (simplest):** Whoop wellness (recovery, HRV, RHR, sleep) through Intervals.icu's native Whoop
+  connection, and Withings through Apple Health -> HealthFit -> Intervals.icu wellness. Everything then comes from one
+  static Intervals.icu key. Costs: no per-workout Whoop strain/zones (Garmin HR from Intervals covers sessions), and
+  Intervals polls Whoop only every ~8 h, so the 8:25 run may not see last night's recovery (the 9:05 catch-up helps;
+  opening the Intervals calendar triggers a poll). Needs a small change: read recovery from Intervals wellness.
+- **Direct APIs (fuller data):** the steps below.
+
 - [ ] Register a Whoop developer app (API v2) and a Withings developer app.
 - [ ] Deploy the token broker (e.g. a free Cloudflare Worker) that holds the rotating refresh tokens and exposes
       read-only endpoints (`/v2/recovery`, `/v2/activity/sleep`, `/v2/cycle`, `/v2/activity/workout`,
@@ -37,6 +44,12 @@ ruff check . && ruff format --check . && pytest
 - [ ] Backup: enable Intervals.icu's native Whoop wellness sync.
 - [ ] Verify each live client against the real API (`coach sync --pretty`) and fix field names in
       `src/coach/integrations/normalize.py` if they differ from the docs-based shapes.
+
+### Your config (all in `config/`)
+- `athlete_context.json` (profile, races, thresholds, check-in regions, nutrition/recovery wording), `season.yaml`
+  (blocks), `training.yaml` (sessions, warm-ups, rules), `equipment.yaml`, `exercises.yaml`, `tests.yaml`,
+  `movement_progressions.yaml`, `skills.yaml`, `benchmarks.yaml`, `coach.yaml`. After editing:
+  `python -m coach validate config` and `python -m coach simulate --config active --no-scenarios`.
 
 ### First live run
 - [ ] `python -m coach init` (macrocycle, starting rungs, config lock, notes, intake template). Already run once in

@@ -224,10 +224,7 @@ def intervals_activities(raw: list[dict]) -> list[SessionRecord]:
     return out
 
 
-CHECKIN_FIELDS = {
-    "BackFeel": "back",
-    "ShoulderFeel": "shoulders",
-    "KneeAchillesFeel": "knees_achilles",
+DEFAULT_CHECKIN_FIELDS = {
     "SessionRPE": "session_rpe",
     "Enjoyment": "enjoyment",
     "Soreness": "soreness",
@@ -235,7 +232,19 @@ CHECKIN_FIELDS = {
 }
 
 
-def intervals_wellness(raw: list[dict]) -> tuple[list[DailyMetrics], list[Checkin]]:
+def checkin_fields(cfg=None) -> tuple[dict[str, str], dict[str, str]]:
+    """(Intervals field -> joint region, Intervals field -> Checkin field) from config/athlete_context.json checkin."""
+    if cfg is None:
+        from coach.config import load_config
+
+        cfg = load_config()
+    ck = cfg.profile.checkin
+    joints = {spec.intervals_field: region for region, spec in ck.regions.items() if spec.intervals_field}
+    return joints, {**DEFAULT_CHECKIN_FIELDS, **ck.intervals_fields}
+
+
+def intervals_wellness(raw: list[dict], cfg=None) -> tuple[list[DailyMetrics], list[Checkin]]:
+    joint_fields, other_fields = checkin_fields(cfg)
     metrics, checkins = [], []
     for w in raw:
         day = dt.date.fromisoformat(w["id"])
@@ -251,9 +260,10 @@ def intervals_wellness(raw: list[dict]) -> tuple[list[DailyMetrics], list[Checki
                 sources=["intervals"],
             )
         )
-        fields = {dst: w[src] for src, dst in CHECKIN_FIELDS.items() if w.get(src) is not None}
-        if fields:
-            checkins.append(Checkin(date=day, source="intervals", **fields))
+        fields = {dst: w[src] for src, dst in other_fields.items() if w.get(src) is not None}
+        joints = {region: int(w[src]) for src, region in joint_fields.items() if w.get(src) is not None}
+        if fields or joints:
+            checkins.append(Checkin(date=day, source="intervals", joints=joints, **fields))
     return metrics, checkins
 
 

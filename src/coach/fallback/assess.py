@@ -12,24 +12,24 @@ from coach.engine.units import fmt_pace
 from coach.models import BlockGoal, MacroBlock, SessionRecord, TestSet
 from coach.models.plans import GoalTarget, Guardrail
 
-INTAKE_QUESTIONS = [
-    "Training history: years lifting / running / CrossFit; best lifts and race times (with dates)?",
-    "Back and shoulder history: what happened, what aggravates them now, any imaging or physio notes?",
+_INTAKE_DEFAULT = [  # generic fallback; the athlete's questions live in athlete_context.json intake_questions
+    "Training history: years training, best lifts and race times (with dates)?",
+    "Injury history: what happened, what aggravates it now, any imaging or physio notes?",
     "Exercises you love / hate / want to get back to?",
-    "Typical week: work hours, commute, travel frequency, which days are hardest to train?",
-    "Sleep: usual bed/wake time, how often < 7 h, anything that disrupts it?",
+    "Typical week: work hours, travel, which days are hardest to train?",
+    "Sleep: usual bed/wake time, how often < 7 h?",
     "Stress (1-5) and main sources right now?",
-    "Nutrition: current MacroFactor goal and weekly calories; any foods you avoid?",
-    "What would make this year a success for you, beyond the race goals?",
+    "Nutrition: current calorie goal and tracking app; foods you avoid?",
+    "What would make this year a success for you?",
 ]
 
 
-def intake_template(day: dt.date) -> dict:
+def intake_template(day: dt.date, questions: list[str] | None = None) -> dict:
     return {
         "completed": False,
         "created": day.isoformat(),
         "refresh_due": (day + dt.timedelta(days=365)).isoformat(),
-        "answers": {q: None for q in INTAKE_QUESTIONS},
+        "answers": {q: None for q in (questions or _INTAKE_DEFAULT)},
     }
 
 
@@ -59,28 +59,28 @@ def extract_raw(
     test_id: str, day: dt.date, ctx: Context, weather_hourly: list[dict] | None = None
 ) -> dict | None:
     lib = ctx.cfg.library
+    t = ctx.cfg.tests.tests[test_id]
     sessions = ctx.state.sessions(day, day)
-    fam = {"hinge_rm": "hinge", "squat_rm": "squat"}.get(test_id)
-    if fam:
-        top = _top_set(sessions, day, lambda ex: lib.get(ex) and lib.get(ex).family == fam)
-        if top:
-            return {"weight_kg": top[0], "reps": top[1], "rir": top[2], "variant": top[3]}
-        return None
-    if test_id == "db_press_5rm":
-        top = _top_set(sessions, day, lambda ex: ex == "db_bench_press_neutral")
+    fam = t.session.get("family") or t.family
+    ex_id = t.session.get("exercise")
+    if t.scoring == "epley_e1rm":
+        if fam:
+            top = _top_set(sessions, day, lambda ex: lib.get(ex) and lib.get(ex).family == fam)
+        else:
+            top = _top_set(sessions, day, lambda ex: ex == ex_id)
         return {"weight_kg": top[0], "reps": top[1], "rir": top[2], "variant": top[3]} if top else None
-    if test_id == "pullups_max":
-        reps = [st.reps for s in sessions for st in s.sets if st.exercise_id == "strict_pull_up" and st.reps]
+    if t.scoring == "max_reps" and ex_id:
+        reps = [st.reps for s in sessions for st in s.sets if st.exercise_id == ex_id and st.reps]
         return {"reps": max(reps)} if reps else None
-    if test_id == "broad_jump":
+    if t.scoring == "best_of" and ex_id:
         att = [
             round(st.distance_m * 100)
             for s in sessions
             for st in s.sets
-            if st.exercise_id == "broad_jump" and st.distance_m
+            if st.exercise_id == ex_id and st.distance_m
         ]
         return {"attempts": att} if att else None
-    if test_id in {"run_tt_30", "run_submax_drift"}:
+    if t.scoring in {"lthr_from_last20", "submax_estimate"}:
         runs = [s for s in sessions if s.sport == "run"]
         if not runs:
             return None
@@ -91,7 +91,7 @@ def extract_raw(
             if at:
                 cond["temp_f"] = round(max(w["temp_c"] for w in at) * 9 / 5 + 32, 1)
         cond["variant"] = "indoor" if "treadmill" in (r.title or "").lower() else "outdoor"
-        if test_id == "run_tt_30" and r.last20_avg_hr and r.last20_pace_s_per_mi:
+        if t.scoring == "lthr_from_last20" and r.last20_avg_hr and r.last20_pace_s_per_mi:
             return {
                 "last20_avg_hr": r.last20_avg_hr,
                 "last20_pace_s_per_mi": r.last20_pace_s_per_mi,
@@ -101,18 +101,18 @@ def extract_raw(
         if r.avg_hr and r.avg_pace_s_per_mi:
             return {"avg_hr": r.avg_hr, "avg_pace_s_per_mi": r.avg_pace_s_per_mi, "conditions": cond}
         return None
-    if test_id == "row_2k":
+    if t.scoring == "row_watts":
         rows = [s for s in sessions if s.sport == "row"]
         if not rows:
             return None
         return {"time_s": round(rows[0].duration_min * 60), "bodyweight_kg": ctx.bodyweight_kg()}
-    if test_id == "body_comp":
+    if t.scoring == "seven_day_avg":
         ms = ctx.state.daily_metrics(day - dt.timedelta(days=6), day)
         w = [m.weight_kg for m in ms if m.weight_kg]
         return (
             {"weights_kg": w, "body_fat_pct": [m.body_fat_pct for m in ms if m.body_fat_pct]} if w else None
         )
-    if test_id == "vitals":
+    if t.scoring == "rolling_baseline":
         ms = ctx.state.daily_metrics(day - dt.timedelta(days=27), day)
         rhr = [m.rhr_bpm for m in ms if m.rhr_bpm]
         hrv = [math.log(m.hrv_rmssd_ms) for m in ms if m.hrv_rmssd_ms]
@@ -151,9 +151,20 @@ def score_week(
 
 
 def update_zones_from(ctx: Context, ts: TestSet) -> dict | None:
-    r = ts.get("run_tt_30") or ts.get("run_submax_drift")
-    if not r:
+    tests = ctx.cfg.tests.tests
+    found = [
+        r
+        for r in ts.results
+        if r.test_id in tests
+        and tests[r.test_id].scoring in {"lthr_from_last20", "submax_estimate"}
+        and "lthr" in r.details
+    ]
+    found.sort(
+        key=lambda r: tests[r.test_id].scoring != "lthr_from_last20"
+    )  # a full TT beats a submax estimate
+    if not found:
         return None
+    r = found[0]
     z = {
         "lthr": r.details["lthr"],
         "threshold_pace_s_per_mi": r.details["threshold_pace_s_per_mi"],
@@ -187,61 +198,43 @@ def gap_analysis(ctx: Context, ts: TestSet) -> dict[str, float]:
     return out
 
 
-FOCUS_TESTS = {
-    1: ["hinge_rm", "squat_rm", "db_press_5rm", "pullups_max"],
-    2: ["squat_rm", "hinge_rm", "db_press_5rm"],
-    3: ["run_tt_30"],
-    4: ["run_tt_30"],
-}
-GUARDRAIL = {
-    1: ("run_tt_30", 10.0, "running fitness: threshold pace no slower than +10 s/mi"),
-    2: ("hinge_rm", -5.0, "hinge e1RM no lower than -5%"),
-    3: ("hinge_rm", -7.5, "hinge e1RM no lower than -7.5% while lifting at MED"),
-    4: ("run_tt_30", 10.0, "threshold pace no slower than +10 s/mi"),
-}
-
-
 def propose_goal(ctx: Context, block: MacroBlock, ts: TestSet) -> tuple[BlockGoal, list[str]]:
     gaps = gap_analysis(ctx, ts)
-    cands = [t for t in FOCUS_TESTS[block.index] if ts.get(t)]
+    spec = ctx.cfg.season.spec(block.key)
+    cands = [t for t in spec.goal.focus_tests if ts.get(t)]
     if not cands:
         cands = [r.test_id for r in ts.results if r.test_id not in {"body_comp", "vitals"}][:1]
     gap_of = {t: next((v for k, v in gaps.items() if k.endswith(":" + t)), 100.0) for t in cands}
     primary_id = min(cands, key=lambda t: gap_of[t])
     r = ts.get(primary_id)
     assert r is not None
-    lower_better = primary_id in T.LOWER_IS_BETTER
-    pct = {"hinge_rm": 7.5, "squat_rm": 7.5, "db_press_5rm": 5.0, "pullups_max": 25.0, "run_tt_30": 3.0}.get(
-        primary_id, 5.0
-    )
+    lower_better = T.lower_is_better(primary_id, ctx.cfg.tests)
+    pct = ctx.cfg.tests.tests[primary_id].goal_change_pct
     base = r.comparable_value if r.comparable_value is not None else r.value
     target = base * (1 - pct / 100) if lower_better else base * (1 + pct / 100)
-    g_id, g_delta, g_desc = GUARDRAIL[block.index]
     guards = []
-    g = ts.get(g_id)
-    if g:
+    for gs in spec.goal.guardrails:
+        g = ts.get(gs.test)
+        if not g:
+            continue
         gbase = g.comparable_value if g.comparable_value is not None else g.value
-        limit = gbase + g_delta if g_id == "run_tt_30" else gbase * (1 + g_delta / 100)
+        if gs.mode == "absolute":
+            limit = gbase + gs.change
+        elif gs.mode == "pct":
+            limit = gbase * (1 + gs.change / 100)
+        else:  # weekly_pct over the block
+            limit = gbase * (1 + gs.change / 100 * block.weeks)
+        worse_is_higher = T.lower_is_better(gs.test, ctx.cfg.tests) or (
+            gs.mode != "weekly_pct" and gs.change > 0
+        )
         guards.append(
             Guardrail(
-                test_id=g_id,
+                test_id=gs.test,
                 metric=g.unit,
-                description=g_desc,
+                description=gs.description,
                 baseline_value=round(gbase, 1),
                 limit_value=round(limit, 1),
-                direction="no_higher_than" if g_id in T.LOWER_IS_BETTER else "no_lower_than",
-            )
-        )
-    bc = ts.get("body_comp")
-    if bc:
-        guards.append(
-            Guardrail(
-                test_id="body_comp",
-                metric="kg",
-                description="7-day weight trend no faster than -0.75%/wk (protect strength)",
-                baseline_value=round(bc.value, 1),
-                limit_value=round(bc.value * (1 - 0.0075 * block.weeks), 1),
-                direction="no_lower_than",
+                direction="no_higher_than" if worse_is_higher else "no_lower_than",
             )
         )
     guards = guards[:2]
@@ -249,7 +242,8 @@ def propose_goal(ctx: Context, block: MacroBlock, ts: TestSet) -> tuple[BlockGoa
 
     phase, phase_why = calorie_phase_from(ctx, block)
     name = ctx.cfg.tests.tests[primary_id].name
-    fmt = (lambda v: fmt_pace(v)) if primary_id.startswith("run") else (lambda v: f"{v:.1f} {r.unit}")
+    is_pace = r.unit == "s_per_mi"
+    fmt = (lambda v: fmt_pace(v)) if is_pace else (lambda v: f"{v:.1f} {r.unit}")
     rationale = (
         f"Block focus: {block.focus}. Biggest gap among focus tests: {name} at {gap_of[primary_id]:.0f}% of the hybrid benchmark. "
         f"Goal {fmt(base)} -> {fmt(target)} ({'-' if lower_better else '+'}{pct:g}%). Trade-off: guardrails keep the other pillars from sliding."

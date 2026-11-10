@@ -9,7 +9,6 @@ from coach.models.profile import Thresholds
 from coach.models.records import HrvTrend, JointFlag
 
 ORDER = {"unknown": -1, "green": 0, "yellow": 1, "red": 2}
-REGIONS = ("back", "shoulders", "knees_achilles")
 
 
 def rpe_to_rir(rpe: float | None) -> float | None:
@@ -79,8 +78,9 @@ def joint_flags(
     """A region rated >= flag rating on N consecutive check-ins is flagged until it is <= 2 on N consecutive."""
     ordered = sorted((c for c in checkins if c.date <= day), key=lambda c: c.date)
     flags: list[JointFlag] = []
-    for region in REGIONS:
-        ratings = [(c.date, getattr(c, region)) for c in ordered if getattr(c, region) is not None]
+    regions = sorted({r for c in ordered for r in c.joints})
+    for region in regions:
+        ratings = [(c.date, c.joints[region]) for c in ordered if region in c.joints]
         active_since: dt.date | None = None
         run_hi = run_lo = 0
         for date, value in ratings:
@@ -139,7 +139,7 @@ def compute_readiness(
     rdelta = rhr_delta(day, by_date, th)
 
     latest = _latest_checkins(checkins, day, 2)
-    joints = latest[-1].joints() if latest else {}
+    joints = dict(latest[-1].joints) if latest else {}
     flags = joint_flags(checkins, day, restricted_tags or {}, th)
 
     # --- red ---
@@ -155,8 +155,8 @@ def compute_readiness(
         if v >= th.joint_red:
             reasons_by_state["red"].append(f"{region.replace('_', '/')} rated {v}/5")
     if len(latest) == 2:
-        for region in REGIONS:
-            a, b = getattr(latest[0], region), getattr(latest[1], region)
+        for region in sorted(set(latest[0].joints) | set(latest[1].joints)):
+            a, b = latest[0].joints.get(region), latest[1].joints.get(region)
             if a is not None and b is not None and a >= th.joint_flag_rating and b >= th.joint_flag_rating:
                 reasons_by_state["red"].append(
                     f"{region.replace('_', '/')} >= {th.joint_flag_rating} on 2 check-ins"
