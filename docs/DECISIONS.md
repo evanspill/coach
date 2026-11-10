@@ -1,0 +1,50 @@
+# Decisions
+
+Each entry: **decision** - why - how to reverse.
+
+## Calendar and planning
+1. **Block 1 ends one week after the final Open workout** (`season.post_open_weeks: 1`): Block 1 = 2026-11-23 -> 2027-03-14, transition week 03-08..03-14, Block 2 starts 03-15. - The Open itself is the peak; a retest the week after is realistic, and it lets the 120-day simulation (from 2026-11-16) include a full transition week with retest and review. - Set `post_open_weeks: 2` in `config/athlete_context.json` and run `coach macrocycle regenerate`.
+2. **Block 3 = 13 weeks; Block 4 = 3-week taper (race week included) + 2 reset weeks**; Block 2 fills the gap. - Matches the illustrative dates. - `season.marathon_build_weeks`, `taper_weeks`, `reset_weeks`.
+3. **Deloads count back every 4th week from the transition week**, never in competition weeks, earliest in week 3, and a gap-filler guarantees no 5-week span without a deload-like week (the previous block's transition counts as week 0). - Brief's 3:1 rule. - `engine/deloads.py`.
+4. **Reactive deload trigger**: Red on >= 3 of the last 5 days (`sustained_red_days/window`) or any joint >= 4. It turns *next* week into a deload and re-spaces later deloads; joint >= 4 applies immediately, otherwise it is a proposal. Not applied if this/next week is already a deload, transition, competition or taper week. - Brief section 2.4. - thresholds in `athlete_context.json`.
+5. **"No hard lower-body lifting within 24 h before the long run" = not on the calendar day before.** - Sessions all start 09:00-10:00, so "24 h" is ambiguous by minutes. - `validator.py` `LONG_RUN_LOWER_24H`.
+6. **Forbidden back-to-back pairs**: glycolytic/threshold/long-run combinations and heavy lower on consecutive days (list in `validator.FORBIDDEN_BACK_TO_BACK`). - Brief left the list open. - edit the list.
+7. **Pillar rule read as "each pillar must reach its MED"** (the brief's "every pillar is below its MED" reads as a typo given "all four pillars are touched every week"). Competition and deload weeks use `deload_med`; baseline, transition, reset and illness weeks are exempt. - `validator.py` `PILLAR_MED`.
+8. **Tests are spread so strength, run and engine never share a day.** Baseline: Mon power+lower, Tue upper, Thu run TT, Sat 2k row. Transition: Thu run TT, Fri strength+jump, Sat engine (deload Mon-Wed). Red on a test day moves the test within +/-2 days inside the week (never next to a conflicting test); otherwise it is postponed and flagged. - Brief section 2.5.
+9. **Block-goal heuristic (fallback)**: primary = the block's focus test with the biggest gap to the hybrid benchmark (+7.5% e1RM for lifts, +25% pull-up reps, -3% threshold pace); guardrails: Block 1 threshold pace no slower than +10 s/mi plus a weight-loss-rate guardrail. With the fixtures this picks **pull-ups (9 -> 11)** for Block 1. Claude makes the real proposal and may choose differently with a stated trade-off.
+
+## Running
+10. **Long run <= 30% of weekly miles only from 20 mi/week; below that the limit is 40%.** - With 3 runs and 10-12 mi/week (return-to-running ramp) 30% is impossible. - set `long_run_rule_min_weekly_miles: 0`.
+11. **Block 1's 75-110 min long run is reached with a Z2 bike extension after the run.** - 12-15 mi/week can't hold a 75+ min run; impact stays low. - `plan_week.long_run`.
+12. **The +10% weekly rule uses the average of the last 3 "normal" weeks (deload/transition/taper/reset/illness weeks excluded) with the ramp start (10 mi) as a floor.** - Otherwise a deload would force a smaller week after it, and a returning runner could never reach the 10-12 mi start. - `engine/running.py`.
+13. **Marathon-pace finish only on long runs >= 8 mi and capped at 25% of the run.** - Avoids MP-heavy short long runs early in the ramp.
+14. **Default zones until the first TT: LTHR 165, threshold 8:00/mi.** Zones: Z2 = 75-84% LTHR; T = 98-102% of threshold pace (`engine/paces.py`).
+
+## Readiness and safety
+15. **HRV band = 60-day mean of ln(rMSSD) +/- 0.5 x SD of the daily values**; needs >= 14 baseline days and >= 3 of the last 7. - Standard approach; with this SWC the 7-day trend is sensitive, so Red days from "HRV below band 3 days" happen after real dips. - `hrv_swc_sd`.
+16. **A single joint rated 3 makes the day Yellow** (Green requires joints <= 2). **Joint flags clear after 2 consecutive check-ins <= 2.**
+17. **Safety downgrades apply immediately** (Red -> Z1 + mobility, illness, red flags) even though `manual_if` lists `session_type_swap`; `manual_if` governs non-safety swaps (e.g. "swap today's pressing"). - Waiting for approval to *reduce* risk makes no sense.
+18. **Missing Whoop recovery -> state `unknown`, day `waiting_for_recovery`**; the planned session stays in Hevy/Garmin, the 9:05 catch-up finalizes.
+19. **Red flags are detected by keyword (chest pain, fainting, breathlessness, numbness/radiating pain, sharp/worsening joint pain, dark urine)** and write `state/health.json`; all training stops until the athlete says a doctor cleared them (`cleared_on`). Illness: below the neck -> rest; above -> easy only.
+
+## Movement readiness and skills
+20. **Advance = 3 clean exposures (pain <= 2/10, no next-morning stiffness rise) AND >= 14 days at the rung.** - Brief says ~2-3 exposures; the time floor stops a 3-sessions-in-a-week jump. - `movement_progressions.yaml` `rules`.
+21. **All families start at rung 0.** Starting rungs are re-set after the baseline week / physio assessment.
+22. **A region flag (>= 3 twice) drops every family mapped to that region one rung, once per flare, with a one-week hold.**
+23. **Skill levels move one step at a time; "competent" also needs the gating rung.** Skill levels are normal coaching progress (written by `technique`), not a locked config change.
+
+## Loads, nutrition, data
+24. **Loads are stored in kg (Hevy's unit) and rounded in lb** to what the gym has: 45 lb bar / 60 lb trap bar / 65 lb SSB (assumed; verify), 1.25 lb per side, DBs 5-100 lb in 5 lb steps, KBs 26/35/53/70 lb only (> 70 lb -> swap to DBs). Cable/machine work is RIR-based from the last used weight. - `config/equipment.yaml` `loading`.
+25. **Progression**: +2.5% when every work set hit target reps at >= target RIR - 0.5; hold after one miss; -5% after two. The pain rule (-15%, 3 s eccentric for 2 weeks) overrides.
+26. **Carb tiers**: high on lower/full/long/quality/Hyrox/metcon/test/competition days and the day before the long run; moderate on upper/easy/sprint days; low on recovery/rest. If MacroFactor's weekly total leaves room beyond the desired carbs, the surplus goes to fat (still calorie-neutral). Until nutrition data is connected the weekly target is `state/macrofactor.json` (told in chat) or 33 kcal/kg/day.
+27. **Check-in source priority: Intervals.icu fields > Hevy-note tag > chat.**
+28. **Metrics are JSON lines per month** (`state/metrics/YYYY-MM.jsonl`); daily values merge across sources; sessions are re-merged over a 3-day overlap each sync so late uploads merge without duplicates. Gear is a snapshot (`metrics/gear.json`).
+29. **Session merge**: same day, start within +/-15 min, compatible activity type; HR/strain from Whoop, sets from Hevy, pace/dynamics from Intervals. Time-in-zone is approximated from average HR against LTHR until per-second data is used (noted as approximate).
+30. **Config lock** fingerprints thresholds, weather rules, nutrition rules and progression rules. `coach.yaml` (pause, approval mode, push) is the athlete's own switchboard and is not locked.
+
+## Integrations and simulation
+31. **Mocks normalize raw-shaped fixtures with the same code as the live clients.** Fixtures (generated by `scripts/generate_fixtures.py`) span 2026-09-17 -> 2027-03-21: 60 days of pre-baseline history (baselines, starting loads) plus the season. Live clients are written against the public docs and must be verified in Phase 2.
+32. **Live clients send no credentials**; the cloud proxy injects network secrets. Optional env vars exist only for local testing. Intervals.icu athlete id `0` = the key's owner.
+33. **The simulation's athlete** does what the coach prescribed (or misses it per the script), logging raw Hevy/Intervals/Whoop payloads; lifting RPE comes from a hidden "true e1RM" that grows ~0.4%/week, so progression and holds are earned. Proposals are auto-approved by the simulated athlete, except `learn` trials (left pending to show the approval flow).
+34. **Recovery sessions are at `home`** (own foam roller, bands, lacrosse ball, Theragun); a `home` location was added to `equipment.yaml`. A few bodyweight/band exercises were added for travel days.
+35. **Open workouts are unknown until released**: the competition session ships with an empty movement list and a scaling rule; `compete` fills it in after Thursday's release.

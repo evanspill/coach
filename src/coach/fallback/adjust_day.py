@@ -284,9 +284,14 @@ def adjust(
     rec.nutrition = fuel.day_targets(ctx, day, plan, sources, s if s and s.type != "rest" else None)
     rec.fueling_cue = rec.nutrition.peri_workout
     # --- gear ---
-    rec.gear_alerts = G.shoe_alerts(ctx.state.gear(), cfg.profile.thresholds.shoe_alert_miles)
-    if s and s.run_segments() and any(seg.modality == "run" for seg in s.run_segments()):
+    runs_today = bool(s and any(seg.modality == "run" for seg in s.run_segments()))
+    if runs_today:
         s.shoe = G.shoe_for(s.type, ctx.state.gear())
+    alerts = G.shoe_alerts(ctx.state.gear(), cfg.profile.thresholds.shoe_alert_miles)
+    # mention worn shoes on Sundays and on days they'd be used, not every day
+    rec.gear_alerts = [
+        a for a in alerts if day.weekday() == 6 or (runs_today and s.shoe and a.startswith(s.shoe))
+    ]
     return rec
 
 

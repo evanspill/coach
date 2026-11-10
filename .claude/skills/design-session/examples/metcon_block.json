@@ -1,0 +1,70 @@
+{
+  "kind": "conditioning",
+  "title": "10-min AMRAP",
+  "items": [],
+  "run": [],
+  "metcon": {
+    "name": "10-min AMRAP",
+    "format": "amrap",
+    "time_cap_min": 10.0,
+    "rounds": null,
+    "movements": [
+      {
+        "exercise_id": "strict_pull_up",
+        "sets": 1,
+        "reps": 5,
+        "reps_max": null,
+        "duration_s": null,
+        "distance_m": null,
+        "calories": null,
+        "rir": null,
+        "load_kg": null,
+        "load_lb": null,
+        "load_note": "bodyweight",
+        "tempo": null,
+        "rest_s": null,
+        "per_side": false,
+        "notes": null
+      },
+      {
+        "exercise_id": "db_hang_clean_and_press_low",
+        "sets": 1,
+        "reps": 10,
+        "reps_max": null,
+        "duration_s": null,
+        "distance_m": null,
+        "calories": null,
+        "rir": null,
+        "load_kg": null,
+        "load_lb": null,
+        "load_note": "by feel",
+        "tempo": null,
+        "rest_s": null,
+        "per_side": false,
+        "notes": null
+      },
+      {
+        "exercise_id": "ski_erg",
+        "sets": 1,
+        "reps": null,
+        "reps_max": null,
+        "duration_s": null,
+        "distance_m": null,
+        "calories": 12,
+        "rir": null,
+        "load_kg": null,
+        "load_lb": null,
+        "load_note": null,
+        "tempo": null,
+        "rest_s": null,
+        "per_side": false,
+        "notes": null
+      }
+    ],
+    "stimulus": "Glycolytic, ~85-90% effort, sustainable pace with short breaks; no grinding",
+    "scaling": "Only movements at or below current rungs/skill levels; scale reps before load",
+    "score_type": "rounds_reps"
+  },
+  "test_id": null,
+  "notes": ""
+}

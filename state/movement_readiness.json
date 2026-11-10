@@ -1,0 +1,54 @@
+{
+  "updated": "2026-11-10",
+  "families": {
+    "hinge": {
+      "family": "hinge",
+      "rung": 0,
+      "exposures": [],
+      "history": [],
+      "hold_until": null,
+      "eccentric_tempo_until": null
+    },
+    "squat": {
+      "family": "squat",
+      "rung": 0,
+      "exposures": [],
+      "history": [],
+      "hold_until": null,
+      "eccentric_tempo_until": null
+    },
+    "press": {
+      "family": "press",
+      "rung": 0,
+      "exposures": [],
+      "history": [],
+      "hold_until": null,
+      "eccentric_tempo_until": null
+    },
+    "overhead": {
+      "family": "overhead",
+      "rung": 0,
+      "exposures": [],
+      "history": [],
+      "hold_until": null,
+      "eccentric_tempo_until": null
+    },
+    "olympic": {
+      "family": "olympic",
+      "rung": 0,
+      "exposures": [],
+      "history": [],
+      "hold_until": null,
+      "eccentric_tempo_until": null
+    },
+    "kipping": {
+      "family": "kipping",
+      "rung": 0,
+      "exposures": [],
+      "history": [],
+      "hold_until": null,
+      "eccentric_tempo_until": null
+    }
+  },
+  "note": "Conservative starting rungs; set from the baseline week (and a physio assessment if done)."
+}

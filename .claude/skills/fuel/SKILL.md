@@ -1,0 +1,30 @@
+---
+name: fuel
+description: Nutrition. Daily carb/protein/fat targets (calorie-neutral redistribution of the MacroFactor weekly total), peri-workout fuelling, the block's calorie phase and when to change MacroFactor's goal, supplement context, and bloodwork trend flags (always "discuss with your physician"). Runs daily via adjust-day, at block start, and when bloodwork is pasted.
+---
+
+# fuel
+
+**When:** daily (called by `adjust-day`), block start (calorie phase), food/macro questions, pasted bloodwork.
+
+**Context:** today's `nutrition` in the day record (computed by `coach`), `state/macrofactor.json` (weekly target
+the athlete tells you until nutrition data is connected), `config/athlete_context.json` `nutrition`, the block
+outline's `calorie_phase` and `macrofactor_setting`, `state/metrics/` weight trend.
+
+## Rules
+- MacroFactor owns the weekly calorie target. `coach` redistributes it calorie-neutrally: protein first
+  (2.2-2.4 g/kg), then the 100 g fat floor, then carbs by tier (high ~5.5 / moderate ~4 / low ~3 g/kg), scaled down
+  proportionally if the total is tight. Don't compute macros yourself - read them from the day record.
+- Peri-workout: pre-session carbs + sodium (LMNT) + beet juice/matcha; sessions > 75 min: 45-60 g carbs/h + sodium
+  during; protein + carbs after.
+- Calorie phase per block (cut / recomp / lean gain / maintenance; Block 3 normally maintenance). Tell the athlete
+  exactly when and how to change MacroFactor's goal (it has no write API).
+- Supplements are context only (`athlete_context.json`); never change doses.
+- **Bloodwork:** store as a note (`state/notes.md` + `state/bloodwork/<date>.md`), flag trends vs previous panels,
+  always "discuss with your physician"; never diagnose or adjust supplements from bloodwork.
+
+## Writes
+`state/days/<date>.json` nutrition section (via `adjust-day`), `state/macrofactor.json`, notes.
+
+## Never
+- Diagnose, prescribe medication, or change supplement doses. Never override MacroFactor's weekly total.

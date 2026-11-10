@@ -75,7 +75,7 @@ def whoop_and_wellness():
         hrv = round(math.exp(ln), 1)
         rec = 66 + 150 * (ln - base_ln) - 2.5 * (rhr - 50) + rng.gauss(0, 6)
         if d in BAD_STREAK:
-            rec = min(rec, 28 - rng.random() * 8)
+            rec = 17 + rng.random() * 13
         if d in SINGLE_LOW:
             rec = min(rec, 30)
         if d in MID_DIP:

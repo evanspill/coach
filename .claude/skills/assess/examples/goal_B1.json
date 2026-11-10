@@ -1,0 +1,44 @@
+{
+  "block_id": "2026-27-B1",
+  "primary": {
+    "test_id": "pullups_max",
+    "metric": "reps",
+    "baseline_value": 9.0,
+    "target_value": 11.2,
+    "unit": "reps",
+    "change_pct": 25.0,
+    "direction": "increase"
+  },
+  "guardrails": [
+    {
+      "test_id": "run_tt_30",
+      "metric": "s_per_mi",
+      "description": "running fitness: threshold pace no slower than +10 s/mi",
+      "baseline_value": 462.0,
+      "limit_value": 472.0,
+      "direction": "no_higher_than"
+    },
+    {
+      "test_id": "body_comp",
+      "metric": "kg",
+      "description": "7-day weight trend no faster than -0.75%/wk (protect strength)",
+      "baseline_value": 96.8,
+      "limit_value": 85.2,
+      "direction": "no_lower_than"
+    }
+  ],
+  "rationale": "Block focus: force build, then metcon/gymnastics sharpening into the Open. Biggest gap among focus tests: Strict pull-ups, max reps at 75% of the hybrid benchmark. Goal 9.0 reps -> 11.2 reps (+25%). Trade-off: guardrails keep the other pillars from sliding.",
+  "gap_analysis": {
+    "neural:broad_jump": 94.4,
+    "force:hinge_rm": 99.1,
+    "force:squat_rm": 89.0,
+    "force:db_press_5rm": 100.3,
+    "force:pullups_max": 75.0,
+    "aerobic:run_tt_30": 90.9,
+    "glycolytic:row_2k": 87.9
+  },
+  "calorie_phase": "cut",
+  "calorie_phase_reason": "body fat trend 18.2% vs goal 10-12%",
+  "status": "approved",
+  "generated_by": "fallback"
+}

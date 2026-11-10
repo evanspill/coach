@@ -1,0 +1,214 @@
+{
+  "date": "2027-01-01",
+  "status": "complete",
+  "readiness": {
+    "date": "2027-01-01",
+    "state": "red",
+    "reasons": [
+      "recovery <= 33 two days running (21, 18)",
+      "HRV trend below baseline band 4 days"
+    ],
+    "recovery_score": 18.0,
+    "hrv": {
+      "mean7_ln": 3.8853,
+      "baseline_ln": 4.086,
+      "lower_band": 4.0152,
+      "upper_band": 4.1568,
+      "below_days": 4
+    },
+    "rhr_delta": 3.1,
+    "joints": {
+      "back": 2,
+      "shoulders": 2,
+      "knees_achilles": 1
+    },
+    "joint_flags": [],
+    "sustained_red": true,
+    "data_missing": []
+  },
+  "weather": {
+    "date": "2027-01-01",
+    "temp_f": 21.6,
+    "dew_point_f": 10.6,
+    "heat_sum": 32.1,
+    "tier": "normal",
+    "icy": false,
+    "daylight": true,
+    "sunrise": "07:18",
+    "sunset": "16:30",
+    "pace_adjust_s_per_mi": [
+      0,
+      0
+    ],
+    "decision": "outdoor OK",
+    "reasons": [
+      "22F, dew point 11F"
+    ]
+  },
+  "planned_session_id": "2027-01-01-sprint-upper",
+  "session": {
+    "id": "2027-01-01-recovery",
+    "date": "2027-01-01",
+    "start_time": "09:30",
+    "type": "recovery",
+    "title": "Recovery: Z1 walk + mobility",
+    "intent": "Red: next 48 h are Z1 + mobility",
+    "location": "home",
+    "route": "neighbourhood walk",
+    "expected_minutes": 50,
+    "key": false,
+    "carb_tier": "low",
+    "blocks": [
+      {
+        "kind": "run",
+        "title": "Zone 1 walk",
+        "items": [],
+        "run": [
+          {
+            "label": "Z1 walk",
+            "zone": "Z1",
+            "duration_min": 35.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "walk",
+            "terrain": "flat",
+            "pace_s_per_mi": [
+              638,
+              716
+            ],
+            "hr_bpm": [
+              110,
+              127
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "mobility",
+        "title": "Mobility: foam roller, bands, lacrosse ball",
+        "items": [
+          {
+            "exercise_id": "foam_roll",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 300,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          },
+          {
+            "exercise_id": "hip_90_90",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": null
+          },
+          {
+            "exercise_id": "band_mobility",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 300,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          },
+          {
+            "exercise_id": "thoracic_open_book",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": null
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "changes": [
+    {
+      "what": "Sprints + upper aesthetics + easy run -> Z1 walk + mobility",
+      "why": "Red readiness (recovery <= 33 two days running (21, 18); HRV trend below baseline band 4 days)",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "magnesium bisglycinate at night"
+  ],
+  "nutrition": {
+    "date": "2027-01-01",
+    "carb_tier": "high",
+    "kcal": 2970,
+    "protein_g": 220,
+    "fat_g": 100,
+    "carbs_g": 298,
+    "scaled": true,
+    "peri_workout": "Easy day: normal meals, protein at each; magnesium tonight.",
+    "note": "carbs scaled down proportionally: weekly target is tight; MacroFactor weekly target"
+  },
+  "fueling_cue": "Easy day: normal meals, protein at each; magnesium tonight.",
+  "gear_alerts": [],
+  "pushed": {
+    "dry_run": true,
+    "hevy": [
+      {
+        "session": "2027-01-01-recovery",
+        "routine": "Fri Jan 01: Recovery: Z1 walk + mobility",
+        "exercises": 4
+      }
+    ],
+    "intervals": []
+  },
+  "handoffs": [
+    "Reactive deload: next week (block week 7) is now a deload. Why: recovery <= 33 two days running (21, 18)."
+  ],
+  "approvals_pending": [],
+  "stale_sources": [],
+  "generated_by": "fallback",
+  "notification": "RED: recovery <= 33 two days running (21, 18).\nToday: Recovery: Z1 walk + mobility (~50 min, home).\nFuel: Easy day: normal meals, protein at each; magnesium tonight.\nTonight: magnesium bisglycinate at night.\nChanged: Sprints + upper aesthetics + easy run -> Z1 walk + mobility (Red readiness (recovery <= 33 two days running (21, 18); HRV trend below baseline band 4 days))\nReactive deload: next week (block week 7) is now a deload. Why: recovery <= 33 two days running (21, 18)."
+}

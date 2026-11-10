@@ -131,7 +131,13 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         f"- **Enjoyment / RPE (2-wk vs prior):** {bw['enjoyment'][1]} vs {bw['enjoyment'][0]} / {bw['rpe'][1]} vs {bw['rpe'][0]}",
         "",
         "## What went well",
-        *[f"- {x}" for x in went_well or ["Showed up and logged the data: that's what lets the plan adapt."]],
+        *[
+            f"- {x}"
+            for x in went_well
+            or [
+                "Not much to bank on the training side this week; recovery and data kept flowing, so next week starts from real numbers."
+            ]
+        ],
         "",
         "## What to fix",
         *[f"- {x}" for x in to_fix or ["Nothing major."]],
@@ -191,10 +197,16 @@ def block_review(ctx: Context, block_id: str) -> str:
         for r in end.results:
             s = start.get(r.test_id)
             if s:
-                fmt = fmt_pace if r.test_id.startswith("run") else (lambda v: f"{v:.1f}")
+                is_pace = r.test_id.startswith("run")
+                fmt = fmt_pace if is_pace else (lambda v: f"{v:.1f}")
+                unit = "" if is_pace else f" {r.unit}"
+                variant = (
+                    f" (variant {s.variant} -> {r.variant}; compared at the reference variant)"
+                    if s.variant and s.variant != r.variant
+                    else ""
+                )
                 lines.append(
-                    f"- {r.test_id}: {fmt(s.comparable_value or s.value)} -> {fmt(r.comparable_value or r.value)} {r.unit}"
-                    f" (variant {s.variant} -> {r.variant})"
+                    f"- {r.test_id}: {fmt(s.comparable_value or s.value)} -> {fmt(r.comparable_value or r.value)}{unit}{variant}"
                 )
     if outline:
         planned = done = 0

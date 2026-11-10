@@ -194,7 +194,7 @@ FOCUS_TESTS = {
     4: ["run_tt_30"],
 }
 GUARDRAIL = {
-    1: ("run_tt_30", 10.0, "5 km-equivalent fitness: threshold pace no slower than +10 s/mi"),
+    1: ("run_tt_30", 10.0, "running fitness: threshold pace no slower than +10 s/mi"),
     2: ("hinge_rm", -5.0, "hinge e1RM no lower than -5%"),
     3: ("hinge_rm", -7.5, "hinge e1RM no lower than -7.5% while lifting at MED"),
     4: ("run_tt_30", 10.0, "threshold pace no slower than +10 s/mi"),
