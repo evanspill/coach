@@ -91,6 +91,9 @@ It rejects a plan, returning specific reasons, if any of these happen:
 - Equipment isn't available at the planned location, or track work falls outside daylight.
 - A weekly plan contradicts the block outline without a stated reason, or puts tests in the wrong week.
 - The block outline has no deload in any 5-week span, or the macrocycle has gaps/overlaps.
+- A movement readiness change moves more than one rung, or advances without meeting the criteria.
+- A config or threshold change has no approved proposal behind it.
+- A plan schedules training through an active red flag or a below-the-neck illness (see `docs/SAFETY.md`).
 - **Every pillar is below its minimum effective dose for the week** (all four pillars are touched every week, at build or maintain dose per the block's pillar table).
 - Session order isn't speed/power → heavy strength → hypertrophy → conditioning.
 - A session is missing its warm-up or cool-down.
@@ -121,13 +124,15 @@ The coach is modelled on what a great human coach actually does. Each coaching j
 | `design-session` | **Session craft.** Builds one session from an intent (stimulus, time domain, location, equipment, readiness rungs, skill levels): warm-up, primer, main work, accessories, conditioning (including metcon/Hyrox design with the intended stimulus and scaling), cool-down, and expected length. Shared by every skill that creates or changes a session, so session rules live in one place. | Called by `plan-week`, `adjust-day`, `replan`, `compete` | session objects |
 | `adjust-day` | **Daily autoregulation.** Applies readiness, joint flags, weather, and same-day bar speed to today's session, and sets today's recovery prescription (Normatec, mobility routine). Small changes only; anything bigger hands off to `replan`. | Every morning | `days/<date>.json` |
 | `replan` | **Disruption handling.** Rebuilds the rest of the week, or the block, when life happens: illness, travel, missed sessions, schedule changes, a reactive deload. Protects the week's key sessions first. | "I'm sick", "traveling Thu–Sun", 2+ missed sessions, sustained Red | revised `plan.json` / `outline.json` (with reasons) |
-| `review` | **Check-in and reflection.** Weekly: adherence, what went well and what didn't, progress against the block goal, recovery/sleep/nutrition/joint trends, gear alerts, and one or two focus points for next week. Block-level: the full block review. Also handles accountability: noticing slipping adherence and asking why before changing the plan. | Sunday (before `plan-week`); block end | `weeks/<iso>/review.md`, `blocks/<id>/review.md` |
-| `rehab` | **Return to unrestricted training.** Manages the movement readiness ladders (advance, hold, regress), the in-session pain rule, capacity work (trunk, Crossover Symmetry for the shoulder), and when to recommend a physio. | After each session that touches a gated movement family; pain reports | `movement_readiness.json` |
-| `technique` | **Skill and form coaching.** Runs the Olympic-lift and gymnastics progressions, reviews form from photo/video frames I share, and gives 1–2 cues and drills. Decides when a skill is competent enough to appear in metcons. | Form-check requests, every 3–4 weeks, skill milestones | `config/skills.yaml` levels, `notes.md` cues |
+| `review` | **Check-in and reflection.** Weekly: adherence, what went well and what didn't, progress against the block goal, recovery/sleep/nutrition/joint trends, gear alerts, and one or two focus points for next week. Block-level: the full block review. **Yearly:** an annual review at the end of each macrocycle (year-over-year trends, what worked, what to change) and a refresh of the intake. Also handles accountability and the athlete's state of mind: noticing slipping adherence, falling enjoyment, or rising session RPE at the same loads (early signs of burnout), and asking why before changing the plan. | Sunday (before `plan-week`); block end | `weeks/<iso>/review.md`, `blocks/<id>/review.md` |
+| `rehab` | **Return to unrestricted training and durability.** Manages the movement readiness ladders (advance, hold, regress), the in-session pain rule, capacity and mobility work (trunk, Crossover Symmetry for the shoulder, hips/ankles/T-spine), tendon load during the running ramp, and when to recommend a physio. | After each session that touches a gated movement family; pain reports | `movement_readiness.json` |
+| `technique` | **Skill and form coaching.** Runs the Olympic-lift and gymnastics progressions, reviews form from photo/video frames I share, coaches **running form** from Running Dynamics Pod trends (cadence, ground contact time and balance, vertical oscillation), and gives 1–2 cues and drills. Decides when a skill is competent enough to appear in metcons. | Form-check requests, every 3–4 weeks, skill milestones | `config/skills.yaml` levels, `notes.md` cues |
 | `fuel` | **Nutrition.** Daily carb/protein/fat targets, peri-workout fuelling, the block's calorie phase and when to change MacroFactor's goal, supplement context, and bloodwork trend flags (always "discuss with your physician"). | Daily (via `adjust-day`), block start, pasted bloodwork | `days/<date>.json` nutrition section, notes |
 | `compete` | **Event preparation.** Taper design, race-day plan (pacing, fuelling, warm-up, gear check, contingencies) for the marathon and Hyrox, CrossFit Open week-by-week strategy (when to attempt, pacing, recovery between attempts, retest decisions), and the post-event review. | Competition weeks in the outline; "plan my race" | `state/events/<event>.md`, adjusted plans |
 | `log` | **Data capture from conversation.** Turns what I tell the coach into clean records: check-ins, metcon/Hyrox scores, pain reports, form notes, bloodwork, and durable facts for `notes.md`. Asks one short follow-up question when something essential is missing. | Any chat message that reports data | `checkins/`, `metcons/`, `notes.md`, etc. |
-| `learn` | **Getting better as a coach.** Monthly: (1) the external **science audit** (section 9b), and (2) an internal **calibration** that checks whether the coach's rules fit me. For example: did Yellow days actually predict worse sessions? Is the progression rate too fast? Are the carb tiers right? It proposes threshold or rule changes as N=1 trials. Everything needs my approval and gets logged in a changelog. | First Sunday of each month | `state/science/YYYY-MM.md`, proposals |
+| `learn` | **Getting better as a coach.** Monthly: (1) the external **science audit** (section 9b), and (2) an internal **calibration** that checks whether the coach's rules fit me. For example: did Yellow days actually predict worse sessions? Is the progression rate too fast? Are the carb tiers right? It proposes threshold or rule changes as N=1 trials. Everything needs my approval and gets logged in a changelog. | First Wednesday of each month (kept off Sundays, which already carry review and planning) | `state/science/YYYY-MM.md`, proposals |
+
+**Final check against what great coaches do.** Psychology and motivation (`review` + voice guide), health and safety screening (shared red-flag rules, below), variety and enjoyment (`plan-block` + `design-session` rules), long-term development (annual review in `review`), mobility (`rehab`), running technique (`technique`), and heat/travel/schedule (`adjust-day`, `replan`) are all covered. No further skills are needed.
 
 **Considered and deliberately not made separate skills** (each is covered elsewhere, so a separate skill would only duplicate it):
 - Intake → part of `assess`.
@@ -138,6 +143,8 @@ The coach is modelled on what a great human coach actually does. Each coaching j
 - Reports and dashboard → `review` (Phase 4 adds the progress page).
 - Season/macrocycle planning → code plus `plan-block`.
 - Splitting nutrition and supplements apart → both stay in `fuel`.
+
+**`docs/SAFETY.md`** (shared red-flag rules, checked by `log`, `adjust-day`, `replan`, and `rehab`): chest pain, fainting or unusual breathlessness, numbness or pain radiating down a limb, sharp or worsening joint pain, or signs of rhabdomyolysis (dark urine after a hard session) → stop training and see a doctor. The illness "neck check": symptoms only above the neck → easy movement only; any symptoms below the neck (fever, chest congestion, body aches) → no training until they resolve, then a graded return. The coach states these plainly and never trains through them.
 
 **`docs/COACH_VOICE.md`** (used by every skill that talks to me): plain, direct, and brief; always say **what** and **why** in one line each; lead with the decision; never lecture; name uncertainty honestly; celebrate real progress specifically (numbers, not hype); and when adherence slips, ask before prescribing.
 
@@ -152,7 +159,7 @@ The scheduled task's prompt is: *"Run the coach-daily skill. Commit state to mai
 3. `coach status`: returns today's context as JSON: macrocycle position, block/week/day, whether today is a test day, whether it's Sunday (weekly planning), whether a block transition is due, pending approvals, and active joint flags.
 4. **Every day:** run `adjust-day` (which calls `fuel` for today's targets and `rehab` for any gated movement). It hands off to `replan` if the change is bigger than today. Then `coach validate` and `coach push --day`. On competition days or in competition weeks, `compete` leads.
 5. **Sunday:** run `review` for the week just finished, then `plan-week` for the next one (which calls `design-session` for each session). The plan gets validated and retried, then it's pushed now or marked *pending approval* according to `config/coach.yaml`.
-6. **First Sunday of the month:** run `learn` (science audit + calibration; see section 9b).
+6. **First Wednesday of the month:** run `learn` (science audit + calibration; see section 9b).
 7. **Block transition** (when due): `assess` (score the tests) → `review` (block review) → `assess` proposes the next goal → after approval, `plan-block`. Transition-week tests go ahead anyway because they're predefined.
 8. Commit with a clear message, then `git pull --rebase && git push` (retry on conflict).
 9. **Final message = the push notification.** Keep it short and plain: readiness color + top reason, today's session headline, location/weather call, peri-workout fueling cue (e.g. pre-session carbs + sodium + beet juice; for sessions >75 min, intra-session carbs 45–60 g/h + sodium), tonight's recovery prescription (e.g. Normatec + a targeted mobility routine after a high-strain day), what changed and why, and anything waiting for my approval. Gear alerts (e.g. shoes past 250 mi) are included when relevant. Keep detailed numbers in the repo, because notifications are not the place for full health data.
@@ -203,7 +210,7 @@ config/
   skills.yaml                   # Olympic lift + gymnastics progressions (regression ladders, current level)
   movement_progressions.yaml    # rehab ladders per movement family (rungs + caps + advance/regress rules)
   coach.yaml                    # behaviour settings
-docs/ TRAINING_ARCHITECTURE.md  COACH_VOICE.md  TESTING_PROTOCOL.md  ARCHITECTURE.md  DECISIONS.md  SECURITY.md  SETUP.md
+docs/ TRAINING_ARCHITECTURE.md  COACH_VOICE.md  SAFETY.md  TESTING_PROTOCOL.md  ARCHITECTURE.md  DECISIONS.md  SECURITY.md  SETUP.md
 src/coach/
   cli.py                        # `python -m coach <command>`
   models/                       # Pydantic: profile, plans, outlines, tests, metrics, day records
@@ -217,6 +224,7 @@ state/                          # coach state = database (committed)
   blocks/<id>/{goal,outline,tests_start,tests_end}.json review.md
   weeks/<iso-week>/plan.json  summary.md
   days/<date>.json  checkins/<date>.json  athlete_intake.json
+  proposals/<id>.json           # anything awaiting my approval, with status history
   weeks/<iso-week>/review.md
   events/<event>.md             # race plans and post-event reviews
   metcons/<date>.json           # mixed-modal results logged via chat
@@ -224,6 +232,8 @@ state/                          # coach state = database (committed)
 tests/  tests/fixtures/
 .github/workflows/ci.yml        # ruff + pytest
 ```
+
+**Proposals and approvals:** everything that needs my OK (weekly plans in manual mode, block goals, larger replans, early deloads, calibration and science trials, race plans) is written as a proposal in `state/proposals/<id>.json` (what, why, before/after, which skill made it, status). `coach approve <id>` / `coach reject <id> --reason` apply it, and the daily notification lists open proposals. Config or threshold changes made by `learn` only take effect through an approved proposal, and the validator checks this.
 
 **CLI commands:** `sync`, `status`, `readiness`, `context --week|--block`, `validate <file>`, `push --day|--week [--dry-run]`, `approve <week|block-goal|proposal>`, `report <metric> --weeks N`, `macrocycle regenerate`, `test schedule|score`, `simulate --days N`. Every command prints JSON (for Claude) or `--pretty` text (for me).
 
@@ -244,7 +254,7 @@ Each source implements an ABC in `integrations/base.py` that returns normalized 
 
 **Merging sources for one session:** a gym session appears in Whoop (HR, strain) and Hevy (sets); a run appears in Whoop (HR, strain) and Garmin → Intervals.icu (pace, route, Running Dynamics). `coach sync` matches them by start time (±15 min) and activity type into one `Session` record: **HR and strain from Whoop**, sets from Hevy, and pace/distance/dynamics from Garmin. Nothing gets double-counted in load totals. Whoop's zone durations use Whoop's own zones, so time-in-zone for the 80/20 check is recalculated from my LTHR-based zones where raw data allows; otherwise the coach notes the mismatch.
 
-**Check-ins** (joint ratings 1–5 for **low back, shoulders, knees/Achilles**; session RPE 1–10; soreness; notes; optional top-set bar speed from the camera VBT app *Metric*), in order of preference:
+**Check-ins** (joint ratings 1–5 for **low back, shoulders, knees/Achilles**; session RPE 1–10; enjoyment 1–5 (optional); soreness; notes; optional top-set bar speed from the camera VBT app *Metric*), in order of preference:
 1. Intervals.icu custom wellness fields (confirmed to exist; created in the wellness dialog under "Fields", names must start with a capital letter, e.g. `BackFeel`, `ShoulderFeel`, `KneeAchillesFeel`, and readable through the API).
 2. A short tag in the Hevy workout notes (e.g. `back 2 shoulder 3`), parsed by `coach sync`.
 3. Telling the coach in a chat session.
@@ -325,6 +335,8 @@ Each source implements an ABC in `integrations/base.py` that returns normalized 
 
 **Return-to-running ramp:** start ≈10–12 mi/wk across 3 runs, cadence ≈170–180 spm, ≤10% weekly increase, and hold flat every 4th week.
 
+**Variety:** I want training to stay varied and interesting. Main lifts stay fixed within a block (for progressive overload). Accessories, metcon formats, conditioning modalities, and run routes rotate across weeks and blocks, and `review` watches enjoyment scores.
+
 **Progression:** set loads from recent e1RM. Add load when all target reps were hit at or above the target RIR. Hold or reduce after two missed sessions. Deloads cut volume ~40–50% and keep intensity.
 
 **Readiness:**
@@ -342,7 +354,7 @@ Each source implements an ABC in `integrations/base.py` that returns normalized 
 
 ## 9b. Keeping current with the science (monthly, part of the `learn` skill)
 
-On the first Sunday of each month, the daily run also does a **science audit**. It searches recent literature (PubMed E-utilities and web search across high-signal sources such as ISSN position stands, *Sports Medicine*, *JSCR*, and research reviews), focused on my current block and open questions, and writes `state/science/YYYY-MM.md`. **A finding earns a proposal only if:**
+On the first Wednesday of each month, the daily run also does a **science audit**. It searches recent literature (PubMed E-utilities and web search across high-signal sources such as ISSN position stands, *Sports Medicine*, *JSCR*, and research reviews), focused on my current block and open questions, and writes `state/science/YYYY-MM.md`. **A finding earns a proposal only if:**
 1. it comes from a meta-analysis, systematic review, or multiple RCTs in trained humans;
 2. its benefit outweighs the added complexity;
 3. it's framed as a **4-week N=1 trial** with a hypothesis, metric, and stop rule.
@@ -367,11 +379,14 @@ Single studies, mouse studies, or hype never change my programming. Every cited 
 1. `CLAUDE.md` (short, under ~150 lines: purpose, repo map, coach role and conventions, the core principle, definition of done), all docs, all config, and the skills.
 2. The `coach` package: models, mock integrations, engine, validator, push (dry-run), and every CLI command.
 3. `python -m coach simulate --days 120 --from 2026-11-16`: replays the fixtures through the baseline week, a block start, weekly planning, daily adjustments, a reactive deload, and a transition week with retest and review. It prints the daily notifications and writes state into a temp directory. **This is how I judge coaching quality before going live.** When there's no Claude available inside the simulation, use the deterministic fallbacks and mark which steps would normally be Claude.
-4. **Per-skill simulation scenarios** (in `simulate`, each checked against expected outcomes): `assess`: baseline week and goal proposal; `plan-week`: a normal week and a deload week; `design-session`: a metcon with the intended stimulus at the right skill level; `adjust-day`: Green, Yellow, Red, and a heat-wave day; `replan`: sick for 4 days mid-block, and travel with no gym; `review`: an adherence dip; `rehab`: a clean rung advance and a pain-triggered regression; `technique`: a skill marked competent; `fuel`: a long-run day and a compressed-carb week; `compete`: taper plus marathon race plan, and an Open week; `log`: messy free-text metcon and check-in messages; `learn`: a calibration proposal that needs approval.
+4. **Per-skill simulation scenarios** (in `simulate`, each checked against expected outcomes): `assess`: baseline week and goal proposal; `plan-week`: a normal week and a deload week; `design-session`: a metcon with the intended stimulus at the right skill level; `adjust-day`: Green, Yellow, Red, and a heat-wave day; `replan`: sick for 4 days mid-block (below-the-neck symptoms, then a graded return), and travel with no gym; `review`: an adherence dip, and falling enjoyment with rising RPE at the same loads (burnout watch); `rehab`: a clean rung advance and a pain-triggered regression; `technique`: a skill marked competent; `fuel`: a long-run day and a compressed-carb week; `compete`: taper plus marathon race plan, and an Open week; `log`: messy free-text metcon and check-in messages, and a reported red flag (chest pain) that must stop training; `learn`: a calibration proposal that needs approval.
 5. **Tests:** profile/macrocycle/outline validation; every validator rule (each with a failing example); readiness states and precedence; joint swaps; weather tiers; load rounding and progression; deload placement and reactive deload shifting; test scheduling (including the Red-day reschedule) and scoring; calorie-neutral carbs; RPE→RIR; `push` refuses invalid plans; check-in parsing from Hevy notes; metcon result parsing; pillar minimum-dose, session-order, warm-up/cool-down, deload-eccentric, and skill-readiness rules; return-to-running ramp; shoe-mileage alerts; zones derived from LTHR; movement-readiness advance/regress (one rung at a time) and test-variant comparability; idempotent `sync`.
+**If the session runs long, build in this order:** engine + validator → `log`, `adjust-day`, `design-session`, `plan-week`, `review`, `assess` → `replan`, `rehab`, `fuel`, `plan-block` → `technique`, `compete`, `learn`. Note anything unfinished in the summary.
+
 6. **Done when:** `ruff check .`, `ruff format --check .`, and `pytest` pass; the 120-day simulation runs cleanly and reads like a real coach; everything is committed and pushed. Finish with a summary of decisions, what's mocked, and the exact Phase 2 checklist.
 
 **Phase 2 (setup session with me): go live in shadow mode**
+- **Intake:** run `assess`'s intake questionnaire with me in a chat session before the baseline week.
 - **Before the baseline week (my checklist):** optional physical therapist assessment (back + shoulder) to set starting rungs; running gait analysis and shoe fitting (two-shoe rotation); confirm treadmill availability and training schedule; pair the Running Dynamics Pod.
 - Set up the cloud environment: network allowlist (Hevy, Intervals.icu, Open-Meteo, Whoop route, NCBI E-utilities), credentials as network secrets, and a setup script that installs deps.
 - Solve Whoop (section 7), then live reads.
@@ -443,12 +458,12 @@ flowchart TD
   P1 --> H{Sunday?}
   H -- yes --> WK[review then plan-week + design-session] --> V2{validate} --> AP{Approval mode}
   AP -- auto --> P2[push week]
-  AP -- manual --> PEND[Mark pending]
-  H -- no --> X
-  P2 --> SA{First Sunday of month?}
-  PEND --> SA
+  AP -- manual --> PEND[Mark pending proposal]
+  H -- no --> SA{First Wednesday of month?}
   SA -- yes --> SCI[learn: science audit + calibration] --> X
   SA -- no --> X{Block transition due?}
+  P2 --> X
+  PEND --> X
   X -- yes --> R[assess, review, then plan-block after approval]
   X -- no --> CM
   R --> CM[Commit + push state]
