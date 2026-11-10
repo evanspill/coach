@@ -3,7 +3,7 @@ import datetime as dt
 from coach.config import load_config
 from coach.engine import movement as mv
 from coach.engine import testing as T
-from coach.validator import validate_movement_change
+from coach.engine.validator import validate_movement_change
 
 CFG = load_config()
 

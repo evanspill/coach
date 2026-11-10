@@ -8,10 +8,10 @@ description: Coordinator for the scheduled daily run (8:25 AM ET + 9:05 catch-up
 **When:** the scheduled task prompt "Run the coach-daily skill. Commit state to main and push. End with the athlete
 summary." (and the 9:05 catch-up variant). Never in chat unless the athlete asks to "run today's coaching".
 
-**Context:** `coach status`, `coach sync`, `coach readiness`, `state/notes.md`.
+**Context:** `coach status`, `coach sync`, `coach readiness`, `athlete/data/notes.md`.
 
 ## Steps
-1. `git checkout main && git pull --rebase`. **Catch-up run:** if `state/days/<today>.json` is missing or its
+1. `git checkout main && git pull --rebase`. **Catch-up run:** if `athlete/data/days/<today>.json` is missing or its
    `status` is not `waiting_for_recovery`, stop and end with "Nothing to finish."
 2. `coach sync`. If today's Whoop recovery is missing (`recovery_today: false`): finish everything that doesn't
    depend on it, write today's day record with `status: waiting_for_recovery`, say so in the notification; the
@@ -25,9 +25,9 @@ summary." (and the 9:05 catch-up variant). Never in chat unless the athlete asks
 5. **Sunday:** `review` (week just finished). If `block_transition_due`: `assess` (score tests) -> `review` (block
    review) -> `assess` (propose next goal; needs approval) -> `plan-block` (after approval; provisional outline
    if still pending). Then `plan-week` for next week (calls `design-session`), validate (max 3 revisions, then
-   `coach daily --fallback`-style template), and push or mark pending per `config/coach.yaml`.
+   `coach daily --fallback`-style template), and push or mark pending per `athlete/config/coach.yaml`.
 6. **First Wednesday of the month:** `learn` (science audit + calibration).
-7. Write `state/days/<today>.json` (DayRecord), commit with a clear message (e.g. `daily 2026-12-08: yellow, metcon -> Z2`),
+7. Write `athlete/data/days/<today>.json` (DayRecord), commit with a clear message (e.g. `daily 2026-12-08: yellow, metcon -> Z2`),
    then `git pull --rebase && git push` (retry on conflict).
 8. **Final message = the push notification** (format below). Keep detailed numbers in the repo.
 

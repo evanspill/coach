@@ -9,13 +9,15 @@ description: Check-in and reflection. Weekly - adherence, what went well and wha
 "how am I doing?" in chat.
 
 **Context:** `coach report <metric> --weeks N` (mileage, weight, hrv, rhr, recovery, sleep, e1rm, adherence,
-hard_sets), `state/weeks/<iso>/plan.json` + `days/`, `checkins/`, `metcons/`, `blocks/<id>/{goal,tests_*}.json`,
-`state/notes.md`.
+hard_sets), `athlete/data/weeks/<iso>/plan.json` + `days/`, `checkins/`, `metcons/`, `blocks/<id>/{goal,tests_*}.json`,
+`athlete/data/notes.md`.
 
 ## Weekly review contents
 Adherence (planned vs completed, where coach-initiated swaps aren't misses), running actual vs planned and 80/20,
 readiness distribution, sleep, weight trend, peak joint ratings, hard sets, enjoyment and RPE trend, gear alerts,
-what went well, what to fix, **one or two focus points** for next week.
+what went well, what to fix, **one or two focus points** for next week. Also the week's session load
+(Foster sRPE x minutes, monotony, strain; `coach report load`), the morning-wellness trend (sleep quality, fatigue,
+stress, mood) and the athlete's `journal` entries - read them before judging the numbers.
 
 **Burnout watch:** enjoyment falling, or session RPE rising at the same loads, or adherence slipping -> **ask
 why first** ("What got in the way?", "How are you feeling about training?") and change the plan after the answer.
@@ -29,7 +31,7 @@ feeds the next block's outline.
 Year-over-year trends, what worked, what to change; trigger the intake refresh (`assess`).
 
 ## Writes
-`state/weeks/<iso>/review.md`, `state/blocks/<id>/review.md`, `state/reviews/<season>.md` (annual).
+`athlete/data/weeks/<iso>/review.md`, `athlete/data/blocks/<id>/review.md`, `annual_reviews` (`athlete/data/reviews/<season>.md`).
 
 ## Never
 - Prescribe before asking when adherence or enjoyment drops; hype; hide a missed goal.

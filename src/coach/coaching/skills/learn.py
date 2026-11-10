@@ -6,8 +6,8 @@ scaffold and says so. It never invents citations."""
 import datetime as dt
 import statistics
 
-from coach import proposals
-from coach.context import Context
+from coach.coaching import proposals
+from coach.coaching.context import Context
 
 
 def calibration(ctx: Context, day: dt.date, weeks: int = 8) -> tuple[str, object | None]:
@@ -55,7 +55,7 @@ def calibration(ctx: Context, day: dt.date, weeks: int = 8) -> tuple[str, object
                         "value": new,
                     }
                 },
-                target_path="config/athlete_context.json#thresholds.recovery_green_min",
+                target="config/athlete_context.json#thresholds.recovery_green_min",
             )
         else:
             lines.append(

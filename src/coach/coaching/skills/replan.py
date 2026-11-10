@@ -3,14 +3,14 @@
 import datetime as dt
 
 from coach import clock
-from coach.context import Context
+from coach.coaching.context import Context
+from coach.coaching.skills import design as D
+from coach.coaching.skills.plan_block import deload_ranges, targets_for
+from coach.coaching.skills.plan_week import finalize, plan_week
 from coach.engine.deloads import pull_forward
-from coach.fallback import design as D
-from coach.fallback.plan_block import deload_ranges, targets_for
-from coach.fallback.plan_week import finalize, plan_week
+from coach.engine.validator import validate_outline
 from coach.models import BlockOutline, Deviation, Session, WeekPlan
 from coach.models.plans import Revision
-from coach.validator import validate_outline
 
 
 def reactive_deload(ctx: Context, today: dt.date, reason: str) -> tuple[BlockOutline, int] | None:
@@ -120,7 +120,7 @@ def illness(ctx: Context, plan: WeekPlan, start: dt.date, end: dt.date | None, s
 
 
 def _easy_z2(ctx: Context, day: dt.date, minutes: int | None = None) -> Session:
-    from coach.fallback.templates import build_session
+    from coach.coaching.skills.templates import build_session
 
     return build_session(ctx, "graded_return_z2", day, "deload", 0.0, day.isocalendar()[1])
 
@@ -170,7 +170,7 @@ def travel(ctx: Context, plan: WeekPlan, dates: list[dt.date]) -> WeekPlan:
 
 
 def _travel_session(ctx: Context, day: dt.date, original: Session) -> Session:
-    from coach.fallback.templates import build_session
+    from coach.coaching.skills.templates import build_session
 
     if original.type == "rest":
         return original
@@ -243,3 +243,40 @@ def rebuild_next_week(ctx: Context, week_start: dt.date, note: str) -> WeekPlan:
 
 def week_id(day: dt.date) -> str:
     return clock.iso_week_id(day)
+
+
+def apply_availability(ctx: Context, plan: WeekPlan) -> tuple[WeekPlan, list[str]]:
+    """Respect recorded travel / gym closures / busy days for this week (athlete data: availability)."""
+    entries = ctx.state.availability(plan.start, plan.end)
+    if not entries:
+        return plan, []
+    notes = []
+    no_gym = sorted(
+        {d for a in entries if a.kind in {"travel", "gym_closed", "vacation"} for d in _days(a, plan)}
+    )
+    busy = sorted({d for a in entries if a.kind == "busy" for d in _days(a, plan)})
+    if no_gym:
+        plan = travel(ctx, plan, no_gym)
+        notes.append("no gym " + ", ".join(f"{d:%a}" for d in no_gym))
+    for d in busy:
+        s = plan.session_on(d)
+        if s and s.type not in {"rest", "recovery"} and not s.key:
+            idx = plan.sessions.index(s)
+            plan.sessions[idx] = D.recovery_session(ctx, d, 20, "Busy day: short walk + mobility")
+            notes.append(f"busy {d:%a}: short session")
+    if notes:
+        plan.deviations.append(
+            Deviation(
+                field="availability",
+                planned="template",
+                actual="; ".join(notes),
+                reason="athlete availability (travel / closures / busy days)",
+            )
+        )
+    return plan, notes
+
+
+def _days(a, plan: WeekPlan) -> list[dt.date]:
+    return [
+        plan.start + dt.timedelta(days=i) for i in range(7) if a.covers(plan.start + dt.timedelta(days=i))
+    ]

@@ -7,10 +7,11 @@ import statistics
 import sys
 from pathlib import Path
 
-from coach import clock, proposals
+from coach import clock
+from coach.coaching import proposals
+from coach.coaching.context import build
 from coach.config import load_config
-from coach.context import build
-from coach.state import State, dumps
+from coach.store import Store, dumps
 
 
 def _out(data, pretty: bool) -> None:
@@ -51,16 +52,16 @@ def _today(args) -> dt.date:
 
 # ---------------------------------------------------------------- commands
 def cmd_init(args):
-    from coach.daily import bootstrap
+    from coach.coaching.daily import bootstrap
 
-    st, cfg = State(), load_config()
+    st, cfg = Store(), load_config()
     return {"done": bootstrap(st, cfg, _today(args))}
 
 
 def cmd_sync(args):
-    from coach.sync import sync
+    from coach.integrations.sync import sync
 
-    return sync(_sources(), State(), _today(args))
+    return sync(_sources(), Store(), _today(args))
 
 
 def status_dict(today: dt.date) -> dict:
@@ -110,16 +111,15 @@ def status_dict(today: dt.date) -> dict:
     out["pending_approvals"] = proposals.pending_summary(st)
     out["today_record_status"] = rec.status if rec else None
     out["health"] = {
-        "red_flags": [f["flag"] for f in ctx.health.get("red_flags", []) if not f.get("cleared_on")],
-        "illness": ctx.health.get("illness"),
+        "active": [e.model_dump(mode="json", exclude_none=True) for e in ctx.health if e.active_on(today)],
     }
     if ctx.has_metrics():
         r = ctx.readiness(today)
         out["readiness"] = {"state": r.state, "reasons": r.reasons, "sustained_red": r.sustained_red}
         out["active_joint_flags"] = [f.model_dump(mode="json") for f in r.joint_flags]
     out["movement_rungs"] = {f: fs.rung for f, fs in ctx.movement.families.items()}
-    sync_state = st.read_json("metrics/sync_state.json") or {}
-    out["stale_sources"] = (sync_state.get("last_report") or {}).get("stale", [])
+    sync_state = st.get("sync_state")
+    out["stale_sources"] = sync_state.last_report.get("stale", []) if sync_state else []
     return out
 
 
@@ -168,8 +168,8 @@ def cmd_context(args):
             out["main_lifts"] = [m.model_dump(mode="json") for m in ol.main_lifts]
         out["trailing_run_miles"] = ctx.trailing_miles(start)
         prev = st.week_plan(clock.iso_week_id(start - dt.timedelta(days=7)))
-        out["last_week_review_md"] = st.read_text(f"weeks/{prev.week_id}/review.md") if prev else ""
-        from coach.fill import Filler
+        out["last_week_review_md"] = st.report("week_reviews", prev.week_id) if prev else ""
+        from coach.coaching.fill import Filler
 
         f = Filler(
             ctx.cfg.library,
@@ -190,8 +190,8 @@ def cmd_context(args):
     if args.block:
         if ctx.block:
             out["block"] = ctx.block.model_dump(mode="json")
-            out["goal"] = st.read_json(f"blocks/{ctx.block.id}/goal.json")
-            out["tests_start"] = st.read_json(f"blocks/{ctx.block.id}/tests_start.json")
+            out["goal"] = st.goal(ctx.block.id)
+            out["tests_start"] = st.tests(ctx.block.id, "start")
         out["benchmarks"] = ctx.cfg.benchmarks
         out["test_battery"] = list(ctx.cfg.tests.tests)
     out["untrusted_note"] = (
@@ -219,14 +219,14 @@ def _detect(data: dict) -> str:
 
 
 def validate_file(path: Path, today: dt.date) -> dict:
-    from coach.models import BlockGoal, BlockOutline, Macrocycle, MovementReadiness, Session, WeekPlan
-    from coach.validator import (
+    from coach.engine.validator import (
         validate_macrocycle,
         validate_movement_change,
         validate_outline,
         validate_session,
         validate_week,
     )
+    from coach.models import BlockGoal, BlockOutline, Macrocycle, MovementReadiness, Session, WeekPlan
 
     ctx = build(today=today)
     try:
@@ -257,18 +257,18 @@ def validate_file(path: Path, today: dt.date) -> dict:
 def cmd_validate(args):
     today = _today(args)
     if args.file == "config":
-        from coach.validator import validate_config_lock
+        from coach.engine.validator import validate_config_lock
 
-        st = State()
+        st = Store()
         v = validate_config_lock(
-            load_config(), st.read_json("config_lock.json"), {p.id for p in st.proposals("approved")}
+            load_config(), st.get("config_lock"), {p.id for p in st.proposals("approved")}
         )
         return {"valid": not v, "kind": "config", "violations": [str(x) for x in v]}
     return validate_file(Path(args.file), today)
 
 
 def cmd_push(args):
-    from coach.push import PushRefused, push_day, push_week
+    from coach.integrations.push import PushRefused, push_day, push_week
 
     today = _today(args)
     ctx = build(today=today)
@@ -294,7 +294,7 @@ def cmd_push(args):
 
 def cmd_approve(args):
     today = _today(args)
-    st, cfg = State(), load_config()
+    st, cfg = Store(), load_config()
     target = args.target
     if target == "initial-config":
         proposals.record_config_lock(st, cfg, "initial", today)
@@ -312,11 +312,10 @@ def cmd_approve(args):
     actions = proposals.approve(st, target, today, cfg, args.note or "")
     p = st.proposal(target)
     result = {"approved": target, "actions": actions}
-    if p and p.kind in {"weekly_plan", "baseline_battery"} and p.target_path:
-        from coach.models import WeekPlan
-        from coach.push import PushRefused, push_week
+    if p and p.kind in {"weekly_plan", "baseline_battery"} and p.target:
+        from coach.integrations.push import PushRefused, push_week
 
-        plan = st.read_model(p.target_path, WeekPlan)
+        plan = st.get_ref(p.target)
         try:
             result["push"] = push_week(plan, build(today=today), _sources())
         except PushRefused as e:
@@ -325,7 +324,7 @@ def cmd_approve(args):
 
 
 def cmd_reject(args):
-    proposals.reject(State(), args.id, _today(args), args.reason)
+    proposals.reject(Store(), args.id, _today(args), args.reason)
     return {"rejected": args.id, "reason": args.reason}
 
 
@@ -334,7 +333,7 @@ def cmd_proposals(args):
         p.model_dump(
             mode="json", include={"id", "kind", "title", "what", "why", "status", "created", "created_by"}
         )
-        for p in State().proposals(None if args.all else "pending")
+        for p in Store().proposals(None if args.all else "pending")
     ]
 
 
@@ -381,8 +380,12 @@ def cmd_report(args):
                 if x.exercise_id == ex and x.weight_kg and x.reps and x.set_type != "warmup"
             ]
             row[f"e1rm_{ex}"] = round(max(best), 1) if best else None
+        elif args.metric == "load":
+            from coach.coaching.skills.review import session_load
+
+            row.update(session_load(ctx, ws, we))
         elif args.metric == "adherence":
-            from coach.fallback.review import adherence
+            from coach.coaching.skills.review import adherence
 
             plan = st.week_plan(clock.iso_week_id(ws))
             if plan:
@@ -414,10 +417,10 @@ def cmd_report(args):
 
 def cmd_macrocycle(args):
     from coach.engine import macrocycle as M
-    from coach.validator import validate_macrocycle
+    from coach.engine.validator import validate_macrocycle
 
     today = _today(args)
-    st, cfg = State(), load_config()
+    st, cfg = Store(), load_config()
     old = st.macrocycle()
     new = M.generate(cfg.profile, cfg.season, today)
     v = validate_macrocycle(new)
@@ -429,7 +432,7 @@ def cmd_macrocycle(args):
             ob = old.block_by_id(b.id)
             if ob is None or (ob.start, ob.end) != (b.start, b.end):
                 changed.append(b.id)
-    st.write_json("macrocycle.json", new)
+    st.put("macrocycle", new)
     return {
         "written": "state/macrocycle.json",
         "blocks": [f"{b.id}: {b.start} -> {b.end}" for b in new.blocks],
@@ -440,8 +443,8 @@ def cmd_macrocycle(args):
 
 
 def cmd_test(args):
+    from coach.coaching.skills import assess
     from coach.engine import testing as T
-    from coach.fallback import assess
 
     today = _today(args)
     ctx = build(today=today)
@@ -456,7 +459,7 @@ def cmd_test(args):
     scheduled = {t: s.date for s in plan.sessions for t in s.tests}
     block_id = args.block or plan.block_id
     ts = assess.score_week(ctx, block_id, args.phase, scheduled, None, end_day=plan.end)
-    ctx.state.write_json(f"blocks/{block_id}/tests_{args.phase}.json", ts)
+    ctx.state.put("test_sets", ts)
     z = assess.update_zones_from(ctx, ts)
     return {
         "scored": [r.model_dump(mode="json") for r in ts.results],
@@ -467,7 +470,7 @@ def cmd_test(args):
 
 def cmd_form_check(args):
     from coach.engine import movement as mv
-    from coach.validator import validate_movement_change
+    from coach.engine.validator import validate_movement_change
 
     today = _today(args)
     ctx = build(today=today)
@@ -478,10 +481,12 @@ def cmd_form_check(args):
     v = validate_movement_change(before, ctx.movement, ctx.cfg)
     if v:
         return {"valid": False, "violations": [str(x) for x in v]}
-    ctx.state.write_json("movement_readiness.json", ctx.movement)
-    ctx.state.append_text(
-        "notes.md",
-        f"- {today}: form check cleared {args.family} rung {rung} ({args.by}). {args.note or ''}\n",
+    ctx.state.put("movement_readiness", ctx.movement)
+    ctx.state.add_note(
+        today,
+        f"form check cleared {args.family} rung {rung} ({args.by}). {args.note or ''}".strip(),
+        "injury",
+        "form-check",
     )
     return {
         "cleared": args.family,
@@ -491,14 +496,78 @@ def cmd_form_check(args):
     }
 
 
+def cmd_collections(args):
+    from coach.store.collections import COLLECTIONS
+
+    return {
+        name: {
+            "kind": c.kind,
+            "path": f"athlete/data/{c.path}",
+            "model": c.model.__name__ if c.model else None,
+            "description": c.description,
+        }
+        for name, c in COLLECTIONS.items()
+    }
+
+
+def cmd_record(args):
+    """Generic, validated access to the athlete data collections (what a DB client would do)."""
+    st = Store()
+    today = _today(args)
+    c = st.collection(args.collection)
+    if args.action == "list":
+        start = dt.date.fromisoformat(args.start) if args.start else None
+        end = dt.date.fromisoformat(args.end) if args.end else None
+        return [
+            o.model_dump(mode="json", exclude_none=True) if hasattr(o, "model_dump") else o
+            for o in st.query(args.collection, start, end)
+        ]
+    if args.action == "get":
+        obj = (
+            st.get(args.collection, args.key) if c.kind != "report" else st.report(args.collection, args.key)
+        )
+        return obj.model_dump(mode="json", exclude_none=True) if hasattr(obj, "model_dump") else obj
+    if args.action == "add":
+        if c.model is None or c.kind == "series":
+            return {"error": f"{args.collection} is not writable with record add"}
+        data = json.loads(args.json)
+        if "id" in c.model.model_fields and "id" not in data:
+            day = dt.date.fromisoformat(str(data.get("date") or data.get("start") or today))
+            data["id"] = st.new_id(
+                args.collection, day, str(data.get("kind", args.collection.rstrip("s"))).replace("_", "-")
+            )
+        obj = st.put(args.collection, data, args.key)
+        return {
+            "saved": st.ref(
+                args.collection, args.key or (st.key_of(args.collection, obj) if c.kind == "doc" else None)
+            ),
+            "record": obj.model_dump(mode="json", exclude_none=True),
+        }
+    return {"error": f"unknown action {args.action}"}
+
+
+def cmd_health(args):
+    st = Store()
+    ev = st.get("health_events", args.id)
+    if ev is None:
+        return {
+            "error": f"no health event {args.id}",
+            "active": [e.id for e in st.health_events(_today(args))],
+        }
+    ev.resolved_on = _today(args)
+    ev.cleared_by = args.by
+    st.put("health_events", ev)
+    return {"resolved": ev.id, "kind": ev.kind, "on": ev.resolved_on.isoformat(), "cleared_by": args.by}
+
+
 def cmd_daily(args):
-    from coach.daily import run_daily
+    from coach.coaching.daily import run_daily
 
     if not args.fallback:
         return {
             "error": "the daily run is Claude's job (coach-daily skill). Use --fallback for the deterministic safety net."
         }
-    res = run_daily(_sources(), State(), _today(args), "catchup" if args.catchup else "main")
+    res = run_daily(_sources(), Store(), _today(args), "catchup" if args.catchup else "main")
     return {
         "notification": res.notification,
         "log": res.log,
@@ -507,8 +576,8 @@ def cmd_daily(args):
 
 
 def cmd_log(args):
-    from coach.fallback import log as log_skill
-    from coach.fallback import technique
+    from coach.coaching.skills import log as log_skill
+    from coach.coaching.skills import technique
 
     today = _today(args)
     ctx = build(today=today)
@@ -535,8 +604,8 @@ def cmd_simulate(args):
     )
     summary = {
         "days": len(res.days),
-        "state_dir": str(res.home / "state"),
-        "report": str(res.home / "state" / "simulation_report.md"),
+        "state_dir": str(res.home / "athlete" / "data"),
+        "report": str(res.home / "athlete" / "data" / "simulation_report.md"),
         "scenarios_passed": sum(s["passed"] for s in res.scenarios),
         "scenarios_total": len(res.scenarios),
         "failed": [f"{s['skill']}: {s['name']} - {s['detail']}" for s in res.scenarios if not s["passed"]],
@@ -597,6 +666,22 @@ def build_parser() -> argparse.ArgumentParser:
     t.add_argument("--tests", help="comma-separated test ids")
     t.add_argument("--block")
     t.add_argument("--phase", default="end", choices=["baseline", "start", "end"])
+    fc = sub.add_parser("form-check", help="record that a form check / physio cleared a family's next rung")
+    fc.add_argument("family")
+    fc.add_argument("--by", default="coach", choices=["coach", "physio"])
+    fc.add_argument("--note")
+    sub.add_parser("collections", help="list the athlete data collections (the data model)")
+    rc = sub.add_parser("record", help="add / list / get athlete data records (validated against the model)")
+    rc.add_argument("action", choices=["add", "list", "get"])
+    rc.add_argument("collection")
+    rc.add_argument("json", nargs="?", help="record JSON for add")
+    rc.add_argument("--key", help="key for get/add (date, id, block id ...)")
+    rc.add_argument("--from", dest="start")
+    rc.add_argument("--to", dest="end")
+    hp = sub.add_parser("health", help="resolve a health event (illness over, red flag cleared by a doctor)")
+    hp.add_argument("action", choices=["resolve"])
+    hp.add_argument("id")
+    hp.add_argument("--by", default="athlete", help="who cleared it, e.g. doctor")
     d = sub.add_parser(
         "daily", help="deterministic daily run (safety net; the real run is the coach-daily skill)"
     )
@@ -638,6 +723,9 @@ COMMANDS = {
     "daily": cmd_daily,
     "log": cmd_log,
     "simulate": cmd_simulate,
+    "collections": cmd_collections,
+    "record": cmd_record,
+    "health": cmd_health,
     "form-check": cmd_form_check,
     "scenarios": cmd_scenarios,
 }

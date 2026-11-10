@@ -3,12 +3,12 @@ invalid plans, no matter who calls it. Dry-run unless config/coach.yaml push.ena
 
 import datetime as dt
 
-from coach.context import Context
+from coach.coaching.context import Context
 from coach.engine.paces import PACE_FACTORS
 from coach.engine.units import fmt_pace
+from coach.engine.validator import Violation, validate_session, validate_week
 from coach.integrations.base import Sources
 from coach.models import Session, WeekPlan
-from coach.validator import Violation, validate_session, validate_week
 
 RUN_TYPES = {"run_easy", "run_long", "run_quality", "race", "test"}
 
@@ -126,7 +126,7 @@ def intervals_event(s: Session, ctx: Context) -> dict | None:
 
 
 def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | None, dry_run: bool) -> dict:
-    ids = ctx.state.read_json("push_ids.json") or {}
+    ids = ctx.state.get("push_ids") or {}
     out: dict = {"dry_run": dry_run, "hevy": [], "intervals": []}
     events = []
     for s in sessions:
@@ -157,7 +157,7 @@ def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | Non
         else:
             out["intervals"] = sources.intervals.upsert_events(events)
     if not dry_run:
-        ctx.state.write_json("push_ids.json", ids)
+        ctx.state.put("push_ids", ids)
     return out
 
 

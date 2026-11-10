@@ -8,12 +8,12 @@ description: Disruption handling. Rebuilds the rest of the week, or the block, w
 **When:** "I'm sick", "traveling Thu-Sun", "the gym is closed Friday", 2+ missed sessions this week, sustained Red
 or a joint >= 4 (reactive deload), test-day Red that can't be moved within the week.
 
-**Context:** `coach status`, `coach context --week`, `state/weeks/<iso>/plan.json`, `state/blocks/<id>/outline.json`,
-`state/health.json`, `docs/SAFETY.md`.
+**Context:** `coach status`, `coach context --week`, `athlete/data/weeks/<iso>/plan.json`, `athlete/data/blocks/<id>/outline.json`,
+`health_events` (`coach record list health_events`), `docs/SAFETY.md`.
 
 ## Procedure
 - **Illness:** below the neck -> rest days until resolved, then graded return (day 1 Z1, day 2 easy Z2, day 3+
-  deload volume, then normal). Above the neck -> easy movement only. Record it in `state/health.json` (via `log`).
+  deload volume, then normal). Above the neck -> easy movement only. Record it in `health_events` (via `log`; `coach health resolve <id>` when it's over).
 - **Travel:** move key gym sessions to home days where spacing allows; travel days get bodyweight/band sessions and
   runs where the athlete is (`location: travel`, equipment from `travel_equipment`).
 - **Missed sessions:** keep the remaining key sessions (main lift, long run, the key glycolytic session), trim
@@ -23,7 +23,7 @@ or a joint >= 4 (reactive deload), test-day Red that can't be moved within the w
 - Every change carries a reason in `deviations` (week) or `revisions` (outline). Validate before saving.
 
 ## Writes
-Revised `state/weeks/<iso>/plan.json` and/or `state/blocks/<id>/outline.json`; proposals (`replan`,
+Revised `athlete/data/weeks/<iso>/plan.json` and/or `athlete/data/blocks/<id>/outline.json`; proposals (`replan`,
 `early_deload`) when approval is needed.
 
 ## May call

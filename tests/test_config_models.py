@@ -6,8 +6,8 @@ from pydantic import ValidationError
 
 from coach.config import load_config
 from coach.engine import macrocycle as M
+from coach.engine.validator import validate_macrocycle, validate_outline
 from coach.models import AthleteProfile, Session
-from coach.validator import validate_macrocycle, validate_outline
 
 
 def test_config_loads_and_is_consistent():

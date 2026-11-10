@@ -5,14 +5,14 @@ import json
 from pathlib import Path
 
 from coach.config import Config
+from coach.engine.validator import thresholds_fingerprint
 from coach.models import Proposal
-from coach.models.records import ProposalEvent
-from coach.state import State
-from coach.validator import thresholds_fingerprint
+from coach.models.records import ConfigLock, ProposalEvent
+from coach.store import Store
 
 
 def create(
-    state: State,
+    state: Store,
     kind: str,
     created_by: str,
     title: str,
@@ -22,23 +22,19 @@ def create(
     *,
     before=None,
     after=None,
-    target_path: str | None = None,
+    target: str | None = None,
     payload: dict | None = None,
     supersede_same_target: bool = True,
 ) -> Proposal:
-    if supersede_same_target and target_path:
+    if supersede_same_target and target:
         for p in state.proposals("pending"):
-            if p.target_path == target_path and p.kind == kind:
+            if p.target == target and p.kind == kind:
                 p.status = "superseded"
                 p.history.append(
                     ProposalEvent(at=day, status="superseded", note="replaced by a newer proposal")
                 )
                 state.save_proposal(p)
-    n = (
-        len(list(state.path("proposals").glob(f"{day.isoformat()}-*.json"))) + 1
-        if state.path("proposals").exists()
-        else 1
-    )
+    n = len([k for k in state.keys("proposals") if k.startswith(f"{day.isoformat()}-")]) + 1
     p = Proposal(
         id=f"{day.isoformat()}-{kind.replace('_', '-')}-{n}",
         kind=kind,
@@ -49,7 +45,7 @@ def create(
         why=why,
         before=before,
         after=after,
-        target_path=target_path,
+        target=target,
         payload=payload,
         history=[ProposalEvent(at=day, status="pending")],
     )
@@ -73,16 +69,14 @@ def _apply_config_patch(cfg_dir: Path, patch: dict) -> None:
         f.write_text(yaml.safe_dump(data, sort_keys=False))
 
 
-def record_config_lock(state: State, cfg: Config, approved_by: str, day: dt.date) -> None:
-    state.write_json(
-        "config_lock.json",
-        {"fingerprint": thresholds_fingerprint(cfg), "approved_by": approved_by, "at": day.isoformat()},
+def record_config_lock(state: Store, cfg: Config, approved_by: str, day: dt.date) -> None:
+    state.put(
+        "config_lock", ConfigLock(fingerprint=thresholds_fingerprint(cfg), approved_by=approved_by, at=day)
     )
 
 
-def approve(state: State, pid: str, day: dt.date, cfg: Config, note: str = "") -> list[str]:
+def approve(state: Store, pid: str, day: dt.date, cfg: Config, note: str = "") -> list[str]:
     from coach.config import load_config
-    from coach.models import BlockGoal, WeekPlan
 
     p = state.proposal(pid)
     if p is None:
@@ -90,22 +84,22 @@ def approve(state: State, pid: str, day: dt.date, cfg: Config, note: str = "") -
     if p.status != "pending":
         raise ValueError(f"proposal {pid} is {p.status}, not pending")
     actions = []
-    if p.kind in {"weekly_plan", "baseline_battery"} and p.target_path:
-        plan = state.read_model(p.target_path, WeekPlan)
+    if p.kind in {"weekly_plan", "baseline_battery"} and p.target:
+        plan = state.get_ref(p.target)
         if plan:
             plan.approval = "approved"
-            state.write_json(p.target_path, plan)
-            actions.append(f"approved {p.target_path}")
-    elif p.kind == "block_goal" and p.target_path:
-        goal = state.read_model(p.target_path, BlockGoal)
+            state.put_ref(p.target, plan)
+            actions.append(f"approved {p.target}")
+    elif p.kind == "block_goal" and p.target:
+        goal = state.get_ref(p.target)
         if goal:
             goal.status = "approved"
-            state.write_json(p.target_path, goal)
+            state.put_ref(p.target, goal)
             actions.append(f"approved goal {goal.block_id}")
-    elif p.payload and "files" in p.payload:
-        for rel, content in p.payload["files"].items():
-            state.write_json(rel, content)
-            actions.append(f"wrote {rel}")
+    elif p.payload and "records" in p.payload:
+        for ref, content in p.payload["records"].items():
+            state.put_ref(ref, content)
+            actions.append(f"wrote {ref}")
     if p.payload and "config_patch" in p.payload:
         _apply_config_patch(cfg.root, p.payload["config_patch"])
         new_cfg = load_config(cfg.root)
@@ -120,7 +114,7 @@ def approve(state: State, pid: str, day: dt.date, cfg: Config, note: str = "") -
     return actions
 
 
-def reject(state: State, pid: str, day: dt.date, reason: str) -> None:
+def reject(state: Store, pid: str, day: dt.date, reason: str) -> None:
     p = state.proposal(pid)
     if p is None:
         raise KeyError(f"no proposal {pid}")
@@ -129,9 +123,9 @@ def reject(state: State, pid: str, day: dt.date, reason: str) -> None:
     state.save_proposal(p)
 
 
-def log_changelog(state: State, day: dt.date, p: Proposal) -> None:
-    state.append_text("changelog.md", f"- {day.isoformat()} [{p.id}] {p.title}: {p.what} (why: {p.why})\n")
+def log_changelog(state: Store, day: dt.date, p: Proposal) -> None:
+    state.append_report("changelog", f"- {day.isoformat()} [{p.id}] {p.title}: {p.what} (why: {p.why})\n")
 
 
-def pending_summary(state: State) -> list[str]:
+def pending_summary(state: Store) -> list[str]:
     return [f"{p.id}: {p.title}" for p in state.proposals("pending")]

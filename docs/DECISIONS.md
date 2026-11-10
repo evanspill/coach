@@ -3,8 +3,8 @@
 Each entry: **decision** - why - how to reverse.
 
 ## Calendar and planning
-1. **Block 1 ends one week after the final Open workout** (`season.yaml` B1 `end_after_event.weeks_after: 1`): Block 1 = 2026-11-23 -> 2027-03-14, transition week 03-08..03-14, Block 2 starts 03-15. - The Open itself is the peak; a retest the week after is realistic, and it lets the 120-day simulation (from 2026-11-16) include a full transition week with retest and review. - Set B1 `length.end_after_event.weeks_after: 2` in `config/season.yaml` and run `coach macrocycle regenerate`.
-2. **Block 3 = 13 weeks; Block 4 = 3-week taper (race week included) + 2 reset weeks**; Block 2 fills the gap. - Matches the illustrative dates. - `config/season.yaml` block lengths.
+1. **Block 1 ends one week after the final Open workout** (`season.yaml` B1 `end_after_event.weeks_after: 1`): Block 1 = 2026-11-23 -> 2027-03-14, transition week 03-08..03-14, Block 2 starts 03-15. - The Open itself is the peak; a retest the week after is realistic, and it lets the 120-day simulation (from 2026-11-16) include a full transition week with retest and review. - Set B1 `length.end_after_event.weeks_after: 2` in `athlete/config/season.yaml` and run `coach macrocycle regenerate`.
+2. **Block 3 = 13 weeks; Block 4 = 3-week taper (race week included) + 2 reset weeks**; Block 2 fills the gap. - Matches the illustrative dates. - `athlete/config/season.yaml` block lengths.
 3. **Deloads count back every 4th week from the transition week**, never in competition weeks, earliest in week 3, and a gap-filler guarantees no 5-week span without a deload-like week (the previous block's transition counts as week 0). - Brief's 3:1 rule. - `engine/deloads.py`.
 4. **Reactive deload trigger**: Red on >= 3 of the last 5 days (`sustained_red_days/window`) or any joint >= 4. It turns *next* week into a deload and re-spaces later deloads; joint >= 4 applies immediately, otherwise it is a proposal. Not applied if this/next week is already a deload, transition, competition or taper week. - Brief section 2.4. - thresholds in `athlete_context.json`.
 5. **"No hard lower-body lifting within 24 h before the long run" = not on the calendar day before.** - Sessions all start 09:00-10:00, so "24 h" is ambiguous by minutes. - `validator.py` `LONG_RUN_LOWER_24H`.
@@ -25,7 +25,7 @@ Each entry: **decision** - why - how to reverse.
 16. **A single joint rated 3 makes the day Yellow** (Green requires joints <= 2). **Joint flags clear after 2 consecutive check-ins <= 2.**
 17. **Safety downgrades apply immediately** (Red -> Z1 + mobility, illness, red flags) even though `manual_if` lists `session_type_swap`; `manual_if` governs non-safety swaps (e.g. "swap today's pressing"). - Waiting for approval to *reduce* risk makes no sense.
 18. **Missing Whoop recovery -> state `unknown`, day `waiting_for_recovery`**; the planned session stays in Hevy/Garmin, the 9:05 catch-up finalizes.
-19. **Red flags are detected by keyword (chest pain, fainting, breathlessness, numbness/radiating pain, sharp/worsening joint pain, dark urine)** and write `state/health.json`; all training stops until the athlete says a doctor cleared them (`cleared_on`). Illness: below the neck -> rest; above -> easy only.
+19. **Red flags are detected by keyword (chest pain, fainting, breathlessness, numbness/radiating pain, sharp/worsening joint pain, dark urine)** and write `athlete/data/health.json`; all training stops until the athlete says a doctor cleared them (`cleared_on`). Illness: below the neck -> rest; above -> easy only.
 
 ## Movement readiness and skills
 20. **Advance = 3 clean exposures (pain <= 2/10, no next-morning stiffness rise) AND >= 14 days at the rung.** The unrestricted top rungs (floor deadlift, back squat, barbell bench, barbell strict/push press, Olympic lifts from the floor, kipping) also need **21 days at the rung below and a recorded form check** (coach video review or physio OK, `coach form-check <family>`). - Criteria-based progression with pain monitoring is standard rehab practice; connective tissue adapts more slowly than muscle, and with a back/shoulder history the last rungs deserve an outside look. In the first simulation the floor deadlift arrived by week 9, which a good coach wouldn't allow without a form check. - `min_days_before` / `form_check` per rung in `movement_progressions.yaml`.
@@ -34,11 +34,11 @@ Each entry: **decision** - why - how to reverse.
 23. **Skill levels move one step at a time; "competent" also needs the gating rung.** Skill levels are normal coaching progress (written by `technique`), not a locked config change.
 
 ## Loads, nutrition, data
-24. **Loads are stored in kg (Hevy's unit) and rounded in lb** to what the gym has: 45 lb bar / 60 lb trap bar / 65 lb SSB (assumed; verify), 1.25 lb per side, DBs 5-100 lb in 5 lb steps, KBs 26/35/53/70 lb only (> 70 lb -> swap to DBs). Cable/machine work is RIR-based from the last used weight. - `config/equipment.yaml` `loading`.
+24. **Loads are stored in kg (Hevy's unit) and rounded in lb** to what the gym has: 45 lb bar / 60 lb trap bar / 65 lb SSB (assumed; verify), 1.25 lb per side, DBs 5-100 lb in 5 lb steps, KBs 26/35/53/70 lb only (> 70 lb -> swap to DBs). Cable/machine work is RIR-based from the last used weight. - `athlete/config/equipment.yaml` `loading`.
 25. **Progression**: +2.5% when every work set hit target reps at >= target RIR - 0.5; hold after one miss; -5% after two. The pain rule (-15%, 3 s eccentric for 2 weeks) overrides.
-26. **Carb tiers**: high on lower/full/long/quality/Hyrox/metcon/test/competition days and the day before the long run; moderate on upper/easy/sprint days; low on recovery/rest. If MacroFactor's weekly total leaves room beyond the desired carbs, the surplus goes to fat (still calorie-neutral). Until nutrition data is connected the weekly target is `state/macrofactor.json` (told in chat) or 33 kcal/kg/day.
+26. **Carb tiers**: high on lower/full/long/quality/Hyrox/metcon/test/competition days and the day before the long run; moderate on upper/easy/sprint days; low on recovery/rest. If MacroFactor's weekly total leaves room beyond the desired carbs, the surplus goes to fat (still calorie-neutral). Until nutrition data is connected the weekly target is `athlete/data/macrofactor.json` (told in chat) or 33 kcal/kg/day.
 27. **Check-in source priority: Intervals.icu fields > Hevy-note tag > chat.**
-28. **Metrics are JSON lines per month** (`state/metrics/YYYY-MM.jsonl`); daily values merge across sources; sessions are re-merged over a 3-day overlap each sync so late uploads merge without duplicates. Gear is a snapshot (`metrics/gear.json`).
+28. **Metrics are JSON lines per month** (`athlete/data/metrics/YYYY-MM.jsonl`); daily values merge across sources; sessions are re-merged over a 3-day overlap each sync so late uploads merge without duplicates. Gear is a snapshot (`metrics/gear.json`).
 29. **Session merge**: same day, start within +/-15 min, compatible activity type; HR/strain from Whoop, sets from Hevy, pace/dynamics from Intervals. Time-in-zone is approximated from average HR against LTHR until per-second data is used (noted as approximate).
 30. **Config lock** fingerprints thresholds, weather rules, nutrition rules and progression rules. `coach.yaml` (pause, approval mode, push) is the athlete's own switchboard and is not locked.
 
@@ -50,9 +50,39 @@ Each entry: **decision** - why - how to reverse.
 35. **Open workouts are unknown until released**: the competition session ships with an empty movement list and a scaling rule; `compete` fills it in after Thursday's release.
 
 ## Generic engine (configuration split)
-36. **The engine holds no athlete- or season-specific content.** The year's shape (blocks, anchors, run ranges, pillars, hard-set ranges, key sessions, main lifts, goal tests and guardrails, week templates per week type) is `config/season.yaml`; session content (session and week templates, warm-ups, cool-downs, item sets, metcon pools, accessory fillers, skill practice, training rules such as required warm-ups and forbidden back-to-back pairs, carb tiers, Yellow/Red replacements) is `config/training.yaml`. Test schedule days, test slots/stress/direction/goal size and the test-block prescriptions are in `tests.yaml`; related-lift e1RM estimates in `exercises.yaml` (`estimate_from`); skill drills and chat milestones in `skills.yaml`; family aliases in `movement_progressions.yaml`; check-in regions and their Intervals.icu fields, default zones, peri-workout and recovery wording, intake questions, notes seed, race gear checklist and emergency number in `athlete_context.json`. `config.py` cross-checks every reference. - Lets the engine move to its own repo; changing the training approach is a config change, not a code change.
+36. **The engine holds no athlete- or season-specific content.** The year's shape (blocks, anchors, run ranges, pillars, hard-set ranges, key sessions, main lifts, goal tests and guardrails, week templates per week type) is `athlete/config/season.yaml`; session content (session and week templates, warm-ups, cool-downs, item sets, metcon pools, accessory fillers, skill practice, training rules such as required warm-ups and forbidden back-to-back pairs, carb tiers, Yellow/Red replacements) is `athlete/config/training.yaml`. Test schedule days, test slots/stress/direction/goal size and the test-block prescriptions are in `tests.yaml`; related-lift e1RM estimates in `exercises.yaml` (`estimate_from`); skill drills and chat milestones in `skills.yaml`; family aliases in `movement_progressions.yaml`; check-in regions and their Intervals.icu fields, default zones, peri-workout and recovery wording, intake questions, notes seed, race gear checklist and emergency number in `athlete_context.json`. `config.py` cross-checks every reference. - Lets the engine move to its own repo; changing the training approach is a config change, not a code change.
 37. **Check-ins store joints as a map** (`joints: {region: 1-5}`), with regions defined in `athlete_context.json`; readiness and joint flags work over whatever regions exist. - The three regions were specific to this athlete.
 38. **The validator rule `WARMUP_MCGILL` is now `WARMUP_REQUIRED`**, checking `rules.required_warmup.lower_body` from `training.yaml`.
-39. **A bundled demo athlete** (`src/coach/demo/config` + `demo/fixtures`) is what tests and `coach simulate` use, so engine tests never depend on the athlete's own `config/`. `coach simulate --config active` replays the demo fixtures against the active config; CI runs both, plus `coach validate config`. Right now the demo config is a copy of this athlete's config.
-40. **Config refactor re-recorded the config lock as `initial`** (`state/config_lock.json`): adding `long_run_max_increase_mi` and the per-rung gates changed the locked fingerprint. This was an athlete-requested code change, not an unapproved threshold change.
-41. **No hosted database for now.** Git keeps state; personal data and code separate cleanly once the engine moves to its own repo (decision 39 prepares that). Revisit a hosted store (e.g. Cloudflare D1) only if git becomes clumsy or a token broker gets hosted anyway.
+39. **A bundled demo athlete** (`src/coach/demo/config` + `demo/fixtures`) is what tests and `coach simulate` use, so engine tests never depend on the athlete's own `athlete/config/`. `coach simulate --config active` replays the demo fixtures against the active config; CI runs both, plus `coach validate config`. Right now the demo config is a copy of this athlete's config.
+40. **Config refactor re-recorded the config lock as `initial`** (`athlete/data/config_lock.json`): adding `long_run_max_increase_mi` and the per-rung gates changed the locked fingerprint. This was an athlete-requested code change, not an unapproved threshold change.
+41. **No hosted database for now; one repo.** Git keeps the records, but code and athlete data are separated inside
+    the repo (`src/coach/` vs `athlete/config/` + `athlete/data/`) and all data goes through `coach.store`, so a
+    database is one new backend later (`docs/DATA_MODEL.md`). Supersedes the earlier two-repo idea.
+
+## Data sources
+42. **Whoop stays a direct API integration, through a token broker.** Whoop is worn 24/7 (the Garmin only on runs), so
+    it's the only HR/strain source for gym sessions, and the direct API has last night's recovery ready for the
+    8:25 run. Intervals.icu's native Whoop sync was rejected: wellness only (no workouts) and it polls about every
+    8 h. Cost: hosting the broker (a free Cloudflare Worker by default), which also serves Withings. - To reverse,
+    read recovery from Intervals.icu wellness and drop per-session Whoop HR.
+43. **Intervals.icu stays, for runs only.** It carries Garmin run detail (pace, Running Dynamics, training load,
+    shoe mileage) and is the only practical way to put planned run workouts on the watch: Garmin's Training API is
+    business-only and the personal key is read-only. Considered: Garmin personal key (read-only, could replace the
+    run-data part later), unofficial Garmin libraries (fragile, outside Garmin's terms), TrainingPeaks (partner-only
+    API), Strava (no workouts to the watch, no Running Dynamics).
+
+## Data model
+44. **Code / integrations / athlete data are separate packages and folders**: `models/` (schemas), `store/` (the only
+    reader/writer of `athlete/data/`, via a collection registry), `integrations/` (+ sync and push), `engine/`
+    (calculations + validator, no I/O), `coaching/` (daily run, context, proposals, skill stand-ins). Proposals target
+    `collection/key` refs instead of file paths.
+45. **Journal-style records added where they change decisions** (`docs/DATA_MODEL.md` has the reasoning): Hooper-style
+    morning wellness (sleep quality, fatigue, stress, soreness, mood, motivation) on check-ins; Foster session load
+    (sRPE x minutes, monotony, strain) in reports and the weekly review; `JournalEntry` (reflections, wins,
+    struggles, life events); `HealthEvent` history (red flags, illness, injuries, with who cleared them) replacing
+    `health.json`; `Availability` (travel, closures, busy days), applied automatically to the Sunday plan;
+    `EventResult`, `LabResult` per marker, `Measurement`; `Note` records (rendered to `notes.md`). Morning wellness
+    does **not** change the readiness colour yet: that would change the agreed rules, so it would start as a
+    `learn` trial.
+46. **The VBT baseline is computed** (median top-set bar speed over the last 6 weeks, at least 3 readings) instead of
+    being a stored setting.

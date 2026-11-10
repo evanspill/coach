@@ -6,14 +6,11 @@ import os
 import random
 from collections.abc import Callable
 
-from coach import clock, proposals
-from coach.config import load_config
-from coach.context import Context, build
-from coach.daily import bootstrap
-from coach.engine import movement as mv
-from coach.engine import testing as T
-from coach.engine.sessions import hard_sets, long_run_miles, pillar_doses, week_miles
-from coach.fallback import (
+from coach import clock
+from coach.coaching import proposals
+from coach.coaching.context import Context, build
+from coach.coaching.daily import bootstrap
+from coach.coaching.skills import (
     adjust_day,
     assess,
     compete,
@@ -26,13 +23,18 @@ from coach.fallback import (
     review,
     technique,
 )
-from coach.fallback import log as log_skill
+from coach.coaching.skills import log as log_skill
+from coach.config import load_config
+from coach.engine import movement as mv
+from coach.engine import testing as T
+from coach.engine.sessions import hard_sets, long_run_miles, pillar_doses, week_miles
+from coach.engine.validator import validate_config_lock, validate_session, validate_week
 from coach.integrations.mock import MockWorld, mock_sources
+from coach.integrations.sync import sync
 from coach.models import Checkin, DailyMetrics, DayRecord, Readiness
+from coach.models.journal import HealthEvent
 from coach.sim.run import sandbox
-from coach.state import State
-from coach.sync import sync
-from coach.validator import validate_config_lock, validate_session, validate_week
+from coach.store import Store
 
 B1_START = dt.date(2026, 11, 23)
 
@@ -54,17 +56,17 @@ def world_at(day: dt.date, with_outline: bool = True, sync_data: bool = True) ->
     """Fresh state in the current sandbox: bootstrap + sync fixtures + B1 outline (from baseline results)."""
     os.environ["COACH_TODAY"] = day.isoformat()
     cfg = load_config()
-    state = State()
+    state = Store()
     bootstrap(state, cfg, min(day, dt.date(2026, 11, 16)))
     if sync_data:
         sync(mock_sources(MockWorld.load()), state, day, cfg)
     ctx = build(state, cfg, day)
     if with_outline and ctx.macro:
         b1 = ctx.macro.blocks[0]
-        state.write_json("zones.json", {"lthr": 169, "threshold_pace_s_per_mi": 462})
+        state.put("zones", {"lthr": 169, "threshold_pace_s_per_mi": 462})
         ctx = build(state, cfg, day)
         ol = plan_block.build_outline(ctx, b1, None, [7.0, 7.0, 8.0])
-        state.write_json(f"blocks/{b1.id}/outline.json", ol)
+        state.put("block_outlines", ol)
         ctx = build(state, cfg, day)
     return ctx
 
@@ -91,7 +93,7 @@ def baseline_testset(ctx: Context):
 
 
 def synthetic_metrics(
-    state: State,
+    state: Store,
     today: dt.date,
     today_rec: float,
     yesterday_rec: float = 70,
@@ -232,12 +234,12 @@ def _adjust_case(
         synthetic_metrics(ctx.state, day, today_rec, yesterday_rec, hrv_drop, drop_days=drop_days)
         ctx = build(ctx.state, ctx.cfg, day)
         plan = plan_week.plan_week(ctx, clock.monday_of(day))
-        from coach.fallback.templates import build_session
+        from coach.coaching.skills.templates import build_session
 
         spec = ctx.cfg.season.spec(ctx.block.key) if ctx.block else None
         s = build_session(ctx, session_role, day, "training", 4.0, day.isocalendar()[1], spec)
         plan.sessions = [x for x in plan.sessions if x.date != day] + [s]
-        ctx.state.write_json(f"weeks/{plan.week_id}/plan.json", plan)
+        ctx.state.put("week_plans", plan)
         rec = adjust_day.adjust(ctx, day, plan, None, weather or [])
         c.that(
             rec.readiness.state == expect,
@@ -297,19 +299,19 @@ def sc_replan_sick(c: Check) -> None:
     ctx = world_at(day)
     plan = plan_week.plan_week(ctx, dt.date(2026, 11, 30))
     r = log_skill.handle(ctx, "Woke up with a fever and body aches, feel awful", day)
-    c.that(ctx.health["illness"]["symptoms"] == "below_neck", "neck check: below-the-neck symptoms detected")
+    ill = next((e for e in ctx.health if e.kind == "illness"), None)
+    c.that(ill is not None and ill.symptoms == "below_neck", "neck check: below-the-neck symptoms detected")
     new = replan.illness(ctx, plan, day, dt.date(2026, 12, 4), "below_neck")
     sick = [s for s in new.sessions if day <= s.date <= dt.date(2026, 12, 4)]
     c.that(all(s.type == "rest" for s in sick), "no training while sick (4 days)")
     c.that(new.session_on(dt.date(2026, 12, 5)).type == "recovery", "graded return day 1: Z1 only")
-    health = ctx.state.health()
-    health["illness"]["resolved_on"] = "2026-12-05"
-    ctx.state.write_json("health.json", health)
+    ill.resolved_on = dt.date(2026, 12, 5)
+    ctx.state.put("health_events", ill)
     ctx = build(ctx.state, ctx.cfg, day)
     v = validate_week(new, ctx.validation(new))
     c.that(not v, f"replanned week passes ({[str(x) for x in v][:3]})")
     bad = plan.session_on(dt.date(2026, 12, 2))
-    ctx.health = {"illness": {"start": "2026-12-01", "symptoms": "below_neck", "resolved_on": None}}
+    ctx.health = [HealthEvent(id="t", kind="illness", start=dt.date(2026, 12, 1), symptoms="below_neck")]
     vv = validate_session(bad, ctx.validation(plan), "training", plan)
     c.that(
         any(x.code == "ILLNESS" for x in vv), "validator rejects training through a below-the-neck illness"
@@ -339,7 +341,7 @@ def sc_replan_travel(c: Check) -> None:
 def sc_review_adherence(c: Check) -> None:
     ctx = world_at(dt.date(2026, 12, 6))
     plan = plan_week.plan_week(ctx, dt.date(2026, 11, 30))
-    ctx.state.write_json(f"weeks/{plan.week_id}/plan.json", plan)
+    ctx.state.put("week_plans", plan)
     md, summary = review.weekly_review(ctx, plan)
     c.that(summary["adherence_pct"] < 70, f"adherence dip detected ({summary['adherence_pct']}%)")
     c.that(any("What got in the way" in q for q in summary["questions"]), "asks why before changing the plan")
@@ -352,7 +354,7 @@ def sc_review_burnout(c: Check) -> None:
         d = end - dt.timedelta(days=i)
         recent = i < 14
         ci = Checkin(date=d, enjoyment=2 if recent else 4, session_rpe=8.2 if recent else 7.0, source="chat")
-        ctx.state.write_json(f"checkins/{d}.json", ci)
+        ctx.state.put("checkins", ci)
     bw = review.burnout_watch(ctx, end)
     c.that(len(bw["flags"]) == 2, f"burnout watch flags falling enjoyment and rising RPE ({bw['flags']})")
     plan = plan_week.plan_week(ctx, dt.date(2027, 3, 1))
@@ -374,7 +376,7 @@ def sc_rehab_advance_regress(c: Check) -> None:
             mr, "hinge", dt.date(2026, 11, 23) + dt.timedelta(days=7 * k), 1.0, False, cfg.progressions
         )
     c.that(mr.rung("hinge") == 1 and len(evs) == 1, "clean advance after 3 pain-free exposures (one rung)")
-    from coach.validator import validate_movement_change
+    from coach.engine.validator import validate_movement_change
 
     c.that(not validate_movement_change(before, mr, cfg), "advance passes the rung-change validator")
     jump = mr.model_copy(deep=True)
@@ -396,7 +398,7 @@ def sc_technique_competent(c: Check) -> None:
     ctx = world_at(dt.date(2027, 2, 1), sync_data=False)
     mr = ctx.movement
     mr.families["kipping"].rung = 3
-    ctx.state.write_json("movement_readiness.json", mr)
+    ctx.state.put("movement_readiness", mr)
     import yaml
 
     path = ctx.cfg.root / "skills.yaml"
@@ -439,7 +441,7 @@ def sc_fuel_long_run(c: Check) -> None:
 
 def sc_fuel_compressed(c: Check) -> None:
     ctx = world_at(dt.date(2026, 12, 5))
-    ctx.state.write_json("macrofactor.json", {"weekly_kcal": 2300 * 7})
+    ctx.state.put("nutrition_target", {"weekly_kcal": 2300 * 7})
     plan = plan_week.plan_week(ctx, dt.date(2026, 11, 30))
     days = [fuel.day_targets(ctx, dt.date(2026, 11, 30) + dt.timedelta(days=i), plan) for i in range(7)]
     total = sum(d.kcal for d in days)
@@ -465,7 +467,7 @@ def sc_compete_taper(c: Check) -> None:
         ("7:28/mi" in md or "7:29/mi" in md) and "60-90 g carbs/h" in md and "Contingencies" in md,
         "race plan has pacing, fuelling and contingencies",
     )
-    ctx.state.write_text("events/marathon-2027.md", md)
+    ctx.state.save_report("event_plans", md, "marathon-2027")
 
 
 def sc_compete_open(c: Check) -> None:
@@ -487,13 +489,13 @@ def sc_log_messy(c: Check) -> None:
     ctx = world_at(dt.date(2026, 12, 12), sync_data=False)
     day = dt.date(2026, 12, 12)
     r1 = log_skill.handle(ctx, "did the metcon - 4 rds + 12, wallballs unbroken, burpees slow, rpe 8", day)
-    m = ctx.state.read_json(f"metcons/{day}.json")["results"][-1]
+    m = ctx.state.get("metcon_logs", day.isoformat()).results[-1].model_dump()
     c.that(
         m["rounds"] == 4 and m.get("extra_reps") == 12 and m["rpe"] == 8.0,
         f"messy metcon parsed ({m.get('rounds')}+{m.get('extra_reps')})",
     )
     r2 = log_skill.handle(ctx, "check in: back 2, shoulder 3, slept badly", day)
-    ci = ctx.state.read_json(f"checkins/{day}.json")
+    ci = ctx.state.get("checkins", day.isoformat()).model_dump()
     c.that(
         ci["joints"]["back"] == 2 and ci["joints"]["shoulders"] == 3 and ci.get("sleep_note"),
         "check-in parsed (back 2, shoulder 3, slept badly)",
@@ -529,12 +531,12 @@ def sc_learn_calibration(c: Check) -> None:
     for i in range(1, 50):
         d = day - dt.timedelta(days=i)
         st = "yellow" if i % 5 == 0 else "green"
-        ctx.state.write_json(
-            f"days/{d}.json",
+        ctx.state.put(
+            "day_records",
             DayRecord(date=d, status="complete", readiness=Readiness(date=d, state=st, reasons=["x"])),
         )
-        ctx.state.write_json(
-            f"checkins/{d + dt.timedelta(days=1)}.json",
+        ctx.state.put(
+            "checkins",
             Checkin(date=d + dt.timedelta(days=1), session_rpe=round(7 + rng.uniform(-0.3, 0.3), 1)),
         )
     md, prop = learn.calibration(ctx, day)
@@ -543,13 +545,13 @@ def sc_learn_calibration(c: Check) -> None:
     )
     if prop:
         c.that("Stop rule" in prop.what, "trial has a metric and a stop rule")
-        lock = ctx.state.read_json("config_lock.json")
+        lock = ctx.state.get("config_lock")
         proposals.approve(ctx.state, prop.id, day, ctx.cfg)
         cfg2 = load_config()
         approved = {p.id for p in ctx.state.proposals("approved")}
         c.that(cfg2.profile.thresholds.recovery_green_min == 64, "approval applies the threshold change")
         c.that(
-            not validate_config_lock(cfg2, ctx.state.read_json("config_lock.json"), approved),
+            not validate_config_lock(cfg2, ctx.state.get("config_lock"), approved),
             "config lock updated by the approved proposal",
         )
         c.that(
@@ -557,7 +559,7 @@ def sc_learn_calibration(c: Check) -> None:
             "an unapproved threshold change would be rejected",
         )
         c.that(
-            "changelog" in ctx.state.read_text("changelog.md") or ctx.state.read_text("changelog.md"),
+            bool(ctx.state.report("changelog")),
             "change logged in the changelog",
         )
     sci = learn.science_audit_scaffold(ctx, day)

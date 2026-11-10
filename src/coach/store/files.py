@@ -1,4 +1,7 @@
-"""Git is the database: thin typed access to everything under state/."""
+"""The athlete data store. Today a file backend under athlete/data/ (git is the database); every read and write
+goes through the collections in coach/store/collections.py so the backend can become a real database later.
+
+Callers use the typed methods (get/put/list/delete/report + entity helpers), never file paths."""
 
 import datetime as dt
 import json
@@ -22,6 +25,9 @@ from coach.models import (
     TestSet,
     WeekPlan,
 )
+from coach.models.journal import Availability, HealthEvent, Note
+from coach.models.records import ThresholdZones
+from coach.store.collections import COLLECTIONS, Collection
 
 M = TypeVar("M", bound=BaseModel)
 CHECKIN_PRIORITY = {"intervals": 0, "hevy_notes": 1, "chat": 2, "simulated": 3}
@@ -41,53 +47,156 @@ def dumps(data) -> str:
     return json.dumps(data, indent=2, sort_keys=False, default=_default) + "\n"
 
 
-class State:
+class Store:
     def __init__(self, root: Path | None = None):
         self.root = Path(root) if root else paths.state_dir()
 
-    # ---------- generic ----------
-    def path(self, rel: str) -> Path:
+    # ---------- file primitives (backend only) ----------
+    def _path(self, rel: str) -> Path:
         return self.root / rel
 
-    def exists(self, rel: str) -> bool:
-        return self.path(rel).exists()
-
-    def read_json(self, rel: str):
-        p = self.path(rel)
+    def _read(self, rel: str):
+        p = self._path(rel)
         if not p.exists():
             return None
         with open(p) as f:
             return json.load(f)
 
-    def write_json(self, rel: str, data) -> Path:
-        p = self.path(rel)
+    def _write(self, rel: str, data) -> Path:
+        p = self._path(rel)
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(dumps(data))
         return p
 
-    def read_model(self, rel: str, model: type[M]) -> M | None:
-        data = self.read_json(rel)
-        return model.model_validate(data) if data is not None else None
+    # ---------- collections ----------
+    @staticmethod
+    def collection(name: str) -> Collection:
+        if name not in COLLECTIONS:
+            raise KeyError(f"unknown collection '{name}'")
+        return COLLECTIONS[name]
 
-    def write_text(self, rel: str, text: str) -> Path:
-        p = self.path(rel)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(text)
-        return p
+    def get(self, name: str, key: str | None = None):
+        c = self.collection(name)
+        data = self._read(c.file(key))
+        if data is None or c.model is None:
+            return data
+        return c.model.model_validate(data)
 
-    def read_text(self, rel: str) -> str:
-        p = self.path(rel)
+    def put(self, name: str, obj, key: str | None = None):
+        c = self.collection(name)
+        if c.model is not None and not isinstance(obj, BaseModel):
+            obj = c.model.model_validate(obj)
+        if c.kind == "doc" and key is None:
+            key = self.key_of(name, obj)
+        self._write(c.file(key), obj)
+        if name == "notes":
+            self._render_notes()
+        return obj
+
+    def delete(self, name: str, key: str | None = None) -> bool:
+        p = self._path(self.collection(name).file(key))
+        if p.exists():
+            p.unlink()
+            return True
+        return False
+
+    def exists(self, name: str, key: str | None = None) -> bool:
+        return self._path(self.collection(name).file(key)).exists()
+
+    def keys(self, name: str) -> list[str]:
+        c = self.collection(name)
+        if c.kind != "doc":
+            raise ValueError(f"{name} is not a document collection")
+        if "{a}" in c.path:
+            head, tail = c.path.split("{a}")
+            mid, end = tail.split("{b}")
+            base = self._path(head)
+            pattern = f"*{mid}*{end}"
+            if not base.exists():
+                return []
+            out = []
+            for p in sorted(base.glob(pattern)):
+                rel = p.relative_to(base).as_posix()
+                a_, b_ = rel[: rel.index(mid)], rel[rel.index(mid) + len(mid) : -len(end)]
+                out.append(f"{a_}:{b_}")
+            return out
+        head, tail = c.path.split("{key}")
+        base = self._path(head)
+        if not base.exists():
+            return []
+        if "/" in tail:  # one directory per key (e.g. weeks/{key}/plan.json)
+            return sorted(p.parent.name for p in base.glob(f"*{tail}"))
+        return sorted(p.name[: -len(tail)] for p in base.glob(f"*{tail}"))
+
+    def query(self, name: str, start: dt.date | None = None, end: dt.date | None = None) -> list:
+        out = [self.get(name, k) for k in self.keys(name)]
+        out = [o for o in out if o is not None]
+        if start or end:
+
+            def day(o):
+                for f in ("date", "start", "created"):
+                    v = getattr(o, f, None)
+                    if isinstance(v, dt.date):
+                        return v
+                return None
+
+            out = [
+                o
+                for o in out
+                if (d := day(o)) is None or ((start is None or d >= start) and (end is None or d <= end))
+            ]
+        return out
+
+    @staticmethod
+    def key_of(name: str, obj) -> str:
+        if isinstance(obj, BaseModel):
+            for f in ("id", "week_id", "block_id", "event_id"):
+                v = getattr(obj, f, None)
+                if v:
+                    if name == "test_sets":
+                        return f"{obj.block_id}:{obj.phase}"
+                    return str(v)
+            if getattr(obj, "date", None) is not None:
+                return obj.date.isoformat()
+        raise ValueError(f"can't derive a key for {name}")
+
+    def new_id(self, name: str, day: dt.date, kind: str) -> str:
+        existing = [k for k in self.keys(name) if k.startswith(f"{day.isoformat()}-{kind}-")]
+        return f"{day.isoformat()}-{kind}-{len(existing) + 1}"
+
+    # ---------- reports (markdown) ----------
+    def report(self, name: str, key: str | None = None) -> str:
+        c = self.collection(name)
+        p = self._path(c.file(key))
         return p.read_text() if p.exists() else ""
 
-    def append_text(self, rel: str, text: str) -> None:
-        p = self.path(rel)
+    def save_report(self, name: str, text: str, key: str | None = None) -> None:
+        c = self.collection(name)
+        if c.kind != "report":
+            raise ValueError(f"{name} is not a report")
+        p = self._path(c.file(key))
         p.parent.mkdir(parents=True, exist_ok=True)
-        with open(p, "a") as f:
-            f.write(text)
+        p.write_text(text)
+
+    def append_report(self, name: str, text: str, key: str | None = None) -> None:
+        self.save_report(name, self.report(name, key) + text, key)
+
+    # ---------- references ("collection/key", used by proposals) ----------
+    @staticmethod
+    def ref(name: str, key: str | None = None) -> str:
+        return f"{name}/{key}" if key else name
+
+    def get_ref(self, ref: str):
+        name, _, key = ref.partition("/")
+        return self.get(name, key or None)
+
+    def put_ref(self, ref: str, obj):
+        name, _, key = ref.partition("/")
+        return self.put(name, obj, key or None)
 
     # ---------- metrics (JSON lines per month) ----------
     def _month_file(self, day: dt.date) -> Path:
-        return self.path(f"metrics/{day:%Y-%m}.jsonl")
+        return self._path(f"metrics/{day:%Y-%m}.jsonl")
 
     def _read_month(self, p: Path) -> dict[tuple[str, str], dict]:
         out: dict[tuple[str, str], dict] = {}
@@ -162,7 +271,7 @@ class State:
         self, kind: str, start: dt.date | None = None, end: dt.date | None = None
     ) -> list[dict]:
         out = []
-        mdir = self.path("metrics")
+        mdir = self._path("metrics")
         if not mdir.exists():
             return out
         for p in sorted(mdir.glob("*.jsonl")):
@@ -183,17 +292,12 @@ class State:
         return [SessionRecord.model_validate(r["data"]) for r in self.metric_records("session", start, end)]
 
     def gear(self) -> list[Gear]:
-        return [Gear.model_validate(g) for g in (self.read_json("metrics/gear.json") or [])]
+        return [Gear.model_validate(g) for g in (self.get("gear") or [])]
 
     def checkins(self, start: dt.date | None = None, end: dt.date | None = None) -> list[Checkin]:
         """Merged per date: Intervals fields first, then Hevy-note tags, then chat check-ins."""
         raw = [Checkin.model_validate(r["data"]) for r in self.metric_records("checkin", start, end)]
-        cdir = self.path("checkins")
-        if cdir.exists():
-            for p in sorted(cdir.glob("*.json")):
-                c = Checkin.model_validate(json.loads(p.read_text()))
-                if (start is None or c.date >= start) and (end is None or c.date <= end):
-                    raw.append(c)
+        raw.extend(self.query("checkins", start, end))
         by_date: dict[dt.date, list[Checkin]] = {}
         for c in raw:
             by_date.setdefault(c.date, []).append(c)
@@ -216,46 +320,64 @@ class State:
             merged.append(base)
         return merged
 
-    # ---------- planning state ----------
+    # ---------- entity helpers ----------
     def macrocycle(self) -> Macrocycle | None:
-        return self.read_model("macrocycle.json", Macrocycle)
+        return self.get("macrocycle")
 
     def outline(self, block_id: str) -> BlockOutline | None:
-        return self.read_model(f"blocks/{block_id}/outline.json", BlockOutline)
+        return self.get("block_outlines", block_id)
 
     def goal(self, block_id: str) -> BlockGoal | None:
-        return self.read_model(f"blocks/{block_id}/goal.json", BlockGoal)
+        return self.get("block_goals", block_id)
 
     def tests(self, block_id: str, phase: str) -> TestSet | None:
-        return self.read_model(f"blocks/{block_id}/tests_{phase}.json", TestSet)
+        return self.get("test_sets", f"{block_id}:{phase}")
 
     def week_plan(self, week_id: str) -> WeekPlan | None:
-        return self.read_model(f"weeks/{week_id}/plan.json", WeekPlan)
+        return self.get("week_plans", week_id)
 
     def day_record(self, day: dt.date) -> DayRecord | None:
-        return self.read_model(f"days/{day.isoformat()}.json", DayRecord)
+        return self.get("day_records", day.isoformat())
 
     def movement_readiness(self) -> MovementReadiness | None:
-        return self.read_model("movement_readiness.json", MovementReadiness)
+        return self.get("movement_readiness")
 
     def proposals(self, status: str | None = None) -> list[Proposal]:
-        pdir = self.path("proposals")
-        if not pdir.exists():
-            return []
-        out = [Proposal.model_validate(json.loads(p.read_text())) for p in sorted(pdir.glob("*.json"))]
-        return [p for p in out if status is None or p.status == status]
+        return [p for p in self.query("proposals") if status is None or p.status == status]
 
     def proposal(self, pid: str) -> Proposal | None:
-        return self.read_model(f"proposals/{pid}.json", Proposal)
+        return self.get("proposals", pid)
 
     def save_proposal(self, p: Proposal) -> None:
-        self.write_json(f"proposals/{p.id}.json", p)
+        self.put("proposals", p)
 
-    def health(self) -> dict:
-        return self.read_json("health.json") or {"red_flags": [], "illness": None, "travel": []}
+    def health_events(self, active_on: dt.date | None = None) -> list[HealthEvent]:
+        events = self.query("health_events")
+        return [e for e in events if active_on is None or e.active_on(active_on)]
 
-    def zones(self) -> dict | None:
-        return self.read_json("zones.json")
+    def availability(self, start: dt.date | None = None, end: dt.date | None = None) -> list[Availability]:
+        out = self.query("availability")
+        return [a for a in out if (start is None or a.end >= start) and (end is None or a.start <= end)]
+
+    def zones(self) -> ThresholdZones | None:
+        return self.get("zones")
 
     def notes(self) -> str:
-        return self.read_text("notes.md")
+        return self.report("notes_view")
+
+    def add_note(self, day: dt.date, text: str, category: str = "other", source: str = "coach") -> Note:
+        return self.put(
+            "notes",
+            Note(id=self.new_id("notes", day, "note"), date=day, category=category, text=text, source=source),
+        )  # type: ignore[arg-type]
+
+    def _render_notes(self) -> None:
+        notes = sorted(self.query("notes"), key=lambda n: (n.date, n.id))
+        lines = [
+            "# Coach notes (durable facts)",
+            "",
+            "Rendered from athlete/data/notes/; add with `coach record add notes` or the skills.",
+            "",
+        ]
+        lines += [f"- {n.date} [{n.category}] {n.text}" for n in notes]
+        self.save_report("notes_view", "\n".join(lines) + "\n")

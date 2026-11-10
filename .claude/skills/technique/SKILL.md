@@ -8,8 +8,8 @@ description: Skill and form coaching. Runs the Olympic-lift and gymnastics progr
 **When:** form-check requests (frames shared in chat), every 3-4 weeks (ask the athlete to film a key lift or skill),
 skill milestones reported in chat ("15 unbroken kipping pull-ups"), running-form reviews.
 
-**Context:** `config/skills.yaml`, `state/movement_readiness.json` (gates), run sessions in `state/metrics/`
-(cadence, GCT, balance, vertical oscillation), `state/notes.md`.
+**Context:** `athlete/config/skills.yaml`, `movement_readiness` (gates), run sessions in `athlete/data/metrics/`
+(cadence, GCT, balance, vertical oscillation), `athlete/data/notes.md`.
 
 ## Procedure
 - **Skills:** move a skill's `current_level` one step at a time when the athlete demonstrates the next level's
@@ -19,10 +19,10 @@ skill milestones reported in chat ("15 unbroken kipping pull-ups"), running-form
   from stills. An in-person coach session is optional.
 - **Running form:** cadence target 170-180 spm; flag GCT balance drifting > 1.5% from 50/50, high vertical
   oscillation, long ground contact; prescribe one drill.
-- Log cues and level changes in `state/notes.md` (e.g. "form check requested 2026-12-20").
+- Log cues and level changes as `notes` (category `skill`, e.g. "form check requested"); record a cleared form check with `coach form-check <family> --by coach|physio`.
 
 ## Writes
-`config/skills.yaml` (levels), `state/notes.md` (cues).
+`athlete/config/skills.yaml` (levels), `notes` (cues), `movement_readiness` (via `coach form-check`).
 
 ## Never
 - Put an unmastered skill in a metcon; diagnose injuries from video; give more than two cues at once.

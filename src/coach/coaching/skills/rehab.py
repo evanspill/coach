@@ -2,9 +2,9 @@
 
 import datetime as dt
 
-from coach.context import Context
+from coach.coaching.context import Context
 from coach.engine import movement as mv
-from coach.validator import validate_movement_change
+from coach.engine.validator import validate_movement_change
 
 
 def update(ctx: Context, day: dt.date) -> list[str]:
@@ -52,7 +52,7 @@ def update(ctx: Context, day: dt.date) -> list[str]:
     if errors:
         ctx.movement = before
         return [f"rejected change: {e}" for e in errors]
-    ctx.state.write_json("movement_readiness.json", mr)
+    ctx.state.put("movement_readiness", mr)
     return events
 
 

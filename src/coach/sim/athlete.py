@@ -38,9 +38,9 @@ class SimAthlete:
         return self.true_e1rm[ex_id] * (1 + 0.004 * weeks)
 
     def _phase(self, day: dt.date) -> str:
-        from coach.state import State
+        from coach.store import Store
 
-        macro = State().macrocycle()
+        macro = Store().macrocycle()
         if macro is None or day <= macro.baseline_end:
             return "baseline"
         block = macro.block_for(day)

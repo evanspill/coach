@@ -8,21 +8,22 @@ Claude are marked in the DayRecord (generated_by="fallback")."""
 import datetime as dt
 from dataclasses import dataclass, field
 
-from coach import clock, proposals
+from coach import clock
+from coach.coaching import proposals
+from coach.coaching.context import Context, build
+from coach.coaching.notify import compose
+from coach.coaching.skills import adjust_day, assess, learn, plan_block, plan_week, rehab, replan, review
+from coach.coaching.skills import design as D
 from coach.config import Config, load_config
-from coach.context import Context, build
 from coach.engine import macrocycle as macro_engine
 from coach.engine import movement as mv
-from coach.fallback import adjust_day, assess, learn, plan_block, plan_week, rehab, replan, review
-from coach.fallback import design as D
+from coach.engine.validator import validate_week
 from coach.integrations.base import Sources
+from coach.integrations.push import PushRefused, push_day, push_week
+from coach.integrations.sync import sync
 from coach.models import DayRecord, WeekPlan
 from coach.models.plans import Revision
-from coach.notify import compose
-from coach.push import PushRefused, push_day, push_week
-from coach.state import State
-from coach.sync import sync
-from coach.validator import validate_week
+from coach.store import Store
 
 
 @dataclass
@@ -32,26 +33,24 @@ class DayResult:
     log: list[str] = field(default_factory=list)
 
 
-def bootstrap(state: State, cfg: Config, today: dt.date) -> list[str]:
+def bootstrap(state: Store, cfg: Config, today: dt.date) -> list[str]:
     """One-time setup (coach init): macrocycle, starting rungs, config lock, notes, intake template."""
     done = []
     if state.macrocycle() is None:
-        state.write_json("macrocycle.json", macro_engine.generate(cfg.profile, cfg.season, today))
+        state.put("macrocycle", macro_engine.generate(cfg.profile, cfg.season, today))
         done.append("macrocycle generated")
     if state.movement_readiness() is None:
-        state.write_json("movement_readiness.json", mv.initial_state(cfg.progressions, today))
+        state.put("movement_readiness", mv.initial_state(cfg.progressions, today))
         done.append("movement readiness at conservative starting rungs")
-    if state.read_json("config_lock.json") is None:
+    if state.get("config_lock") is None:
         proposals.record_config_lock(state, cfg, "initial", today)
         done.append("config lock recorded")
-    if not state.exists("notes.md"):
-        seed = "".join(f"- {line}\n" for line in cfg.profile.notes_seed)
-        state.write_text("notes.md", "# Coach notes (durable facts)\n\n" + seed)
-        done.append("notes.md created")
-    if not state.exists("health.json"):
-        state.write_json("health.json", {"red_flags": [], "illness": None, "travel": []})
-    if not state.exists("athlete_intake.json"):
-        state.write_json("athlete_intake.json", assess.intake_template(today, cfg.profile.intake_questions))
+    if not state.keys("notes"):
+        for line in cfg.profile.notes_seed:
+            state.add_note(today, line, "logistics", "setup")
+        done.append("notes seeded")
+    if not state.exists("intake"):
+        state.put("intake", assess.intake_template(today, cfg.profile.intake_questions))
         done.append("intake questionnaire template written (run it with the athlete in chat)")
     return done
 
@@ -60,15 +59,15 @@ def save_plan(ctx: Context, plan: WeekPlan, created_by: str, day: dt.date, auto_
     """Validate, save, then push now or mark pending per config/coach.yaml (simulation auto-approves)."""
     log = []
     violations = validate_week(plan, ctx.validation(plan))
-    rel = f"weeks/{plan.week_id}/plan.json"
+    rel = Store.ref("week_plans", plan.week_id)
     if violations:
         log.append(
             f"plan {plan.week_id} fails validation after fallback: " + "; ".join(map(str, violations[:4]))
         )
     mode = ctx.cfg.settings.approval.weekly_plan
     plan.approval = "auto" if mode == "auto" else "pending"
-    ctx.state.write_json(rel, plan)
-    ctx.state.write_text(f"weeks/{plan.week_id}/summary.md", week_summary_md(ctx, plan))
+    ctx.state.put("week_plans", plan)
+    ctx.state.save_report("week_summaries", week_summary_md(ctx, plan), plan.week_id)
     if plan.approval == "pending":
         kind = "baseline_battery" if plan.week_type == "baseline" else "weekly_plan"
         p = proposals.create(
@@ -79,7 +78,7 @@ def save_plan(ctx: Context, plan: WeekPlan, created_by: str, day: dt.date, auto_
             f"{len([s for s in plan.sessions if s.type not in {'rest'}])} sessions; see {rel} and summary.md",
             plan.rationale,
             day,
-            target_path=rel,
+            target=rel,
         )
         if auto_approve and not violations:
             proposals.approve(ctx.state, p.id, day, ctx.cfg, note="simulated athlete approval")
@@ -149,19 +148,19 @@ def _transition(
     plan = ctx.state.week_plan(clock.iso_week_id(week_start))
     scheduled = {t: s.date for s in (plan.sessions if plan else []) for t in s.tests}
     ts = assess.score_week(ctx, bid, phase, scheduled, weather, end_day=today)
-    ctx.state.write_json(f"blocks/{bid}/tests_{phase}.json", ts)
+    ctx.state.put("test_sets", ts)
     log.append(f"assess: scored {len(ts.results)} tests ({', '.join(r.test_id for r in ts.results)})")
     z = assess.update_zones_from(ctx, ts)
     if z:
         from coach.engine.paces import Zones
 
-        ctx.zones = Zones(lthr=int(z["lthr"]), threshold_pace_s_per_mi=int(z["threshold_pace_s_per_mi"]))
-        log.append(f"zones updated: LTHR {z['lthr']}, threshold {z['threshold_pace_s_per_mi']} s/mi")
+        ctx.zones = Zones(lthr=z.lthr, threshold_pace_s_per_mi=z.threshold_pace_s_per_mi)
+        log.append(f"zones updated: LTHR {z.lthr}, threshold {z.threshold_pace_s_per_mi} s/mi")
     entry = ts.model_copy(deep=True)
     entry.block_id, entry.phase = new_block.id, "start"
-    ctx.state.write_json(f"blocks/{new_block.id}/tests_start.json", entry)
+    ctx.state.put("test_sets", entry)
     if phase == "end":
-        ctx.state.write_text(f"blocks/{bid}/review.md", review.block_review(ctx, bid))
+        ctx.state.save_report("block_reviews", review.block_review(ctx, bid), bid)
         log.append(f"review: block review written for {bid}")
     goal, _ = assess.propose_goal(ctx, new_block, ts)
     prop = assess.save_goal_proposal(ctx, goal, today)
@@ -177,10 +176,10 @@ def _transition(
         outline.revisions.append(
             Revision(at=today, reason="goal pending approval", change="provisional outline")
         )
-    from coach.validator import validate_outline
+    from coach.engine.validator import validate_outline
 
     errs = validate_outline(outline)
-    ctx.state.write_json(f"blocks/{new_block.id}/outline.json", outline)
+    ctx.state.put("block_outlines", outline)
     log.append(
         f"plan-block: outline {new_block.id} ({len(outline.weeks)} wk, deloads {outline.deload_weeks}, {outline.calorie_phase})"
         + (f" INVALID: {errs}" if errs else "")
@@ -190,13 +189,13 @@ def _transition(
 
 def run_daily(
     sources: Sources,
-    state: State | None = None,
+    state: Store | None = None,
     today: dt.date | None = None,
     phase: str = "main",
     auto_approve: bool = False,
     cfg: Config | None = None,
 ) -> DayResult:
-    state = state or State()
+    state = state or Store()
     cfg = cfg or load_config()
     today = today or clock.today()
     log: list[str] = []
@@ -211,7 +210,7 @@ def run_daily(
     if cfg.settings.paused:
         rec = DayRecord(date=today, status="paused", generated_by="fallback", stale_sources=report["stale"])
         rec.notification = compose(rec, extras)
-        state.write_json(f"days/{today}.json", rec)
+        state.put("day_records", rec)
         return DayResult(rec, rec.notification, log)
     try:
         weather = sources.weather.hourly(today - dt.timedelta(days=1), today + dt.timedelta(days=1))
@@ -242,7 +241,7 @@ def run_daily(
         res = replan.missed_sessions(ctx, plan, today)
         if res:
             plan, notes = res
-            state.write_json(f"weeks/{plan.week_id}/plan.json", plan)
+            state.put("week_plans", plan)
             log.append("replan: " + "; ".join(notes))
             extras.setdefault("handoffs", []).append(
                 "Replanned the rest of the week around missed sessions (key sessions kept)."
@@ -270,7 +269,7 @@ def run_daily(
             res = replan.reactive_deload(ctx, today, "; ".join(r.reasons))
             if res:
                 new_outline, wk = res
-                rel = f"blocks/{new_outline.block_id}/outline.json"
+                rel = Store.ref("block_outlines", new_outline.block_id)
                 p = proposals.create(
                     state,
                     "early_deload",
@@ -281,8 +280,8 @@ def run_daily(
                     today,
                     before=ctx.outline.deload_weeks,
                     after=new_outline.deload_weeks,
-                    target_path=rel,
-                    payload={"files": {rel: new_outline.model_dump(mode="json")}},
+                    target=rel,
+                    payload={"records": {rel: new_outline.model_dump(mode="json")}},
                 )
                 if joint_trigger or auto_approve:
                     proposals.approve(
@@ -307,7 +306,7 @@ def run_daily(
         this_plan = ctx.week_plan(today)
         if this_plan:
             md, summary = review.weekly_review(ctx, this_plan)
-            state.write_text(f"weeks/{this_plan.week_id}/review.md", md)
+            state.save_report("week_reviews", md, this_plan.week_id)
             log.append(f"review: week {this_plan.week_id} adherence {summary['adherence_pct']}%")
             if summary["questions"]:
                 extras["weekly"] = "Check-in: " + summary["questions"][0]
@@ -326,6 +325,9 @@ def run_daily(
         nb = ctx.macro.block_for(next_start) if ctx.macro else None
         if nb and state.outline(nb.id):
             nxt = plan_week.plan_week(ctx, next_start)
+            nxt, avail = replan.apply_availability(ctx, nxt)
+            if avail:
+                log.append("replan: availability -> " + "; ".join(avail))
             log += save_plan(ctx, nxt, "plan-week", today, auto_approve)
             if nxt.deviations:
                 log.append(
@@ -335,7 +337,7 @@ def run_daily(
     # --- first Wednesday: learn ---
     if clock.first_wednesday(today):
         md, prop = learn.calibration(ctx, today)
-        state.write_text(f"science/{today:%Y-%m}.md", learn.science_audit_scaffold(ctx, today) + "\n" + md)
+        state.save_report("science", learn.science_audit_scaffold(ctx, today) + "\n" + md, f"{today:%Y-%m}")
         log.append(
             "learn: monthly calibration + science audit scaffold" + (f"; proposal {prop.id}" if prop else "")
         )
@@ -352,7 +354,7 @@ def run_daily(
     for h in extras.get("handoffs", []):
         rec.handoffs.append(h)
     rec.notification = compose(rec, extras, cfg.settings.notification_detail)
-    state.write_json(f"days/{today}.json", rec)
+    state.put("day_records", rec)
     return DayResult(rec, rec.notification, log)
 
 

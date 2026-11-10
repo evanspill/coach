@@ -12,9 +12,11 @@ def pytest_configure(config):
     from coach import paths
 
     home = Path(tempfile.mkdtemp(prefix="coach-tests-"))
-    shutil.copytree(paths.demo_config_dir(), home / "config")
-    (home / "state").mkdir()
-    os.environ.update({"COACH_HOME": str(home), "COACH_STATE_DIR": str(home / "state"), "COACH_MOCK": "1"})
+    shutil.copytree(paths.demo_config_dir(), home / "athlete" / "config")
+    (home / "athlete" / "data").mkdir(parents=True)
+    os.environ.update(
+        {"COACH_HOME": str(home), "COACH_STATE_DIR": str(home / "athlete" / "data"), "COACH_MOCK": "1"}
+    )
 
 
 @pytest.fixture
@@ -28,7 +30,7 @@ def home():
 @pytest.fixture(scope="module")
 def b1():
     """Block 1 context on Sun 2026-11-29 with a valid plan for the week of 2026-11-30."""
-    from coach.fallback.plan_week import plan_week
+    from coach.coaching.skills.plan_week import plan_week
     from coach.sim.run import sandbox
     from coach.sim.scenarios import world_at
 

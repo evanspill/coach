@@ -7,9 +7,9 @@ description: Nutrition. Daily carb/protein/fat targets (calorie-neutral redistri
 
 **When:** daily (called by `adjust-day`), block start (calorie phase), food/macro questions, pasted bloodwork.
 
-**Context:** today's `nutrition` in the day record (computed by `coach`), `state/macrofactor.json` (weekly target
-the athlete tells you until nutrition data is connected), `config/athlete_context.json` `nutrition`, the block
-outline's `calorie_phase` and `macrofactor_setting`, `state/metrics/` weight trend.
+**Context:** today's `nutrition` in the day record (computed by `coach`), `nutrition_target` (weekly target
+the athlete tells you until nutrition data is connected: `coach record add nutrition_target '{"weekly_kcal": ...}'`), `athlete/config/athlete_context.json` `nutrition`, the block
+outline's `calorie_phase` and `macrofactor_setting`, `athlete/data/metrics/` weight trend.
 
 ## Rules
 - MacroFactor owns the weekly calorie target. `coach` redistributes it calorie-neutrally: protein first
@@ -20,11 +20,11 @@ outline's `calorie_phase` and `macrofactor_setting`, `state/metrics/` weight tre
 - Calorie phase per block (cut / recomp / lean gain / maintenance; or fixed per block in `season.yaml`). Tell the athlete
   exactly when and how to change MacroFactor's goal (it has no write API).
 - Supplements are context only (`athlete_context.json`); never change doses.
-- **Bloodwork:** store as a note (`state/notes.md` + `state/bloodwork/<date>.md`), flag trends vs previous panels,
+- **Bloodwork:** store each marker in `lab_results` (`coach record add lab_results '{...}'`), flag trends vs previous panels,
   always "discuss with your physician"; never diagnose or adjust supplements from bloodwork.
 
 ## Writes
-`state/days/<date>.json` nutrition section (via `adjust-day`), `state/macrofactor.json`, notes.
+`athlete/data/days/<date>.json` nutrition section (via `adjust-day`), `nutrition_target`, notes.
 
 ## Never
 - Diagnose, prescribe medication, or change supplement doses. Never override MacroFactor's weekly total.

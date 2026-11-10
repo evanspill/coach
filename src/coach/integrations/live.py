@@ -175,10 +175,10 @@ class LiveNutrition(NutritionSource):
         return [m for m in metrics if m.kcal is not None]
 
     def weekly_target_kcal(self, week_start):
-        from coach.state import State
+        from coach.store import Store
 
-        data = State().read_json("macrofactor.json") or {}
-        return data.get("weekly_kcal")
+        target = Store().get("nutrition_target")
+        return target.weekly_kcal if target else None
 
 
 def live_sources() -> Sources:

@@ -9,31 +9,31 @@ description: Intake, testing and goal setting. Runs the intake questionnaire (on
 "change my goal".
 
 **Context:** `coach status`, `coach context --block`, `coach test schedule --kind baseline|transition --week <monday>`,
-`coach test score --phase baseline|end --week <monday>`, `config/tests.yaml`, `config/benchmarks.yaml`,
-`docs/TESTING_PROTOCOL.md`, `state/athlete_intake.json`.
+`coach test score --phase baseline|end --week <monday>`, `athlete/config/tests.yaml`, `athlete/config/benchmarks.yaml`,
+`docs/TESTING_PROTOCOL.md`, `intake` (`coach record get intake`).
 
 ## Procedure
-1. **Intake** (chat, once; refresh yearly via `review`): ask the questions in `state/athlete_intake.json` a few at a
-   time, store answers there, set `completed: true`. Durable facts also go to `state/notes.md`.
+1. **Intake** (chat, once; refresh yearly via `review`): ask the questions in `intake` (`coach record get intake`) a few at a
+   time, store answers there, set `completed: true`. Durable facts go to `notes` (`coach record add notes '{"date": ..., "category": ..., "text": ...}'`).
 2. **Baseline battery proposal:** pick tests from `batteries.baseline` (a subset is fine). Decide TT vs submax:
    if recent running is very low or the athlete reports calf/Achilles niggles, use `run_submax_drift` and say why.
    Schedule with `coach test schedule` (strength, run, engine on separate days), build the baseline week via
    `plan-week`, write it as a proposal (`baseline_battery`). Athlete approves before anything is pushed.
-3. **Scoring:** `coach test score ...` writes `state/blocks/<id>/tests_<phase>.json` and updates `state/zones.json`
+3. **Scoring:** `coach test score ...` writes `athlete/data/blocks/<id>/tests_<phase>.json` and updates `zones`
    (LTHR + threshold pace). Check variants (rung changes) and the conditions (weather adjustment).
 4. **Gap analysis + goal:** compare against benchmarks (the score output includes `gaps`). Propose **one primary goal
    + 1-2 guardrails** for the next block, considering both the block's planned focus and the biggest gap; explain
    the trade-off in `rationale`. Also propose the calorie phase (cut / recomp / lean gain / maintenance) from the
-   body-composition trend. Write `state/blocks/<id>/goal.json` (`BlockGoal`, `status: pending`) and a
+   body-composition trend. Write `athlete/data/blocks/<id>/goal.json` (`BlockGoal`, `status: pending`) and a
    `block_goal` proposal. **Block goals always need approval.**
 5. Starting rungs after the baseline week: conservative; only advance a family's starting rung with a physio's
    recommendation or clean test exposures (via `rehab`).
 
 ## Writes
-- `state/athlete_intake.json`
-- `state/blocks/<id>/tests_{baseline,start,end}.json` (`TestSet`)
-- `state/blocks/<id>/goal.json` (`BlockGoal`) + `state/proposals/<id>.json` (`Proposal`, kind `block_goal`)
-- `state/zones.json`
+- `intake` (`coach record get intake`)
+- `athlete/data/blocks/<id>/tests_{baseline,start,end}.json` (`TestSet`)
+- `athlete/data/blocks/<id>/goal.json` (`BlockGoal`) + `athlete/data/proposals/<id>.json` (`Proposal`, kind `block_goal`)
+- `zones`
 
 ## May call
 `plan-week` (baseline/transition week), `design-session` (test sessions), `rehab` (starting rungs).

@@ -1,7 +1,7 @@
 # Training architecture
 
 The rules the coach follows. Skills reference this file instead of copying it; numbers come from `coach`
-commands and `config/`. **Changes only through an approved proposal, with a changelog entry at the bottom.**
+commands and `athlete/config/`. **Changes only through an approved proposal, with a changelog entry at the bottom.**
 
 
 **Four pillars,** each with a build dose and a minimum effective dose (MED) depending on the block:
@@ -43,7 +43,7 @@ commands and `config/`. **Changes only through an approved proposal, with a chan
 - *Recovery prescription:* after high-strain days (e.g. Whoop strain >16, threshold or long runs), prescribe Normatec boots (20–30 min, at the gym post-session) and/or an evening soft-tissue/mobility routine using the foam roller, Theragun, lacrosse ball, and bands, targeted at the day's loaded areas. Magnesium at night. If cold exposure is ever added, keep it ≥4–6 h away from hypertrophy work.
 - *Same-session order:* speed/power → heavy strength → hypertrophy → conditioning.
 
-**Skill acquisition** (`config/skills.yaml`): Olympic lifts and gymnastics follow regression ladders (e.g. strict chest-to-bar and hollow/arch drills before kipping; overhead squat, hang positions, and muscle snatch before full lifts from the floor). Practice for 10–12 min when fresh (1–3 reps/set, ≤70% effort, stop when mechanics degrade). Never put unmastered skills in metcons. Overhead and kipping skills are also gated by the shoulder movement readiness rungs. Every 3–4 weeks the coach asks me to film a key lift or skill for a form check. Claude can review still frames I share; an in-person coach session is optional.
+**Skill acquisition** (`athlete/config/skills.yaml`): Olympic lifts and gymnastics follow regression ladders (e.g. strict chest-to-bar and hollow/arch drills before kipping; overhead squat, hang positions, and muscle snatch before full lifts from the floor). Practice for 10–12 min when fresh (1–3 reps/set, ≤70% effort, stop when mechanics degrade). Never put unmastered skills in metcons. Overhead and kipping skills are also gated by the shoulder movement readiness rungs. Every 3–4 weeks the coach asks me to film a key lift or skill for a form check. Claude can review still frames I share; an in-person coach session is optional.
 
 **Impact management:** shift part of conditioning volume onto zero-impact options (rower, SkiErg, air bike, sled), especially when weekly mileage exceeds ~35 mi.
 
@@ -78,7 +78,7 @@ Block 4 2-8. Deload weeks ~40-65% of those.
 
 ## Keeping current with the science (monthly, `learn`)
 
-On the first Wednesday of each month, the daily run also does a **science audit**. It searches recent literature (PubMed E-utilities and web search across high-signal sources such as ISSN position stands, *Sports Medicine*, *JSCR*, and research reviews), focused on my current block and open questions, and writes `state/science/YYYY-MM.md`. **A finding earns a proposal only if:**
+On the first Wednesday of each month, the daily run also does a **science audit**. It searches recent literature (PubMed E-utilities and web search across high-signal sources such as ISSN position stands, *Sports Medicine*, *JSCR*, and research reviews), focused on my current block and open questions, and writes `athlete/data/science/YYYY-MM.md`. **A finding earns a proposal only if:**
 1. it comes from a meta-analysis, systematic review, or multiple RCTs in trained humans;
 2. its benefit outweighs the added complexity;
 3. it's framed as a **4-week N=1 trial** with a hypothesis, metric, and stop rule.

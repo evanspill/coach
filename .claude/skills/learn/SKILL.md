@@ -7,8 +7,8 @@ description: Getting better as a coach. Monthly (first Wednesday) - (1) an exter
 
 **When:** first Wednesday of each month (kept off Sundays); when the athlete asks "is there anything new on X?".
 
-**Context:** `state/days/` (readiness states), check-ins (next-day session RPE, enjoyment), `coach report ...`,
-`docs/TRAINING_ARCHITECTURE.md`, `state/science/` (previous audits, running trials), `state/proposals/`.
+**Context:** `athlete/data/days/` (readiness states), check-ins (next-day session RPE, enjoyment), `coach report ...`,
+`docs/TRAINING_ARCHITECTURE.md`, `athlete/data/science/` (previous audits, running trials), `athlete/data/proposals/`.
 
 ## Science audit
 - Search PubMed E-utilities (`eutils.ncbi.nlm.nih.gov`) and the web across high-signal sources (ISSN position
@@ -18,13 +18,13 @@ description: Getting better as a coach. Monthly (first Wednesday) - (1) an exter
   stop rule.
 - Every cited paper must include a real PMID/DOI that this run actually retrieved. Single studies, mouse studies or
   hype never change programming.
-- Write `state/science/YYYY-MM.md`.
+- Write `athlete/data/science/YYYY-MM.md`.
 
 ## Calibration
 - Start with `coach` output from the deterministic calibration (it compares next-day RPE on Green vs Yellow days);
   extend it (progression rate vs RPE drift, carb tiers vs session quality, sleep vs readiness).
 - Propose changes as `calibration` proposals with a `config_patch` payload; `coach approve` applies the patch, updates
-  the config lock and writes `state/changelog.md`. Approved rule changes also get a changelog line in
+  the config lock and writes `athlete/data/changelog.md`. Approved rule changes also get a changelog line in
   `docs/TRAINING_ARCHITECTURE.md`. Review each trial at the end of its 4 weeks.
 
 ## Never

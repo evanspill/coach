@@ -8,8 +8,8 @@ description: Periodization. Turns an approved block goal into the block outline 
 **When:** a new block (after the goal is approved), a race added/moved (after `coach macrocycle regenerate`),
 or a major disruption that changes the block's shape.
 
-**Context:** `coach context --block`, `state/macrocycle.json`, `state/blocks/<id>/goal.json`,
-`state/blocks/<prev>/review.md`, `docs/TRAINING_ARCHITECTURE.md` (pillar table, hard-set ranges, ramp rules).
+**Context:** `coach context --block`, `macrocycle`, `athlete/data/blocks/<id>/goal.json`,
+`athlete/data/blocks/<prev>/review.md`, `docs/TRAINING_ARCHITECTURE.md` (pillar table, hard-set ranges, ramp rules).
 
 ## Procedure
 1. Take block dates, competition/taper/reset weeks from the macrocycle (code-generated; never edit dates by hand).
@@ -24,10 +24,10 @@ or a major disruption that changes the block's shape.
    metcon formats, modalities and routes rotate for variety.
 6. Calorie phase from the approved goal; state the **MacroFactor setting** to use and tell the athlete when to change
    it (MacroFactor has no write API).
-7. Validate: `coach validate state/blocks/<id>/outline.json` (must pass) - then commit.
+7. Validate: `coach validate athlete/data/blocks/<id>/outline.json` (must pass) - then commit.
 
 ## Writes
-`state/blocks/<id>/outline.json` (`BlockOutline`). Revisions append to `revisions` with a reason.
+`athlete/data/blocks/<id>/outline.json` (`BlockOutline`). Revisions append to `revisions` with a reason.
 
 ## May call
 `compete` (competition/taper weeks), `assess` (if the goal is missing).

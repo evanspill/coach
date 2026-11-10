@@ -69,13 +69,24 @@ class SessionRecord(Model):
 
 
 class Checkin(Model):
+    """One day's subjective check-in. Morning wellness (Hooper-style 1-5: higher = worse for sleep_quality/
+    fatigue/stress/soreness, higher = better for mood/motivation) + joint ratings + post-session feedback."""
+
     date: dt.date
     joints: dict[str, int] = Field(
         default_factory=dict
-    )  # region (config/athlete_context.json checkin.regions) -> 1-5
-    session_rpe: float | None = Field(default=None, ge=1, le=10)
-    enjoyment: int | None = Field(default=None, ge=1, le=5)
+    )  # region (athlete_context.json checkin.regions) -> 1-5
+    # morning wellness
+    sleep_quality: int | None = Field(default=None, ge=1, le=5)  # 1 great .. 5 terrible
+    fatigue: int | None = Field(default=None, ge=1, le=5)
+    stress: int | None = Field(default=None, ge=1, le=5)
     soreness: int | None = Field(default=None, ge=1, le=5)
+    mood: int | None = Field(default=None, ge=1, le=5)  # 1 low .. 5 great
+    motivation: int | None = Field(default=None, ge=1, le=5)
+    # post-session (session RPE x minutes = session load, Foster)
+    session_rpe: float | None = Field(default=None, ge=1, le=10)
+    session_minutes: float | None = None
+    enjoyment: int | None = Field(default=None, ge=1, le=5)
     bar_speed_mps: float | None = None
     session_pain: dict[str, float] = Field(default_factory=dict)  # movement family -> pain /10 in session
     stiffness_up: list[str] = Field(default_factory=list)  # regions with higher next-morning stiffness

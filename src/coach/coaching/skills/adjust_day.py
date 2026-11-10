@@ -1,15 +1,16 @@
 """adjust-day fallback: readiness, joints, weather, bar speed -> today's session + recovery + fuel."""
 
 import datetime as dt
+import statistics
 
-from coach.context import Context
+from coach.coaching.context import Context
+from coach.coaching.skills import design as D
+from coach.coaching.skills import fuel
+from coach.coaching.skills.design import Picker
+from coach.coaching.skills.plan_week import finalize
 from coach.engine import gear as G
 from coach.engine import testing as T
 from coach.engine.weather import weather_call
-from coach.fallback import design as D
-from coach.fallback import fuel
-from coach.fallback.design import Picker
-from coach.fallback.plan_week import finalize
 from coach.models import Change, DayRecord, Deviation, RunSegment, Session, SessionBlock, WeekPlan
 from coach.models.records import WeatherCall
 
@@ -89,22 +90,21 @@ def adjust(
     week_type = plan.week_type if plan else "training"
 
     # --- safety gates first (shared red-flag rules, docs/SAFETY.md) ---
-    health = ctx.health
-    active_flags = [rf for rf in health.get("red_flags", []) if not rf.get("cleared_on")]
+    active_flags = [e for e in ctx.health if e.kind == "red_flag" and e.active_on(day)]
     if active_flags:
         rec.status = "stopped_red_flag"
         rec.session = D.rest_session(ctx, day, "Red flag reported: stop training and see a doctor.")
         rec.changes = [
             Change(
                 what="all training stopped",
-                why=f"red flag: {', '.join(rf['flag'] for rf in active_flags)} (see a doctor before training)",
+                why=f"red flag: {', '.join(e.flag or 'red flag' for e in active_flags)} (see a doctor before training)",
                 kind="replan",
             )
         ]
         return rec
-    ill = health.get("illness")
-    if ill and not ill.get("resolved_on") and dt.date.fromisoformat(ill["start"]) <= day:
-        if ill.get("symptoms") == "below_neck":
+    ill = next((e for e in ctx.health if e.kind == "illness" and e.active_on(day)), None)
+    if ill:
+        if ill.symptoms != "above_neck":
             rec.session = D.rest_session(
                 ctx, day, "Below-the-neck illness: no training until symptoms resolve."
             )
@@ -223,7 +223,12 @@ def adjust(
         # same-day bar speed (VBT)
         load_cap: dict[str, float] = {}
         ci = next((c for c in ctx.state.checkins(day, day)), None)
-        base_v = (ctx.state.read_json("vbt_baseline.json") or {}).get("mps")
+        recent_v = [
+            c.bar_speed_mps
+            for c in ctx.state.checkins(day - dt.timedelta(days=42), day - dt.timedelta(days=1))
+            if c.bar_speed_mps
+        ]
+        base_v = statistics.median(recent_v) if len(recent_v) >= 3 else None  # usual top warm-up set speed
         if ci and ci.bar_speed_mps and base_v:
             delta = (ci.bar_speed_mps - base_v) / base_v * 100
             if delta <= -cfg.profile.thresholds.vbt_slow_pct:
@@ -324,5 +329,5 @@ def _reschedule_tests(ctx: Context, plan: WeekPlan, session: Session, day: dt.da
             reason="Red readiness on test day: rescheduled within +/-2 days",
         )
     )
-    ctx.state.write_json(f"weeks/{plan.week_id}/plan.json", plan)
+    ctx.state.put("week_plans", plan)
     return target

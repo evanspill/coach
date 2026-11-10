@@ -8,7 +8,7 @@ description: Daily autoregulation. Applies readiness (Whoop recovery, HRV trend,
 **When:** every daily run; in chat for "swap today's X".
 
 **Context:** `coach readiness` (state + reasons + joint flags), `coach status`, today's planned session in
-`state/weeks/<iso>/plan.json`, yesterday's day record, `state/health.json`, weather (the daily run's sync), check-ins.
+`athlete/data/weeks/<iso>/plan.json`, yesterday's day record, `health_events` (`coach record list health_events`), weather (the daily run's sync), check-ins.
 
 ## Rules (thresholds come from config; the most restrictive state wins)
 - **Green:** run the plan as written.
@@ -23,14 +23,14 @@ description: Daily autoregulation. Applies readiness (Whoop recovery, HRV trend,
 - **Bar speed (optional VBT):** top warm-up set >= 10% slower than usual -> cap the load even on Green; noticeably
   faster -> small increase.
 - **Safety first:** red flag -> stop (rest, see a doctor); illness neck check (`docs/SAFETY.md`). Safety downgrades
-  apply immediately; other session-type swaps follow `approval.manual_if` in `config/coach.yaml`.
+  apply immediately; other session-type swaps follow `approval.manual_if` in `athlete/config/coach.yaml`.
 - **Recovery prescription:** after high-strain days (day strain above `high_strain`, threshold, long runs, Hyrox) -> the athlete's recovery
   prescriptions in `athlete_context.json` `recovery` (post-session tool, evening mobility targeted at the loaded areas,
   nightly routine).
 - Call `fuel` for today's macros and the peri-workout cue; `rehab` for gated movements.
 
 ## Writes
-`state/days/<date>.json` (`DayRecord`: readiness, weather call, adjusted session, changes with reasons, recovery,
+`athlete/data/days/<date>.json` (`DayRecord`: readiness, weather call, adjusted session, changes with reasons, recovery,
 nutrition, gear alerts, pushed result). Validate the session (`coach validate`) and `coach push --day`.
 
 ## Hand off to `replan` when

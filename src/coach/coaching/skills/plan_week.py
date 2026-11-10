@@ -4,13 +4,13 @@ config/training.yaml and the block spec in config/season.yaml."""
 import datetime as dt
 
 from coach import clock
-from coach.context import Context
+from coach.coaching.context import Context
+from coach.coaching.fill import Filler
+from coach.coaching.skills import design as D
+from coach.coaching.skills.templates import build_session
 from coach.engine import nutrition as nut
 from coach.engine import testing as T
 from coach.engine.running import RampRules, allowed_increase_cap
-from coach.fallback import design as D
-from coach.fallback.templates import build_session
-from coach.fill import Filler
 from coach.models import Deviation, Session, WeekPlan
 from coach.models.season import BlockSpec
 

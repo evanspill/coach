@@ -8,22 +8,22 @@ description: Event preparation. Taper design and race-day plan (pacing, fuelling
 **When:** competition/taper weeks in the outline (it leads the daily run on those days), "plan my race", Open
 workout releases (Thursday nights), after an event (post-event review).
 
-**Context:** `coach context --block`, `state/zones.json` (threshold pace, LTHR), `config/athlete_context.json`
-(races, goal times), `config/skills.yaml` (competent skills -> Rx vs scaled), weather forecast, `state/events/`.
+**Context:** `coach context --block`, `zones` (threshold pace, LTHR), `athlete/config/athlete_context.json`
+(races, goal times), `athlete/config/skills.yaml` (competent skills -> Rx vs scaled), weather forecast, `athlete/data/events/`.
 
 ## Procedure
 - **Marathon:** 3-week taper (~80 / 60 / 40% volume, intensity kept), race plan with goal pace (from the goal time in
   `athlete_context.json`) checked against current threshold pace, pacing by segment, fuelling (60-90 g carbs/h, sodium),
   warm-up, gear check (`race_gear_checklist`), contingencies (heat tiers, GI, calf twinge). Write
-  `state/events/<event>.md`; it is a proposal until approved.
+  the `event_plans` report (`athlete/data/events/<event>/plan.md`); it is a proposal until approved.
 - **Open week:** attempt Friday after Thursday's release; plan where to break before you need to; Rx only if every
   movement is competent and within rungs, otherwise scaled; shoulder rules apply; re-attempt only with a clear
   pacing gain and Green readiness. Fill the competition session's movements once released (validate it).
 - **Hyrox:** pacing for runs vs stations, transitions, fuelling, the fixed simulation as the rehearsal.
-- **Post-event review** appended to `state/events/<event>.md` within 3 days.
+- **Post-event:** record the result in `event_results` (`coach record add event_results '{...}'`) and append the review to the event plan within 3 days.
 
 ## Writes
-`state/events/<event>.md`, adjusted week plans (validated), proposals (`race_plan`).
+`event_plans`, `event_results`, adjusted week plans (validated), proposals (`race_plan`).
 
 ## Never
 - Add new training stress in race week, or enter an Rx division with unmastered skills.

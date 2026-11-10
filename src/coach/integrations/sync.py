@@ -8,7 +8,8 @@ from coach.engine.paces import zone_minutes_from_hr
 from coach.engine.parsing import parse_checkin_tag
 from coach.integrations.base import Sources
 from coach.models import Checkin, DailyMetrics, SessionRecord
-from coach.state import State
+from coach.models.records import SyncState
+from coach.store import Store
 
 OVERLAP_DAYS = 3  # re-fetch a few days so late uploads are merged
 FIRST_SYNC_DAYS = 75  # enough history for the 60-day HRV/RHR baselines
@@ -87,7 +88,7 @@ def _session_key(s: SessionRecord) -> str:
     return f"{prio[0] if prio else 'x'}:{s.start.isoformat()}"
 
 
-def _plan_link(state: State, s: SessionRecord) -> str | None:
+def _plan_link(state: Store, s: SessionRecord) -> str | None:
     plan = state.week_plan(clock.iso_week_id(s.date))
     if plan:
         ps = plan.session_on(s.date)
@@ -97,18 +98,14 @@ def _plan_link(state: State, s: SessionRecord) -> str | None:
 
 
 def sync(
-    sources: Sources, state: State | None = None, today: dt.date | None = None, cfg: Config | None = None
+    sources: Sources, state: Store | None = None, today: dt.date | None = None, cfg: Config | None = None
 ) -> dict:
-    state = state or State()
+    state = state or Store()
     cfg = cfg or load_config()
     today = today or clock.today()
-    sync_state = state.read_json("metrics/sync_state.json") or {}
-    last = sync_state.get("last_sync")
-    start = (
-        (dt.date.fromisoformat(last) - dt.timedelta(days=OVERLAP_DAYS))
-        if last
-        else today - dt.timedelta(days=FIRST_SYNC_DAYS)
-    )
+    sync_state = state.get("sync_state") or SyncState()
+    last = sync_state.last_sync
+    start = (last - dt.timedelta(days=OVERLAP_DAYS)) if last else today - dt.timedelta(days=FIRST_SYNC_DAYS)
     report: dict = {"window": [start.isoformat(), today.isoformat()], "counts": {}, "stale": [], "errors": {}}
     items: list[tuple[str, str, dt.date, dict]] = []
 
@@ -140,10 +137,9 @@ def sync(
     whoop_w = run("whoop_workouts", lambda: sources.whoop.workouts(start, today)) or []
     hevy_w = run("hevy", lambda: sources.hevy.workouts(start, today)) or []
     acts = run("intervals_activities", lambda: sources.intervals.activities(start, today)) or []
-    zones = state.zones() or {}
-    merged = merge_sessions(
-        whoop_w, [*hevy_w, *acts], zones.get("lthr") or 165
-    )  # default LTHR until the first TT
+    zones = state.zones()
+    lthr = zones.lthr if zones else cfg.profile.running.default_zones.lthr  # default until the first TT
+    merged = merge_sessions(whoop_w, [*hevy_w, *acts], lthr)
     for s in merged:
         s.planned_session_id = _plan_link(state, s)
         items.append(("session", _session_key(s), s.date, s.model_dump(mode="json", exclude_none=True)))
@@ -162,7 +158,7 @@ def sync(
         )
     gear = run("intervals_gear", sources.intervals.gear)
     if gear is not None:
-        state.write_json("metrics/gear.json", [g.model_dump(mode="json") for g in gear])
+        state.put("gear", [g.model_dump(mode="json") for g in gear])
 
     changed = state.upsert_metrics(
         items, replace_kinds_in={"session": (start, today)} if (hevy_w or acts or whoop_w) else None
@@ -187,7 +183,7 @@ def sync(
     for name in report["errors"]:
         report["stale"].append(f"{name}: fetch failed")
     report["recovery_today"] = latest["whoop"] == today
-    sync_state["last_sync"] = today.isoformat()
-    sync_state["last_report"] = report
-    state.write_json("metrics/sync_state.json", sync_state)
+    sync_state.last_sync = today
+    sync_state.last_report = report
+    state.put("sync_state", sync_state)
     return report

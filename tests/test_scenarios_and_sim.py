@@ -22,5 +22,5 @@ def test_short_simulation_runs_clean(tmp_path):
     assert not [e for e in res.events if "fails validation" in e or "refused" in e]
     text = "\n".join(lines)
     assert "assess: scored" in text and "plan-block: outline" in text
-    assert (tmp_path / "sim" / "state" / "blocks" / "2026-27-B1" / "outline.json").exists()
-    assert (tmp_path / "sim" / "state" / "zones.json").exists()
+    assert (tmp_path / "sim" / "athlete" / "data" / "blocks" / "2026-27-B1" / "outline.json").exists()
+    assert (tmp_path / "sim" / "athlete" / "data" / "zones.json").exists()

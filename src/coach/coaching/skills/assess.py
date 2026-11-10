@@ -4,13 +4,14 @@ import datetime as dt
 import math
 import statistics
 
-from coach import proposals
-from coach.context import Context
+from coach.coaching import proposals
+from coach.coaching.context import Context
 from coach.engine import testing as T
 from coach.engine.loads import e1rm
 from coach.engine.units import fmt_pace
 from coach.models import BlockGoal, MacroBlock, SessionRecord, TestSet
 from coach.models.plans import GoalTarget, Guardrail
+from coach.models.records import ThresholdZones
 
 _INTAKE_DEFAULT = [  # generic fallback; the athlete's questions live in athlete_context.json intake_questions
     "Training history: years training, best lifts and race times (with dates)?",
@@ -150,7 +151,7 @@ def score_week(
     return ts
 
 
-def update_zones_from(ctx: Context, ts: TestSet) -> dict | None:
+def update_zones_from(ctx: Context, ts: TestSet) -> ThresholdZones | None:
     tests = ctx.cfg.tests.tests
     found = [
         r
@@ -165,13 +166,13 @@ def update_zones_from(ctx: Context, ts: TestSet) -> dict | None:
     if not found:
         return None
     r = found[0]
-    z = {
-        "lthr": r.details["lthr"],
-        "threshold_pace_s_per_mi": r.details["threshold_pace_s_per_mi"],
-        "source": f"{r.test_id} {r.date}",
-        "confidence": r.details.get("confidence", "normal"),
-    }
-    ctx.state.write_json("zones.json", z)
+    z = ThresholdZones(
+        lthr=int(r.details["lthr"]),
+        threshold_pace_s_per_mi=int(r.details["threshold_pace_s_per_mi"]),
+        source=f"{r.test_id} {r.date}",
+        confidence=r.details.get("confidence", "normal"),
+    )
+    ctx.state.put("zones", z)
     return z
 
 
@@ -238,7 +239,7 @@ def propose_goal(ctx: Context, block: MacroBlock, ts: TestSet) -> tuple[BlockGoa
             )
         )
     guards = guards[:2]
-    from coach.fallback.plan_block import calorie_phase_from
+    from coach.coaching.skills.plan_block import calorie_phase_from
 
     phase, phase_why = calorie_phase_from(ctx, block)
     name = ctx.cfg.tests.tests[primary_id].name
@@ -271,8 +272,8 @@ def propose_goal(ctx: Context, block: MacroBlock, ts: TestSet) -> tuple[BlockGoa
 
 
 def save_goal_proposal(ctx: Context, goal: BlockGoal, day: dt.date):
-    rel = f"blocks/{goal.block_id}/goal.json"
-    ctx.state.write_json(rel, goal)
+    ctx.state.put("block_goals", goal)
+    rel = ctx.state.ref("block_goals", goal.block_id)
     return proposals.create(
         ctx.state,
         "block_goal",
@@ -283,7 +284,7 @@ def save_goal_proposal(ctx: Context, goal: BlockGoal, day: dt.date):
         goal.rationale,
         day,
         after=goal.model_dump(mode="json"),
-        target_path=rel,
+        target=rel,
     )
 
 

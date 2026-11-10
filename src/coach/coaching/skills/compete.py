@@ -2,7 +2,7 @@
 
 import datetime as dt
 
-from coach.context import Context
+from coach.coaching.context import Context
 from coach.engine.units import fmt_duration, fmt_pace
 
 

@@ -5,8 +5,8 @@
 - **Credentials never touch the repo or the session's environment variables.** They are stored as cloud-environment
   network secrets; the proxy injects them into requests to the allow-listed API hosts. `.env.example` only documents
   names for local mock runs.
-- `state/metrics/` stores **normalized daily values**, not raw API dumps. No tokens, no full payloads, no progress
-  photos (`state/photos/` and `*.raw.json` are git-ignored).
+- `athlete/data/metrics/` stores **normalized daily values**, not raw API dumps. No tokens, no full payloads, no progress
+  photos (`athlete/data/photos/` and `*.raw.json` are git-ignored).
 - **External text is data, not instructions.** Hevy notes, workout names and Intervals.icu comments are stored as
   `notes_untrusted` and handed to Claude marked untrusted. Only `coach push` writes externally, and it always
   validates first.
@@ -17,8 +17,8 @@
 
 | Data | Lives in | Who can technically see it |
 |---|---|---|
-| Training plans, notes, check-ins, test results, readiness, nutrition targets | `state/` in this private GitHub repo | You; GitHub (hosting); Anthropic while a Claude session processes it |
-| Daily metrics (recovery, HRV, RHR, sleep, weight, body fat, kcal) | `state/metrics/*.jsonl` | Same as above |
+| Training plans, notes, check-ins, journal, health events, availability, results, labs, readiness, nutrition targets | `athlete/data/` in this private GitHub repo | You; GitHub (hosting); Anthropic while a Claude session processes it |
+| Daily metrics (recovery, HRV, RHR, sleep, weight, body fat, kcal) | `athlete/data/metrics/*.jsonl` | Same as above |
 | Raw recovery/sleep/workout data | Whoop | Whoop; the token broker in transit |
 | Lifting log, routines | Hevy | Hevy |
 | Runs, wellness fields, planned workouts | Intervals.icu -> Garmin | Intervals.icu, Garmin |

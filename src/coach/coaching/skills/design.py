@@ -4,7 +4,7 @@ equipment at the location and deload rules. Shared by plan-week, adjust-day, rep
 import datetime as dt
 import math
 
-from coach.context import Context
+from coach.coaching.context import Context
 from coach.engine import movement as mv
 from coach.engine.sessions import hard_sets
 from coach.models import Exercise, Metcon, Prescription, RunSegment, Session, SessionBlock
@@ -298,7 +298,7 @@ def make_session(
 
 def recovery_session(ctx: Context, day: dt.date, minutes: int | None = None, note: str = "") -> Session:
     """The `recovery` session template, optionally with a different walk length / intent."""
-    from coach.fallback.templates import build_session
+    from coach.coaching.skills.templates import build_session
 
     s = build_session(ctx, "recovery", day, "deload", 0.0, week_number=day.isocalendar()[1])
     if minutes is not None:

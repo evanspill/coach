@@ -4,8 +4,8 @@ generators (run sizing, long run, metcon selection, skill practice, test blocks)
 import datetime as dt
 import math
 
-from coach.context import Context
-from coach.fallback import design as D
+from coach.coaching.context import Context
+from coach.coaching.skills import design as D
 from coach.models import Metcon, RunSegment, Session, SessionBlock
 from coach.models.season import BlockSpec, BlockTemplate, SessionTemplate
 

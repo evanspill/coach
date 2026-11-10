@@ -15,9 +15,9 @@ flowchart TB
   end
   subgraph Repo["Private GitHub repo"]
     K[CLAUDE.md + skills]
-    C[config/]
+    C[athlete/config/]
     P[coach package: engine + validator + push]
-    ST[state/ = database]
+    ST[athlete/data/ = database]
   end
   subgraph APIs["External services"]
     W[Whoop]
@@ -139,33 +139,47 @@ Block 1 ends one week after the last Open workout (`season.yaml` B1 `end_after_e
 
 ## Code map
 
+One repo, three clearly separated concerns: **code** (`src/coach/`, `.claude/skills/`), **integrations**
+(`src/coach/integrations/`), and **the athlete** (`athlete/config/` settings + `athlete/data/` records, the would-be
+database). Data model and collections: `docs/DATA_MODEL.md`.
+
+```
+src/coach/
+  models/        schemas (Pydantic, extra="forbid"): plans, metrics, journal, records, profile, season/training config
+  store/         the only reader/writer of athlete/data (collection registry + file backend)
+  config.py      loads + cross-checks athlete/config
+  integrations/  base ABCs, normalize (raw -> models), mock, live, sync (in), push (out)
+  engine/        calculations (readiness, loads, paces, weather, nutrition, macrocycle, deloads, running, testing,
+                 movement, gear, parsing) + validator; pure functions, no I/O
+  coaching/      daily (coordinator), context, fill (loads/paces), proposals, notify,
+                 skills/ (deterministic stand-in per skill; templates.py builds sessions from training.yaml)
+  sim/, demo/    simulated athlete + demo athlete config/fixtures for tests and `coach simulate`
+  cli.py         `python -m coach ...`
+```
+
 | Module | Role |
 |---|---|
-| `coach/models/` | Pydantic models; `extra="forbid"` so Claude-written JSON can't smuggle fields |
-| `coach/config.py` | Loads + cross-checks `config/` (every exercise/equipment/family reference must exist) |
-| `coach/integrations/` | `base.py` ABCs, `normalize.py` (raw payload -> models, shared by mock + live), `mock.py`, `live.py` |
-| `coach/sync.py` | Incremental, idempotent sync; merges Whoop + Hevy + Intervals into one session record |
-| `coach/engine/` | readiness, loads, paces, weather, nutrition, macrocycle, deloads, running, testing, movement, gear, parsing |
-| `coach/validator.py` | Every guardrail, with stable rule codes |
-| `coach/fill.py` | Fills loads (e1RM -> rounded implement) and paces/HR (zones) into plans |
-| `coach/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled` |
-| `coach/proposals.py` | Proposals, approve/reject, config lock + changelog |
-| `coach/fallback/` | Deterministic stand-in for each skill (used after 3 failed validations and in simulation); `templates.py` builds sessions from `training.yaml` |
-| `coach/daily.py` | The coach-daily flow in deterministic mode (`coach daily --fallback`, simulation) |
+| `coach/models/` | Row schemas for every collection; Claude-written JSON must parse into them |
+| `coach/store/` | `Store`: typed access by collection (`get/put/query/keys/report`), metrics series, rendered views |
+| `coach/integrations/sync.py` | Incremental, idempotent sync; merges Whoop + Hevy + Intervals into one session record |
+| `coach/integrations/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled` |
+| `coach/engine/validator.py` | Every guardrail, with stable rule codes |
+| `coach/coaching/fill.py` | Fills loads (e1RM -> rounded implement) and paces/HR (zones) into plans |
+| `coach/coaching/proposals.py` | Proposals (targets are `collection/key` refs), approve/reject, config lock + changelog |
+| `coach/coaching/skills/` | Deterministic stand-in for each skill (used after 3 failed validations and in simulation) |
+| `coach/coaching/daily.py` | The coach-daily flow in deterministic mode (`coach daily --fallback`, simulation) |
 | `coach/sim/` | Simulated athlete, 120-day replay, per-skill scenarios |
 
-## Engine vs athlete files (prepares the two-repo split)
-
-| Engine (generic, reusable) | Athlete (private, tailored) |
-|---|---|
-| `src/coach/` (package, incl. `demo/` test athlete), `tests/`, `scripts/`, `.claude/skills/`, `.github/`, `pyproject.toml` | `config/` (all of it), `state/` |
-| `docs/ARCHITECTURE.md`, `SAFETY.md`, `COACH_VOICE.md`, `SECURITY.md`, `SETUP.md` | `CLAUDE.md` (role + routing for this athlete), `docs/TRAINING_ARCHITECTURE.md`, `TESTING_PROTOCOL.md`, `DECISIONS.md` (judgment calls for this athlete) |
-
-The engine reads everything athlete-specific from `COACH_HOME/config` and writes to `COACH_STATE_DIR`, so after the
-split the athlete repo just installs the engine (setup script) and keeps `config/` + `state/`.
-
 ### Where the season and sessions come from
-`config/season.yaml` blocks are laid out by `engine/macrocycle.py` (forward from the season start, backward from the
-race-anchored last block, one `fill` block in between). `fallback/plan_block.py` turns a block spec into an outline;
-`fallback/plan_week.py` picks the week template for the week type and `fallback/templates.py` builds each session from
-its template (fixed items resolve to the current rung; generators size runs, pick metcons and skill drills).
+`athlete/config/season.yaml` blocks are laid out by `engine/macrocycle.py` (forward from the season start, backward
+from the race-anchored last block, one `fill` block in between). `coaching/skills/plan_block.py` turns a block spec
+into an outline; `coaching/skills/plan_week.py` picks the week template for the week type (then applies the
+athlete's `availability`), and `coaching/skills/templates.py` builds each session from its template (fixed items
+resolve to the current rung; generators size runs, pick metcons and skill drills).
+
+### Data sources
+- **Whoop (direct API via a token broker)**: recovery, HRV, RHR, sleep, day strain, and HR/strain for *every*
+  session (it's worn 24/7; the Garmin only on runs).
+- **Intervals.icu**: run detail from the Garmin (pace, Running Dynamics), training load, shoe mileage, custom
+  check-in fields, and the route for planned run workouts onto the watch.
+- **Hevy**: lifting sets and routines. **Withings** (via the broker): weight and body fat. **Open-Meteo**: weather.

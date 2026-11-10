@@ -5,9 +5,9 @@ import pytest
 
 from coach.engine.parsing import classify_illness, detect_red_flags, parse_checkin_tag, parse_metcon_result
 from coach.integrations.mock import MockWorld, mock_sources
+from coach.integrations.sync import merge_sessions, sync
 from coach.models import SessionRecord
-from coach.state import State
-from coach.sync import merge_sessions, sync
+from coach.store import Store
 
 
 def test_checkin_from_hevy_notes():
@@ -44,7 +44,7 @@ def test_red_flags_and_neck_check():
 
 
 def test_sync_is_idempotent(home):
-    st = State(home / "state")
+    st = Store(home / "athlete" / "data")
     world = MockWorld.load()
     d = dt.date(2026, 11, 20)
     import os
@@ -54,7 +54,7 @@ def test_sync_is_idempotent(home):
 
     def digest():
         return hashlib.md5(
-            b"".join(p.read_bytes() for p in sorted((home / "state" / "metrics").glob("*.jsonl")))
+            b"".join(p.read_bytes() for p in sorted((home / "athlete" / "data" / "metrics").glob("*.jsonl")))
         ).hexdigest()
 
     a = digest()
@@ -104,7 +104,7 @@ def test_merge_sessions_no_double_count():
 
 
 def test_push_refuses_invalid_plans(b1):
-    from coach.push import PushRefused, push_day, push_week
+    from coach.integrations.push import PushRefused, push_day, push_week
 
     ctx, plan, _ = b1
     good = plan.model_copy(deep=True)
@@ -120,7 +120,7 @@ def test_push_refuses_invalid_plans(b1):
 
 
 def test_hevy_and_intervals_payloads(b1):
-    from coach.push import hevy_routine, intervals_event
+    from coach.integrations.push import hevy_routine, intervals_event
 
     ctx, plan, _ = b1
     r = hevy_routine(plan.sessions[1], ctx)
@@ -132,3 +132,10 @@ def test_hevy_and_intervals_payloads(b1):
         and "% Pace" in ev["description"]
         and ev["external_id"].startswith("coach-")
     )
+
+
+def test_every_cli_command_is_registered():
+    from coach.cli import COMMANDS, build_parser
+
+    sub = next(a for a in build_parser()._actions if a.dest == "cmd")
+    assert set(COMMANDS) == set(sub.choices)

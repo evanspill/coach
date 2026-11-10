@@ -185,7 +185,40 @@ class Proposal(Model):
     why: str
     before: Any = None
     after: Any = None
-    target_path: str | None = None  # state file that becomes active on approval
+    target: str | None = None  # state file that becomes active on approval
     payload: dict[str, Any] | None = None  # e.g. config patch
     status: Literal["pending", "approved", "rejected", "applied", "superseded"] = "pending"
     history: list[ProposalEvent] = Field(default_factory=list)
+
+
+class ThresholdZones(Model):
+    lthr: int
+    threshold_pace_s_per_mi: int
+    source: str = ""
+    confidence: str = "normal"
+
+
+class ConfigLock(Model):
+    fingerprint: str
+    approved_by: str
+    at: dt.date
+
+
+class NutritionTarget(Model):
+    """Weekly calorie target from the athlete's tracking app (told to the coach until it syncs)."""
+
+    weekly_kcal: float
+    set_on: dt.date | None = None
+    source: str = "chat"
+
+
+class Intake(Model):
+    completed: bool = False
+    created: dt.date
+    refresh_due: dt.date
+    answers: dict[str, Any] = Field(default_factory=dict)
+
+
+class SyncState(Model):
+    last_sync: dt.date | None = None
+    last_report: dict[str, Any] = Field(default_factory=dict)

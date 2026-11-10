@@ -1,6 +1,6 @@
 # Testing protocol
 
-Generated from `config/tests.yaml` (the source of truth; edit there, then update this file).
+Generated from `athlete/config/tests.yaml` (the source of truth; edit there, then update this file).
 
 **Principles:** rep-maxes only (no true 1RMs), at the current movement-readiness rung; the variant is recorded and
 converted to the reference variant so blocks stay comparable. Tests need Green or Yellow readiness; on Red they move
@@ -152,4 +152,4 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 - `seven_day_avg`: Withings 7-day average weight and body fat % (trend over absolute; optional DEXA anchor).
 
 ## Gap analysis
-Results are compared with `config/benchmarks.yaml` (relative to bodyweight; e.g. trap bar ~2.0-2.25 x BW, SSB squat ~1.6-1.75 x BW, 12-15 strict pull-ups, ~7:00/mi threshold, ~3.4 W/kg 2k row). The weakest pillar(s) inform the next block's primary goal, weighed against the block's planned focus; the proposal states the trade-off and needs approval.
+Results are compared with `athlete/config/benchmarks.yaml` (relative to bodyweight; e.g. trap bar ~2.0-2.25 x BW, SSB squat ~1.6-1.75 x BW, 12-15 strict pull-ups, ~7:00/mi threshold, ~3.4 W/kg 2k row). The weakest pillar(s) inform the next block's primary goal, weighed against the block's planned focus; the proposal states the trade-off and needs approval.

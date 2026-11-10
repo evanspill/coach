@@ -9,13 +9,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from coach import paths
+from coach.coaching.daily import run_daily
+from coach.coaching.skills import log as log_skill
+from coach.coaching.skills import technique
 from coach.config import load_config
-from coach.daily import run_daily
-from coach.fallback import log as log_skill
-from coach.fallback import technique
 from coach.integrations.mock import MockWorld, mock_sources
 from coach.sim.athlete import SimAthlete
-from coach.state import State
+from coach.store import Store
 
 
 @dataclass
@@ -35,14 +35,16 @@ def sandbox(out_dir: Path | None = None, config: str = "demo"):
     """Temp COACH_HOME with a copy of the demo config (or the active config) and an empty state/.
     The athlete's own state is never touched."""
     home = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="coach-sim-"))
-    if (home / "config").exists():
-        shutil.rmtree(home / "config")
-    if (home / "state").exists():
-        shutil.rmtree(home / "state")
-    shutil.copytree(paths.demo_config_dir() if config == "demo" else paths.config_dir(), home / "config")
-    (home / "state").mkdir(parents=True, exist_ok=True)
+    if (home / "athlete").exists():
+        shutil.rmtree(home / "athlete")
+    shutil.copytree(
+        paths.demo_config_dir() if config == "demo" else paths.config_dir(), home / "athlete" / "config"
+    )
+    (home / "athlete" / "data").mkdir(parents=True, exist_ok=True)
     saved = {k: os.environ.get(k) for k in ("COACH_HOME", "COACH_STATE_DIR", "COACH_TODAY", "COACH_MOCK")}
-    os.environ.update({"COACH_HOME": str(home), "COACH_STATE_DIR": str(home / "state"), "COACH_MOCK": "1"})
+    os.environ.update(
+        {"COACH_HOME": str(home), "COACH_STATE_DIR": str(home / "athlete" / "data"), "COACH_MOCK": "1"}
+    )
     try:
         yield home
     finally:
@@ -67,13 +69,13 @@ def simulate(
         late = {dt.date.fromisoformat(d) for d in world.script.get("late_recovery_dates", [])}
         world.hide_recovery_for = set(late)
         sources = mock_sources(world)
-        state = State(home / "state")
-        athlete = SimAthlete(world, load_config(home / "config"))
+        state = Store(home / "athlete" / "data")
+        athlete = SimAthlete(world, load_config(home / "athlete" / "config"))
         chat = world.script.get("chat", {})
         for i in range(days):
             day = start + dt.timedelta(days=i)
             os.environ["COACH_TODAY"] = day.isoformat()
-            cfg = load_config(home / "config")
+            cfg = load_config(home / "athlete" / "config")
             out = run_daily(sources, state, day, "main", auto_approve=True, cfg=cfg)
             rec = out.record
             catchup_note = ""
@@ -94,7 +96,7 @@ def simulate(
                 res.events.append(f"{day} {line}")
             if day.isoformat() in chat:
                 msg = chat[day.isoformat()]
-                from coach.context import build
+                from coach.coaching.context import build
 
                 ctx = build(state, cfg, day)
                 r = log_skill.handle(ctx, msg, day)
@@ -118,7 +120,7 @@ def simulate(
                         if fs.pending_form_check is not None:
                             rung = mv.clear_form_check(mr, fam, day, "coach (video review)")
                             echo(f"  · technique: [sim] form video reviewed: {fam} rung {rung} cleared")
-                    state.write_json("movement_readiness.json", mr)
+                    state.put("movement_readiness", mr)
             for line in athlete.do_day(day, rec):
                 echo(f"  · {line}")
             res.days.append(
@@ -138,7 +140,7 @@ def simulate(
         return res
 
 
-def write_report(res: SimResult, state: State) -> None:
+def write_report(res: SimResult, state: Store) -> None:
     from collections import Counter
 
     c = Counter(d["readiness"] for d in res.days)
@@ -167,4 +169,4 @@ def write_report(res: SimResult, state: State) -> None:
                 for s in res.scenarios
             ],
         ]
-    state.write_text("simulation_report.md", "\n".join(lines) + "\n")
+    state.save_report("simulation_report", "\n".join(lines) + "\n")

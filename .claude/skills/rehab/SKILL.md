@@ -8,7 +8,7 @@ description: Return to unrestricted training and durability. Manages the movemen
 **When:** after each session that touched a gated movement family (daily run), pain reports, "can I deadlift from
 the floor yet?", region flags.
 
-**Context:** `state/movement_readiness.json`, `config/movement_progressions.yaml`, check-ins (`session_pain`,
+**Context:** `movement_readiness`, `athlete/config/movement_progressions.yaml`, check-ins (`session_pain`,
 `stiffness_up`, joint ratings), `coach readiness` (joint flags), `docs/SAFETY.md`.
 
 ## Rules
@@ -20,12 +20,12 @@ the floor yet?", region flags.
   region's tags are restricted until it's <= 2 twice in a row.
 - Track "% of movement families fully unlocked" (reported in every block review).
 - Capacity work is part of every week (trunk, shoulder/scapular, hips/ankles/T-spine, tendon load during any
-  running ramp), using the warm-ups and item sets in `config/training.yaml` for the athlete's flagged regions.
+  running ramp), using the warm-ups and item sets in `athlete/config/training.yaml` for the athlete's flagged regions.
 - Recommend a physiotherapist when a family regresses twice in 4 weeks, pain persists > 2 weeks, or anything
   matches a red flag.
 
 ## Writes
-`state/movement_readiness.json` - validate the change first: `coach validate state/movement_readiness.json`
+`movement_readiness` - validate the change first: `coach validate athlete/data/movement_readiness.json`
 (rejects > 1-rung moves and advances without criteria).
 
 ## Never

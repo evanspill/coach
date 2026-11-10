@@ -2,7 +2,7 @@
 
 import datetime as dt
 
-from coach.context import Context
+from coach.coaching.context import Context
 from coach.engine import nutrition as nut
 from coach.models import NutritionDay, Session, WeekPlan
 
@@ -15,9 +15,9 @@ def weekly_target(ctx: Context, week_start: dt.date, sources=None) -> tuple[floa
                 return float(t), "MacroFactor weekly target"
         except Exception:  # noqa: BLE001 - nutrition is optional until Phase 3
             pass
-    saved = ctx.state.read_json("macrofactor.json") or {}
-    if saved.get("weekly_kcal"):
-        return float(saved["weekly_kcal"]), "MacroFactor target (told to the coach)"
+    saved = ctx.state.get("nutrition_target")
+    if saved:
+        return float(saved.weekly_kcal), f"weekly target ({saved.source})"
     bw = ctx.bodyweight_kg()
     per_kg = ctx.cfg.profile.nutrition.estimate_kcal_per_kg
     return round(bw * per_kg * 7), f"estimate ({per_kg:g} kcal/kg/day) until MacroFactor data is connected"

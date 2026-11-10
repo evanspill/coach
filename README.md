@@ -6,7 +6,7 @@ year -> block -> week -> day, runs testing at the start and end of every block, 
 the Garmin (via Intervals.icu). No website, server or database: **git is the database**.
 
 **Claude decides, code calculates and enforces.** Claude (following `CLAUDE.md` and `.claude/skills/`) makes the
-coaching decisions; the `coach` Python package computes every number, validates every plan and is the only thing
+coaching decisions; the `coach` Python package (`src/coach/`) computes every number, validates every plan and is the only thing
 that writes to external services.
 
 ## Quick start (mock data, no keys)
@@ -21,8 +21,13 @@ pytest
 ## Docs
 - `CLAUDE.md` - how sessions coach (routing table, conventions)
 - `docs/ARCHITECTURE.md` - diagrams and code map
+- `docs/DATA_MODEL.md` - what's stored about the athlete, and how it maps to a database later
 - `docs/TRAINING_ARCHITECTURE.md` - the training rules
 - `docs/SAFETY.md`, `docs/COACH_VOICE.md`, `docs/TESTING_PROTOCOL.md`
 - `docs/DECISIONS.md` - every judgment call and how to reverse it
 - `docs/SECURITY.md`, `docs/SETUP.md` - data handling and the Phase 2 go-live checklist
 - `docs/BUILD_PROMPT.md` - the original brief
+
+## Layout
+`src/coach/` is the code, `athlete/config/` the athlete's settings and `athlete/data/` the athlete's records (the
+database, accessed only through `coach.store`). See `docs/DATA_MODEL.md`.

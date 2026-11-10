@@ -3,8 +3,8 @@
 Athlete: "Skill session today: got 10 unbroken toes to bar, felt smooth"
 
 - `coach log` detects the milestone -> `technique` checks the gate (`kipping` rung 3 required for toes-to-bar).
-- `config/skills.yaml`: `toes_to_bar.current_level` 2 -> 3 (= `competent_level`).
-- `state/notes.md`: "- 2027-02-01: Toes-to-bar -> level 3 (10+ linked T2B) - COMPETENT: allowed in metcons."
+- `athlete/config/skills.yaml`: `toes_to_bar.current_level` 2 -> 3 (= `competent_level`).
+- `athlete/data/notes.md`: "- 2027-02-01: Toes-to-bar -> level 3 (10+ linked T2B) - COMPETENT: allowed in metcons."
 - From now on `design-session` may put toes-to-bar inside metcons; before that it scaled to hanging knee raises.
 
 If the kipping rung were below 3, the level would be held: "toes_to_bar: held at level 2 (kipping rung 0 < 3)".

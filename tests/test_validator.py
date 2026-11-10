@@ -4,9 +4,10 @@ import datetime as dt
 
 import pytest
 
+from coach.engine.validator import validate_session, validate_week
 from coach.models import Deviation, Prescription, RunSegment, SessionBlock
+from coach.models.journal import HealthEvent
 from coach.models.records import JointFlag
-from coach.validator import validate_session, validate_week
 
 
 def codes(plan, ctx, **override):
@@ -198,15 +199,25 @@ def test_pillar_minimum_effective_dose(P):
 
 def test_red_flag_blocks_training(P):
     ctx, plan = P
-    health = {"red_flags": [{"date": "2026-11-29", "flag": "chest pain", "cleared_on": None}]}
-    assert "RED_FLAG" in codes(plan, ctx, health=health)
+    flag = HealthEvent(id="rf", kind="red_flag", start=dt.date(2026, 11, 29), flag="chest pain")
+    assert "RED_FLAG" in codes(plan, ctx, health=[flag])
+    cleared = flag.model_copy(update={"resolved_on": dt.date(2026, 11, 30), "cleared_by": "doctor"})
+    assert "RED_FLAG" not in codes(plan, ctx, health=[cleared])
 
 
 def test_illness_neck_check(P):
     ctx, plan = P
-    below = {"illness": {"start": "2026-12-01", "symptoms": "below_neck", "resolved_on": None}}
+    below = [HealthEvent(id="i1", kind="illness", start=dt.date(2026, 12, 1), symptoms="below_neck")]
     assert "ILLNESS" in codes(plan, ctx, health=below)
-    above = {"illness": {"start": "2026-12-02", "symptoms": "above_neck", "resolved_on": "2026-12-03"}}
+    above = [
+        HealthEvent(
+            id="i2",
+            kind="illness",
+            start=dt.date(2026, 12, 2),
+            symptoms="above_neck",
+            resolved_on=dt.date(2026, 12, 3),
+        )
+    ]
     vctx = ctx.validation(plan)
     vctx.health = above
     wed = plan.sessions[2]  # easy run on an above-the-neck day is fine
@@ -218,7 +229,7 @@ def test_illness_neck_check(P):
 
 def test_config_change_needs_approved_proposal(b1):
     from coach.config import load_config
-    from coach.validator import thresholds_fingerprint, validate_config_lock
+    from coach.engine.validator import thresholds_fingerprint, validate_config_lock
 
     cfg = load_config()
     good = {"fingerprint": thresholds_fingerprint(cfg), "approved_by": "initial"}
@@ -233,8 +244,8 @@ def test_config_change_needs_approved_proposal(b1):
 
 def test_joint_flag_swaps_use_regressions(P):
     """adjust-day swaps restricted exercises via the library's regressions instead of dropping work."""
-    from coach.fallback.adjust_day import _resubstitute
-    from coach.fallback.design import Picker
+    from coach.coaching.skills.adjust_day import _resubstitute
+    from coach.coaching.skills.design import Picker
 
     ctx, plan = P
     tue = plan.sessions[1]

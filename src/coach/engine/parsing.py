@@ -22,6 +22,13 @@ def _alt(words) -> str:
     return "|".join(re.escape(w) for w in sorted(words, key=len, reverse=True))
 
 
+_WELLNESS_RE = {
+    "sleep_quality": re.compile(r"\bsleep(?: quality)?\s*[:=]?\s*([1-5])\b", re.IGNORECASE),
+    "fatigue": re.compile(r"\b(?:fatigue|tired(?:ness)?)\s*[:=]?\s*([1-5])\b", re.IGNORECASE),
+    "stress": re.compile(r"\bstress(?:ed)?\s*[:=]?\s*([1-5])\b", re.IGNORECASE),
+    "mood": re.compile(r"\bmood\s*[:=]?\s*([1-5])\b", re.IGNORECASE),
+    "motivation": re.compile(r"\b(?:motivation|motivated)\s*[:=]?\s*([1-5])\b", re.IGNORECASE),
+}
 _RPE_RE = re.compile(r"\b(?:s?rpe)\s*[:=]?\s*(\d+(?:\.\d)?)", re.IGNORECASE)
 _ENJOY_RE = re.compile(r"\b(?:enjoy(?:ment|ed)?|fun)\s*[:=]?\s*([1-5])\b", re.IGNORECASE)
 _SORE_RE = re.compile(r"\bsore(?:ness)?\s*[:=]?\s*([1-5])\b", re.IGNORECASE)
@@ -51,6 +58,9 @@ def parse_checkin_tag(text: str | None, cfg=None) -> dict:
         out["enjoyment"] = int(m.group(1))
     if m := _SORE_RE.search(text):
         out["soreness"] = int(m.group(1))
+    for field, pat in _WELLNESS_RE.items():
+        if m := pat.search(text):
+            out[field] = int(m.group(1))
     if m := _VBT_RE.search(text):
         out["bar_speed_mps"] = float(m.group(1))
     fam_alt = _alt(family_words)

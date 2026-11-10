@@ -3,7 +3,7 @@
 import datetime as dt
 import math
 
-from coach.context import Context
+from coach.coaching.context import Context
 from coach.engine.deloads import plan_deloads
 from coach.engine.running import RampRules, ramp_targets
 from coach.models import BlockGoal, BlockOutline, MacroBlock, WeekTarget

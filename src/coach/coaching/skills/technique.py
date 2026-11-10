@@ -6,7 +6,7 @@ import statistics
 
 import yaml
 
-from coach.context import Context
+from coach.coaching.context import Context
 
 
 def skill_from_message(text: str, cfg=None) -> list[tuple[str, int]]:
@@ -46,9 +46,11 @@ def set_skill_level(ctx: Context, skill: str, level: int, why: str, day: dt.date
     sk["current_level"] = new
     path.write_text(yaml.safe_dump(data, sort_keys=False))
     competent = new >= sk["competent_level"]
-    ctx.state.append_text(
-        "notes.md",
-        f"- {day}: {sk['name']} -> level {new} ({sk['levels'][new]}){' - COMPETENT: allowed in metcons' if competent else ''}. {why}\n",
+    ctx.state.add_note(
+        day,
+        f"{sk['name']} -> level {new} ({sk['levels'][new]}){' - COMPETENT: allowed in metcons' if competent else ''}. {why}",
+        "skill",
+        "technique",
     )
     return f"{skill}: level {cur} -> {new}" + (" (competent: now allowed in metcons)" if competent else "")
 
@@ -82,5 +84,8 @@ def running_form(ctx: Context, day: dt.date) -> list[str]:
 
 def form_check_due(ctx: Context, day: dt.date) -> bool:
     notes = ctx.state.notes()
-    dates = [dt.date.fromisoformat(d) for d in re.findall(r"form check requested (\d{4}-\d{2}-\d{2})", notes)]
+    dates = [
+        dt.date.fromisoformat(d)
+        for d in re.findall(r"(\d{4}-\d{2}-\d{2}) \[skill\] form check requested", notes)
+    ]
     return not dates or (day - max(dates)).days >= 21

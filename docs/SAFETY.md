@@ -11,7 +11,7 @@ The coach is not a medical provider. These rules are stated plainly and never tr
 - Signs of rhabdomyolysis: dark (cola-coloured) urine after a hard session
 
 If any appears: **stop**, get checked by a doctor (call 911 for chest pain, fainting or severe breathlessness).
-`log` records it in `state/health.json` (`red_flags`), every plan with training on or after that date fails
+`log` records it in `athlete/data/health.json` (`red_flags`), every plan with training on or after that date fails
 `coach validate` (`RED_FLAG`) and adjust-day replaces sessions with rest, until the athlete reports a doctor's
 clearance (`cleared_on`).
 

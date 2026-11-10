@@ -16,6 +16,7 @@ from coach.engine import sessions as S
 from coach.engine.running import RampRules, allowed_increase_cap, long_run_fraction_ok
 from coach.engine.weather import in_daylight
 from coach.models import BlockOutline, Macrocycle, MovementReadiness, Session, WeekPlan
+from coach.models.journal import HealthEvent
 from coach.models.records import JointFlag
 
 NON_TRAINING = {"rest"}
@@ -41,7 +42,7 @@ class ValidationContext:
     movement: MovementReadiness
     outline: BlockOutline | None = None
     joint_flags: list[JointFlag] = field(default_factory=list)
-    health: dict = field(default_factory=dict)
+    health: list[HealthEvent] = field(default_factory=list)
     trailing_miles: list[float] = field(default_factory=list)
     threshold_pace: float = S.DEFAULT_THRESHOLD_PACE
     previous_session: Session | None = None  # last session of the previous week (back-to-back rule)
@@ -58,33 +59,16 @@ def _restricted_tags(ctx: ValidationContext) -> dict[str, str]:
 
 
 def _illness_on(day: dt.date, ctx: ValidationContext, plan: WeekPlan | None) -> str | None:
-    ill = ctx.health.get("illness")
-    if ill:
-        start = dt.date.fromisoformat(ill["start"])
-        end = (
-            dt.date.fromisoformat(ill["resolved_on"]) - dt.timedelta(days=1)
-            if ill.get("resolved_on")
-            else dt.date.max
-        )
-        if start <= day <= end:
-            return ill.get("symptoms", "below_neck")
+    for e in ctx.health:
+        if e.kind == "illness" and e.active_on(day):
+            return e.symptoms or "below_neck"
     if plan and day in plan.illness_dates:
         return "below_neck"
     return None
 
 
 def _active_red_flags(ctx: ValidationContext, day: dt.date) -> list[str]:
-    out = []
-    for rf in ctx.health.get("red_flags", []):
-        start = dt.date.fromisoformat(rf["date"])
-        if (
-            start <= day
-            and not rf.get("cleared_on")
-            or rf.get("cleared_on")
-            and start <= day < dt.date.fromisoformat(rf["cleared_on"])
-        ):
-            out.append(rf["flag"])
-    return out
+    return [e.flag or "red flag" for e in ctx.health if e.kind == "red_flag" and e.active_on(day)]
 
 
 def validate_session(
@@ -450,6 +434,8 @@ def thresholds_fingerprint(cfg: Config) -> str:
 
 def validate_config_lock(cfg: Config, lock: dict | None, approved_ids: set[str]) -> list[Violation]:
     fp = thresholds_fingerprint(cfg)
+    if lock is not None and not isinstance(lock, dict):
+        lock = lock.model_dump(mode="json")
     if lock is None:
         return [
             Violation(

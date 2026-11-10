@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-_MARKER = Path("config") / "athlete_context.json"
+_MARKER = Path("athlete") / "config" / "athlete_context.json"
 
 
 def repo_root() -> Path:
@@ -17,13 +17,18 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def athlete_dir() -> Path:
+    """Everything about the athlete: config (settings they edit) + data (records the coach writes)."""
+    return repo_root() / "athlete"
+
+
 def config_dir() -> Path:
-    return repo_root() / "config"
+    return athlete_dir() / "config"
 
 
 def state_dir() -> Path:
     env = os.environ.get("COACH_STATE_DIR")
-    return Path(env) if env else repo_root() / "state"
+    return Path(env) if env else athlete_dir() / "data"
 
 
 def demo_dir() -> Path:

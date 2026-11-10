@@ -9,6 +9,7 @@ from coach.config import Config, load_config
 from coach.engine import movement as mv
 from coach.engine.paces import Zones
 from coach.engine.readiness import compute_readiness
+from coach.engine.validator import ValidationContext
 from coach.models import (
     BlockOutline,
     MacroBlock,
@@ -18,8 +19,8 @@ from coach.models import (
     WeekPlan,
     WeekTarget,
 )
-from coach.state import State
-from coach.validator import ValidationContext
+from coach.models.journal import HealthEvent
+from coach.store import Store
 
 NON_NORMAL_WEEKS = {"deload", "transition", "taper", "reset"}
 
@@ -27,7 +28,7 @@ NON_NORMAL_WEEKS = {"deload", "transition", "taper", "reset"}
 @dataclass
 class Context:
     cfg: Config
-    state: State
+    state: Store
     today: dt.date
     macro: Macrocycle | None
     block: MacroBlock | None
@@ -37,7 +38,7 @@ class Context:
     week_index: int
     movement: MovementReadiness
     zones: Zones
-    health: dict
+    health: list[HealthEvent]
     _readiness: dict[dt.date, Readiness] = field(default_factory=dict)
 
     @property
@@ -158,8 +159,8 @@ class Context:
         return self.state.outline(b.id) if b else None
 
 
-def build(state: State | None = None, cfg: Config | None = None, today: dt.date | None = None) -> Context:
-    state = state or State()
+def build(state: Store | None = None, cfg: Config | None = None, today: dt.date | None = None) -> Context:
+    state = state or Store()
     cfg = cfg or load_config()
     today = today or clock.today()
     macro = state.macrocycle()
@@ -170,8 +171,12 @@ def build(state: State | None = None, cfg: Config | None = None, today: dt.date 
     target = outline.week(week_index) if outline else None
     movement = state.movement_readiness() or mv.initial_state(cfg.progressions, today)
     dz = cfg.profile.running.default_zones
-    z = state.zones() or {"lthr": dz.lthr, "threshold_pace_s_per_mi": dz.threshold_pace_s_per_mi}
-    zones = Zones(lthr=int(z["lthr"]), threshold_pace_s_per_mi=int(z["threshold_pace_s_per_mi"]))
+    z = state.zones()
+    zones = (
+        Zones(lthr=z.lthr, threshold_pace_s_per_mi=z.threshold_pace_s_per_mi)
+        if z
+        else Zones(lthr=dz.lthr, threshold_pace_s_per_mi=dz.threshold_pace_s_per_mi)
+    )
     return Context(
         cfg=cfg,
         state=state,
@@ -184,5 +189,5 @@ def build(state: State | None = None, cfg: Config | None = None, today: dt.date 
         week_index=week_index,
         movement=movement,
         zones=zones,
-        health=state.health(),
+        health=state.health_events(),
     )

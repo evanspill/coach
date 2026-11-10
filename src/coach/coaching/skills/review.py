@@ -3,12 +3,12 @@
 import datetime as dt
 import statistics
 
-from coach.context import Context
+from coach.coaching.context import Context
+from coach.coaching.skills.assess import block_result
 from coach.engine import gear as G
 from coach.engine import movement as mv
 from coach.engine.sessions import hard_sets, week_miles
 from coach.engine.units import fmt_pace
-from coach.fallback.assess import block_result
 from coach.models import WeekPlan
 
 
@@ -39,11 +39,50 @@ def burnout_watch(ctx: Context, end: dt.date) -> dict:
     r_now, r_before = _avg([c.session_rpe for c in recent]), _avg([c.session_rpe for c in prior])
     loads_same = True  # loads come from the plan; RPE rising at planned loads is the signal
     flags = []
+    for field, label, worse_up in (
+        ("mood", "mood", False),
+        ("stress", "stress", True),
+        ("fatigue", "fatigue", True),
+    ):
+        now, before = _avg([getattr(c, field) for c in recent]), _avg([getattr(c, field) for c in prior])
+        if (
+            now is not None
+            and before is not None
+            and ((now >= before + 1) if worse_up else (now <= before - 1))
+        ):
+            flags.append(f"{label} {'up' if worse_up else 'down'} {before} -> {now}")
     if e_now is not None and e_before is not None and e_now <= e_before - 1:
         flags.append(f"enjoyment down {e_before} -> {e_now}")
     if r_now is not None and r_before is not None and r_now >= r_before + 0.8 and loads_same:
         flags.append(f"session RPE up {r_before} -> {r_now} at similar loads")
     return {"enjoyment": (e_before, e_now), "rpe": (r_before, r_now), "flags": flags}
+
+
+def session_load(ctx: Context, start: dt.date, end: dt.date) -> dict:
+    """Foster session-RPE load: RPE x minutes per day; weekly load, monotony (mean/SD of daily load), strain."""
+    cis = {c.date: c for c in ctx.state.checkins(start, end)}
+    minutes: dict[dt.date, float] = {}
+    for s in ctx.state.sessions(start, end):
+        minutes[s.date] = minutes.get(s.date, 0) + s.duration_min
+    daily = []
+    for i in range((end - start).days + 1):
+        d = start + dt.timedelta(days=i)
+        c = cis.get(d)
+        mins = (c.session_minutes if c and c.session_minutes else None) or minutes.get(d, 0)
+        daily.append((c.session_rpe or 0) * mins if c and c.session_rpe else 0.0)
+    total = sum(daily)
+    sd = statistics.pstdev(daily) if len(daily) > 1 else 0
+    monotony = round(statistics.fmean(daily) / sd, 2) if sd else None
+    return {
+        "load": round(total),
+        "monotony": monotony,
+        "strain": round(total * monotony) if monotony else None,
+    }
+
+
+def journal_summary(ctx: Context, start: dt.date, end: dt.date) -> list[str]:
+    entries = ctx.state.query("journal", start, end)
+    return [f"{e.date:%a} [{e.kind}] {e.text[:140]}" for e in entries]
 
 
 def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> tuple[str, dict]:
@@ -72,6 +111,8 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
     joints = {r: max(c.joints.get(r, 0) for c in cis) for r in regions}
     bw = burnout_watch(ctx, plan.end)
     planned_sets = hard_sets(plan, ctx.cfg.library)
+    load = session_load(ctx, plan.start, plan.end)
+    journal = journal_summary(ctx, plan.start, plan.end)
     mb = ctx.macro.block_by_id(plan.block_id) if ctx.macro else None
     tracked_muscles = set(ctx.cfg.season.spec(mb.key).hard_sets) if mb and mb.key else set(planned_sets)
     alerts = G.shoe_alerts(ctx.state.gear(), ctx.cfg.profile.thresholds.shoe_alert_miles)
@@ -124,6 +165,8 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         "- **Peak joint ratings:** " + ", ".join(f"{k} {v}" for k, v in joints.items()),
         "- **Planned hard sets:** "
         + ", ".join(f"{m} {v:g}" for m, v in sorted(planned_sets.items()) if m in tracked_muscles),
+        f"- **Session load (sRPE x min):** {load['load']}"
+        + (f" | monotony {load['monotony']} | strain {load['strain']}" if load["monotony"] else ""),
         f"- **Enjoyment / RPE (2-wk vs prior):** {bw['enjoyment'][1]} vs {bw['enjoyment'][0]} / {bw['rpe'][1]} vs {bw['rpe'][0]}",
         "",
         "## What went well",
@@ -141,6 +184,8 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         "## Focus for next week",
         *[f"- {x}" for x in focus[:2]],
     ]
+    if journal:
+        lines += ["", "## From your journal", *[f"- {j}" for j in journal]]
     if alerts:
         lines += ["", "## Gear", *[f"- {a}" for a in alerts]]
     if questions:
@@ -159,6 +204,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         "burnout_flags": bw["flags"],
         "questions": questions,
         "focus": focus[:2],
+        "session_load": load,
     }
     return "\n".join(lines) + "\n", summary
 
