@@ -101,6 +101,28 @@ class Context:
                 break
         return list(reversed(out))
 
+    def previous_long_run(self, week_start: dt.date, look_back: int = 6) -> float | None:
+        """Longest run of the last normal week before week_start (actual if logged, else planned)."""
+        from coach.engine.sessions import long_run_miles
+
+        for i in range(1, look_back + 1):
+            ws = week_start - dt.timedelta(weeks=i)
+            plan = self.state.week_plan(clock.iso_week_id(ws))
+            if plan and (
+                plan.week_type in NON_NORMAL_WEEKS or plan.week_type == "baseline" or plan.illness_dates
+            ):
+                continue
+            runs = [
+                s.distance_mi or 0
+                for s in self.state.sessions(ws, ws + dt.timedelta(days=6))
+                if s.sport == "run"
+            ]
+            if runs:
+                return round(max(runs), 1)
+            if plan is not None:
+                return long_run_miles(plan, self.zones.threshold_pace_s_per_mi) or None
+        return None
+
     def validation(
         self, plan: WeekPlan | None = None, outline: BlockOutline | None = None
     ) -> ValidationContext:
@@ -124,6 +146,7 @@ class Context:
             trailing_miles=self.trailing_miles(start),
             threshold_pace=self.zones.threshold_pace_s_per_mi,
             previous_session=prev_session,
+            previous_long_run=self.previous_long_run(start),
         )
 
     def has_metrics(self) -> bool:

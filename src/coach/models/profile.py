@@ -77,6 +77,7 @@ class Thresholds(Model):
     long_run_max_fraction: float
     long_run_max_fraction_low_volume: float
     long_run_rule_min_weekly_miles: float
+    long_run_max_increase_mi: float = 1.0
     pain_rule_max: float
     shoe_alert_miles: float
 

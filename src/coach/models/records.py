@@ -115,6 +115,8 @@ class FamilyState(Model):
     history: list[RungEvent] = Field(default_factory=list)
     hold_until: dt.date | None = None  # regression hold (e.g. region flag: one week)
     eccentric_tempo_until: dt.date | None = None  # pain rule: 3 s eccentric, -15% load for 2 weeks
+    form_check_cleared: int | None = None  # highest rung a form check / physio has cleared
+    pending_form_check: int | None = None  # rung whose criteria are met but still needs a form check
 
     def clean_exposures(self) -> int:
         return sum(1 for e in self.exposures if e.clean and e.rung == self.rung)

@@ -94,6 +94,8 @@ def record_exposure(
         if stiffness_up:
             fs.eccentric_tempo_until = day + dt.timedelta(days=14)
         fs.hold_until = day + dt.timedelta(days=7)
+    elif advance_blocker(fs, day, progressions) == "form_check":
+        fs.pending_form_check = fs.rung + 1
     elif can_advance(fs, day, progressions):
         events.append(
             _move(
@@ -107,21 +109,45 @@ def record_exposure(
     return events
 
 
-def can_advance(fs: FamilyState, day: dt.date, progressions: MovementProgressions) -> bool:
-    top = len(progressions.families[fs.family].rungs) - 1
-    if fs.rung >= top:
-        return False
+def advance_blocker(fs: FamilyState, day: dt.date, progressions: MovementProgressions) -> str | None:
+    """None if the family may move up one rung today, else why not ('top', 'hold', 'time', 'exposures', 'form_check')."""
+    rungs = progressions.families[fs.family].rungs
+    if fs.rung >= len(rungs) - 1:
+        return "top"
     if fs.hold_until and day < fs.hold_until:
-        return False
+        return "hold"
+    target = rungs[fs.rung + 1]
+    min_days = (
+        target.min_days_before if target.min_days_before is not None else progressions.rules.min_days_at_rung
+    )
     since = fs.history[-1].date if fs.history else None
-    if since is not None and (day - since).days < progressions.rules.min_days_at_rung:
-        return False
-    return fs.clean_exposures() >= progressions.rules.exposures_to_advance
+    if since is not None and (day - since).days < min_days:
+        return "time"
+    if fs.clean_exposures() < progressions.rules.exposures_to_advance:
+        return "exposures"
+    if target.form_check and (fs.form_check_cleared is None or fs.form_check_cleared < fs.rung + 1):
+        return "form_check"
+    return None
+
+
+def can_advance(fs: FamilyState, day: dt.date, progressions: MovementProgressions) -> bool:
+    return advance_blocker(fs, day, progressions) is None
+
+
+def clear_form_check(mr: MovementReadiness, family: str, day: dt.date, by: str) -> int:
+    """Record that a form check (coach video review or physio) cleared the next rung. Returns the cleared rung."""
+    fs = mr.families[family]
+    target = fs.pending_form_check or fs.rung + 1
+    fs.form_check_cleared = max(target, fs.form_check_cleared or 0)
+    fs.pending_form_check = None
+    mr.note = f"{day}: form check for {family} rung {target} cleared by {by}"
+    return target
 
 
 def _move(fs: FamilyState, day: dt.date, to: int, reason: str) -> RungEvent:
     ev = RungEvent(date=day, from_rung=fs.rung, to_rung=to, reason=reason, evidence=fs.clean_exposures())
     fs.history.append(ev)
+    fs.pending_form_check = None
     fs.rung = to
     fs.exposures = []
     return ev
@@ -163,6 +189,20 @@ def validate_change(
             ev = a.history[-1] if a.history else None
             need = progressions.rules.exposures_to_advance
             held = b.hold_until is not None and ev is not None and ev.date < b.hold_until
+            target = progressions.families[fam].rungs[min(a.rung, len(progressions.families[fam].rungs) - 1)]
+            cleared = max(a.form_check_cleared or 0, b.form_check_cleared or 0)
+            if target.form_check and cleared < a.rung:
+                errors.append(
+                    f"{fam}: rung {a.rung} ({target.name}) needs a recorded form check before advancing"
+                )
+            last = b.history[-1].date if b.history else None
+            min_days = (
+                target.min_days_before
+                if target.min_days_before is not None
+                else progressions.rules.min_days_at_rung
+            )
+            if ev is not None and last is not None and (ev.date - last).days < min_days:
+                errors.append(f"{fam}: only {(ev.date - last).days} days at rung {b.rung} (needs {min_days})")
             if ev is None or ev.to_rung != a.rung or ev.evidence < need or held:
                 have = ev.evidence if ev else b.clean_exposures()
                 errors.append(

@@ -83,6 +83,7 @@
     "long_run_max_fraction": 0.30,
     "long_run_max_fraction_low_volume": 0.40,
     "long_run_rule_min_weekly_miles": 20,
+    "long_run_max_increase_mi": 1.0,
     "pain_rule_max": 2,
     "shoe_alert_miles": 250
   },

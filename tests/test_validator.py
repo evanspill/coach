@@ -257,3 +257,11 @@ def test_joint_flag_swaps_use_regressions(P):
         reason="test",
     )
     assert "JOINT_RESTRICTED" not in codes(plan, ctx, joint_flags=[flag])
+
+
+def test_long_run_growth_limited(P):
+    ctx, plan = P
+    long = next(s for s in plan.sessions if s.type == "run_long")
+    lr = sum(seg.distance_mi or 0 for seg in long.run_segments() if seg.modality == "run")
+    assert "LONG_RUN_INCREASE" not in codes(plan, ctx, previous_long_run=lr - 1.0)
+    assert "LONG_RUN_INCREASE" in codes(plan, ctx, previous_long_run=lr - 1.6)

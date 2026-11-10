@@ -40,6 +40,13 @@ def update(ctx: Context, day: dt.date) -> list[str]:
             if flag.since >= day - dt.timedelta(days=1):
                 for ev in mv.apply_region_flag(mr, flag.region, day, cfg.progressions):
                     events.append(f"{ev.reason}: {flag.region} families rung {ev.from_rung} -> {ev.to_rung}")
+    for fam, fs in mr.families.items():
+        was = before.families[fam].pending_form_check
+        if fs.pending_form_check is not None and fs.pending_form_check != was:
+            rung = cfg.progressions.families[fam].rungs[fs.pending_form_check]
+            events.append(
+                f"FORM CHECK: {fam} ready for rung {fs.pending_form_check} ({rung.name}): film a set for the coach or get a physio OK first"
+            )
     mr.updated = day
     errors = validate_movement_change(before, mr, cfg)
     if errors:

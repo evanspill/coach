@@ -80,6 +80,8 @@ class Rung(Model):
     name: str
     exercises: list[str]
     min_rir: float
+    min_days_before: int | None = None  # days at the rung below before advancing into this one
+    form_check: bool = False  # needs a recorded form check / physio OK before advancing into this rung
 
 
 class Family(Model):

@@ -229,8 +229,11 @@ def run_daily(
         plan = ctx.week_plan(today)
 
     # --- rehab: yesterday's exposures, pain reports, region flags ---
+    form_checks = []
     for ev in rehab.update(ctx, today):
         log.append(f"rehab: {ev}")
+        if ev.startswith("FORM CHECK"):
+            form_checks.append(ev.removeprefix("FORM CHECK: "))
 
     # --- missed sessions -> replan (protect key sessions) ---
     if (
@@ -346,6 +349,8 @@ def run_daily(
             "Note: plan depends on unconfirmed race dates (" + ", ".join(ctx.macro.unconfirmed_races) + ")."
         )
     rec.approvals_pending = proposals.pending_summary(state)
+    for fc in form_checks:
+        rec.handoffs.append(f"Next rung earned: {fc}.")
     for h in extras.get("handoffs", []):
         rec.handoffs.append(h)
     rec.notification = compose(rec, extras, cfg.settings.notification_detail)

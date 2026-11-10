@@ -893,6 +893,20 @@ def plan_week(
         shares["long_run"] = min(shares["long_run"], limit - 0.02)
     total_share = sum(shares.values()) or 1
     miles_for = {r: round(run_total * shares[r] / total_share, 1) for r in shares}
+    prev_long = ctx.previous_long_run(week_start)
+    if (
+        "long_run" in miles_for
+        and prev_long
+        and week_type not in {"taper", "transition", "reset", "baseline"}
+    ):
+        cap = round(prev_long + th.long_run_max_increase_mi, 1)
+        if miles_for["long_run"] > cap:
+            surplus = round(miles_for["long_run"] - cap, 1)
+            miles_for["long_run"] = cap
+            others = [r for r in miles_for if r != "long_run"]
+            if others:
+                biggest = max(others, key=lambda r: miles_for[r])
+                miles_for[biggest] = round(miles_for[biggest] + surplus, 1)
     if week_type in {"baseline", "transition"}:
         miles_for = {r: 3.0 for r in shares}
 

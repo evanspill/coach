@@ -126,3 +126,32 @@ def test_exercise_gate_and_variant_test_rung():
         mv.initial_state(CFG.progressions, dt.date(2026, 11, 16), {"olympic": 1}),
     )[0]
     assert mv.exercise_for_rung("hinge", 1, CFG.progressions) == "trap_bar_deadlift_low"
+
+
+def test_top_rungs_need_three_weeks_and_a_form_check():
+    mr = mv.initial_state(CFG.progressions, dt.date(2026, 11, 16), {"hinge": 2})
+    fs = mr.families["hinge"]
+    fs.history.append(mv.RungEvent(date=dt.date(2026, 12, 1), from_rung=1, to_rung=2, reason="advance"))
+    d = dt.date(2026, 12, 8)
+    for k in range(3):  # 3 clean exposures, but only 7-15 days at rung 2
+        mv.record_exposure(mr, "hinge", d + dt.timedelta(days=4 * k), 0, False, CFG.progressions)
+    assert mr.rung("hinge") == 2 and fs.pending_form_check is None
+    assert mv.advance_blocker(fs, dt.date(2026, 12, 16), CFG.progressions) == "time"
+    mv.record_exposure(mr, "hinge", dt.date(2026, 12, 23), 0, False, CFG.progressions)  # 22 days: time ok
+    assert mr.rung("hinge") == 2 and fs.pending_form_check == 3  # held for the form check
+    before = mr.model_copy(deep=True)
+    mv.clear_form_check(mr, "hinge", dt.date(2026, 12, 27), "physio")
+    mv.record_exposure(mr, "hinge", dt.date(2026, 12, 28), 0, False, CFG.progressions)
+    assert mr.rung("hinge") == 3
+    assert not validate_movement_change(before, mr, CFG)
+
+
+def test_validator_rejects_top_rung_without_form_check():
+    before = mv.initial_state(CFG.progressions, dt.date(2026, 11, 16), {"squat": 1})
+    after = before.model_copy(deep=True)
+    fs = after.families["squat"]
+    fs.history.append(
+        mv.RungEvent(date=dt.date(2027, 1, 30), from_rung=1, to_rung=2, reason="advance", evidence=3)
+    )
+    fs.rung = 2
+    assert any("form check" in v.message for v in validate_movement_change(before, after, CFG))

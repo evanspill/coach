@@ -105,6 +105,18 @@ def simulate(
                     f'  > athlete: "{msg}"\n  < coach (log): {r["reply"]}'
                     + (f" | {r['follow_up']}" if r.get("follow_up") else "")
                 )
+            if (
+                day.weekday() == 6
+            ):  # the simulated athlete films pending lifts on Sunday; the coach reviews them
+                from coach.engine import movement as mv
+
+                mr = state.movement_readiness()
+                if mr is not None:
+                    for fam, fs in mr.families.items():
+                        if fs.pending_form_check is not None:
+                            rung = mv.clear_form_check(mr, fam, day, "coach (video review)")
+                            echo(f"  · technique: [sim] form video reviewed: {fam} rung {rung} cleared")
+                    state.write_json("movement_readiness.json", mr)
             for line in athlete.do_day(day, rec):
                 echo(f"  · {line}")
             res.days.append(

@@ -465,6 +465,32 @@ def cmd_test(args):
     }
 
 
+def cmd_form_check(args):
+    from coach.engine import movement as mv
+    from coach.validator import validate_movement_change
+
+    today = _today(args)
+    ctx = build(today=today)
+    if args.family not in ctx.movement.families:
+        return {"error": f"unknown family {args.family}", "families": list(ctx.movement.families)}
+    before = ctx.movement.model_copy(deep=True)
+    rung = mv.clear_form_check(ctx.movement, args.family, today, args.by)
+    v = validate_movement_change(before, ctx.movement, ctx.cfg)
+    if v:
+        return {"valid": False, "violations": [str(x) for x in v]}
+    ctx.state.write_json("movement_readiness.json", ctx.movement)
+    ctx.state.append_text(
+        "notes.md",
+        f"- {today}: form check cleared {args.family} rung {rung} ({args.by}). {args.note or ''}\n",
+    )
+    return {
+        "cleared": args.family,
+        "rung": rung,
+        "by": args.by,
+        "next": "the rung advances at the next clean exposure once time and exposure criteria are met",
+    }
+
+
 def cmd_daily(args):
     from coach.daily import run_daily
 
@@ -601,6 +627,7 @@ COMMANDS = {
     "daily": cmd_daily,
     "log": cmd_log,
     "simulate": cmd_simulate,
+    "form-check": cmd_form_check,
     "scenarios": cmd_scenarios,
 }
 

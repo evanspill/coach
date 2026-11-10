@@ -56,6 +56,7 @@ class ValidationContext:
     trailing_miles: list[float] = field(default_factory=list)
     threshold_pace: float = S.DEFAULT_THRESHOLD_PACE
     previous_session: Session | None = None  # last session of the previous week (back-to-back rule)
+    previous_long_run: float | None = None  # longest run of the last normal week (long-run growth rule)
     week_type_override: str | None = None
 
 
@@ -321,6 +322,17 @@ def validate_week(plan: WeekPlan, ctx: ValidationContext) -> list[Violation]:
                 Violation(
                     "RUN_INCREASE",
                     f"{miles:.1f} mi exceeds +{th.weekly_run_increase_pct:g}% over the trailing 3-week average (cap {cap:.1f} mi)",
+                )
+            )
+        if (
+            ctx.previous_long_run is not None
+            and long_run > ctx.previous_long_run + th.long_run_max_increase_mi + 0.05
+        ):
+            v.append(
+                Violation(
+                    "LONG_RUN_INCREASE",
+                    f"long run {long_run:.1f} mi grows more than {th.long_run_max_increase_mi:g} mi "
+                    f"over the last normal week's {ctx.previous_long_run:.1f} mi",
                 )
             )
         ok, limit = long_run_fraction_ok(long_run, miles, th)
