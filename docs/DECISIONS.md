@@ -115,6 +115,8 @@ Each entry: **decision** - why - how to reverse.
     `.editorconfig`, `.gitattributes`, `Makefile` (`make check` = what CI runs), mypy with the pydantic plugin (the
     scenario harness is exempt from Optional checks because a missing record fails the scenario anyway), coverage
     gate at 80%, CI matrix 3.11-3.13 with least-privilege permissions, PR template.
-57. **No committed `.claude/settings.json` permission allowlist (yet).** Writing one from a session was blocked as
-    self-modification; the athlete decides whether to add it (it would let the unattended daily run use
-    `python -m coach` and git pull/commit/push without prompts, and deny force-push and `.env` reads).
+57. **Committed `.claude/settings.json` permission allowlist (approved by the athlete)** so the unattended daily run
+    doesn't stall on prompts: allows `python -m coach` / `coach` and git status/diff/log/add/commit/pull/push; denies
+    force-push, `git reset --hard` and reading `.env` files. Everything else still prompts. - Reverse: delete the file.
+58. **Config lock re-recorded as the initial approval** after the audit added `weather.extreme_cold_f` and the session
+    rules (pre-launch, no athlete history; approved by the athlete). From go-live, threshold changes need a proposal.
