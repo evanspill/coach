@@ -8,7 +8,7 @@ description: Daily autoregulation. Applies readiness (Whoop recovery, HRV trend,
 **When:** every daily run; in chat for "swap today's X".
 
 **Context:** `coach readiness` (state + reasons + joint flags), `coach status`, today's planned session in
-`athlete/data/weeks/<iso>/plan.json`, yesterday's day record, `health_events` (`coach record list health_events`), weather (the daily run's sync), check-ins.
+today's planned session (`coach record get week_plans --key <iso-week>`), yesterday's day record, `health_events` (`coach record list health_events`), weather (the daily run's sync), check-ins.
 
 ## Rules (thresholds come from config; the most restrictive state wins)
 - **Green:** run the plan as written.
@@ -30,8 +30,9 @@ description: Daily autoregulation. Applies readiness (Whoop recovery, HRV trend,
 - Call `fuel` for today's macros and the peri-workout cue; `rehab` for gated movements.
 
 ## Writes
-`athlete/data/days/<date>.json` (`DayRecord`: readiness, weather call, adjusted session, changes with reasons, recovery,
-nutrition, gear alerts, pushed result). Validate the session (`coach validate`) and `coach push --day`.
+`day_records` (`DayRecord`: readiness, weather call, adjusted session, changes with reasons, recovery, nutrition, gear
+alerts, pushed result) via `coach record add day_records --file /tmp/day.json` (fills loads/paces and validates the
+session), then `coach push --day`.
 
 ## Hand off to `replan` when
 2+ missed sessions this week, sustained Red, illness, travel, or the change spans more than today.

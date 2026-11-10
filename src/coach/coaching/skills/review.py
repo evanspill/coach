@@ -80,6 +80,37 @@ def session_load(ctx: Context, start: dt.date, end: dt.date) -> dict:
     }
 
 
+def energy_availability(ctx: Context, start: dt.date, end: dt.date) -> float | None:
+    """Mean daily energy availability = (intake - exercise energy) / fat-free mass, kcal/kg FFM/day.
+    ~30 is a commonly used indicator of problematic low energy availability (REDs); the exact cut-off is debated."""
+    ms = ctx.state.daily_metrics(start, end)
+    kcal = [m.kcal for m in ms if m.kcal]
+    weights = [m.weight_kg for m in ms if m.weight_kg]
+    bfs = [m.body_fat_pct for m in ms if m.body_fat_pct]
+    if not kcal or not weights:
+        return None
+    days = (end - start).days + 1
+    target = ctx.state.get("nutrition_target")
+    intake = (
+        statistics.fmean(kcal)
+        if len(kcal) >= max(3, days // 2)
+        else (target.weekly_kcal / 7 if target else None)
+    )
+    if intake is None:
+        return None
+    exercise_kcal = sum((s.kilojoule or 0) / 4.184 for s in ctx.state.sessions(start, end)) / days
+    ffm = statistics.fmean(weights) * (1 - (statistics.fmean(bfs) if bfs else 15) / 100)
+    return round((intake - exercise_kcal) / ffm, 1)
+
+
+def easy_share(ctx: Context, start: dt.date, end: dt.date) -> float | None:
+    """Share of running time at or below Z2 (80/20 check); approximate when only average HR is known."""
+    zm = [s.zone_minutes for s in ctx.state.sessions(start, end) if s.sport == "run" and s.zone_minutes]
+    easy = sum(z[0] + z[1] for z in zm)
+    total = sum(sum(z) for z in zm)
+    return round(easy / total, 2) if total >= 60 else None
+
+
 def journal_summary(ctx: Context, start: dt.date, end: dt.date) -> list[str]:
     entries = ctx.state.query("journal", start, end)
     return [f"{e.date:%a} [{e.kind}] {e.text[:140]}" for e in entries]
@@ -117,6 +148,8 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
     tracked_muscles = set(ctx.cfg.season.spec(mb.key).hard_sets) if mb and mb.key else set(planned_sets)
     alerts = G.shoe_alerts(ctx.state.gear(), ctx.cfg.profile.thresholds.shoe_alert_miles)
     cadences = [s.cadence_spm for s in sessions if s.cadence_spm]
+    ea = energy_availability(ctx, plan.start, plan.end)
+    easy = easy_share(ctx, plan.start - dt.timedelta(days=7), plan.end)
     went_well, to_fix, focus, questions = [], [], [], []
     if pct >= 85:
         went_well.append(f"Adherence {done}/{total} sessions.")
@@ -132,6 +165,25 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
     if states.count("red") >= 2:
         to_fix.append(f"{states.count('red')} Red days: recovery is the limiter right now.")
         focus.append("Protect sleep: aim for 8 h in bed on the nights before key sessions.")
+    if sleep is not None and sleep < 7 and not any("sleep" in f.lower() for f in focus):
+        to_fix.append(f"Sleep averaged {sleep} h.")
+        focus.append("Sleep: 7-9 h, consistent bed and wake times; it's the cheapest recovery tool we have.")
+    if load["monotony"] and load["monotony"] > 2.0:
+        to_fix.append(
+            f"Training monotony {load['monotony']} (> 2): days are too similar in load; vary hard and easy days."
+        )
+    if ea is not None and ea < 30 and plan.week_type not in {"taper"}:
+        to_fix.append(
+            f"Estimated energy availability ~{ea:g} kcal/kg fat-free mass/day: low for this training load (REDs risk)."
+        )
+        questions.append(
+            "Your intake looks low for the training load. How are energy, mood and sleep? I'd like to raise "
+            "intake on hard days or ease the deficit before it costs training or health."
+        )
+    if easy is not None and easy < 0.75 and plan.week_type in {"training", "deload"}:
+        to_fix.append(
+            f"Only {easy:.0%} of running time was easy over 2 weeks (target ~80%): slow the easy runs down."
+        )
     if bw["flags"]:
         to_fix.append("Burnout watch: " + "; ".join(bw["flags"]) + ".")
         questions.append(
@@ -144,7 +196,8 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         )
     if cadences and _avg(cadences) and _avg(cadences) < ctx.cfg.profile.running.cadence_target_spm[0]:
         focus.append(
-            f"Running cadence averaging {_avg(cadences):.0f} spm: aim for 170-180 with quicker, shorter steps."
+            f"Running cadence averaging {_avg(cadences):.0f} spm: nudge it up ~5% (quicker, shorter steps) toward 170-180; "
+            "small steady changes, not a jump."
         )
     if not focus:
         focus.append("Keep doing the basics: protein at every meal, 8 h in bed, warm-ups every session.")
@@ -165,6 +218,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         "- **Peak joint ratings:** " + ", ".join(f"{k} {v}" for k, v in joints.items()),
         "- **Planned hard sets:** "
         + ", ".join(f"{m} {v:g}" for m, v in sorted(planned_sets.items()) if m in tracked_muscles),
+        "- **Energy availability (est.):** " + (f"{ea:g} kcal/kg FFM/day" if ea is not None else "n/a"),
         f"- **Session load (sRPE x min):** {load['load']}"
         + (f" | monotony {load['monotony']} | strain {load['strain']}" if load["monotony"] else ""),
         f"- **Enjoyment / RPE (2-wk vs prior):** {bw['enjoyment'][1]} vs {bw['enjoyment'][0]} / {bw['rpe'][1]} vs {bw['rpe'][0]}",
@@ -247,6 +301,14 @@ def block_review(ctx: Context, block_id: str) -> str:
                     if s.variant and s.variant != r.variant
                     else ""
                 )
+                td = ctx.cfg.tests.tests.get(r.test_id)
+                a, b_ = (s.comparable_value or s.value), (r.comparable_value or r.value)
+                if td and a:
+                    pct = (b_ - a) / a * 100 * (-1 if td.lower_is_better else 1)
+                    noise = f"(within ~{td.typical_error_pct:g}% test noise)"
+                    variant += f" {pct:+.1f}% " + (
+                        "(real change)" if abs(pct) > td.typical_error_pct else noise
+                    )
                 lines.append(
                     f"- {r.test_id}: {fmt(s.comparable_value or s.value)} -> {fmt(r.comparable_value or r.value)}{unit}{variant}"
                 )

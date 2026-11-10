@@ -38,7 +38,10 @@ def day_targets(
             sessions.get(d), sessions.get(d + dt.timedelta(days=1)), ctx.cfg.training.rules.carb_tiers
         )
     kcal, source = weekly_target(ctx, week_start, sources)
-    days = nut.distribute_week(kcal, ctx.bodyweight_kg(), tiers, rules)
+    cutting = bool(
+        ctx.outline and ctx.outline.calorie_phase == "cut"
+    )  # protein to the top of the range in a deficit
+    days = nut.distribute_week(kcal, ctx.bodyweight_kg(), tiers, rules, cutting)
     today = next(d for d in days if d.date == day)
     today.peri_workout = nut.peri_workout(sessions.get(day), rules)
     today.note = "; ".join(x for x in [today.note, source] if x)

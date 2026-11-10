@@ -31,9 +31,9 @@ def _z2_block(location: str, minutes: int = 40, zone: str = "Z2") -> SessionBloc
     if location == "gym":
         seg = RunSegment(
             label=f"{minutes} min {zone} (erg or treadmill)", zone=zone, duration_min=minutes, modality="bike"
-        )  # type: ignore[arg-type]
+        )
     else:
-        seg = RunSegment(label=f"{minutes} min {zone} run", zone=zone, duration_min=minutes)  # type: ignore[arg-type]
+        seg = RunSegment(label=f"{minutes} min {zone} run", zone=zone, duration_min=minutes)
     return SessionBlock(kind="run", title=f"{minutes} min {zone} (replaces hard conditioning)", run=[seg])
 
 
@@ -49,7 +49,10 @@ def _resubstitute(s: Session, P: Picker, changes: list[Change], why: str) -> Non
             new = P.pick(it.exercise_id, for_metcon=in_metcon, block_kind=b.kind)
             if new and new != it.exercise_id:
                 changes.append(
-                    Change(what=f"{ex.name if ex else it.exercise_id} -> {P.lib.get(new).name}", why=why)
+                    Change(
+                        what=f"{ex.name if ex else it.exercise_id} -> {getattr(P.lib.get(new), 'name', new)}",
+                        why=why,
+                    )
                 )
                 it.exercise_id = new
             elif new is None:
@@ -288,12 +291,14 @@ def adjust(
     rec.fueling_cue = rec.nutrition.peri_workout
     # --- gear ---
     runs_today = bool(s and any(seg.modality == "run" for seg in s.run_segments()))
-    if runs_today:
+    if runs_today and s is not None:
         s.shoe = G.shoe_for(s.type, ctx.state.gear())
     alerts = G.shoe_alerts(ctx.state.gear(), cfg.profile.thresholds.shoe_alert_miles)
     # mention worn shoes on Sundays and on days they'd be used, not every day
     rec.gear_alerts = [
-        a for a in alerts if day.weekday() == 6 or (runs_today and s.shoe and a.startswith(s.shoe))
+        a
+        for a in alerts
+        if day.weekday() == 6 or (runs_today and s is not None and s.shoe and a.startswith(s.shoe))
     ]
     return rec
 

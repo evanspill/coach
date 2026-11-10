@@ -3,6 +3,7 @@
 import datetime as dt
 import math
 import statistics
+from typing import Any
 
 from coach.coaching import proposals
 from coach.coaching.context import Context
@@ -66,7 +67,7 @@ def extract_raw(
     ex_id = t.session.get("exercise")
     if t.scoring == "epley_e1rm":
         if fam:
-            top = _top_set(sessions, day, lambda ex: lib.get(ex) and lib.get(ex).family == fam)
+            top = _top_set(sessions, day, lambda ex: getattr(lib.get(ex), "family", None) == fam)
         else:
             top = _top_set(sessions, day, lambda ex: ex == ex_id)
         return {"weight_kg": top[0], "reps": top[1], "rir": top[2], "variant": top[3]} if top else None
@@ -133,7 +134,7 @@ def score_week(
     weather_hourly: list[dict] | None = None,
     end_day: dt.date | None = None,
 ) -> TestSet:
-    ts = ctx.state.tests(block_id, phase) or TestSet(block_id=block_id, phase=phase)  # type: ignore[arg-type]
+    ts = ctx.state.tests(block_id, phase) or TestSet(block_id=block_id, phase=phase)
     ts.scheduled = {**ts.scheduled, **scheduled}
     for test_id, day in scheduled.items():
         if ts.get(test_id):
@@ -263,7 +264,7 @@ def propose_goal(ctx: Context, block: MacroBlock, ts: TestSet) -> tuple[BlockGoa
         guardrails=guards,
         rationale=rationale,
         gap_analysis=gaps,
-        calorie_phase=phase,  # type: ignore[arg-type]
+        calorie_phase=phase,
         calorie_phase_reason=phase_why,
         status="pending",
         generated_by="fallback",
@@ -290,7 +291,7 @@ def save_goal_proposal(ctx: Context, goal: BlockGoal, day: dt.date):
 
 def block_result(goal: BlockGoal, end: TestSet) -> dict:
     r = end.get(goal.primary.test_id)
-    out = {"primary": None, "guardrails": []}
+    out: dict[str, Any] = {"primary": None, "guardrails": []}
     if r:
         v = r.comparable_value if r.comparable_value is not None else r.value
         hit = (

@@ -1,6 +1,7 @@
 """Movement readiness ladders: advance one rung after clean exposures, regress on pain or flares."""
 
 import datetime as dt
+from collections.abc import Callable
 
 from coach.models import Exercise, MovementProgressions, MovementReadiness
 from coach.models.library import ExerciseLibrary
@@ -43,7 +44,7 @@ def exercise_for_rung(
 def safe_substitute(
     ex_id: str,
     library: ExerciseLibrary,
-    ok: "callable",  # type: ignore[valid-type]
+    ok: Callable[[Exercise | None], bool],
     max_depth: int = 6,
 ) -> str | None:
     """Walk the regression graph breadth-first until an exercise passes `ok`."""

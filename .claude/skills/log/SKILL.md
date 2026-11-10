@@ -23,7 +23,7 @@ skill milestones), `docs/SAFETY.md`, `athlete/data/notes.md`.
    -> `replan` (and the Sunday plan respects it automatically).
 4. **Pain in a session:** record `session_pain` for the movement family; explain the pain rule in one line; `rehab`
    handles rungs tomorrow.
-5. **Metcon/Hyrox/Open results:** `athlete/data/metcons/<date>.json` (Hevy and Intervals don't model mixed-modal workouts).
+5. **Metcon/Hyrox/Open results:** `metcon_logs` (Hevy and Intervals don't model mixed-modal workouts).
 5b. **Morning wellness** (sleep quality, fatigue, stress, soreness, mood, motivation, 1-5) goes on the day's check-in.
    **Journal:** reflections, wins, struggles and life events become `journal` entries (`coach log` does this for
    recognisable phrasing; add others with `coach record add journal`). They feed the weekly review and burnout watch.

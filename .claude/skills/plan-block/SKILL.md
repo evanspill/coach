@@ -8,11 +8,15 @@ description: Periodization. Turns an approved block goal into the block outline 
 **When:** a new block (after the goal is approved), a race added/moved (after `coach macrocycle regenerate`),
 or a major disruption that changes the block's shape.
 
-**Context:** `coach context --block`, `macrocycle`, `athlete/data/blocks/<id>/goal.json`,
-`athlete/data/blocks/<prev>/review.md`, `docs/TRAINING_ARCHITECTURE.md` (pillar table, hard-set ranges, ramp rules).
+**Context:** `coach context --block`, `macrocycle`, `coach record get block_goals --key <id>`,
+`coach record get block_reviews --key <prev>`, `docs/TRAINING_ARCHITECTURE.md` (pillar table, hard-set ranges, ramp rules).
 
 ## Procedure
 1. Take block dates, competition/taper/reset weeks from the macrocycle (code-generated; never edit dates by hand).
+1b. Evidence anchors: deloads every 4-6 weeks with volume cut and intensity kept are common practice; hypertrophy
+   responds to weekly volume (~10+ hard sets/muscle); strength and endurance can be maintained on far less volume
+   if intensity is kept (MED blocks); tapers cut volume ~40-60% while keeping intensity and frequency. See
+   `docs/TRAINING_ARCHITECTURE.md` "Evidence basis".
 2. Week types: deloads every ~4th week counting back from the transition week (3:1), never in competition weeks;
    the last week is the transition week. No 5-week span without a deload.
 3. Weekly targets: run miles (return-to-running ramp: <= +10%/week over the trailing 3 normal weeks, hold flat on
@@ -24,10 +28,10 @@ or a major disruption that changes the block's shape.
    metcon formats, modalities and routes rotate for variety.
 6. Calorie phase from the approved goal; state the **MacroFactor setting** to use and tell the athlete when to change
    it (MacroFactor has no write API).
-7. Validate: `coach validate athlete/data/blocks/<id>/outline.json` (must pass) - then commit.
+7. Submit: `coach record add block_outlines --file /tmp/outline.json` (validates; refused outlines aren't saved).
 
 ## Writes
-`athlete/data/blocks/<id>/outline.json` (`BlockOutline`). Revisions append to `revisions` with a reason.
+`block_outlines` (`BlockOutline`). Revisions append to `revisions` with a reason.
 
 ## May call
 `compete` (competition/taper weeks), `assess` (if the goal is missing).

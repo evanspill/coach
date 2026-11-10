@@ -215,6 +215,9 @@ class TrainingRules(Model):
     deload_banned_tags: list[str] = Field(default_factory=lambda: ["eccentric_heavy", "high_impact"])
     yellow_replacement: dict[str, Any] = Field(default_factory=lambda: {"minutes": 40, "zone": "Z2"})
     red_recovery_minutes: int = 35
+    max_session_minutes: int = 120
+    long_session_types: list[str] = Field(default_factory=lambda: ["run_long", "race", "test", "competition"])
+    min_recovery_days_per_week: int = 1
     carb_tiers: dict[str, list[str]] = Field(default_factory=dict)
     intra_session_carb_types: list[str] = Field(default_factory=list)
 

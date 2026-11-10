@@ -45,10 +45,14 @@ tests/                     pytest (CI: ruff + pytest + config check + 120-day si
   `coach reject <id> --reason ...`, `coach proposals`, `coach report <metric> --weeks N`,
   `coach macrocycle regenerate`, `coach test schedule|score`, `coach log "<message>"`,
   `coach simulate --days 120 --from 2026-11-16`, `coach form-check <family> --by coach|physio`,
-  `coach collections`, `coach record add|list|get <collection> ['<json>']`, `coach health resolve <id> --by doctor`.
+  `coach collections`, `coach record add|list|get <collection> ['<json>' | --file draft.json]`,
+  `coach health resolve <id> --by doctor`.
 - **Athlete data is read and written only through `coach` commands** (never edit `athlete/data/` by hand): they
   validate every record against its model. Journal entries, health events, availability, lab results, measurements,
   event results and notes all use `coach record add <collection> '<json>'` (or `coach log` for chat messages).
+- **Plans you write go through the same door**: `coach record add week_plans|day_records|block_outlines|block_goals|
+  movement_readiness|macrocycle --file draft.json` fills the numbers, validates, saves and opens any proposal in one
+  step, and refuses (listing the violations) if the draft fails. Never save a plan any other way.
 - To change the training approach, edit `athlete/config/season.yaml` / `athlete/config/training.yaml` (code holds no session content);
   threshold changes still need an approved proposal.
 - `coach daily --fallback` is the deterministic safety net if you can't complete the daily run yourself.
@@ -103,5 +107,5 @@ The scheduled daily run uses `coach-daily` (the coordinator), which calls the ot
 
 ## Definition of done (for code changes, only when asked)
 
-`ruff check .`, `ruff format --check .`, `pytest` and `python -m coach simulate --days 120 --from 2026-11-16`
-all pass; decisions recorded in `docs/DECISIONS.md`; diagrams in `docs/ARCHITECTURE.md` kept accurate.
+`make check` passes (ruff, ruff format, mypy, pytest with >= 80% coverage, `coach validate config`, and the 120-day
+simulation on the demo and the active config); decisions recorded in `docs/DECISIONS.md`; diagrams in `docs/ARCHITECTURE.md` kept accurate.

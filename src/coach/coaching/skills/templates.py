@@ -129,13 +129,13 @@ def _fixed(b: BlockTemplate) -> SessionBlock:
             zone=s.zone,
             duration_min=s.duration_min,
             distance_mi=s.distance_mi,
-            reps=s.reps,  # type: ignore[arg-type]
+            reps=s.reps,
             recovery_min=s.recovery_min,
             modality=s.modality,
         )
         for s in b.segments
-    ]  # type: ignore[arg-type]
-    return SessionBlock(kind=b.kind, title=b.title or (segs[0].label if segs else ""), run=segs)  # type: ignore[arg-type]
+    ]
+    return SessionBlock(kind=b.kind, title=b.title or (segs[0].label if segs else ""), run=segs)
 
 
 def _placeholder(b: BlockTemplate) -> SessionBlock:
@@ -143,7 +143,7 @@ def _placeholder(b: BlockTemplate) -> SessionBlock:
         name=b.name or "Event workout",
         format=b.format or "for_time",
         time_cap_min=b.minutes or 15,
-        movements=[],  # type: ignore[arg-type]
+        movements=[],
         stimulus=b.stimulus or "As released",
         scaling=b.scaling or "",
         score_type="rounds_reps",

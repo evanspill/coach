@@ -129,7 +129,7 @@ class LiveIntervals(IntervalsSource):
         return N.intervals_gear(_request("GET", f"{self.BASE}/gear", self.headers))
 
     def upsert_events(self, events):
-        res = _request("POST", f"{self.BASE}/events/bulk?upsert=true", self.headers, events)  # type: ignore[arg-type]
+        res = _request("POST", f"{self.BASE}/events/bulk?upsert=true", self.headers, events)
         return [str(e.get("id")) for e in (res or [])]
 
 

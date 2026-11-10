@@ -109,7 +109,7 @@ def validate_session(
     if required and S.is_lower_body(s, lib) and s.type not in EXEMPT_STRUCTURE:
         warm = {it.exercise_id for b in s.blocks if b.kind == "warmup" for it in b.items}
         if not warm >= required:
-            names = ", ".join(lib.get(x).name if lib.get(x) else x for x in sorted(required - warm))
+            names = ", ".join(getattr(lib.get(x), "name", x) for x in sorted(required - warm))
             v.append(
                 Violation(
                     "WARMUP_REQUIRED", f"lower-body day is missing required warm-up work: {names}", s.id
@@ -132,6 +132,41 @@ def validate_session(
             v.append(Violation("SESSION_ORDER", "warm-up must come first", s.id))
         if b.kind == "cooldown" and i != len(s.blocks) - 1:
             v.append(Violation("SESSION_ORDER", "cool-down must come last", s.id))
+
+    rules = cfg.training.rules
+    if (
+        s.type not in rules.long_session_types
+        and s.expected_minutes > rules.max_session_minutes
+        and s.type not in EXEMPT_STRUCTURE
+    ):
+        v.append(
+            Violation(
+                "SESSION_LENGTH",
+                f"{s.expected_minutes} min is over the {rules.max_session_minutes}-min cap for a {s.type} session",
+                s.id,
+            )
+        )
+    for b in s.blocks:
+        if b.kind in {"strength", "hypertrophy"}:
+            for it in b.items:
+                sized = (
+                    it.reps is not None
+                    or it.duration_s is not None
+                    or it.distance_m is not None
+                    or it.calories is not None
+                )
+                if not sized or (
+                    b.kind == "strength"
+                    and it.rir is None
+                    and getattr(lib.get(it.exercise_id), "load_mode", None) == "e1rm"
+                ):
+                    v.append(
+                        Violation(
+                            "PRESCRIPTION_INCOMPLETE",
+                            f"{it.exercise_id}: needs reps (or time/distance) and, for loaded strength work, RIR",
+                            s.id,
+                        )
+                    )
 
     # --- exercises ---
     fatiguing_seen = False
@@ -265,6 +300,16 @@ def validate_week(plan: WeekPlan, ctx: ValidationContext) -> list[Violation]:
                             )
                         )
 
+    easy_days = sum(
+        1
+        for i in range(7)
+        if all(x.type in {"rest", "recovery"} for x in by_date.get(plan.start + dt.timedelta(days=i), []))
+        or not by_date.get(plan.start + dt.timedelta(days=i))
+    )
+    min_easy = cfg.training.rules.min_recovery_days_per_week
+    if easy_days < min_easy and "rest_days" not in {d.field for d in plan.deviations if d.reason.strip()}:
+        v.append(Violation("REST_DAY", f"{easy_days} rest/recovery days this week (minimum {min_easy})"))
+
     # --- spacing across days ---
     ordered = sorted((s for s in plan.sessions if s.type not in NON_TRAINING), key=lambda s: s.date)
     if ctx.previous_session is not None:
@@ -387,7 +432,7 @@ def validate_week(plan: WeekPlan, ctx: ValidationContext) -> list[Violation]:
 
 def validate_outline(ol: BlockOutline) -> list[Violation]:
     v = []
-    types = [w.type for w in sorted(ol.weeks, key=lambda w: w.week_index)]
+    types: list[str] = [w.type for w in sorted(ol.weeks, key=lambda w: w.week_index)]
     longest = dl.max_run_without_deload(types)
     if longest > 4:
         v.append(

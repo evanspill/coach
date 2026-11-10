@@ -19,20 +19,22 @@ description: Intake, testing and goal setting. Runs the intake questionnaire (on
    if recent running is very low or the athlete reports calf/Achilles niggles, use `run_submax_drift` and say why.
    Schedule with `coach test schedule` (strength, run, engine on separate days), build the baseline week via
    `plan-week`, write it as a proposal (`baseline_battery`). Athlete approves before anything is pushed.
-3. **Scoring:** `coach test score ...` writes `athlete/data/blocks/<id>/tests_<phase>.json` and updates `zones`
+3. **Scoring:** `coach test score ...` writes the `test_sets` record and updates `zones`
    (LTHR + threshold pace). Check variants (rung changes) and the conditions (weather adjustment).
+3b. **Real change vs noise:** each test has a `typical_error_pct` in `tests.yaml`; changes smaller than that are
+   reported as "within test noise", not progress or regression.
 4. **Gap analysis + goal:** compare against benchmarks (the score output includes `gaps`). Propose **one primary goal
    + 1-2 guardrails** for the next block, considering both the block's planned focus and the biggest gap; explain
    the trade-off in `rationale`. Also propose the calorie phase (cut / recomp / lean gain / maintenance) from the
-   body-composition trend. Write `athlete/data/blocks/<id>/goal.json` (`BlockGoal`, `status: pending`) and a
-   `block_goal` proposal. **Block goals always need approval.**
+   body-composition trend. Submit with `coach record add block_goals --file /tmp/goal.json` (saved as pending and a
+   `block_goal` proposal is opened). **Block goals always need approval.**
 5. Starting rungs after the baseline week: conservative; only advance a family's starting rung with a physio's
    recommendation or clean test exposures (via `rehab`).
 
 ## Writes
 - `intake` (`coach record get intake`)
-- `athlete/data/blocks/<id>/tests_{baseline,start,end}.json` (`TestSet`)
-- `athlete/data/blocks/<id>/goal.json` (`BlockGoal`) + `athlete/data/proposals/<id>.json` (`Proposal`, kind `block_goal`)
+- `test_sets` (via `coach test score`)
+- `block_goals` (`BlockGoal`) + its `block_goal` proposal (via `coach record add block_goals --file ...`)
 - `zones`
 
 ## May call

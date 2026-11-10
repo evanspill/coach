@@ -163,6 +163,7 @@ class TestDef(LooseModel):
     stress: str = "none"
     lower_is_better: bool = False
     goal_change_pct: float = 5.0
+    typical_error_pct: float = 3.0
     session: dict[str, Any] = Field(default_factory=dict)
 
 

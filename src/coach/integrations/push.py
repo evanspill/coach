@@ -2,6 +2,7 @@
 invalid plans, no matter who calls it. Dry-run unless config/coach.yaml push.enabled is true."""
 
 import datetime as dt
+from typing import Any
 
 from coach.coaching.context import Context
 from coach.engine.paces import PACE_FACTORS
@@ -21,12 +22,12 @@ class PushRefused(Exception):
 
 def hevy_routine(s: Session, ctx: Context) -> dict | None:
     lib = ctx.cfg.library
-    exercises = []
+    exercises: list[dict[str, Any]] = []
     for b in s.blocks:
         if b.metcon is not None:
             mc = b.metcon
             moves = "; ".join(
-                f"{lib.get(m.exercise_id).name if lib.get(m.exercise_id) else m.exercise_id} "
+                f"{getattr(lib.get(m.exercise_id), 'name', m.exercise_id)} "
                 + " ".join(
                     x
                     for x in [
@@ -53,7 +54,9 @@ def hevy_routine(s: Session, ctx: Context) -> dict | None:
             ex = lib.get(it.exercise_id)
             if ex is None or b.kind == "cooldown" and ex.id == "easy_cooldown":
                 continue
-            sets = []
+            sets: list[dict[str, Any]] = [
+                {"type": "warmup", "weight_kg": r.load_kg, "reps": r.reps} for r in it.ramp
+            ]
             for _ in range(it.sets):
                 st: dict = {"type": "warmup" if b.kind == "warmup" else "normal"}
                 if it.load_kg is not None:

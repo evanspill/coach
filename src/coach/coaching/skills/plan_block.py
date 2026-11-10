@@ -113,7 +113,7 @@ def build_outline(
             WeekTarget(
                 week_index=i,
                 start=block.start + dt.timedelta(weeks=i - 1),
-                type=wt,  # type: ignore[arg-type]
+                type=wt,
                 run_miles=miles[i - 1],
                 long_run_miles=round(miles[i - 1] * (frac - 0.02), 1)
                 if wt not in {"transition", "reset"}
@@ -135,13 +135,13 @@ def build_outline(
         main_lifts=spec.main_lifts,
         progression="Loads from recent e1RM; +2.5% when all target reps are hit at >= target RIR; hold after a miss; -5% after two misses. "
         f"Deloads cut volume to ~{dl.volume_factor:.0%} and keep intensity.",
-        pillars=spec.pillars,  # type: ignore[arg-type]
+        pillars=spec.pillars,
         weeks=weeks,
         deload_weeks=[i for i, t in enumerate(types, 1) if t == "deload"],
         competition_weeks=[i for i, t in enumerate(types, 1) if t == "competition"],
         taper_weeks=[i for i, t in enumerate(types, 1) if t == "taper"],
         transition_week=len(types),
-        calorie_phase=phase,  # type: ignore[arg-type]
+        calorie_phase=phase,
         macrofactor_setting=f"{setting} ({why})" if why else setting,
         variety="Main lifts fixed for the block; accessories, metcon formats, erg modality and run routes rotate weekly.",
         generated_by="fallback",

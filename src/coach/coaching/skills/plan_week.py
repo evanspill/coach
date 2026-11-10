@@ -158,7 +158,7 @@ def plan_week(
         week_id=clock.iso_week_id(week_start),
         block_id=block.id if block else f"{macro.season}-B0",
         week_index=week_index,
-        week_type=week_type,  # type: ignore[arg-type]
+        week_type=week_type,
         start=week_start,
         sessions=sessions,
         deviations=deviations,

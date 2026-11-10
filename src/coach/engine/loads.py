@@ -75,6 +75,49 @@ def best_recent_e1rm(
     return best
 
 
+def current_e1rm(
+    history: list[SessionRecord],
+    exercise_id: str,
+    today: dt.date,
+    recent_days: int = 21,
+    layoff_factor: float = 0.95,
+) -> tuple[float | None, str]:
+    """What the athlete can do now, not their best ever: the top set of the most recent exposure within
+    `recent_days`; after a longer gap, the best of the last 8 weeks reduced by `layoff_factor` (detraining)."""
+    sessions = sorted((s for s in history if s.date < today), key=lambda s: s.date, reverse=True)
+    for s in sessions:
+        work = [
+            st
+            for st in s.sets
+            if st.exercise_id == exercise_id and st.set_type != "warmup" and st.weight_kg and st.reps
+        ]
+        if not work:
+            continue
+        top = max(e1rm(st.weight_kg, st.reps, st.rir or 0.0) for st in work)  # type: ignore[arg-type]
+        if (today - s.date).days <= recent_days:
+            return top, f"latest exposure {s.date}"
+        break
+    best = best_recent_e1rm(history, exercise_id, today, weeks=8)
+    if best is None:
+        return None, "no history"
+    return best * layoff_factor, f"best of 8 weeks x {layoff_factor:g} (no exposure in {recent_days} days)"
+
+
+def ramp_sets(
+    work_kg: float, implement: str, loading: dict, reps: int
+) -> list[tuple[int, float, float | None]]:
+    """Warm-up ramp to a working weight: (reps, load_kg, load_lb). Empty for light loads or unloadable implements."""
+    out: list[tuple[int, float, float | None]] = []
+    for pct, r in ((0.5, 5), (0.7, 3), (0.85, 1)):
+        rr = round_load(work_kg * pct, implement, loading)
+        if rr.load_kg is None or rr.load_kg >= work_kg:
+            continue
+        if out and rr.load_kg <= out[-1][1]:
+            continue
+        out.append((min(r, reps), rr.load_kg, rr.load_lb))
+    return out
+
+
 def last_used(history: list[SessionRecord], exercise_id: str, today: dt.date) -> float | None:
     for s in sorted(history, key=lambda r: r.date, reverse=True):
         if s.date >= today:

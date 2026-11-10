@@ -40,7 +40,7 @@ def create(
         kind=kind,
         created=day,
         created_by=created_by,
-        title=title,  # type: ignore[arg-type]
+        title=title,
         what=what,
         why=why,
         before=before,

@@ -116,7 +116,7 @@ def _from_spec(
 def items_block(kind: str, specs, P: Picker, title: str = "", scale_fn=None) -> SessionBlock:
     return SessionBlock(
         kind=kind, title=title, items=_items(*(_from_spec(sp, P, kind, scale_fn) for sp in specs))
-    )  # type: ignore[arg-type]
+    )
 
 
 def warmup(kind: str, P: Picker) -> SessionBlock:
@@ -189,12 +189,12 @@ def metcon_block(
         name=name or pool.name.format(minutes=int(minutes)),
         format=pool.format,
         time_cap_min=minutes,
-        rounds=pool.rounds,  # type: ignore[arg-type]
+        rounds=pool.rounds,
         movements=chosen,
         stimulus=pool.stimulus,
         scaling=pool.scaling,
         score_type=pool.score_type,
-    )  # type: ignore[arg-type]
+    )
     return SessionBlock(kind="conditioning", title=mc.name, metcon=mc)
 
 
@@ -216,12 +216,12 @@ def run_block(
             RunSegment(
                 label=f"{label} (easy)", zone=zone, distance_mi=round(miles - mp_miles, 1), terrain=terrain
             )
-        )  # type: ignore[arg-type]
+        )
         segs.append(
             RunSegment(label="Marathon-pace finish", zone="MP", distance_mi=mp_miles, terrain=terrain)
         )
     else:
-        segs.append(RunSegment(label=label, zone=zone, distance_mi=round(miles, 1), terrain=terrain))  # type: ignore[arg-type]
+        segs.append(RunSegment(label=label, zone=zone, distance_mi=round(miles, 1), terrain=terrain))
     if strides:
         segs.append(
             RunSegment(
@@ -282,10 +282,10 @@ def make_session(
         id=f"{day.isoformat()}-{role}",
         date=day,
         start_time=ctx.cfg.profile.default_start,
-        type=stype,  # type: ignore[arg-type]
+        type=stype,
         title=title,
         intent=intent,
-        location=location,  # type: ignore[arg-type]
+        location=location,
         route=route,
         expected_minutes=0,
         key=key,

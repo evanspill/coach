@@ -124,7 +124,7 @@ def handle(ctx: Context, text: str, day: dt.date) -> dict:
     if kind and not is_metcon:
         entry = JournalEntry(
             id=ctx.state.new_id("journal", day, kind.replace("_", "-")), date=day, kind=kind, text=text[:2000]
-        )  # type: ignore[arg-type]
+        )
         ctx.state.put("journal", entry)
         out["records"].append(ctx.state.ref("journal", entry.id))
         out["reply"] = out["reply"] or "Noted in your journal."

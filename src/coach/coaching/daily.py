@@ -266,9 +266,9 @@ def run_daily(
         recent = [p for p in state.proposals() if p.kind == "early_deload" and (today - p.created).days < 10]
         if not recent:
             joint_trigger = any(v >= cfg.profile.thresholds.joint_red for v in r.joints.values())
-            res = replan.reactive_deload(ctx, today, "; ".join(r.reasons))
-            if res:
-                new_outline, wk = res
+            deload = replan.reactive_deload(ctx, today, "; ".join(r.reasons))
+            if deload:
+                new_outline, wk = deload
                 rel = Store.ref("block_outlines", new_outline.block_id)
                 p = proposals.create(
                     state,

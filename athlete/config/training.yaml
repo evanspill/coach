@@ -34,6 +34,9 @@ rules:
   deload_banned_tags: [eccentric_heavy, high_impact]
   yellow_replacement: {minutes: 40, zone: Z2}
   red_recovery_minutes: 35
+  max_session_minutes: 120          # sessions longer than this need a reason (long runs, races, tests exempt)
+  long_session_types: [run_long, race, test, competition]
+  min_recovery_days_per_week: 1     # at least one rest or recovery day every week
   carb_tiers:
     high: [lower, full_body, run_long, run_quality, hyrox, metcon, test, competition, race]
     moderate: [upper, sprint_upper, run_easy]
@@ -97,7 +100,7 @@ item_sets:
   sprints:
     title: "Alactic sprints: 6 x 10 s, full recovery"
     items:
-      - {exercise: curve_sprint, sets: 6, duration_s: 10, rest_s: 120}
+      - {exercise: curve_sprint, sets: 6, duration_s: 10, rest_s: 120, notes: "first 3 weeks of a block or after a layoff: smooth build-ups to ~90%, not all-out"}
   recovery_mobility:
     title: "Mobility: foam roller, bands, lacrosse ball"
     items:

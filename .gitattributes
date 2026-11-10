@@ -1,0 +1,5 @@
+* text=auto eol=lf
+# Generated demo data: collapse in diffs
+src/coach/demo/fixtures/*.json linguist-generated=true -diff
+# Athlete records are data, not code
+athlete/data/** linguist-generated=true

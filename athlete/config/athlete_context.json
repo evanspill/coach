@@ -197,7 +197,8 @@
       30
     ],
     "icy_temp_c": 0,
-    "icy_precip_hours": 12
+    "icy_precip_hours": 12,
+    "extreme_cold_f": 0
   },
   "nutrition": {
     "protein_g_per_kg": [

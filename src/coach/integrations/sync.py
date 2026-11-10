@@ -51,6 +51,7 @@ def merge_sessions(
             w = best[1]
             used_whoop.add(w.id)
             rec.avg_hr, rec.max_hr, rec.strain = w.avg_hr, w.max_hr, w.strain
+            rec.kilojoule = w.kilojoule
             rec.whoop_zone_minutes = w.whoop_zone_minutes
             rec.sources = sorted(set(rec.sources) | {"whoop"})
         merged.append(rec)
@@ -166,7 +167,7 @@ def sync(
     report["changed_files"] = changed
 
     # stale-source detection: report, never guess
-    latest = {k: None for k in ("whoop", "withings")}
+    latest: dict[str, dt.date | None] = {k: None for k in ("whoop", "withings")}
     for m in state.daily_metrics(today - dt.timedelta(days=10), today):
         if m.recovery_score is not None:
             latest["whoop"] = m.date

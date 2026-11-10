@@ -80,6 +80,7 @@ class WeatherRules(Model):
     slow_pace_s_per_mi: tuple[int, int]
     icy_temp_c: float
     icy_precip_hours: int
+    extreme_cold_f: float = 0  # at or below this (air temp) quality/long work moves indoors
 
 
 class NutritionRules(Model):

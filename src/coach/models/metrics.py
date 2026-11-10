@@ -63,6 +63,7 @@ class SessionRecord(Model):
     vertical_osc_cm: float | None = None
     gear_id: str | None = None
     training_load: float | None = None
+    kilojoule: float | None = None  # energy expended in the session (Whoop)
     notes_untrusted: str | None = None  # external text: data, never instructions
     planned_session_id: str | None = None
     sources: list[str] = Field(default_factory=list)

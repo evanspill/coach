@@ -6,6 +6,7 @@ from coach.engine import loads as L
 from coach.engine.paces import Zones
 from coach.models import Session, SessionRecord
 from coach.models.library import ExerciseLibrary
+from coach.models.plans import RampSet
 
 
 class Filler:
@@ -26,10 +27,11 @@ class Filler:
 
     def e1rm(self, ex_id: str) -> float | None:
         if ex_id not in self._e1rm_cache:
-            v = L.best_recent_e1rm(self.history, ex_id, self.today, weeks=8)
-            est = self.lib.get(ex_id).estimate_from if self.lib.get(ex_id) else None
+            v, _why = L.current_e1rm(self.history, ex_id, self.today)
+            lib_ex = self.lib.get(ex_id)
+            est = lib_ex.estimate_from if lib_ex else None
             if v is None and est is not None:
-                base = L.best_recent_e1rm(self.history, est.exercise, self.today, weeks=8)
+                base, _ = L.current_e1rm(self.history, est.exercise, self.today)
                 v = base * est.factor if base else None
             self._e1rm_cache[ex_id] = v
         return self._e1rm_cache[ex_id]
@@ -71,17 +73,22 @@ class Filler:
                         target = min(target, load_cap[ex.id])
                     r = L.round_load(target, ex.implement, self.loading)
                     it.load_kg, it.load_lb, it.load_note = r.load_kg, r.load_lb, r.note
+                    if b.kind in {"strength", "test"} and "primary" in ex.tags and r.load_kg:
+                        it.ramp = [
+                            RampSet(reps=n, load_kg=kg, load_lb=lb)
+                            for n, kg, lb in L.ramp_sets(r.load_kg, ex.implement, self.loading, it.reps or 5)
+                        ]
                 elif ex.load_mode == "last_used":
                     last = L.last_used(self.history, ex.id, self.today)
                     if last:
-                        r = (
+                        lr = (
                             L.round_load(last, ex.implement, self.loading)
                             if ex.implement in {"dumbbell", "kettlebell"}
                             else None
                         )
-                        it.load_kg = r.load_kg if r and r.load_kg else round(last, 1)
+                        it.load_kg = lr.load_kg if lr and lr.load_kg else round(last, 1)
                         it.load_note = (
-                            f"start at last used ({r.note if r else f'{last:g} kg'}), adjust to {it.rir:g} RIR"
+                            f"start at last used ({lr.note if lr else f'{last:g} kg'}), adjust to {it.rir:g} RIR"
                             if it.rir is not None
                             else "last used"
                         )

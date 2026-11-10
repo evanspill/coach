@@ -4,11 +4,13 @@ The coach is not a medical provider. These rules are stated plainly and never tr
 
 ## Red flags -> stop training and see a doctor
 - Chest pain, pressure or tightness
+- Palpitations or an irregular / racing heartbeat at rest or out of proportion to effort
 - Fainting, near-fainting or blacking out
 - Unusual breathlessness (out of proportion to effort)
 - Numbness, tingling, or pain radiating down a limb
 - Sharp or worsening joint pain
 - Signs of rhabdomyolysis: dark (cola-coloured) urine after a hard session
+- Signs of heat illness: confusion, disorientation, stopped sweating, collapse (cool down immediately, call for help)
 
 If any appears: **stop**, get checked by a doctor (call 911 for chest pain, fainting or severe breathlessness).
 `log` records it in `athlete/data/health.json` (`red_flags`), every plan with training on or after that date fails
@@ -19,7 +21,8 @@ clearance (`cleared_on`).
 - Symptoms **only above the neck** (runny/stuffy nose, sneezing, mild sore throat): easy movement only
   (walk, mobility, easy Zone 2). Nothing hard.
 - **Any symptoms below the neck** (fever, chills, chest congestion, body aches, GI illness): **no training** until
-  they resolve. Then a graded return: day 1 Z1 only, day 2 easy Z2, day 3+ deload volume, then normal.
+  they resolve and you've been fever-free for at least 24 h without medication. Then a graded return: day 1 Z1 only,
+  day 2 easy Z2, day 3+ deload volume, then normal.
 
 ## In-session pain rule
 - Discomfort > 2/10 during a movement: regress range of motion or switch to an isometric next time; the family

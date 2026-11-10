@@ -40,7 +40,7 @@ def reactive_deload(ctx: Context, today: dt.date, reason: str) -> tuple[BlockOut
                 w.hard_sets = (
                     ranges
                     if want == "training"
-                    else deload_ranges(dict(ol.week(1).hard_sets) if ol.week(1) else ranges)
+                    else deload_ranges(dict(wk1.hard_sets) if (wk1 := ol.week(1)) else ranges)
                 )
                 if want == "deload":
                     w.run_miles = round((prev.run_miles if prev else w.run_miles) * 0.7, 1)
@@ -135,7 +135,17 @@ def travel(ctx: Context, plan: WeekPlan, dates: list[dt.date]) -> WeekPlan:
         [s for s in new.sessions if s.date in travel_set and s.key and s.location == "gym"],
         key=lambda s: s.date,
     ):
-        free = next((h for h in home_days if h.type in {"recovery", "rest", "run_easy"} and not h.key), None)
+        recovery_left = sum(1 for h in new.sessions if h.type in {"recovery", "rest"})
+        can_use_recovery = recovery_left > ctx.cfg.training.rules.min_recovery_days_per_week
+        free = next(
+            (
+                h
+                for h in home_days
+                if not h.key
+                and (h.type == "run_easy" or (can_use_recovery and h.type in {"recovery", "rest"}))
+            ),
+            None,
+        )
         if free:
             idx = new.sessions.index(free)
             moved_s = s.model_copy(deep=True)
@@ -174,8 +184,12 @@ def _travel_session(ctx: Context, day: dt.date, original: Session) -> Session:
 
     if original.type == "rest":
         return original
+    if original.type == "recovery":  # a walk and mobility work anywhere; keep the recovery day
+        kept = original.model_copy(deep=True)
+        kept.location = "travel"
+        return kept
     wn = day.isocalendar()[1]
-    if original.type in {"run_easy", "run_long", "run_quality", "recovery"}:
+    if original.type in {"run_easy", "run_long", "run_quality"}:
         miles = sum(seg.distance_mi or 0 for seg in original.run_segments() if seg.modality == "run") * 0.8
         return build_session(ctx, "travel_run", day, "training", miles, wn)
     return build_session(ctx, "travel_strength", day, "training", 0.0, wn)

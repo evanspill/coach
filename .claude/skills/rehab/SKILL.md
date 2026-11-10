@@ -14,6 +14,9 @@ the floor yet?", region flags.
 ## Rules
 - **Advance one rung** after 3 clean exposures at the current rung (pain <= 2/10 in session, no rise in next-morning
   stiffness) and at least 14 days at the rung. Never more than one rung.
+- **Why these thresholds:** this is a pain-monitoring model (pain allowed during loading if it settles by the next
+  morning and doesn't trend up week to week). Tendon protocols often allow up to ~5/10; we use 2/10 because of the
+  back/shoulder history and because these are strength movements, not tendon rehab. Top rungs also need a form check.
 - **Regress one rung** on session pain > 2/10 or a next-day flare. Pain rule: regress ROM or switch to an
   isometric next time; if stiffness rose, -15% load and a 3 s eccentric for 2 weeks.
 - **Region flag** (>= 3 on 2 consecutive check-ins): the region's families drop one rung for the next week and the
@@ -25,7 +28,8 @@ the floor yet?", region flags.
   matches a red flag.
 
 ## Writes
-`movement_readiness` - validate the change first: `coach validate athlete/data/movement_readiness.json`
+`movement_readiness` via `coach record add movement_readiness --file /tmp/mr.json` (refused if a family moves more
+than one rung or advances without the criteria/form check); cleared form checks via `coach form-check`
 (rejects > 1-rung moves and advances without criteria).
 
 ## Never

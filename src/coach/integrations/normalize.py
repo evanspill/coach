@@ -92,10 +92,11 @@ def whoop_workouts(raw: list[dict]) -> list[SessionRecord]:
                 id=f"whoop:{w['id']}",
                 date=start.date(),
                 start=start,
-                sport=WHOOP_SPORT.get(str(w.get("sport_name", "")).lower(), "other"),  # type: ignore[arg-type]
+                sport=WHOOP_SPORT.get(str(w.get("sport_name", "")).lower(), "other"),
                 title=str(w.get("sport_name", "Workout")),
                 duration_min=round((end - start).total_seconds() / 60, 1),
                 strain=sc.get("strain"),
+                kilojoule=sc.get("kilojoule"),
                 avg_hr=sc.get("average_heart_rate"),
                 max_hr=sc.get("max_heart_rate"),
                 whoop_zone_minutes=zones,
@@ -151,7 +152,7 @@ def hevy_workouts(raw: list[dict], library: ExerciseLibrary) -> list[SessionReco
                 id=f"hevy:{w['id']}",
                 date=start.date(),
                 start=start,
-                sport=sport,  # type: ignore[arg-type]
+                sport=sport,
                 title=title,
                 duration_min=round((end - start).total_seconds() / 60, 1),
                 sets=sets,
@@ -202,7 +203,7 @@ def intervals_activities(raw: list[dict]) -> list[SessionRecord]:
                 id=f"intervals:{a['id']}",
                 date=start.date(),
                 start=start,
-                sport=sport,  # type: ignore[arg-type]
+                sport=sport,
                 title=a.get("name") or a.get("type", "Activity"),
                 duration_min=round(moving / 60, 1),
                 avg_hr=a.get("average_heartrate"),

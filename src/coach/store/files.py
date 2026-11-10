@@ -6,7 +6,7 @@ Callers use the typed methods (get/put/list/delete/report + entity helpers), nev
 import datetime as dt
 import json
 from pathlib import Path
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from pydantic import BaseModel
 
@@ -75,14 +75,14 @@ class Store:
             raise KeyError(f"unknown collection '{name}'")
         return COLLECTIONS[name]
 
-    def get(self, name: str, key: str | None = None):
+    def get(self, name: str, key: str | None = None) -> Any:
         c = self.collection(name)
         data = self._read(c.file(key))
         if data is None or c.model is None:
             return data
         return c.model.model_validate(data)
 
-    def put(self, name: str, obj, key: str | None = None):
+    def put(self, name: str, obj: Any, key: str | None = None) -> Any:
         c = self.collection(name)
         if c.model is not None and not isinstance(obj, BaseModel):
             obj = c.model.model_validate(obj)
@@ -128,7 +128,7 @@ class Store:
             return sorted(p.parent.name for p in base.glob(f"*{tail}"))
         return sorted(p.name[: -len(tail)] for p in base.glob(f"*{tail}"))
 
-    def query(self, name: str, start: dt.date | None = None, end: dt.date | None = None) -> list:
+    def query(self, name: str, start: dt.date | None = None, end: dt.date | None = None) -> list[Any]:
         out = [self.get(name, k) for k in self.keys(name)]
         out = [o for o in out if o is not None]
         if start or end:
@@ -148,16 +148,17 @@ class Store:
         return out
 
     @staticmethod
-    def key_of(name: str, obj) -> str:
+    def key_of(name: str, obj: Any) -> str:
         if isinstance(obj, BaseModel):
             for f in ("id", "week_id", "block_id", "event_id"):
                 v = getattr(obj, f, None)
                 if v:
                     if name == "test_sets":
-                        return f"{obj.block_id}:{obj.phase}"
+                        return "{block_id}:{phase}".format(**vars(obj))
                     return str(v)
-            if getattr(obj, "date", None) is not None:
-                return obj.date.isoformat()
+            d = getattr(obj, "date", None)
+            if d is not None:
+                return d.isoformat()
         raise ValueError(f"can't derive a key for {name}")
 
     def new_id(self, name: str, day: dt.date, kind: str) -> str:
@@ -186,11 +187,11 @@ class Store:
     def ref(name: str, key: str | None = None) -> str:
         return f"{name}/{key}" if key else name
 
-    def get_ref(self, ref: str):
+    def get_ref(self, ref: str) -> Any:
         name, _, key = ref.partition("/")
         return self.get(name, key or None)
 
-    def put_ref(self, ref: str, obj):
+    def put_ref(self, ref: str, obj: Any) -> Any:
         name, _, key = ref.partition("/")
         return self.put(name, obj, key or None)
 
@@ -270,7 +271,7 @@ class Store:
     def metric_records(
         self, kind: str, start: dt.date | None = None, end: dt.date | None = None
     ) -> list[dict]:
-        out = []
+        out: list[dict] = []
         mdir = self._path("metrics")
         if not mdir.exists():
             return out
@@ -369,7 +370,7 @@ class Store:
         return self.put(
             "notes",
             Note(id=self.new_id("notes", day, "note"), date=day, category=category, text=text, source=source),
-        )  # type: ignore[arg-type]
+        )
 
     def _render_notes(self) -> None:
         notes = sorted(self.query("notes"), key=lambda n: (n.date, n.id))

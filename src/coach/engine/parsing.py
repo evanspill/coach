@@ -154,6 +154,8 @@ RED_FLAG_PATTERNS = {
     "radiating limb pain or numbness": r"numb(?:ness)?|tingl\w*|(?:pain|ache) (?:radiat\w*|shooting|going) down",
     "sharp or worsening joint pain": r"sharp (?:\w+ )?pain|(?:pain|it)(?:'s| is)? getting worse|worsening",
     "possible rhabdomyolysis": r"dark (?:urine|pee)|cola[- ]colou?red|brown (?:urine|pee)",
+    "palpitations / irregular heartbeat": r"palpitation|heart (?:was )?(?:racing|pounding|skipping|fluttering)|irregular (?:heart ?beat|pulse)",
+    "possible heat illness": r"stopped sweating|confus\w* (?:on|during|after) the run|heat stroke|heatstroke|disoriented",
 }
 BELOW_NECK = r"fever|chills|chest congestion|congested chest|body aches?|aching all over|vomit|diarrh|stomach bug|flu\b"
 ABOVE_NECK = r"runny nose|stuffy|sneez|sore throat|head cold|sinus|congested nose|nasal"

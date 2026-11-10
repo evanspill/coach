@@ -86,3 +86,35 @@ Each entry: **decision** - why - how to reverse.
     `learn` trial.
 46. **The VBT baseline is computed** (median top-set bar speed over the last 6 weeks, at least 3 readings) instead of
     being a stored setting.
+
+## Coaching audit (evidence pass)
+47. **Loads come from what you can do now, not your best ever.** Working loads use the top set of the most recent
+    exposure within 21 days; after a longer gap, the best of the last 8 weeks x 0.95 (strength detraining is small
+    over 3-4 weeks but real). Warm-up sets never count. - Reverse: `current_e1rm(recent_days=..., layoff_factor=1.0)`.
+48. **Primary lifts get a computed warm-up ramp** (~50% x5, 70% x3, 85% x1, rounded to real plates), pushed to Hevy
+    as warm-up sets. Standard coaching practice; it removes a number the athlete would otherwise guess.
+49. **New validator rules.** `SESSION_LENGTH` (training.yaml `max_session_minutes`, long runs/races exempt: quality
+    drops and adherence suffers in very long gym sessions), `PRESCRIPTION_INCOMPLETE` (every item needs reps/time/
+    distance; loaded strength work needs RIR, so loads can be computed and effort is explicit), `REST_DAY`
+    (`min_recovery_days_per_week`, overridable only with a stated `rest_days` deviation).
+50. **Review flags with an evidence basis**: low energy availability (< 30 kcal/kg FFM/day over 2 weeks, IOC REDs
+    2023; asked about, never auto-acted on), easy-running share < 75% over 2 weeks (80/20 intensity distribution),
+    sleep < 7 h average, training monotony > 2 (Foster). Each produces a question or a focus point, not a plan change.
+51. **More red flags**: palpitations / irregular heartbeat and heat-illness signs (stopped sweating, confusion) stop
+    training and create a `health_events` record. Return after a fever needs >= 24 h fever-free (`docs/SAFETY.md`).
+52. **Extreme cold moves quality and long runs indoors** (`weather.extreme_cold_f`, default 0 F air temperature),
+    alongside the existing heat and ice rules.
+53. **Protein sits at the top of the range in a calorie deficit** (ISSN 2017 position stand; lean-mass retention),
+    calorie-neutral redistribution unchanged.
+54. **Test results are judged against each test's typical error** (`tests.yaml typical_error_pct`): a change smaller
+    than the noise is reported as "no clear change", so a block isn't called a success or failure on measurement noise.
+55. **One submit path for everything Claude writes** (`coaching/records.py`, `coach record add <collection> --file`):
+    fills numbers, validates, saves, writes the summary and opens the proposal in one step, and refuses invalid
+    drafts with the violation list. Skills no longer describe separate save steps.
+56. **Repo tooling**: pre-commit (ruff, ruff-format, whitespace/EOF/YAML/JSON checks, private-key detection),
+    `.editorconfig`, `.gitattributes`, `Makefile` (`make check` = what CI runs), mypy with the pydantic plugin (the
+    scenario harness is exempt from Optional checks because a missing record fails the scenario anyway), coverage
+    gate at 80%, CI matrix 3.11-3.13 with least-privilege permissions, PR template.
+57. **No committed `.claude/settings.json` permission allowlist (yet).** Writing one from a session was blocked as
+    self-modification; the athlete decides whether to add it (it would let the unattended daily run use
+    `python -m coach` and git pull/commit/push without prompts, and deny force-push and `.env` reads).

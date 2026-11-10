@@ -58,9 +58,8 @@ class SimAthlete:
         if day in self.skipped and not s.tests and not s.key:
             return [f"[athlete] skipped {s.title}"]
         self.n += 1
-        start = dt.datetime(day.year, day.month, day.day, *map(int, s.start_time.split(":"))) + dt.timedelta(
-            minutes=5
-        )
+        hh, mm = (int(x) for x in s.start_time.split(":"))
+        start = dt.datetime(day.year, day.month, day.day, hh, mm) + dt.timedelta(minutes=5)
         state = rec.readiness.state if rec and rec.readiness else "green"
         rpe_add = 0.5 if state == "yellow" else 1.0 if state == "red" else 0.0
         dip = self.script.get("enjoyment_dip", {})

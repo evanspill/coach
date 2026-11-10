@@ -3,6 +3,7 @@
 import datetime as dt
 import math
 import statistics
+from collections.abc import Mapping
 
 from coach.models import Checkin, DailyMetrics, Readiness
 from coach.models.profile import Thresholds
@@ -119,7 +120,7 @@ def compute_readiness(
     checkins: list[Checkin],
     th: Thresholds,
     restricted_tags: dict[str, list[str]] | None = None,
-    prior_states: dict[dt.date, str] | None = None,
+    prior_states: Mapping[dt.date, str] | None = None,
 ) -> Readiness:
     by_date = _by_date(metrics)
     today = by_date.get(day)
@@ -201,7 +202,7 @@ def compute_readiness(
 
     return Readiness(
         date=day,
-        state=state,  # type: ignore[arg-type]
+        state=state,
         reasons=reasons,
         recovery_score=rec,
         hrv=trend,

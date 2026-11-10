@@ -8,9 +8,10 @@ import statistics
 
 from coach.coaching import proposals
 from coach.coaching.context import Context
+from coach.models import Proposal
 
 
-def calibration(ctx: Context, day: dt.date, weeks: int = 8) -> tuple[str, object | None]:
+def calibration(ctx: Context, day: dt.date, weeks: int = 8) -> tuple[str, Proposal | None]:
     start = day - dt.timedelta(weeks=weeks)
     by_state: dict[str, list[float]] = {"green": [], "yellow": [], "red": []}
     for i in range((day - start).days):

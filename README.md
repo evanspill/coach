@@ -18,6 +18,14 @@ python -m coach --date 2026-11-16 status --pretty
 pytest
 ```
 
+## Development
+```bash
+pip install -e ".[dev]" && pre-commit install
+make check        # ruff + format check + mypy + pytest (>= 80% coverage) + config check + both 120-day simulations
+make scenarios    # the 21 per-skill scenarios only
+```
+CI (`.github/workflows/ci.yml`) runs the same on Python 3.11-3.13. Pull requests use `.github/pull_request_template.md`.
+
 ## Docs
 - `CLAUDE.md` - how sessions coach (routing table, conventions)
 - `docs/ARCHITECTURE.md` - diagrams and code map

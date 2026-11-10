@@ -76,6 +76,37 @@ duration is topped up with Zone 2 bike; the +10% rule averages the last three no
 chest 6-14, back 10-20, shoulders 6-16; Block 2 12-16 (hamstrings 10-16, glutes 12-20); Block 3 4-9 (MED);
 Block 4 2-8. Deload weeks ~40-65% of those.
 
+## Evidence basis
+
+Every rule above is either backed by research, or a practitioner convention we keep on purpose and say so.
+Confidence: **high** = position stands / meta-analyses; **moderate** = several trials or a strong review;
+**practice** = widely used coaching heuristic with limited direct evidence. Sources below were retrieved when this
+section was written; the monthly `learn` audit re-checks them and proposes changes as N=1 trials.
+
+| Rule in this system | Basis | Confidence |
+|---|---|---|
+| Hypertrophy volume ~10-20 hard sets/muscle/week (Block 2: 12-16) | Graded dose-response between weekly sets and muscle growth ([Schoenfeld, Ogborn & Krieger 2017](https://researchgate.net/profile/Brad-Schoenfeld/publication/305455324_Dose-response_relationship_between_weekly_resistance_training_volume_and_increases_in_muscle_mass_A_systematic_review_and_meta-analysis/links/59dc0269458515e9ab4527d6/Dose-response-relationship-between-weekly-resistance-training-volume-and-increases-in-muscle-mass-A-systematic-review-and-meta-analysis.pdf)); where the curve flattens is debated ([2022 review](https://jhk.termedia.pl/A-Systematic-Review-of-the-Effects-of-Different-Resistance-Training-Volumes-on-Muscle,158681,0,2.html)) | moderate-high |
+| Maintenance blocks (Block 3 lifting at MED; aerobic MED in Block 1) | Strength/size and endurance can be held on much lower frequency and volume if intensity is kept ([Spiering et al. 2021](https://pubmed.ncbi.nlm.nih.gov/33629972)) | moderate |
+| Loads by RIR, autoregulated from current e1RM; main lifts at 1-3 RIR | RIR-based RPE scale; most lifters judge RIR within ~1 rep ([Helms et al. 2016](https://openrepository.aut.ac.nz/items/efef3b25-6701-4fb5-bb82-55fcd2a26027/full), [review](https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2018.00247/pdf)) | moderate |
+| Deload every ~4th week, volume cut, intensity kept | Common coach practice: every 4-6 weeks, cut sets/reps, 5-7 days ([Bell et al. 2022](https://www.pubmed.gov/36619355/), [Bell et al. 2023 Delphi](https://shura.shu.ac.uk/32417/1/s40798-023-00633-0.pdf)) | practice / consensus |
+| Concurrent training: separate or order sessions, keep running volume in check in strength blocks | Running (more than cycling) can blunt strength/hypertrophy gains ([Wilson et al. 2012](https://pesquisa.bvsalud.org/sms/resource/pt/mdl-22002517)); later work finds little interference with sensible programming ([Schumann et al. 2022](https://link.springer.com/article/10.1007/s40279-021-01587-7)) | moderate |
+| Readiness from 7-day ln(rMSSD) vs baseline band; easy day when HRV is suppressed | Rolling 7-day ln(rMSSD) trends track adaptation/overreaching ([Plews et al. 2012](https://link.springer.com/doi/10.1007/s00421-012-2354-4)); HRV-guided intensity improved performance in a small RCT ([Kiviniemi et al. 2007](https://pubmed.ncbi.nlm.nih.gov/17849143/)); >= 3 valid readings/week needed ([Plews 2014](https://lida.sport-iat.de/ta/Record/4033163?lng=en)) | moderate |
+| Session load (sRPE x minutes), monotony, strain | Foster session-RPE method ([Foster et al. 2001](https://paulogentil.com/pdf/A%20New%20Approach%20to%20Monitoring%20Exercise%20Training.pdf)); monotony > 2 as a warning is a practitioner heuristic | high (method) / practice (cut-off) |
+| Morning wellness (sleep quality, stress, fatigue, soreness) | Hooper-style self-report tracks staleness in athletes ([Hooper et al. 1995](https://coachsci.sdsu.edu/csa/vol13/hooper2.htm)) | moderate |
+| Taper: 3 weeks, volume ~80/60/40%, intensity kept | Volume cut 41-60%, intensity and frequency kept, ~2 weeks optimal on average ([Bosquet et al. 2007](https://pubmed.ncbi.nlm.nih.gov/17762369/)); 3 weeks is common marathon practice | high (volume) / practice (length) |
+| Running increase <= 10%/week, long-run growth <= 1 mi | The 10% rule did not reduce injuries vs a faster plan in novices ([Buist et al. 2008](https://search.pedro.org.au/search-results/record-detail/20220)); kept as a conservative return-to-running guard | practice |
+| Cadence: +5-10% from own baseline | Higher step rate lowers joint-loading measures ([Schubert et al. 2014](https://pmc.ncbi.nlm.nih.gov/articles/PMC4000471), [Anderson et al. 2022](https://sportsmedicine-open.springeropen.com/articles/10.1186/s40798-022-00504-0)); effect on injury not established | moderate (mechanics) / low (injury) |
+| Pain-monitoring model for gated movements (<= 2/10, settles by next morning) | Continued loading with pain monitoring was not harmful in Achilles tendinopathy ([Silbernagel et al. 2007](https://search.pedro.org.au/search-results/record-detail/18389)); 2/10 is deliberately stricter for back/shoulder | moderate (model) / practice (2/10) |
+| Protein 2.2-2.4 g/kg (top of range in a cut), every 3-4 h | 1.4-2.0 g/kg for most exercisers; 2.3-3.1 g/kg may help keep lean mass in a deficit ([ISSN, Jäger et al. 2017](https://doi.org/10.1186/s12970-017-0177-8)) | high |
+| Carbs by day (3-5.5 g/kg), 1-4 g/kg pre, 30-60 (up to 90) g/h during long sessions | Joint position stand on nutrition and athletic performance ([Thomas, Erdman & Burke 2016](https://pmc.ncbi.nlm.nih.gov/articles/PMC5596471)) | high |
+| Energy availability check (~30 kcal/kg FFM/day) | Low energy availability -> REDs ([IOC consensus 2023](https://pubmed.ncbi.nlm.nih.gov/37752011/)); the cut-off is an indicator, not a hard threshold | high (concept) / moderate (cut-off) |
+| Heat routing by temp + dew point, ice/dark -> indoors | Practitioner heat-index heuristic | practice |
+| Neck check for illness; red-flag list | Clinical sports-medicine heuristic; cardiac warning signs | practice / clinical |
+| McGill Big 3 before lower-body days | Clinical low-back practice (trunk endurance); athlete-specific choice | practice |
+
+Not adopted (and why): acute:chronic workload ratios (contested), fixed 180 spm cadence (not individualised),
+true 1RM testing (unnecessary risk), training to failure on main lifts (RIR accuracy and recovery cost).
+
 ## Keeping current with the science (monthly, `learn`)
 
 On the first Wednesday of each month, the daily run also does a **science audit**. It searches recent literature (PubMed E-utilities and web search across high-signal sources such as ISSN position stands, *Sports Medicine*, *JSCR*, and research reviews), focused on my current block and open questions, and writes `athlete/data/science/YYYY-MM.md`. **A finding earns a proposal only if:**
@@ -88,3 +119,6 @@ Single studies, mouse studies, or hype never change my programming. Every cited 
 
 ## Changelog
 - 2026-11-10: initial version from the build brief (Phase 1).
+- 2026-11-10: evidence basis added; loads from the latest exposure (not 8-week best), warm-up ramps, rest-day and
+  session-length rules, energy-availability / monotony / 80/20 / sleep flags, extra red flags, extreme-cold routing,
+  top-of-range protein in a cut, top movement rungs gated by 21 days + a form check, long-run growth <= 1 mi/week.

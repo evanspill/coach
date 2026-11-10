@@ -108,13 +108,13 @@ def check_config_consistency(cfg: Config) -> None:
                 errors.append(f"exercise {ex.id}: requires unknown family '{fam}'")
         if ex.skill and ex.skill not in cfg.skills.skills:
             errors.append(f"exercise {ex.id}: skill '{ex.skill}' not in skills.yaml")
-    for fam_name, fam in cfg.progressions.families.items():
-        for i, rung in enumerate(fam.rungs):
+    for fam_name, family in cfg.progressions.families.items():
+        for i, rung in enumerate(family.rungs):
             for ex_id in rung.exercises:
-                ex = cfg.library.get(ex_id)
-                if ex is None:
+                rung_ex = cfg.library.get(ex_id)
+                if rung_ex is None:
                     errors.append(f"family {fam_name} rung {i}: exercise '{ex_id}' unknown")
-                elif ex.family != fam_name or ex.rung != i:
+                elif rung_ex.family != fam_name or rung_ex.rung != i:
                     errors.append(
                         f"family {fam_name} rung {i}: exercise '{ex_id}' declares {ex.family}/{ex.rung}"
                     )
@@ -175,30 +175,30 @@ def _check_training(cfg: Config) -> list[str]:
     for wt in (cfg.season.season.baseline_week, cfg.season.season.transition_week):
         if wt not in tr.week_templates:
             errors.append(f"season: week template '{wt}' missing")
-    for b in cfg.season.blocks:
-        for wtype, tpl in b.weeks.items():
+    for spec in cfg.season.blocks:
+        for wtype, tpl in spec.weeks.items():
             if tpl not in tr.week_templates:
-                errors.append(f"season block {b.key}: week template '{tpl}' ({wtype}) missing")
-        for t in [*b.tests, *b.goal.focus_tests, *(g.test for g in b.goal.guardrails)]:
+                errors.append(f"season block {spec.key}: week template '{tpl}' ({wtype}) missing")
+        for t in [*spec.tests, *spec.goal.focus_tests, *(g.test for g in spec.goal.guardrails)]:
             if t not in cfg.tests.tests:
-                errors.append(f"season block {b.key}: test '{t}' not in tests.yaml")
-        for ml in b.main_lifts:
+                errors.append(f"season block {spec.key}: test '{t}' not in tests.yaml")
+        for ml in spec.main_lifts:
             if ml.family and ml.family not in cfg.progressions.families:
-                errors.append(f"season block {b.key}: family '{ml.family}' unknown")
+                errors.append(f"season block {spec.key}: family '{ml.family}' unknown")
             if ml.exercise_id and ml.exercise_id not in cfg.library:
-                errors.append(f"season block {b.key}: exercise '{ml.exercise_id}' unknown")
+                errors.append(f"season block {spec.key}: exercise '{ml.exercise_id}' unknown")
     for sk_id, sk in cfg.skills.skills.items():
         for d in sk.drills:
             if d not in cfg.library:
                 errors.append(f"skills.{sk_id}: drill '{d}' not in exercises.yaml")
-    for ex in cfg.library.exercises.values():
-        if ex.estimate_from and ex.estimate_from.exercise not in cfg.library:
-            errors.append(f"exercise {ex.id}: estimate_from '{ex.estimate_from.exercise}' unknown")
-    for tid, t in cfg.tests.tests.items():
+    for lib_ex in cfg.library.exercises.values():
+        if lib_ex.estimate_from and lib_ex.estimate_from.exercise not in cfg.library:
+            errors.append(f"exercise {lib_ex.id}: estimate_from '{lib_ex.estimate_from.exercise}' unknown")
+    for tid, tdef in cfg.tests.tests.items():
         for key in ("exercise", "family"):
-            v = t.session.get(key)
+            v = tdef.session.get(key)
             if v and v not in (cfg.library.exercises if key == "exercise" else cfg.progressions.families):
                 errors.append(f"tests.{tid}: session {key} '{v}' unknown")
-        if t.slot not in {k for sched in cfg.tests.schedule.values() for k in sched}:
-            errors.append(f"tests.{tid}: slot '{t.slot}' not in tests.yaml schedule")
+        if tdef.slot not in {k for sched in cfg.tests.schedule.values() for k in sched}:
+            errors.append(f"tests.{tid}: slot '{tdef.slot}' not in tests.yaml schedule")
     return errors

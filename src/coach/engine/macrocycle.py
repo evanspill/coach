@@ -42,9 +42,11 @@ def _forward_end(spec: BlockSpec, start: dt.date, profile: AthleteProfile, notes
     L = spec.length
     if L.end_after_event:
         race = profile.race(L.end_after_event.kind)
+        assert race is not None  # _fixed_weeks handled the missing-race case
         return _sunday(_event_dates(race)[-1]) + dt.timedelta(weeks=L.end_after_event.weeks_after)
     assert L.event
     race = profile.race(L.event.kind)
+    assert race is not None
     return _sunday(race.date) + dt.timedelta(weeks=L.event.reset_weeks)
 
 
@@ -53,8 +55,8 @@ def _backward_start(
 ) -> tuple[dt.date, dt.date]:
     """(start, end) for a block laid out backward. `end` is the next block's start - 1 day (None for the last block)."""
     L = spec.length
-    if L.event and profile.race(L.event.kind):
-        race = profile.race(L.event.kind)
+    race = profile.race(L.event.kind) if L.event else None
+    if L.event and race is not None:
         start = monday_of(race.date) - dt.timedelta(weeks=L.event.taper_weeks - 1)
         return start, _sunday(race.date) + dt.timedelta(weeks=L.event.reset_weeks)
     if end is None:

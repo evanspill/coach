@@ -247,8 +247,10 @@ def validate_file(path: Path, today: dt.date) -> dict:
             v = []
         else:
             s = Session.model_validate(data)
-            plan = ctx.week_plan(s.date)
-            v = validate_session(s, ctx.validation(plan), plan.week_type if plan else "training", plan)
+            day_plan = ctx.week_plan(s.date)
+            v = validate_session(
+                s, ctx.validation(day_plan), day_plan.week_type if day_plan else "training", day_plan
+            )
     except Exception as e:  # schema errors are violations too
         return {"valid": False, "kind": "schema", "violations": [f"SCHEMA: {e}"]}
     return {"valid": not v, "kind": kind, "violations": [str(x) for x in v]}
@@ -528,21 +530,25 @@ def cmd_record(args):
         )
         return obj.model_dump(mode="json", exclude_none=True) if hasattr(obj, "model_dump") else obj
     if args.action == "add":
-        if c.model is None or c.kind == "series":
-            return {"error": f"{args.collection} is not writable with record add"}
-        data = json.loads(args.json)
+        from coach.coaching.records import SubmitRefused, submit
+
+        if c.kind == "series" or (c.model is None and c.kind != "report"):
+            return {"error": f"{args.collection} is written by coach sync / push, not record add"}
+        raw = Path(args.file).read_text() if args.file else args.json
+        if raw is None:
+            return {"error": "give the record as JSON or --file"}
+        if c.kind == "report":
+            return submit(st, load_config(), args.collection, raw, today, args.key)
+        data = json.loads(raw)
         if "id" in c.model.model_fields and "id" not in data:
             day = dt.date.fromisoformat(str(data.get("date") or data.get("start") or today))
             data["id"] = st.new_id(
                 args.collection, day, str(data.get("kind", args.collection.rstrip("s"))).replace("_", "-")
             )
-        obj = st.put(args.collection, data, args.key)
-        return {
-            "saved": st.ref(
-                args.collection, args.key or (st.key_of(args.collection, obj) if c.kind == "doc" else None)
-            ),
-            "record": obj.model_dump(mode="json", exclude_none=True),
-        }
+        try:
+            return submit(st, load_config(), args.collection, data, today, args.key)
+        except SubmitRefused as e:
+            return {"refused": True, "violations": [str(v) for v in e.violations]}
     return {"error": f"unknown action {args.action}"}
 
 
@@ -675,6 +681,7 @@ def build_parser() -> argparse.ArgumentParser:
     rc.add_argument("action", choices=["add", "list", "get"])
     rc.add_argument("collection")
     rc.add_argument("json", nargs="?", help="record JSON for add")
+    rc.add_argument("--file", help="read the record (JSON, or markdown for reports) from a file")
     rc.add_argument("--key", help="key for get/add (date, id, block id ...)")
     rc.add_argument("--from", dest="start")
     rc.add_argument("--to", dest="end")

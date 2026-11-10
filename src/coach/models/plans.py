@@ -42,6 +42,12 @@ CarbTier = Literal["high", "moderate", "low"]
 Pillar = Literal["neural", "force", "glycolytic", "aerobic"]
 
 
+class RampSet(Model):
+    reps: int
+    load_kg: float
+    load_lb: float | None = None
+
+
 class Prescription(Model):
     exercise_id: str
     sets: int = Field(ge=1, le=12)
@@ -58,6 +64,9 @@ class Prescription(Model):
     rest_s: int | None = None
     per_side: bool = False
     notes: str | None = None
+    ramp: list[RampSet] = Field(
+        default_factory=list
+    )  # warm-up sets to the working weight (filled by `coach`)
 
 
 class RunSegment(Model):

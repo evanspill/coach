@@ -8,7 +8,7 @@ description: Disruption handling. Rebuilds the rest of the week, or the block, w
 **When:** "I'm sick", "traveling Thu-Sun", "the gym is closed Friday", 2+ missed sessions this week, sustained Red
 or a joint >= 4 (reactive deload), test-day Red that can't be moved within the week.
 
-**Context:** `coach status`, `coach context --week`, `athlete/data/weeks/<iso>/plan.json`, `athlete/data/blocks/<id>/outline.json`,
+**Context:** `coach status`, `coach context --week`, `coach record get week_plans --key <iso-week>`, `coach record get block_outlines --key <block>`,
 `health_events` (`coach record list health_events`), `docs/SAFETY.md`.
 
 ## Procedure
@@ -23,7 +23,7 @@ or a joint >= 4 (reactive deload), test-day Red that can't be moved within the w
 - Every change carries a reason in `deviations` (week) or `revisions` (outline). Validate before saving.
 
 ## Writes
-Revised `athlete/data/weeks/<iso>/plan.json` and/or `athlete/data/blocks/<id>/outline.json`; proposals (`replan`,
+Revised `week_plans` and/or `block_outlines` (via `coach record add <collection> --file ...`, which validates); proposals (`replan`,
 `early_deload`) when approval is needed.
 
 ## May call

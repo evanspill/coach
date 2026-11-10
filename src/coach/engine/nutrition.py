@@ -38,11 +38,16 @@ def carb_tier_for(
 
 
 def distribute_week(
-    week_kcal: float, bodyweight_kg: float, tiers: dict[dt.date, str], rules: NutritionRules
+    week_kcal: float,
+    bodyweight_kg: float,
+    tiers: dict[dt.date, str],
+    rules: NutritionRules,
+    cutting: bool = False,
 ) -> list[NutritionDay]:
     """MacroFactor owns the weekly total; we only redistribute it (protein first, fat floor, then carbs)."""
     days = sorted(tiers)
-    protein = round(bodyweight_kg * sum(rules.protein_g_per_kg) / 2)
+    lo_p, hi_p = rules.protein_g_per_kg
+    protein = round(bodyweight_kg * (hi_p if cutting else (lo_p + hi_p) / 2))
     fat_floor = rules.fat_floor_g
     fixed_kcal_day = protein * 4 + fat_floor * 9
     available_carb_kcal = week_kcal - fixed_kcal_day * len(days)
@@ -67,7 +72,7 @@ def distribute_week(
         out.append(
             NutritionDay(
                 date=d,
-                carb_tier=tiers[d],  # type: ignore[arg-type]
+                carb_tier=tiers[d],
                 kcal=round(protein * 4 + fat * 9 + c * 4),
                 protein_g=round(protein),
                 fat_g=round(fat),

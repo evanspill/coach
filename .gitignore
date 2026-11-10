@@ -11,3 +11,7 @@ dist/
 state/photos/
 state/raw/
 *.raw.json
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/

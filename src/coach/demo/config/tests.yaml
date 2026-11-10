@@ -10,10 +10,12 @@ schedule:
   baseline: {power: 0, strength_lower: 0, strength_upper: 1, run: 3, engine: 5, body: 6}
   transition: {run: 3, power: 4, strength_lower: 4, strength_upper: 4, engine: 5, body: 6}
 # Per test (besides the protocol): slot (schedule key), stress (category for spacing rules), lower_is_better,
-# goal_change_pct (default goal size), session (what goes in the test block: family/exercise + sets/reps/rir, or run segments).
+# goal_change_pct (default goal size), typical_error_pct (test-retest noise: smaller changes aren't real; coaching
+# estimates, refine with your own repeat tests), session (what goes in the test block: family/exercise + sets/reps/rir, or run segments).
 tests:
   broad_jump:
     slot: power
+    typical_error_pct: 3
     stress: neural
     goal_change_pct: 3
     session: {exercise: broad_jump, sets: 3, reps: 1, rest_s: 90}
@@ -31,6 +33,7 @@ tests:
     conditions: "Same floor (gym turf), same shoes, fresh: first after warm-up."
   hinge_rm:
     slot: strength_lower
+    typical_error_pct: 3
     stress: lower_heavy
     goal_change_pct: 7.5
     session: {family: hinge, sets: 5, reps: 5, rir: 1, notes: work up to a 5RM at RPE 9}
@@ -54,6 +57,7 @@ tests:
       conventional_deadlift: 1.10
   squat_rm:
     slot: strength_lower
+    typical_error_pct: 3
     stress: lower_heavy
     goal_change_pct: 7.5
     session: {family: squat, sets: 5, reps: 5, rir: 1, notes: work up to a 5RM at RPE 9}
@@ -76,6 +80,7 @@ tests:
       high_bar_back_squat: 0.92
   db_press_5rm:
     slot: strength_upper
+    typical_error_pct: 4
     stress: upper_heavy
     goal_change_pct: 5
     session: {exercise: db_bench_press_neutral, sets: 5, reps: 5, rir: 1, notes: work up to a 5RM at RPE 9}
@@ -94,6 +99,7 @@ tests:
     variants: {db_bench_press_neutral: 1.0}
   pullups_max:
     slot: strength_upper
+    typical_error_pct: 10
     stress: upper_heavy
     goal_change_pct: 25
     session: {exercise: strict_pull_up, sets: 1, notes: max strict reps}
@@ -110,6 +116,7 @@ tests:
     scoring: max_reps
   run_tt_30:
     slot: run
+    typical_error_pct: 2
     stress: run_quality
     lower_is_better: true
     goal_change_pct: 3
@@ -133,6 +140,7 @@ tests:
     heat_adjustment: {per_f_above_60: 0.6, per_f_below_40: 0.3}
   run_submax_drift:
     slot: run
+    typical_error_pct: 4
     stress: endurance
     lower_is_better: true
     goal_change_pct: 3
@@ -154,6 +162,7 @@ tests:
     scoring: submax_estimate
   z2_drift_60:
     slot: run
+    typical_error_pct: 30
     stress: endurance
     lower_is_better: true
     goal_change_pct: 30
@@ -175,6 +184,7 @@ tests:
     pass_below: 5.0
   row_2k:
     slot: engine
+    typical_error_pct: 1.5
     stress: glycolytic
     lower_is_better: true
     goal_change_pct: 3
@@ -192,6 +202,7 @@ tests:
     scoring: row_watts
   bike_10min:
     slot: engine
+    typical_error_pct: 3
     stress: glycolytic
     goal_change_pct: 5
     session: {exercise: echo_bike, sets: 1, duration_s: 600}
@@ -208,6 +219,7 @@ tests:
     scoring: max_reps
   benchmark_wod:
     slot: engine
+    typical_error_pct: 4
     stress: glycolytic
     lower_is_better: true
     goal_change_pct: 5
@@ -224,6 +236,7 @@ tests:
     scoring: time
   open_repeat:
     slot: engine
+    typical_error_pct: 5
     stress: glycolytic
     goal_change_pct: 5
     name: Past CrossFit Open workout repeat
@@ -239,6 +252,7 @@ tests:
     scoring: max_reps
   hyrox_sim:
     slot: engine
+    typical_error_pct: 3
     stress: glycolytic
     lower_is_better: true
     goal_change_pct: 4
@@ -255,6 +269,7 @@ tests:
     scoring: time
   body_comp:
     slot: body
+    typical_error_pct: 1
     stress: none
     name: Body composition (7-day average)
     quality: body composition
@@ -270,6 +285,7 @@ tests:
     passive: true
   vitals:
     slot: body
+    typical_error_pct: 3
     stress: none
     name: RHR / HRV baselines (28-day)
     quality: autonomic baseline

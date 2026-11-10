@@ -105,6 +105,9 @@ def weather_call(
         tier = "slow"
         adjust = tuple(rules.slow_pace_s_per_mi)  # type: ignore[assignment]
         reasons.append(f"heat sum {heat_sum:.0f}: slow {adjust[0]}-{adjust[1]} s/mi and add sodium")
+    if temp_f <= rules.extreme_cold_f:
+        tier = "indoor"
+        reasons.append(f"extreme cold {temp_f:.0f}F (<= {rules.extreme_cold_f:.0f}F)")
     if icy:
         tier = "indoor"
         reasons.append(
@@ -123,7 +126,7 @@ def weather_call(
         temp_f=round(temp_f, 1),
         dew_point_f=round(dew_f, 1),
         heat_sum=round(heat_sum, 1),
-        tier=tier,  # type: ignore[arg-type]
+        tier=tier,
         icy=icy,
         daylight=daylight,
         sunrise=rise.strftime("%H:%M"),

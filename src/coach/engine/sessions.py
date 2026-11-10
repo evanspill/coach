@@ -162,8 +162,7 @@ def pillar_doses(
             for b in s.blocks
             if b.kind in {"power", "warmup"}
             for it in b.items
-            if b.kind == "power"
-            or (library.get(it.exercise_id) and library.get(it.exercise_id).has_tag("plyo"))
+            if b.kind == "power" or ((wx := library.get(it.exercise_id)) is not None and wx.has_tag("plyo"))
         ):
             neural += 1
         if any(
