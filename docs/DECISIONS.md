@@ -158,3 +158,5 @@ Each entry: **decision** - why - how to reverse.
     families and tagged so shoulder and Achilles flags remove it; competence is set one level later than the minimum
     (5 strict before kipping HSPU, 3+ linked ring muscle-ups). They are also Quarterfinals prerequisites. A jump rope
     was added to the gym inventory (assumed; remove it if the gym has none).
+68. **HYROX goal set to sub-1:10 Open** (athlete-approved 2026-11-11, revising 64): ~1:10 is the men's Open top 10%,
+    the like-for-like level for a Boston qualifier (~11% of US marathon finishers). 1:05 was a step beyond it.

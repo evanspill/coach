@@ -27,7 +27,7 @@ workout releases (Thursday nights), after an event (post-event review).
 - **Post-event:** record the result in `event_results` (`coach record add event_results '{...}'`) with `division`,
   `age_group`, `place_in_age_group` and, for the Open, the worldwide `top_pct` from the leaderboard; these feed the
   long-term goal checks (`coach goals --check`). Append the review to the event plan within 3 days.
-- **HYROX goal:** sub-1:05 in the Open division; only Open-division results count toward it (Pro uses heavier
+- **HYROX goal:** sub-1:10 in the Open division; only Open-division results count toward it (Pro uses heavier
   stations, so its times aren't comparable). Record the division with every HYROX result.
 
 ## Writes

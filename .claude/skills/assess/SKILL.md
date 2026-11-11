@@ -36,7 +36,7 @@ description: Intake, testing and goal setting. Runs the intake questionnaire (on
    change a long-term goal silently. Each upcoming marathon gets a `race_target` proposal: what the threshold trend
    supports on race day, rounded up to the minute (re-proposed only when the prediction moves by more than the run
    test's typical error). Race targets are stepping stones; they are never set from the long-term goal.
-   Other goal kinds: `race_time` (HYROX Open sub-1:05: latest Open-division time vs the target; trend from the
+   Other goal kinds: `race_time` (HYROX Open sub-1:10: latest Open-division time vs the target; trend from the
    athlete's own results, no assumed rate), `event_placement` (an age-group slot vs a looked-up reference time; not
    used now) and `open_percentile` (CrossFit Quarterfinals: Rx
    top 25%; `building` until the prerequisite skills are competent and the movement families are unlocked, so the

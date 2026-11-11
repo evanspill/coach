@@ -24,7 +24,7 @@
     "outcomes": [
       "Qualify for the Boston Marathon (age-group standard with a safety margin), via stepping-stone marathons",
       "CrossFit Open -> Quarterfinals (top 25% Rx) once the Rx skills and movement families are rebuilt",
-      "Hyrox: sub-1:05 in the Open division (a Boston-qualifier-level time)",
+      "Hyrox: sub-1:10 in the Open division (Boston-qualifier level: ~top 10% of men)",
       "Longevity",
       "Train with no exercise limitations (rebuild back and shoulder capacity until every movement family is unlocked)"
     ],
@@ -54,17 +54,17 @@
         "max_gain_pct_per_year": 12.0
       },
       {
-        "id": "hyrox-sub-1-05",
-        "name": "HYROX Open sub-1:05",
+        "id": "hyrox-open-1-10",
+        "name": "HYROX Open sub-1:10",
         "kind": "race_time",
         "race_kind": "hyrox",
         "event": "HYROX (any race, Open division)",
         "event_date": "2028-06-30",
-        "target_time": "1:05:00",
+        "target_time": "1:10:00",
         "division": "open",
         "assumed_gain_pct_per_year": null,
         "max_gain_pct_per_year": 10.0,
-        "source": "Third-party aggregates of HYROX results (HYROX publishes no distributions): men's Open median ~1:27, top 10% ~1:10, top 5% ~1:07 (norma-athletics.at/hyrox/benchmarks, roxtimes.com/benchmarks, roxhype.com). A Boston qualifier is ~11% of US marathon finishers (findmymarathon.com), so 1:10 is the like-for-like level and 1:05 a step beyond it. Target-by date is the end of the 2027/28 season."
+        "source": "Third-party aggregates of HYROX results (HYROX publishes no distributions): men's Open median ~1:27, top 10% ~1:10, top 5% ~1:07 (norma-athletics.at/hyrox/benchmarks, roxtimes.com/benchmarks, roxhype.com). A Boston qualifier is ~11% of US marathon finishers (findmymarathon.com), so ~1:10 is the like-for-like level. Target-by date is the end of the 2027/28 season."
       },
       {
         "id": "crossfit-quarterfinals",

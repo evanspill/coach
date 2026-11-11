@@ -85,7 +85,7 @@ skills:
     drills: [double_under, single_under]
     levels: [smooth single-unders 2 min, double-under singles, 10 linked, 30+ linked]
     competent_level: 2
-    current_level: 0
+    current_level: 2  # athlete reports being able to do double-unders (2026-11-11); linked count to confirm
     gate: null  # calf/Achilles load: practice volume stays small during the running ramp; knee/Achilles flags restrict it
   handstand_push_up:
     name: Handstand push-up

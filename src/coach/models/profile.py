@@ -49,7 +49,7 @@ class LongTermGoal(Model):
 
     kinds:
       marathon_time    an age-graded qualifying time (Boston): standards, margin_s
-      race_time        a fixed finish time for a race kind (e.g. HYROX Open 1:05): target_time, division
+      race_time        a fixed finish time for a race kind (e.g. HYROX Open 1:10): target_time, division
       event_placement  a championship slot won by placing in an age group (HYROX Worlds): division, place,
                        reference_times (age-group results the coach looks up for the races being targeted)
       open_percentile  a percentile of a worldwide online stage (CrossFit Open -> Quarterfinals): top_pct, division,

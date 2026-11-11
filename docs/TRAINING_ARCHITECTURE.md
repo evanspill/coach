@@ -84,8 +84,8 @@ and never set training paces or race-day pacing directly. At every transition we
 threshold pace the goal needs, the athlete's measured threshold pace and its trend, and when the trend gets there
 versus the last planned race that counts. If it is behind on an observed trend (two or more run tests), a proposal offers the first later edition the projection
 reaches; the annual review puts the alternative (a run-focused season) to the athlete. The same check covers a **HYROX finish time** (Open
-division sub-1:05: men's Open top 10% is ~1:10 and a Boston qualifier is ~11% of US marathon finishers, so 1:05 is a
-step beyond like-for-like; trend from the athlete's own results) and **CrossFit Quarterfinals** (top 25% of the Open, Rx), which stays `building` until the Rx skills are competent
+division sub-1:10: men's Open top 10% is ~1:10 and a Boston qualifier is ~11% of US marathon finishers, so it is the
+like-for-like level; trend from the athlete's own results) and **CrossFit Quarterfinals** (top 25% of the Open, Rx), which stays `building` until the Rx skills are competent
 and the overhead, Olympic and kipping families are unlocked. Each upcoming marathon gets
 its own **race target**, a stepping stone set from what fitness will support on race day and approved by the
 athlete. Race-day pacing comes from current fitness; an approved target is paced only if fitness supports it.
@@ -145,6 +145,7 @@ Single studies, mouse studies, or hype never change my programming. Every cited 
   (athlete-approved).
 - 2026-11-11: HYROX goal changed to a sub-1:05 Open time (athlete-approved); double-unders, handstand push-ups, wall
   walks and ring muscle-ups added with shoulder-gated progressions.
+- 2026-11-11: HYROX goal set to sub-1:10 Open, the like-for-like Boston-qualifier level (athlete-approved).
 
 ### Shoulder-safe gymnastics progressions
 Overhead and Open gymnastics skills follow the shoulder: strict before kipping, upright pressing before going
