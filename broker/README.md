@@ -8,6 +8,7 @@ endpoints behind a static key. Free plan is enough (a daily sync is a few dozen 
 | `GET /v2/recovery`, `/v2/activity/sleep`, `/v2/cycle`, `/v2/activity/workout` | Whoop API v2 (`start`, `end`, `nextToken` passed through, `limit=25`) |
 | `GET /withings/measure` | Withings `measure?action=getmeas&category=1` (`meastypes`, `startdate`, `enddate`) |
 | `GET /health` | which providers are connected (never token values) |
+| `GET /privacy` | public privacy page for the app registrations |
 | `GET /auth/<whoop\|withings>/start?key=<BROKER_KEY>` | one-time browser sign-in (OAuth), stores the tokens |
 
 Everything except `/auth/*` needs the `X-Broker-Key` header. Non-GET requests and any other path are refused.
@@ -27,7 +28,7 @@ URLs below use it.
 
 **Whoop** (developer-dashboard.whoop.com, sign in with your Whoop account):
 1. Create a team if asked, then **Create App**.
-2. Name: anything (e.g. "Coach broker"). Contact email: yours. Privacy policy URL: any page you control (required field).
+2. Name: anything (e.g. "Coach broker"). Contact email: yours. Privacy policy URL: `https://coach-broker.<your-subdomain>.workers.dev/privacy` (served by the broker).
 3. Redirect URL: `https://coach-broker.<your-subdomain>.workers.dev/auth/whoop/callback`
 4. Scopes: `read:recovery`, `read:cycles`, `read:sleep`, `read:workout`, `read:profile`, `read:body_measurement`.
    (`offline`, which returns the refresh token, is requested by the broker at sign-in.)

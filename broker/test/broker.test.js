@@ -138,3 +138,9 @@ test("callback answers dashboard probes (HEAD, bare GET) with 200", async () => 
   assert.equal((await get("/auth/withings/callback", null)).status, 200);
   assert.equal((await get("/auth/withings/callback?state=x&error=access_denied", null)).status, 400);
 });
+
+test("privacy page is public plain text", async () => {
+  const r = await get("/privacy", null);
+  assert.equal(r.status, 200);
+  assert.match(await r.text(), /stores no health data/);
+});

@@ -28,6 +28,20 @@ const WITHINGS = {
 const WHOOP_PATHS = new Set(["/v2/recovery", "/v2/activity/sleep", "/v2/cycle", "/v2/activity/workout"]);
 const WHOOP_PARAMS = ["start", "end", "nextToken", "limit"];
 const WITHINGS_PARAMS = ["meastypes", "startdate", "enddate", "lastupdate", "category"];
+const PRIVACY = `Privacy policy - personal coaching token broker
+
+This service is used by one person to connect their own Whoop and Withings accounts to their own private training
+log. It is not offered to anyone else.
+
+What it stores: the OAuth access and refresh tokens for those two accounts, in this service's private key-value
+store. It stores no health data: recovery, sleep, workout and body-measurement data is passed through on request to
+the account owner's own coaching tool and is not kept here.
+
+Sharing: nothing is sold or shared with third parties.
+
+Deletion: revoking the app in Whoop or Withings, or deleting this service, removes access; the stored tokens can be
+deleted at any time by the account owner.
+`;
 const EARLY_REFRESH_S = 300;
 const LOCK_TTL_S = 60; // KV's minimum TTL
 
@@ -201,6 +215,7 @@ async function route(request, env) {
   if (auth && auth[2] === "callback" && (request.method === "HEAD" || !url.searchParams.has("state")))
     return new Response(request.method === "HEAD" ? null : "callback ready", { status: 200 });
   if (request.method !== "GET") return json(405, { error: "read-only broker: GET only" });
+  if (path === "/privacy") return new Response(PRIVACY, { headers: { "content-type": "text/plain; charset=utf-8" } });
   if (auth) return handleAuth(env, url, auth[1], auth[2]);
 
   if (!sameKey(request.headers.get("X-Broker-Key"), env.BROKER_KEY)) return json(401, { error: "bad key" });
