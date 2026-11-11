@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-11-config-change-1",
+  "kind": "config_change",
+  "created": "2026-11-11",
+  "created_by": "assess",
+  "title": "HYROX goal -> sub-1:05 Open; Open gymnastics skills added",
+  "what": "goals.long_term: hyrox-worlds replaced by hyrox-sub-1-05 (race_time, Open division, target by 2028-06-30); Quarterfinals prerequisites + double_under, handstand_push_up, wall_walk, ring_muscle_up; skills.yaml and exercises.yaml: those four skills with shoulder-gated drills; equipment: jump_rope",
+  "why": "Athlete judged the Worlds slot too aggressive and asked for an equivalent time (checked: ~1:10 is top 10%, 1:05 top ~3-5%); athlete asked for the skills with shoulder-safe progressions.",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-11",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11",
+      "status": "approved",
+      "note": "approved by the athlete in chat"
+    }
+  ]
+}

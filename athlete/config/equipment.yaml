@@ -9,7 +9,7 @@ locations:
       smith_machine, glute_trainer, preacher_curl, iso_lateral_chest_back, rear_delt_pec_fly, leg_extension,
       seated_leg_curl, leg_press, hip_adductor_abductor, diverging_seated_row, converging_chest_press,
       converging_shoulder_press, back_extension, lat_pulldown, dip_chin_assist, cable_crossover, functional_trainer,
-      echo_bike, bikeerg, skierg, rowerg, treadmill, woodway_curve, elliptical, stairmaster, battle_ropes, spin_bike,
+      echo_bike, bikeerg, skierg, rowerg, treadmill, woodway_curve, elliptical, stairmaster, battle_ropes, jump_rope, spin_bike,
       stationary_bike, peloton, sled, normatec, foam_roller, lacrosse_ball, theragun]
   outdoor:
     description: Farmington River Trail / West Hartford Reservoir

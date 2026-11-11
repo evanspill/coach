@@ -140,12 +140,12 @@ Each entry: **decision** - why - how to reverse.
     After the first marathon the penalty drops and `learn` can calibrate the exponent from the real result.
 63. **`config_change` proposals without a patch record the config lock when approved**, so a change made to the
     files with the athlete's OK (like this one) is still approved, locked and in the changelog.
-64. **HYROX World Championships age-group slot as a long-term goal** (athlete-approved). There is no time standard:
-    from the 2026/27 season, slots come from Pro-division races, one per age group per qualifying event, initial
-    offers only (HYROX 26/27 rulebook). So the goal is placement-based: the athlete's latest Pro time vs the
-    place-1 time for their age group at the targeted qualifier (`reference_times`, looked up from official results
-    when a race is picked). No assumed improvement rate: the trend comes from the athlete's own Pro results. Target
-    edition 2028 (date an estimate until HYROX publishes it). - Reverse: remove the goal.
+64. **HYROX goal: sub-1:05 in the Open division** (athlete-approved 2026-11-11; replaces the World Championships
+    age-group slot, which needs winning a Pro age group and was judged too aggressive). Third-party aggregates of
+    HYROX results (HYROX publishes none) put the men's Open median at ~1:27, the top 10% at ~1:10 and the top 5% at
+    ~1:07; a Boston qualifier is ~11% of US marathon finishers. So ~1:10 is the like-for-like level and 1:05 a step
+    beyond it (the athlete's choice). Only Open-division results count; trend from the athlete's own results, no
+    assumed rate; target by the end of the 2027/28 season. The placement kind stays in the code for later.
 65. **CrossFit Quarterfinals as a long-term goal** (athlete-approved): top 25% worldwide of the division in the Open
     (CrossFit 2027 season guide), Rx. Status is `building` while the Rx prerequisites are missing (bar muscle-up,
     chest-to-bar, toes-to-bar, kipping pull-ups, the Olympic lifts, overhead squat, jerk; overhead/Olympic/kipping
@@ -153,3 +153,8 @@ Each entry: **decision** - why - how to reverse.
     the Open percentile trend decides. Target 2028 Open (date an estimate). - Reverse: remove the goal.
 66. **Only marathon goals get automatic timeline proposals.** Placement and percentile goals move in yearly steps
     and depend on season focus, so their checks are reported and the annual review decides with the athlete.
+67. **Open gymnastics skills added with shoulder-gated progressions** (athlete-approved): double-unders, handstand
+    push-ups, wall walks and ring muscle-ups, each drill gated by `requires` rungs in the overhead / press / kipping
+    families and tagged so shoulder and Achilles flags remove it; competence is set one level later than the minimum
+    (5 strict before kipping HSPU, 3+ linked ring muscle-ups). They are also Quarterfinals prerequisites. A jump rope
+    was added to the gym inventory (assumed; remove it if the gym has none).

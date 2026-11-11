@@ -79,3 +79,35 @@ skills:
     competent_level: 2
     current_level: 0
     gate: {family: overhead, rung: 4}
+  double_under:
+    name: Double-under
+    milestone: {pattern: '(\d+)\s*(?:unbroken|linked|in a row)?\s*(?:dus|double[- ]unders?)', levels: {1: 1, 10: 2, 30: 3}}
+    drills: [double_under, single_under]
+    levels: [smooth single-unders 2 min, double-under singles, 10 linked, 30+ linked]
+    competent_level: 2
+    current_level: 0
+    gate: null  # calf/Achilles load: practice volume stays small during the running ramp; knee/Achilles flags restrict it
+  handstand_push_up:
+    name: Handstand push-up
+    milestone: {pattern: '(\d+)\s*(?:unbroken|linked|in a row)?\s*strict (?:hspus?|handstand push[- ]?ups?)', levels: {1: 1, 5: 2}}
+    drills: [strict_hspu, pike_push_up_box]
+    levels: [box pike push-up 3x5 pain-free, strict HSPU singles to 2 abmats, 5 strict HSPU, 5 linked kipping HSPU]
+    competent_level: 3  # kipping only after 5 strict: the kip loads the shoulder and neck ballistically
+    current_level: 0
+    gate: {family: overhead, rung: 3}
+  wall_walk:
+    name: Wall walk
+    milestone: {pattern: '(\d+)\s*wall[- ]walks?', levels: {1: 2, 5: 3}}
+    drills: [wall_walk, wall_facing_hold]
+    levels: [plank shoulder taps, partial wall-facing hold 20 s, 1-3 full wall walks, 5+ wall walks under fatigue]
+    competent_level: 3
+    current_level: 0
+    gate: {family: overhead, rung: 2}
+  ring_muscle_up:
+    name: Ring muscle-up
+    milestone: {pattern: '(\d+)\s*(?:unbroken|linked|in a row)?\s*(?:ring muscle[- ]?ups?|rmus?)', levels: {1: 3, 3: 4}}
+    drills: [low_ring_transition, ring_dip, ring_support_hold]
+    levels: [ring support 30 s, 5 strict ring dips pain-free, low-ring transitions 3x3, singles, 3+ linked]
+    competent_level: 4  # the transition and dip load the shoulder in extension: no fatigued singles in metcons
+    current_level: 0
+    gate: {family: kipping, rung: 4}

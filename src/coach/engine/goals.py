@@ -11,7 +11,7 @@ import datetime as dt
 import math
 
 from coach.models.goals import GoalCheck
-from coach.models.profile import Identity, LongTermGoal, Race
+from coach.models.profile import Identity, LongTermGoal, Race, ReferenceTime
 
 MARATHON_MI = 26.2188
 WEEKS_PER_YEAR = 52.18
@@ -95,8 +95,8 @@ def threshold_on(current: float, rate_pct: float, today: dt.date, day: dt.date) 
 
 
 def deadline(goal: LongTermGoal, races: list[Race], today: dt.date) -> dt.date:
-    """The last planned marathon that still counts, else the end of the qualifying window."""
-    counting = [r.date for r in races if r.kind == "marathon" and today <= r.date <= goal.qualify_by]
+    """The last planned race of the goal's kind that still counts, else the end of the window."""
+    counting = [r.date for r in races if r.kind == goal.race_kind and today <= r.date <= goal.qualify_by]
     return max(counting) if counting else goal.qualify_by
 
 
@@ -203,16 +203,23 @@ def check_placement(
     results: list[tuple[dt.date, float]],
     today: dt.date,
 ) -> GoalCheck:
-    """A slot won by placing in an age group: the athlete's latest counting time vs the reference time for their
-    age group (latest one on file). Trend from the athlete's own results; no assumed rate."""
+    """Time goals for a race kind. race_time: a fixed target time. event_placement: the reference time for the
+    athlete's age group (latest on file). Latest counting result vs that time; trend from the athlete's own results
+    (no assumed rate)."""
     age = identity.age_on(goal.event_date)
     group = age_group(age, goal.age_band_years)
-    refs = sorted((r for r in goal.reference_times if r.age_group == group), key=lambda r: r.date)
+    if goal.kind == "race_time" and goal.target_time:
+        refs = [ReferenceTime(event="target", date=goal.event_date, age_group=group, time=goal.target_time)]
+        metric, versus = f"{goal.division or ''} time".strip(), f"target {goal.target_time}"
+    else:
+        refs = sorted((r for r in goal.reference_times if r.age_group == group), key=lambda r: r.date)
+        metric = f"{goal.division or ''} time vs age-group place {goal.place} ({group})".strip()
+        versus = f"{refs[-1].event} {refs[-1].date:%Y} {group} place {goal.place}" if refs else ""
     end = deadline(goal, races, today)
     base = {
         "date": today,
         "kind": goal.kind,
-        "metric": f"{goal.division or ''} time vs age-group place {goal.place} ({group})".strip(),
+        "metric": metric,
         "unit": "s",
         "event_date": goal.event_date,
         "qualify_by": goal.qualify_by,
@@ -251,7 +258,7 @@ def check_placement(
         rate_basis=basis,
         projected_date=when,
         status=status,
-        note=f"{gap:+.1f}% vs {refs[-1].event} {refs[-1].date:%Y} {group} place {goal.place}",
+        note=f"{gap:+.1f}% vs {versus}",
     )
 
 

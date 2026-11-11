@@ -49,6 +49,7 @@ class LongTermGoal(Model):
 
     kinds:
       marathon_time    an age-graded qualifying time (Boston): standards, margin_s
+      race_time        a fixed finish time for a race kind (e.g. HYROX Open 1:05): target_time, division
       event_placement  a championship slot won by placing in an age group (HYROX Worlds): division, place,
                        reference_times (age-group results the coach looks up for the races being targeted)
       open_percentile  a percentile of a worldwide online stage (CrossFit Open -> Quarterfinals): top_pct, division,
@@ -56,7 +57,7 @@ class LongTermGoal(Model):
 
     id: str
     name: str
-    kind: Literal["marathon_time", "event_placement", "open_percentile"]
+    kind: Literal["marathon_time", "race_time", "event_placement", "open_percentile"]
     race_kind: Literal["marathon", "crossfit_open", "hyrox", "half_marathon", "other"] = "marathon"
     event: str  # the event the goal qualifies for
     event_date: dt.date  # the edition targeted; age is taken on this day
@@ -65,7 +66,7 @@ class LongTermGoal(Model):
     standards: list[AgeStandard] = Field(
         default_factory=list
     )  # marathon_time: age-graded (sex from identity)
-    target_time: str | None = None  # marathon_time: a fixed time instead of age-graded standards
+    target_time: str | None = None  # race_time (or marathon_time instead of age-graded standards)
     margin_s: int = 0  # marathon_time: how far under the standard to aim (oversubscribed events)
     division: str | None = None  # results count only in this division (e.g. "pro", "rx")
     place: int = 1  # event_placement: age-group place that earns the slot

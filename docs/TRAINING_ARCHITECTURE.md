@@ -83,9 +83,9 @@ day, minus a safety margin for the oversubscription cut-off). They live in `athl
 and never set training paces or race-day pacing directly. At every transition week the coach checks each one: the
 threshold pace the goal needs, the athlete's measured threshold pace and its trend, and when the trend gets there
 versus the last planned race that counts. If it is behind on an observed trend (two or more run tests), a proposal offers the first later edition the projection
-reaches; the annual review puts the alternative (a run-focused season) to the athlete. The same check covers a **HYROX World Championships age-group slot** (placement, not
-a time standard: Pro-division results only, compared with the age-group winner's time at the targeted qualifier)
-and **CrossFit Quarterfinals** (top 25% of the Open, Rx), which stays `building` until the Rx skills are competent
+reaches; the annual review puts the alternative (a run-focused season) to the athlete. The same check covers a **HYROX finish time** (Open
+division sub-1:05: men's Open top 10% is ~1:10 and a Boston qualifier is ~11% of US marathon finishers, so 1:05 is a
+step beyond like-for-like; trend from the athlete's own results) and **CrossFit Quarterfinals** (top 25% of the Open, Rx), which stays `building` until the Rx skills are competent
 and the overhead, Olympic and kipping families are unlocked. Each upcoming marathon gets
 its own **race target**, a stepping stone set from what fitness will support on race day and approved by the
 athlete. Race-day pacing comes from current fitness; an approved target is paced only if fitness supports it.
@@ -143,3 +143,15 @@ Single studies, mouse studies, or hype never change my programming. Every cited 
   marathon result exists (athlete-approved).
 - 2026-11-10: HYROX World Championships age-group slot and CrossFit Quarterfinals added as long-term goals
   (athlete-approved).
+- 2026-11-11: HYROX goal changed to a sub-1:05 Open time (athlete-approved); double-unders, handstand push-ups, wall
+  walks and ring muscle-ups added with shoulder-gated progressions.
+
+### Shoulder-safe gymnastics progressions
+Overhead and Open gymnastics skills follow the shoulder: strict before kipping, upright pressing before going
+inverted, partial range before full, and nothing in loaded shoulder extension until pressing is rebuilt. Every drill
+carries a `requires` rung (handstand push-ups need the barbell strict press rung for strict reps and the push press
+rung for kipping; wall walks need the standing DB press rung for partial holds; ring support holds need the landmine press rung and ring dips the converging-press / close-grip rung,
+ring muscle-ups the bar muscle-up and full bench rungs), its joint tags (`overhead`, `overhead_ballistic`,
+`shoulder_extension_loaded`, `achilles_load`) so a flagged region removes it automatically, and the skill is
+competent only one level later than the minimum (5 strict HSPU before kipping; 3+ linked ring muscle-ups before
+metcons). Double-unders load the calf and Achilles, so practice volume stays small during the running ramp.

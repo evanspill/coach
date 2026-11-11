@@ -34,7 +34,7 @@ feeds the next block's outline.
 ## Annual review
 Year-over-year trends, what worked, what to change; trigger the intake refresh (`assess`).
 **Long-term goals** (`coach goals`): show each goal's checks over the year (threshold pace trend vs what the goal
-needs, projected date vs deadline). Three goals compete for the same training time (Boston: running volume; HYROX Pro: running +
+needs, projected date vs deadline). Three goals compete for the same training time (Boston: running volume; HYROX: running +
 strength-endurance; Quarterfinals: gymnastics and Olympic-lift skill), so name which one next season leads.
 If a goal is `behind`, put the trade-off to the athlete explicitly and let them
 choose: keep the date and make next season run-focused (more mileage; the Open/Hyrox become secondary), or accept the

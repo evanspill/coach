@@ -125,6 +125,8 @@ def check_config_consistency(cfg: Config) -> None:
         for fam in g.prerequisite_families:
             if fam not in cfg.progressions.families:
                 errors.append(f"goal {g.id}: prerequisite family '{fam}' unknown")
+        if g.kind == "race_time" and not g.target_time:
+            errors.append(f"goal {g.id}: race_time needs target_time")
         if g.kind == "open_percentile" and g.top_pct is None:
             errors.append(f"goal {g.id}: open_percentile needs top_pct")
     errors += _check_training(cfg)

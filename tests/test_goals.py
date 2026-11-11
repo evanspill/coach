@@ -118,7 +118,7 @@ def test_goal_progress_timeline_and_race_target(b1):
     checks = assess.goal_progress(ctx, today)
     assert len(checks) == len(ctx.cfg.profile.goals.long_term) == 3
     i, c = checks[0]
-    assert {c.kind for _, c in checks} == {"marathon_time", "event_placement", "open_percentile"}
+    assert {c.kind for _, c in checks} == {"marathon_time", "race_time", "open_percentile"}
     rec = ctx.state.get("goal_progress", ctx.cfg.profile.goals.long_term[0].id)
     assert rec.latest == c
     if cur is not None:
@@ -256,5 +256,45 @@ def test_prerequisites_and_description(b1):
     assert any("muscle-up" in m.lower() for m in missing) and any("unlocked" in m for m in missing)
     c = G.check_percentile(qf, ctx.cfg.profile.identity, [], missing, TODAY)
     assert assess.describe_check(qf.name, c).startswith("CrossFit Quarterfinals: building.")
-    hx = next(g for g in ctx.cfg.profile.goals.long_term if g.kind == "event_placement")
+    hx = next(g for g in ctx.cfg.profile.goals.long_term if g.kind == "race_time")
     assert assess.goal_timeline_proposal(ctx, ctx.cfg.profile.goals.long_term.index(hx), c, TODAY) is None
+
+
+def test_race_time_goal():
+    goal = HYROX.model_copy(
+        update={"kind": "race_time", "target_time": "1:05:00", "division": "open", "reference_times": []}
+    )
+    assert G.check_placement(goal, ID, [], [], TODAY).required_value == 3900
+    two = G.check_placement(
+        goal, ID, [], [(dt.date(2027, 3, 1), 4800.0), (dt.date(2027, 9, 1), 4500.0)], TODAY
+    )
+    assert two.metric == "open time" and "target 1:05:00" in two.note and two.rate_pct_per_year
+
+
+def test_open_skills_are_gated_for_the_shoulder(b1):
+    from coach.engine.movement import allowed
+    from coach.models import MovementReadiness
+
+    ctx, _, _ = b1
+    lib, skills = ctx.cfg.library, ctx.cfg.skills.skills
+    for sk in ("double_under", "handstand_push_up", "wall_walk", "ring_muscle_up"):
+        assert sk in skills and skills[sk].drills and not skills[sk].competent
+    assert (
+        skills["handstand_push_up"].gate.family == "overhead"
+        and skills["ring_muscle_up"].gate.family == "kipping"
+    )
+    low = MovementReadiness.model_validate(
+        {
+            "updated": "2026-11-29",
+            "families": {f: {"family": f, "rung": 0} for f in ctx.cfg.progressions.families},
+        }
+    )
+    for ex in ("pike_push_up_box", "strict_hspu", "kipping_hspu", "wall_walk", "ring_dip", "ring_muscle_up"):
+        assert not allowed(lib.get(ex), low)[0], (
+            ex
+        )  # nothing inverted or in loaded extension at the starting rungs
+    assert lib.get("kipping_hspu").has_tag("overhead_ballistic")
+    assert lib.get("ring_dip").has_tag("shoulder_extension_loaded")
+    assert lib.get("double_under").has_tag("achilles_load")
+    qf = next(g for g in ctx.cfg.profile.goals.long_term if g.kind == "open_percentile")
+    assert {"double_under", "handstand_push_up", "wall_walk", "ring_muscle_up"} <= set(qf.prerequisite_skills)

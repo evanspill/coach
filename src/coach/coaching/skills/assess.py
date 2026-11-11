@@ -400,7 +400,7 @@ def goal_progress(ctx: Context, today: dt.date) -> list[tuple[int, GoalCheck]]:
         if goal.kind == "marathon_time":
             k, pen, _ = marathon_model(ctx)
             c = G.check(goal, prof.identity, prof.races, hist, cur, today, k, pen)
-        elif goal.kind == "event_placement":
+        elif goal.kind in {"race_time", "event_placement"}:
             res = [(e.date, float(e.result_time_s)) for e in _results(ctx, goal) if e.result_time_s]
             c = G.check_placement(goal, prof.identity, prof.races, res, today)
         else:
