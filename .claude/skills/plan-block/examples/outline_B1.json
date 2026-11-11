@@ -675,7 +675,7 @@
   "revisions": [
     {
       "at": "2027-01-01",
-      "reason": "recovery <= 33 two days running (21, 18); HRV trend below baseline band 4 days",
+      "reason": "recovery <= 33 two days running; HRV trend below baseline band 4 days",
       "change": "deload pulled forward to week 7; deloads now [4, 7, 11]"
     },
     {

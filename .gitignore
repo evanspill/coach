@@ -15,3 +15,5 @@ state/raw/
 coverage.xml
 htmlcov/
 .mypy_cache/
+# Whoop data is never committed: refetched each run into this cache (docs/DECISIONS.md 73)
+athlete/data/.cache/

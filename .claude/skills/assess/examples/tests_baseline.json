@@ -123,19 +123,6 @@
       },
       "conditions": {},
       "notes": ""
-    },
-    {
-      "test_id": "vitals",
-      "date": "2026-11-22",
-      "variant": null,
-      "value": 49.5,
-      "unit": "bpm",
-      "comparable_value": 49.5,
-      "details": {
-        "ln_rmssd": 4.119
-      },
-      "conditions": {},
-      "notes": ""
     }
   ],
   "scheduled": {

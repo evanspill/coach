@@ -4,7 +4,7 @@ Excerpt of `python -m coach simulate --days 120 --from 2026-11-16` (mock data; d
 
 ```
 === Mon 2026-11-16 ===
-GREEN: recovery 48 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Test day: Standing broad jump, Hinge 3-5RM (current hinge rung), Squat 5RM (current squat rung) (~85 min, gym).
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.
 Tonight: evening 10-15 min soft tissue + mobility (T-spine/shoulders/hips): foam roller, lacrosse ball, bands, Theragun; magnesium bisglycinate at night.
@@ -18,14 +18,14 @@ Tonight: evening 10-15 min soft tissue + mobility (T-spine/shoulders/hips): foam
   · [athlete] did Test day: Standing broad jump, Hinge 3-5RM (current hinge rung), Squat 5RM (current squat rung) (RPE 6.8)
 
 === Tue 2026-11-17 ===
-GREEN: recovery 62 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Test day: Neutral-grip DB press 5RM, Strict pull-ups, max reps (~60 min, gym).
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; after: 40 g protein + carbs within 2 h.
 Tonight: evening 10-15 min soft tissue + mobility (T-spine/shoulders/hips): foam roller, lacrosse ball, bands, Theragun; magnesium bisglycinate at night.
   · [athlete] did Test day: Neutral-grip DB press 5RM, Strict pull-ups, max reps (RPE 7.2)
 
 === Wed 2026-11-18 ===
-GREEN: recovery 76.
+GREEN: recovery >= 67.
 Today: Zone 2 run (~65 min, farmington_river_trail). 3.0 mi
 Weather: outdoor OK.
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; after: 40 g protein + carbs within 2 h.
@@ -33,7 +33,7 @@ Tonight: magnesium bisglycinate at night.
   · [athlete] did Zone 2 run (RPE 5.5)
 
 === Thu 2026-11-19 ===
-GREEN: recovery 79.
+GREEN: recovery >= 67.
 Today: Test day: run (~95 min, farmington_river_trail).
 Weather: outdoor OK.
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.
@@ -41,28 +41,28 @@ Tonight: Normatec boots 20-30 min at the gym after the session; evening 10-15 mi
   · [athlete] did Test day: run (RPE 6.6)
 
 === Fri 2026-11-20 ===
-GREEN: recovery 71.
+GREEN: recovery >= 67.
 Today: Recovery: Z1 walk + mobility (~50 min, home).
 Fuel: Easy day: normal meals, protein at each; magnesium tonight.
 Tonight: magnesium bisglycinate at night.
   · [athlete] did Recovery: Z1 walk + mobility (RPE 5.0)
 
 === Sat 2026-11-21 ===
-GREEN: recovery 79.
+GREEN: recovery >= 67.
 Today: Test day: 2 km row (~40 min, gym).
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; after: 40 g protein + carbs within 2 h.
 Tonight: evening 10-15 min soft tissue + mobility (T-spine/shoulders/hips): foam roller, lacrosse ball, bands, Theragun; magnesium bisglycinate at night.
   · [athlete] did Test day: 2 km row (RPE 6.6)
 
 === Sun 2026-11-22 ===
-GREEN: recovery 56 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Recovery: Z1 walk + mobility (~50 min, home).
 Fuel: Easy day: normal meals, protein at each; magnesium tonight.
 Tonight: magnesium bisglycinate at night.
 New block starts tomorrow: tests scored, goal proposed and approved.
 Note: plan depends on unconfirmed race dates (Fall marathon, CrossFit Open 2027).
   · review: week 2026-W47 adherence 100%
-  · assess: scored 9 tests (broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp, vitals)
+  · assess: scored 8 tests (broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp)
   · zones updated: LTHR 169, threshold 462 s/mi
   · assess: goal proposed (pullups_max 9.0 -> 11.2)
   · [sim] athlete approved block goal 2026-11-22-block-goal-1
@@ -72,21 +72,21 @@ Note: plan depends on unconfirmed race dates (Fall marathon, CrossFit Open 2027)
   · [athlete] did Recovery: Z1 walk + mobility (RPE 5.4)
 
 === Mon 2026-11-23 ===
-GREEN: recovery 55 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Lower force (~70 min, gym). Main: 4x4 trap bar deadlift high @ 352.5 lb.
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; after: 40 g protein + carbs within 2 h.
 Tonight: evening 10-15 min soft tissue + mobility (hips/hamstrings/calves): foam roller, lacrosse ball, bands, Theragun; magnesium bisglycinate at night.
   · [athlete] did Lower force (RPE 7.1)
 
 === Tue 2026-11-24 ===
-GREEN: recovery 99.
+GREEN: recovery >= 67.
 Today: Upper strength + skill + metcon (~90 min, gym). Main: 4x5 db bench press neutral @ 80 lb DBs.
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.
 Tonight: magnesium bisglycinate at night.
   · [athlete] did Upper strength + skill + metcon (RPE 7.5)
 
 === Wed 2026-11-25 ===
-GREEN: recovery 57 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Zone 2 run (~70 min, west_hartford_reservoir). 3.6 mi
 Weather: outdoor OK.
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; after: 40 g protein + carbs within 2 h.
@@ -94,14 +94,14 @@ Tonight: magnesium bisglycinate at night.
   · [athlete] did Zone 2 run (RPE 5.4)
 
 === Thu 2026-11-26 ===
-GREEN: recovery 72.
+GREEN: recovery >= 67.
 Today: Squat + Hyrox threshold (~75 min, gym). Main: 4x5 ssb box squat @ 250 lb.
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; after: 40 g protein + carbs within 2 h.
 Tonight: evening 10-15 min soft tissue + mobility (T-spine/shoulders/hips): foam roller, lacrosse ball, bands, Theragun; magnesium bisglycinate at night.
   · [athlete] did Squat + Hyrox threshold (RPE 7.1)
 
 === Fri 2026-11-27 ===
-GREEN: recovery 73.
+GREEN: recovery >= 67.
 Today: Sprints + upper aesthetics + easy run (~85 min, gym). 2.6 mi
 Weather: quality and long work moves indoors (treadmill or erg).
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.
@@ -109,7 +109,7 @@ Tonight: magnesium bisglycinate at night.
   · [athlete] did Sprints + upper aesthetics + easy run (RPE 5.8)
 
 === Sat 2026-11-28 ===
-GREEN: recovery 73.
+GREEN: recovery >= 67.
 Today: Long run (~90 min, gym). 3.9 mi
 Weather: quality and long work moves indoors (treadmill or erg).
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.
@@ -118,7 +118,7 @@ Changed: run moved indoors to the gym treadmill (icy: <= 0C with 4.7 mm precipit
   · [athlete] did Long run (RPE 6.7)
 
 === Sun 2026-11-29 ===
-GREEN: recovery 50 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Recovery: Z1 walk + mobility (~50 min, home).
 Fuel: Easy day: normal meals, protein at each; magnesium tonight.
 Tonight: magnesium bisglycinate at night.
@@ -137,12 +137,12 @@ Changed: metcon/threshold work -> 40 min Zone 2; primary strength kept (Yellow r
   · [athlete] did Squat + Hyrox threshold (RPE 7.1)
 
 === Fri 2027-01-01 ===
-RED: recovery <= 33 two days running (21, 18).
+RED: recovery <= 33 two days running.
 Today: Recovery: Z1 walk + mobility (~50 min, home).
 Fuel: Easy day: normal meals, protein at each; magnesium tonight.
 Tonight: magnesium bisglycinate at night.
-Changed: Sprints + upper aesthetics + easy run -> Z1 walk + mobility (Red readiness (recovery <= 33 two days running (21, 18); HRV trend below baseline band 4 days))
-Reactive deload: next week (block week 7) is now a deload. Why: recovery <= 33 two days running (21, 18).
+Changed: Sprints + upper aesthetics + easy run -> Z1 walk + mobility (Red readiness (recovery <= 33 two days running; HRV trend below baseline band 4 days))
+Reactive deload: next week (block week 7) is now a deload. Why: recovery <= 33 two days running.
   · replan: reactive deload -> week 7 (2027-01-01-early-deload-1)
   · [athlete] did Recovery: Z1 walk + mobility (RPE 6.4)
 
@@ -177,7 +177,7 @@ Reactive deload: next week (block week 10) is now a deload. Why: shoulders rated
   · [athlete] did Recovery: Z1 walk + mobility (RPE 6.6)
 
 === Wed 2027-01-27 ===
-GREEN: recovery 72.
+GREEN: recovery >= 67.
 Today: Zone 2 run (~65 min, gym). 3.1 mi
 Weather: quality and long work moves indoors (treadmill or erg).
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; after: 40 g protein + carbs within 2 h.
@@ -188,7 +188,7 @@ Replanned the rest of the week around missed sessions (key sessions kept).
   · [athlete] missed Zone 2 run (work trip (no gym))
 
 === Sun 2027-01-31 ===
-GREEN: recovery 66 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Recovery: Z1 walk + mobility (~50 min, home).
 Fuel: Easy day: normal meals, protein at each; magnesium tonight.
 Tonight: magnesium bisglycinate at night.
@@ -201,7 +201,7 @@ Note: plan depends on unconfirmed race dates (Fall marathon, CrossFit Open 2027)
   · [athlete] missed Recovery: Z1 walk + mobility (work trip (no gym))
 
 === Fri 2027-02-19 ===
-GREEN: recovery 52 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Open attempt (~35 min, gym).
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; after: 40 g protein + carbs within 2 h.
 Tonight: Normatec boots 20-30 min at the gym after the session; evening 10-15 min soft tissue + mobility (T-spine/shoulders/hips): foam roller, lacrosse ball, bands, Theragun; magnesium bisglycinate at night.
@@ -209,7 +209,7 @@ Waiting for your OK: 2027-02-03-calibration-1: Trial: Green recovery cut-off 67 
   · [athlete] did Open attempt (RPE 6.7)
 
 === Thu 2027-03-11 ===
-GREEN: recovery 75.
+GREEN: recovery >= 67.
 Today: Test day: run (~95 min, gym).
 Weather: quality and long work moves indoors (treadmill or erg).
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.
@@ -220,7 +220,7 @@ Gear: Cushioned trainer at 289 mi: plan a replacement (alert at 250 mi)
   · [athlete] did Test day: run (RPE 7.5)
 
 === Sun 2027-03-14 ===
-GREEN: recovery 60 with HRV trend in band.
+GREEN: recovery under 67 with HRV trend in band.
 Today: Recovery: Z1 walk + mobility (~50 min, home).
 Fuel: Easy day: normal meals, protein at each; magnesium tonight.
 Tonight: magnesium bisglycinate at night.
@@ -229,7 +229,7 @@ Gear: Cushioned trainer at 289 mi: plan a replacement (alert at 250 mi)
 New block starts tomorrow: tests scored, goal proposed and approved.
 Note: plan depends on unconfirmed race dates (Fall marathon, CrossFit Open 2027).
   · review: week 2027-W10 adherence 100%
-  · assess: scored 9 tests (run_tt_30, hinge_rm, squat_rm, db_press_5rm, pullups_max, broad_jump, row_2k, body_comp, vitals)
+  · assess: scored 8 tests (run_tt_30, hinge_rm, squat_rm, db_press_5rm, pullups_max, broad_jump, row_2k, body_comp)
   · zones updated: LTHR 171, threshold 451 s/mi
   · review: block review written for 2026-27-B1
   · assess: goal proposed (squat_rm 149.0 -> 160.2)
@@ -240,7 +240,7 @@ Note: plan depends on unconfirmed race dates (Fall marathon, CrossFit Open 2027)
   · [athlete] did Recovery: Z1 walk + mobility (RPE 5.2)
 
 === Mon 2027-03-15 ===
-YELLOW: recovery 31 (single low day).
+YELLOW: recovery <= 33 (single low day).
 Today: Lower hypertrophy (~80 min, gym). Main: 4x7 high bar back squat @ 260 lb.
 Fuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.
 Tonight: evening 10-15 min soft tissue + mobility (hips/hamstrings/calves): foam roller, lacrosse ball, bands, Theragun; magnesium bisglycinate at night.

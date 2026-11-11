@@ -63,7 +63,7 @@ Each entry: **decision** - why - how to reverse.
 42. **Whoop stays a direct API integration, through a token broker.** Whoop is worn 24/7 (the Garmin only on runs), so
     it's the only HR/strain source for gym sessions, and the direct API has last night's recovery ready for the
     8:25 run. Intervals.icu's native Whoop sync was rejected: wellness only (no workouts) and it polls about every
-    8 h. Cost: hosting the broker (a free Cloudflare Worker by default), which also serves Withings. - To reverse,
+    8 h. Cost: hosting the broker (a free Cloudflare Worker by default). - To reverse,
     read recovery from Intervals.icu wellness and drop per-session Whoop HR.
 43. **Intervals.icu stays, for runs only.** It carries Garmin run detail (pace, Running Dynamics, training load,
     shoe mileage) and is the only practical way to put planned run workouts on the watch: Garmin's Training API is
@@ -181,3 +181,23 @@ Each entry: **decision** - why - how to reverse.
     `needs_reauth` instead of retrying (a rotated token can't be reused). KV is eventually consistent, so this is
     safe for one daily caller, not many; a Durable Object is the upgrade if that ever changes. Tests run with
     `node --test` against fake upstreams and are not part of `make check` (Python CI).
+73. **Whoop data is never committed** (athlete-approved 2026-11-11). WHOOP's API Terms forbid permanent copies and
+    databases of WHOOP data. `sync` writes Whoop's daily numbers and the Whoop part of each workout (HR, strain,
+    zones, kJ) to a git-ignored cache (`athlete/data/.cache/whoop/`), keyed like the committed rows;
+    `Store.daily_metrics()` / `Store.sessions()` merge it in, so no reader changed. When the cache is cold (a fresh
+    container) or more than the overlap behind, sync refetches a rolling 75-day window (60-day HRV/RHR baselines +
+    the 7-day trend + margin; ~20 API calls) and prunes older rows. Committed workouts keep Hevy/Garmin data only
+    (run HR is Garmin's). Stored day records keep the readiness state and reasons but not recovery/HRV/RHR values;
+    reasons name the rule ("recovery <= 33 two days running"), never Whoop's numbers, which also keeps them out of
+    notifications. Weekly reviews say "Sleep: under 7 h on average" instead of averages; the block review drops the
+    RHR trend; the `vitals` test (a stored 28-day Whoop RHR/HRV mean) is retired, since readiness computes those
+    baselines live. Trade-offs: reports and reviews can only see the last 75 days of Whoop data; an old decision's
+    exact numbers can't be audited; the energy-availability estimate in reviews still uses Whoop kJ as one input.
+    This does not settle the AI clause of the same terms (written confirmation requested from WHOOP).
+    - Reverse: write the cache rows to `metrics/` again (one flag in `sync`).
+74. **No direct scale API.** The scale vendor's API terms forbid giving its data to an AI model and require a business
+    account, so the scale integration, its broker endpoints and its fixtures were removed. Weigh-ins now arrive
+    as Intervals.icu wellness `weight` / `bodyFat` (scale app -> Apple Health -> Garmin Connect -> Intervals.icu);
+    field names are from the Intervals.icu docs, to verify on the first real weigh-in. The demo fixtures carry the
+    same weigh-ins in wellness (same random sequence, so simulations are unchanged apart from the source). The
+    broker is Whoop-only.

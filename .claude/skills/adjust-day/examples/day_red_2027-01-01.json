@@ -5,18 +5,18 @@
     "date": "2027-01-01",
     "state": "red",
     "reasons": [
-      "recovery <= 33 two days running (21, 18)",
+      "recovery <= 33 two days running",
       "HRV trend below baseline band 4 days"
     ],
-    "recovery_score": 18.0,
+    "recovery_score": null,
     "hrv": {
-      "mean7_ln": 3.8853,
-      "baseline_ln": 4.086,
-      "lower_band": 4.0152,
-      "upper_band": 4.1568,
-      "below_days": 4
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
     },
-    "rhr_delta": 3.1,
+    "rhr_delta": null,
     "joints": {
       "back": 2,
       "shoulders": 2,
@@ -173,7 +173,7 @@
   "changes": [
     {
       "what": "Sprints + upper aesthetics + easy run -> Z1 walk + mobility",
-      "why": "Red readiness (recovery <= 33 two days running (21, 18); HRV trend below baseline band 4 days)",
+      "why": "Red readiness (recovery <= 33 two days running; HRV trend below baseline band 4 days)",
       "kind": "small"
     }
   ],
@@ -205,10 +205,10 @@
     "intervals": []
   },
   "handoffs": [
-    "Reactive deload: next week (block week 7) is now a deload. Why: recovery <= 33 two days running (21, 18)."
+    "Reactive deload: next week (block week 7) is now a deload. Why: recovery <= 33 two days running."
   ],
   "approvals_pending": [],
   "stale_sources": [],
   "generated_by": "fallback",
-  "notification": "RED: recovery <= 33 two days running (21, 18).\nToday: Recovery: Z1 walk + mobility (~50 min, home).\nFuel: Easy day: normal meals, protein at each; magnesium tonight.\nTonight: magnesium bisglycinate at night.\nChanged: Sprints + upper aesthetics + easy run -> Z1 walk + mobility (Red readiness (recovery <= 33 two days running (21, 18); HRV trend below baseline band 4 days))\nReactive deload: next week (block week 7) is now a deload. Why: recovery <= 33 two days running (21, 18)."
+  "notification": "RED: recovery <= 33 two days running.\nToday: Recovery: Z1 walk + mobility (~50 min, home).\nFuel: Easy day: normal meals, protein at each; magnesium tonight.\nTonight: magnesium bisglycinate at night.\nChanged: Sprints + upper aesthetics + easy run -> Z1 walk + mobility (Red readiness (recovery <= 33 two days running; HRV trend below baseline band 4 days))\nReactive deload: next week (block week 7) is now a deload. Why: recovery <= 33 two days running."
 }

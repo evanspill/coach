@@ -1,7 +1,6 @@
 """Raw API payload -> normalized models. Shared by mock and live clients, so fixtures exercise real code."""
 
 import datetime as dt
-import math
 
 from coach.engine.readiness import rpe_to_rir
 from coach.engine.units import M_PER_MI
@@ -258,6 +257,8 @@ def intervals_wellness(raw: list[dict], cfg=None) -> tuple[list[DailyMetrics], l
                 protein_g=w.get("protein"),
                 carbs_g=w.get("carbohydrates"),
                 fat_g=w.get("fatTotal"),
+                weight_kg=w.get("weight"),  # scale weigh-ins (e.g. Apple Health -> Garmin -> Intervals.icu)
+                body_fat_pct=w.get("bodyFat"),
                 sources=["intervals"],
             )
         )
@@ -290,17 +291,3 @@ def open_meteo_hourly(raw: dict) -> list[dict]:
             h["time"], h["temperature_2m"], h["dew_point_2m"], h["precipitation"], strict=False
         )
     ]
-
-
-# ---------------- Withings ----------------
-def withings_measurements(raw: dict) -> list[DailyMetrics]:
-    by_day: dict[dt.date, DailyMetrics] = {}
-    for g in raw.get("body", {}).get("measuregrps", []):
-        day = _local(dt.datetime.fromtimestamp(g["date"], tz=dt.UTC)).date()
-        vals = {m["type"]: m["value"] * math.pow(10, m["unit"]) for m in g["measures"]}
-        dm = by_day.setdefault(day, DailyMetrics(date=day, sources=["withings"]))
-        if 1 in vals:
-            dm.weight_kg = round(vals[1], 2)
-        if 6 in vals:
-            dm.body_fat_pct = round(vals[6], 1)
-    return sorted(by_day.values(), key=lambda m: m.date)

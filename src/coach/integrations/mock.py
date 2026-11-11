@@ -13,7 +13,6 @@ from coach import clock, paths
 from coach.config import load_config
 from coach.integrations import normalize as N
 from coach.integrations.base import (
-    BodyCompSource,
     HevySource,
     IntervalsSource,
     NutritionSource,
@@ -35,7 +34,6 @@ class MockWorld:
     hevy: dict
     intervals: dict
     weather: dict
-    withings: dict
     script: dict
     hide_recovery_for: set[dt.date] = field(default_factory=set)
     routines: dict[str, dict] = field(default_factory=dict)
@@ -50,7 +48,6 @@ class MockWorld:
             hevy=_load("hevy.json"),
             intervals=_load("intervals.json"),
             weather=_load("open_meteo.json"),
-            withings=_load("withings.json"),
             script=script,
         )
 
@@ -154,15 +151,6 @@ class MockWeather(WeatherSource):
         return [r for r in N.open_meteo_hourly(self.w.weather) if start <= r["time"].date() <= end]
 
 
-class MockWithings(BodyCompSource):
-    def __init__(self, world: MockWorld):
-        self.w = world
-
-    def measurements(self, start, end):
-        today = MockWorld.now_cutoff()
-        return [m for m in N.withings_measurements(self.w.withings) if _in(m.date, start, min(end, today))]
-
-
 class MockNutrition(NutritionSource):
     """Phase 3 route: MacroFactor -> Apple Health -> Intervals.icu wellness. Mock reads the same wellness fixture."""
 
@@ -187,7 +175,6 @@ def mock_sources(world: MockWorld) -> Sources:
         hevy=MockHevy(world),
         intervals=MockIntervals(world),
         weather=MockWeather(world),
-        withings=MockWithings(world),
         nutrition=MockNutrition(world),
         mock=True,
     )

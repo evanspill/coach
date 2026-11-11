@@ -131,7 +131,7 @@ def whoop_and_wellness():
                 },
             }
         )
-        # wellness: weight via Withings separately; joints from check-ins; nutrition (Phase 3) via HealthFit
+        # wellness: weight/body fat added by add_body_comp(); joints from check-ins; nutrition (Phase 3) via HealthFit
         w = {"id": d.isoformat(), "restingHR": round(rhr), "hrv": hrv, "ctl": None, "atl": None}
         if d >= BASELINE - dt.timedelta(days=30):
             target = 2800 if d >= dt.date(2026, 11, 23) else 3200
@@ -161,9 +161,10 @@ def whoop_and_wellness():
     return recovery, sleep, cycles, wellness
 
 
-def withings():
-    groups = []
-    for i, d in enumerate(days()):
+def add_body_comp(wellness: list[dict]) -> None:
+    """Morning scale weigh-ins as Intervals.icu wellness fields (`weight` kg, `bodyFat` %), e.g. synced from Garmin."""
+    by_day = {w["id"]: w for w in wellness}
+    for d in days():
         if rng.random() < 0.08:
             continue  # skipped weigh-in
         progress = max(0, (d - dt.date(2026, 11, 23)).days)
@@ -171,21 +172,9 @@ def withings():
         if d in MISSED:
             weight += 0.6
         bf = 18.2 - 0.020 * progress + rng.gauss(0, 0.5)
-        ts = int(dt.datetime(d.year, d.month, d.day, 11, 45, tzinfo=dt.UTC).timestamp())
-        groups.append(
-            {
-                "grpid": 5000 + i,
-                "attrib": 0,
-                "date": ts,
-                "category": 1,
-                "measures": [
-                    {"value": int(round(weight * 1000)), "type": 1, "unit": -3},
-                    {"value": int(round(bf * 10)), "type": 6, "unit": -1},
-                    {"value": int(round(weight * bf / 100 * 1000)), "type": 8, "unit": -3},
-                ],
-            }
-        )
-    return {"status": 0, "body": {"updatetime": 0, "timezone": "America/New_York", "measuregrps": groups}}
+        w = by_day.setdefault(d.isoformat(), {"id": d.isoformat()})
+        w.update({"weight": round(weight, 1), "bodyFat": round(bf, 1)})
+    wellness[:] = sorted(by_day.values(), key=lambda w: w["id"])
 
 
 def weather():
@@ -431,9 +420,10 @@ def main():
             ],
         },
         "open_meteo.json": weather(),
-        "withings.json": withings(),
+        "_body_comp": add_body_comp(wellness),  # same RNG position as before; fills wellness in place
         "athlete_script.json": athlete_script(),
     }
+    files.pop("_body_comp")
     for name, data in files.items():
         with open(OUT / name, "w") as f:
             json.dump(data, f, separators=(",", ":"))

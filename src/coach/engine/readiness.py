@@ -145,13 +145,11 @@ def compute_readiness(
 
     # --- red ---
     if rec is not None and rec <= th.recovery_red_max and rec_y is not None and rec_y <= th.recovery_red_max:
-        reasons_by_state["red"].append(
-            f"recovery <= {th.recovery_red_max} two days running ({rec_y:.0f}, {rec:.0f})"
-        )
+        reasons_by_state["red"].append(f"recovery <= {th.recovery_red_max} two days running")
     if below >= th.hrv_below_days_red:
         reasons_by_state["red"].append(f"HRV trend below baseline band {below} days")
     if rdelta is not None and rdelta > th.rhr_red_delta:
-        reasons_by_state["red"].append(f"resting HR +{rdelta:.1f} bpm vs baseline")
+        reasons_by_state["red"].append(f"resting HR more than {th.rhr_red_delta} bpm above baseline")
     for region, v in joints.items():
         if v >= th.joint_red:
             reasons_by_state["red"].append(f"{region.replace('_', '/')} rated {v}/5")
@@ -165,13 +163,15 @@ def compute_readiness(
 
     # --- yellow ---
     if rec is not None and rec <= th.recovery_red_max and not reasons_by_state["red"]:
-        reasons_by_state["yellow"].append(f"recovery {rec:.0f} (single low day)")
+        reasons_by_state["yellow"].append(f"recovery <= {th.recovery_red_max} (single low day)")
     if rec is not None and th.recovery_red_max < rec < th.recovery_green_min and hrv_below_today:
-        reasons_by_state["yellow"].append(f"recovery {rec:.0f} with HRV trend below band")
+        reasons_by_state["yellow"].append(f"recovery under {th.recovery_green_min} with HRV trend below band")
     if below >= th.hrv_below_days_yellow and below < th.hrv_below_days_red:
         reasons_by_state["yellow"].append(f"HRV trend below band {below} days")
     if rdelta is not None and th.rhr_yellow_delta <= rdelta <= th.rhr_red_delta:
-        reasons_by_state["yellow"].append(f"resting HR +{rdelta:.1f} bpm vs baseline")
+        reasons_by_state["yellow"].append(
+            f"resting HR {th.rhr_yellow_delta}-{th.rhr_red_delta} bpm above baseline"
+        )
     for region, v in joints.items():
         if th.joint_yellow <= v < th.joint_red:
             reasons_by_state["yellow"].append(f"{region.replace('_', '/')} rated {v}/5")
@@ -185,12 +185,11 @@ def compute_readiness(
         state, reasons = "yellow", reasons_by_state["yellow"]
     else:
         state = "green"
+        # Reasons name the rule, never Whoop's values: they are stored and sent in notifications (DECISIONS 73)
         if rec is not None and rec >= th.recovery_green_min:
-            reasons = [f"recovery {rec:.0f}"]
+            reasons = [f"recovery >= {th.recovery_green_min}"]
         else:
-            reasons = [f"recovery {rec:.0f} with HRV trend in band"]
-        if rdelta is not None:
-            reasons.append(f"RHR {rdelta:+.1f} bpm")
+            reasons = [f"recovery under {th.recovery_green_min} with HRV trend in band"]
 
     sustained = False
     if prior_states is not None:

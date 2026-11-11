@@ -275,7 +275,7 @@ tests:
     quality: body composition
     pillar: body
     category: body
-    protocol: {procedure: "Withings scale every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).", rest: "n/a"}
+    protocol: {procedure: "Smart scale (synced to Intervals.icu via Apple Health -> Garmin) every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).", rest: "n/a"}
     equipment: []
     location: home
     safety: "Bioimpedance body fat is noisy: use the trend. Optional DEXA for an anchor."
@@ -283,25 +283,9 @@ tests:
     unit: kg
     scoring: seven_day_avg
     passive: true
-  vitals:
-    slot: body
-    typical_error_pct: 3
-    stress: none
-    name: RHR / HRV baselines (28-day)
-    quality: autonomic baseline
-    pillar: body
-    category: body
-    protocol: {procedure: "Computed from Whoop: 28-day mean RHR and ln(rMSSD).", rest: "n/a"}
-    equipment: []
-    location: home
-    safety: "n/a"
-    metric: rhr_bpm
-    unit: bpm
-    scoring: rolling_baseline
-    passive: true
 batteries:
   # if average weekly running over the last 4 weeks is below low_volume_miles, swap these baseline tests
   low_volume_miles: 6
   low_volume_swaps: {run_tt_30: run_submax_drift}
-  baseline: [broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp, vitals]
-  always_tracked: [hinge_rm, db_press_5rm, body_comp, vitals]
+  baseline: [broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp]
+  always_tracked: [hinge_rm, db_press_5rm, body_comp]

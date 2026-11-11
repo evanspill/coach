@@ -123,8 +123,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
     run_actual = round(sum(s.distance_mi or 0 for s in sessions if s.sport == "run"), 1)
     run_plan = week_miles(plan, ctx.zones.threshold_pace_s_per_mi)
     ms = ctx.state.daily_metrics(plan.start, plan.end)
-    rec = _avg([m.recovery_score for m in ms])
-    sleep = _avg([m.sleep_hours for m in ms])
+    sleep = _avg([m.sleep_hours for m in ms])  # Whoop: used for the call, never written out (DECISIONS 73)
     weights = [m.weight_kg for m in ms if m.weight_kg]
     prev_w = [
         m.weight_kg
@@ -166,7 +165,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         to_fix.append(f"{states.count('red')} Red days: recovery is the limiter right now.")
         focus.append("Protect sleep: aim for 8 h in bed on the nights before key sessions.")
     if sleep is not None and sleep < 7 and not any("sleep" in f.lower() for f in focus):
-        to_fix.append(f"Sleep averaged {sleep} h.")
+        to_fix.append("Sleep averaged under 7 h.")
         focus.append("Sleep: 7-9 h, consistent bed and wake times; it's the cheapest recovery tool we have.")
     if load["monotony"] and load["monotony"] > 2.0:
         to_fix.append(
@@ -212,7 +211,8 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
             ", ".join(f"{s} x{states.count(s)}" for s in ("green", "yellow", "red") if states.count(s))
             or "n/a"
         ),
-        f"- **Recovery avg:** {rec}  |  **Sleep avg:** {sleep} h",
+        "- **Sleep:** "
+        + ("n/a" if sleep is None else "under 7 h on average" if sleep < 7 else "7 h or more on average"),
         f"- **Weight (7-day avg):** {w_now} kg"
         + (f" ({w_now - w_prev:+.2f} vs last week)" if w_now and w_prev else ""),
         "- **Peak joint ratings:** " + ", ".join(f"{k} {v}" for k, v in joints.items()),
@@ -338,7 +338,7 @@ def block_review(ctx: Context, block_id: str) -> str:
     if first and last:
         lines += [
             "",
-            f"## Trends: weight {_avg(first)} -> {_avg(last)} kg; RHR {_avg([m.rhr_bpm for m in ms[:28]])} -> {_avg([m.rhr_bpm for m in ms[-28:]])} bpm",
+            f"## Trends: weight {_avg(first)} -> {_avg(last)} kg",
         ]
     lines += [
         "",

@@ -2,7 +2,6 @@
 
 import datetime as dt
 import math
-import statistics
 from typing import Any
 
 from coach.coaching import proposals
@@ -116,15 +115,6 @@ def extract_raw(
         return (
             {"weights_kg": w, "body_fat_pct": [m.body_fat_pct for m in ms if m.body_fat_pct]} if w else None
         )
-    if t.scoring == "rolling_baseline":
-        ms = ctx.state.daily_metrics(day - dt.timedelta(days=27), day)
-        rhr = [m.rhr_bpm for m in ms if m.rhr_bpm]
-        hrv = [math.log(m.hrv_rmssd_ms) for m in ms if m.hrv_rmssd_ms]
-        return (
-            {"rhr_bpm": round(statistics.fmean(rhr), 1), "ln_rmssd": round(statistics.fmean(hrv), 3)}
-            if rhr
-            else None
-        )
     return None
 
 
@@ -146,7 +136,7 @@ def score_week(
             continue
         ts.results.append(T.score(test_id, raw, ctx.cfg.tests, day))
     end_day = end_day or max(scheduled.values(), default=ctx.today)
-    for passive in ("body_comp", "vitals"):
+    for passive in ("body_comp",):
         if not ts.get(passive):
             raw = extract_raw(passive, end_day, ctx)
             if raw:
@@ -207,7 +197,7 @@ def propose_goal(ctx: Context, block: MacroBlock, ts: TestSet) -> tuple[BlockGoa
     spec = ctx.cfg.season.spec(block.key)
     cands = [t for t in spec.goal.focus_tests if ts.get(t)]
     if not cands:
-        cands = [r.test_id for r in ts.results if r.test_id not in {"body_comp", "vitals"}][:1]
+        cands = [r.test_id for r in ts.results if r.test_id not in {"body_comp"}][:1]
     gap_of = {t: next((v for k, v in gaps.items() if k.endswith(":" + t)), 100.0) for t in cands}
     primary_id = min(cands, key=lambda t: gap_of[t])
     r = ts.get(primary_id)

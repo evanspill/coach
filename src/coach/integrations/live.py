@@ -4,7 +4,7 @@ so these clients send no keys themselves; for local testing, optional env vars a
 Endpoints and payload shapes follow the public docs as of writing and MUST be verified in Phase 2:
 - Hevy: https://api.hevyapp.com/docs (GET /v1/workouts, POST /v1/routines, PUT /v1/routines/{id})
 - Intervals.icu: /api/v1/athlete/0/{activities,wellness,gear,events/bulk}  (athlete 0 = the key's owner)
-- Whoop v2 + Withings: via the token broker (WHOOP_BROKER_URL), which holds the rotating refresh tokens
+- Whoop v2: via the token broker (WHOOP_BROKER_URL), which holds the rotating refresh token
 - Open-Meteo: /v1/forecast (no auth)
 """
 
@@ -18,7 +18,6 @@ import urllib.request
 from coach.config import load_config
 from coach.integrations import normalize as N
 from coach.integrations.base import (
-    BodyCompSource,
     HevySource,
     IntervalsSource,
     NutritionSource,
@@ -154,24 +153,6 @@ class LiveWeather(WeatherSource):
         return N.open_meteo_hourly(_request("GET", f"https://api.open-meteo.com/v1/forecast?{q}"))
 
 
-class LiveWithings(BodyCompSource):
-    def __init__(self):
-        self.base = os.environ.get("WHOOP_BROKER_URL", "").rstrip("/")
-        key = os.environ.get("WHOOP_BROKER_KEY")
-        self.headers = {"X-Broker-Key": key} if key else {}
-
-    def measurements(self, start, end):
-        if not self.base:
-            raise RuntimeError("token broker not configured (Withings shares the Whoop broker)")
-        s = int(dt.datetime(start.year, start.month, start.day, tzinfo=dt.UTC).timestamp())
-        e = int(dt.datetime(end.year, end.month, end.day, 23, 59, tzinfo=dt.UTC).timestamp())
-        return N.withings_measurements(
-            _request(
-                "GET", f"{self.base}/withings/measure?meastypes=1,6,8&startdate={s}&enddate={e}", self.headers
-            )
-        )
-
-
 class LiveNutrition(NutritionSource):
     """MacroFactor -> Apple Health -> Intervals.icu wellness (Phase 3). Weekly target is told to the coach in chat."""
 
@@ -192,7 +173,6 @@ def live_sources() -> Sources:
         hevy=LiveHevy(),
         intervals=LiveIntervals(),
         weather=LiveWeather(),
-        withings=LiveWithings(),
         nutrition=LiveNutrition(),
         mock=False,
     )

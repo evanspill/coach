@@ -21,7 +21,6 @@ flowchart TB
   end
   subgraph APIs["External services"]
     W[Whoop]
-    WS[Withings scale]
     H[Hevy]
     I[Intervals.icu]
     G[Garmin watch]
@@ -33,14 +32,14 @@ flowchart TB
   K --> P
   P <--> ST
   C --> P
-  P -- via E --> W & WS & H & I & M & NU
+  P -- via E --> W & H & I & M & NU
   P -- validated plans --> H
   P -- validated workouts --> I
   I --> G
   G -- completed runs --> I
   T --> N
 ```
-Whoop and Withings are reached through a small token broker (Phase 2) that holds their rotating refresh tokens. The broker is in `broker/` (Cloudflare Worker + KV; deploy steps in `broker/README.md`).
+Whoop is reached through a small token broker (Phase 2) that holds its rotating refresh token. The broker is in `broker/` (Cloudflare Worker + KV; deploy steps in `broker/README.md`). Whoop numbers are never committed: each run refetches them into a git-ignored cache (`athlete/data/.cache/whoop/`, rolling 75 days) that readers merge in. Scale weigh-ins arrive in Intervals.icu wellness (Apple Health -> Garmin).
 
 ## Daily run
 ```mermaid
@@ -184,4 +183,4 @@ resolve to the current rung; generators size runs, pick metcons and skill drills
   session (it's worn 24/7; the Garmin only on runs).
 - **Intervals.icu**: run detail from the Garmin (pace, Running Dynamics), training load, shoe mileage, custom
   check-in fields, and the route for planned run workouts onto the watch.
-- **Hevy**: lifting sets and routines. **Withings** (via the broker): weight and body fat. **Open-Meteo**: weather.
+- **Hevy**: lifting sets and routines. **Scale** (Apple Health -> Garmin -> Intervals.icu wellness): weight and body fat. **Open-Meteo**: weather.

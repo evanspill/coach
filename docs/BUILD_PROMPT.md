@@ -72,7 +72,7 @@ Each test defines: id, quality measured, protocol (standard warm-up, procedure, 
 - **Engine:** 2 km row (time + average watts) or 10-minute air bike max calories; a standard benchmark workout (repeated exactly).
 - **CrossFit Open block:** a past Open workout repeat, chosen to respect the shoulder rules (no fatigued high-rep overhead snatching; substitute if needed).
 - **Hyrox-specific** (Block 3): a fixed Hyrox simulation segment.
-- **Body composition and vitals:** 7-day average weight and body fat % from the Withings scale (same time, same conditions: morning, after the bathroom, before food), waist and a few tape measurements, progress photos (optional, kept out of git), and 28-day RHR/HRV baselines. Bioimpedance body fat is noisy in absolute terms, so the coach uses its **trend** and suggests an optional DEXA scan if I want a reliable anchor.
+- **Body composition and vitals:** 7-day average weight and body fat % from the smart scale (same time, same conditions: morning, after the bathroom, before food), waist and a few tape measurements, progress photos (optional, kept out of git). RHR/HRV baselines are computed live from Whoop for readiness, never stored. Bioimpedance body fat is noisy in absolute terms, so the coach uses its **trend** and suggests an optional DEXA scan if I want a reliable anchor.
 
 The coach proposes the baseline battery (a subset is fine) and schedules it across the baseline week. I approve it before it goes to Hevy/Garmin.
 
@@ -249,8 +249,8 @@ Each source implements an ABC in `integrations/base.py` that returns normalized 
 | **Hevy API** (Pro required) | workouts, sets, reps, load, RPE (RIR = 10 − RPE); create/update routines (`POST /v1/routines`, `PUT /v1/routines/{id}`) | API key from Hevy settings → developer. Check the exact schemas against `api.hevyapp.com/docs`. **Also the logging home for metcons:** each metcon/Hyrox piece is written into the routine as its own block with the full description (format, time cap, movements, loads) in the notes, and I enter the score in the workout notes. |
 | **Intervals.icu** (the data hub) | runs (incl. Running Dynamics Pod fields from the FIT file), zones, threshold pace, CTL/ATL/TSB, gear, wellness (Whoop data, custom check-in fields, and possibly nutrition); planned **run** workouts sync to my **Garmin fenix** | API key (basic auth) + athlete ID. Make sure "upload planned workouts" is enabled on the Garmin connection. Structured strength/HIIT workouts don't reliably sync to Garmin, so gym sessions live in Hevy, and I record them on the watch with its HIIT/strength activity for HR. An official Intervals.icu connector for Claude exists (Supporter plan); it's optional for chat, since the scripts use the API directly. |
 | **Open-Meteo** | hourly temp, dew point, precipitation, sunrise/sunset | none |
-| **Withings scale** | weight, body fat %, fat mass, lean mass | **Withings public API** (`getmeas`; type 1 = weight, 6 = fat %, 8 = fat mass). OAuth2 with rotating refresh tokens (≈3 h access tokens), handled by **the same token-broker function as Whoop**. This gives full body composition; Whoop's API only offers a basic body-measurement profile. Backup: Withings → Apple Health → HealthFit → Intervals.icu wellness. The coach computes its own EWMA trend weight and body-fat trend for the goal tracking. |
-| **Nutrition** (Phase 3) | MacroFactor kcal/P/C/F | MacroFactor has no public API but writes calories and macros to Apple Health. (Weight comes from Withings above.) Preferred route: an iOS app that syncs Apple Health → **Intervals.icu wellness** (e.g. HealthFit or IntervalsWellnessSync; verify which carries nutrition), so Intervals.icu stays the single hub. Fallback: a Health Auto Export automation to Google Drive or Dropbox read by `coach sync`. |
+| **Smart scale** | weight, body fat % | Scale app → Apple Health → Garmin → **Intervals.icu wellness** (`weight`, `bodyFat`), read with the rest of wellness. The coach computes its own EWMA trend weight and body-fat trend for the goal tracking. |
+| **Nutrition** (Phase 3) | MacroFactor kcal/P/C/F | MacroFactor has no public API but writes calories and macros to Apple Health. (Weight comes from the scale route above.) Preferred route: an iOS app that syncs Apple Health → **Intervals.icu wellness** (e.g. HealthFit or IntervalsWellnessSync; verify which carries nutrition), so Intervals.icu stays the single hub. Fallback: a Health Auto Export automation to Google Drive or Dropbox read by `coach sync`. |
 
 **Merging sources for one session:** a gym session appears in Whoop (HR, strain) and Hevy (sets); a run appears in Whoop (HR, strain) and Garmin → Intervals.icu (pace, route, Running Dynamics). `coach sync` matches them by start time (±15 min) and activity type into one `Session` record: **HR and strain from Whoop**, sets from Hevy, and pace/distance/dynamics from Garmin. Nothing gets double-counted in load totals. Whoop's zone durations use Whoop's own zones, so time-in-zone for the 80/20 check is recalculated from my LTHR-based zones where raw data allows; otherwise the coach notes the mismatch.
 
@@ -267,7 +267,7 @@ Each source implements an ABC in `integrations/base.py` that returns normalized 
 
 ## 8. `config/athlete_context.json` (validated by `AthleteProfile`)
 
-- **Identity/goals:** 33, male, 188 cm, Body-composition goal: **≈91 kg (200 lb) at 10–12% body fat**. **Don't store current weight or body fat in this file.** They're measured in the baseline week (see section 2) and always read from the Withings data after that. The coach decides from the baseline whether Block 1 is a cut, a recomposition, or a lean gain toward the goal, and proposes it for my approval. Goals: sub-3:16 marathon, CrossFit Open, Hyrox, longevity, and **training with no exercise limitations** (resolve my past back and shoulder issues so every movement is available again).
+- **Identity/goals:** 33, male, 188 cm, Body-composition goal: **≈91 kg (200 lb) at 10–12% body fat**. **Don't store current weight or body fat in this file.** They're measured in the baseline week (see section 2) and always read from the scale data after that. The coach decides from the baseline whether Block 1 is a cut, a recomposition, or a lean gain toward the goal, and proposes it for my approval. Goals: sub-3:16 marathon, CrossFit Open, Hyrox, longevity, and **training with no exercise limitations** (resolve my past back and shoulder issues so every movement is available again).
 - **Races:** `races` list, each entry with `confirmed: bool`. Placeholders: fall marathon 2027-10-17 and the 2027 CrossFit Open (reported as workouts released Feb 18, Feb 25, and Mar 4, 2027; not yet confirmed by CrossFit), both `confirmed: false`. No Hyrox date. While the plan depends on unconfirmed races, the summary notes it.
 - **Timezone** America/New_York. **Home:** Canton, CT (41.8226, −72.8970).
 - **Injury history (background, not permanent limits):** past low-back and shoulder injuries. Nothing is banned forever. The aim is to **rebuild capacity until there are no restrictions**. This is handled by **movement readiness levels** (`state/movement_readiness.json`), not avoid lists:
@@ -420,7 +420,7 @@ flowchart TB
   end
   subgraph APIs["External services"]
     W[Whoop]
-    WS[Withings scale]
+    WS[Smart scale via Intervals.icu]
     H[Hevy]
     I[Intervals.icu]
     G[Garmin watch]

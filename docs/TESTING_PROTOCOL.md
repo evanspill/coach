@@ -13,9 +13,9 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 - **warmup**: General: 5 min easy erg, then the session's joint-specific warm-up (McGill Big 3 before lower-body tests).
 
 ## When
-- **Baseline week** (once, before Block 1): broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp, vitals.
+- **Baseline week** (once, before Block 1): broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp.
 - **Transition week** (last week of every block): deload Mon-Wed; Thu run TT, Fri strength + power, Sat engine. Retest the outgoing block's goal/guardrail tests and run the next block's entry tests.
-- **Tracked every block**: hinge_rm, db_press_5rm, body_comp, vitals, plus RHR/HRV baselines, threshold pace/CTL, joint-rating trends.
+- **Tracked every block**: hinge_rm, db_press_5rm, body_comp, plus RHR/HRV baselines (computed live from Whoop, never stored), threshold pace/CTL, joint-rating trends.
 - **Block candidates**: B1: hinge_rm, squat_rm, db_press_5rm, pullups_max, broad_jump, row_2k, run_tt_30; B2: hinge_rm, squat_rm, db_press_5rm, run_tt_30, body_comp; B3: run_tt_30, z2_drift_60, hyrox_sim, row_2k; B4: run_tt_30, hyrox_sim
 
 ## Standing broad jump (`broad_jump`)
@@ -129,19 +129,11 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 
 ## Body composition (7-day average) (`body_comp`)
 - Quality: body composition (pillar: body, category: body)
-- Procedure: Withings scale every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).
+- Procedure: Smart scale (synced to Intervals.icu via Apple Health -> Garmin) every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).
 - Rest: n/a
 - Equipment / location: n/a / home
 - Safety: Bioimpedance body fat is noisy: use the trend. Optional DEXA for an anchor.
 - Metric: weight_kg (kg); scoring: `seven_day_avg`
-
-## RHR / HRV baselines (28-day) (`vitals`)
-- Quality: autonomic baseline (pillar: body, category: body)
-- Procedure: Computed from Whoop: 28-day mean RHR and ln(rMSSD).
-- Rest: n/a
-- Equipment / location: n/a / home
-- Safety: n/a
-- Metric: rhr_bpm (bpm); scoring: `rolling_baseline`
 
 ## Scoring formulas
 - `epley_e1rm`: e1RM = load x (1 + (reps + RIR)/30); RPE 9 => RIR 1.
@@ -149,7 +141,7 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 - `submax_estimate`: threshold pace ~ Z2 pace / 1.25, LTHR ~ avg HR / 0.80 (low confidence).
 - `cardiac_drift`: HR:pace drift between halves, pass < 5%.
 - `row_watts`: watts = 2.80 / (s per m)^3.
-- `seven_day_avg`: Withings 7-day average weight and body fat % (trend over absolute; optional DEXA anchor).
+- `seven_day_avg`: 7-day average (Intervals.icu wellness) weight and body fat % (trend over absolute; optional DEXA anchor).
 
 ## Gap analysis
 Results are compared with `athlete/config/benchmarks.yaml` (relative to bodyweight; e.g. trap bar ~2.0-2.25 x BW, SSB squat ~1.6-1.75 x BW, 12-15 strict pull-ups, ~7:00/mi threshold, ~3.4 W/kg 2k row). The weakest pillar(s) inform the next block's primary goal, weighed against the block's planned focus; the proposal states the trade-off and needs approval.

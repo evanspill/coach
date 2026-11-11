@@ -3,7 +3,7 @@
 - **Adherence:** 0/6 sessions (0%); missed Mon Lower force, Tue Upper strength + skill + metcon, Wed Zone 2 run, Thu Squat + Hyrox threshold, Fri Sprints + upper aesthetics + easy run, Sat Long run
 - **Running:** 0 mi actual vs 8.7 mi planned
 - **Readiness:** green x6
-- **Recovery avg:** 68.7  |  **Sleep avg:** 7.4 h
+- **Sleep:** 7 h or more on average
 - **Weight (7-day avg):** 95.4 kg (+0.40 vs last week)
 - **Peak joint ratings:** back 2, shoulders 2, knees_achilles 1
 - **Planned hard sets:** back 9, chest 4, glutes 8, hamstrings 4, quads 4, shoulders 7

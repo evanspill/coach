@@ -1,7 +1,7 @@
 # Omni-Hybrid Coach
 
 An automated hybrid-athlete coach that lives in this repo and runs as a Claude Code scheduled task every morning.
-It reads training, recovery and nutrition data (Whoop, Hevy, Intervals.icu/Garmin, Withings, Open-Meteo), plans the
+It reads training, recovery and nutrition data (Whoop, Hevy, Intervals.icu/Garmin, Open-Meteo), plans the
 year -> block -> week -> day, runs testing at the start and end of every block, and updates workouts in Hevy and on
 the Garmin (via Intervals.icu). No website, server or database: **git is the database**.
 

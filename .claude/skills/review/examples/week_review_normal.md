@@ -3,7 +3,7 @@
 - **Adherence:** 6/6 sessions (100%)
 - **Running:** 10.1 mi actual vs 10.1 mi planned
 - **Readiness:** green x6
-- **Recovery avg:** 61.9  |  **Sleep avg:** 7.2 h
+- **Sleep:** 7 h or more on average
 - **Weight (7-day avg):** 96.5 kg (-0.20 vs last week)
 - **Peak joint ratings:** back 2, shoulders 2, knees_achilles 2
 - **Planned hard sets:** back 18, chest 9, glutes 14, hamstrings 7, quads 11, shoulders 14

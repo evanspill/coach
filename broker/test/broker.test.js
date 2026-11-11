@@ -1,4 +1,4 @@
-// Runs the Worker against an in-memory KV and fake Whoop/Withings servers: `npm test` (no dependencies).
+// Runs the Worker against an in-memory KV and a fake Whoop server: `npm test` (no dependencies).
 import assert from "node:assert/strict";
 import { beforeEach, test } from "node:test";
 
@@ -26,7 +26,7 @@ beforeEach(() => {
   refreshOk = true;
   env = {
     TOKENS: kv, BROKER_KEY: KEY,
-    WHOOP_CLIENT_ID: "wid", WHOOP_CLIENT_SECRET: "wsec", WITHINGS_CLIENT_ID: "nid", WITHINGS_CLIENT_SECRET: "nsec",
+    WHOOP_CLIENT_ID: "wid", WHOOP_CLIENT_SECRET: "wsec",
   };
   globalThis.fetch = async (url, init = {}) => {
     const u = String(url);
@@ -38,9 +38,6 @@ beforeEach(() => {
       return Response.json({ access_token: `wat${n}`, refresh_token: `wrt${n}`, expires_in: 3600 });
     }
     if (u.startsWith("https://api.prod.whoop.com/developer/v2/")) return Response.json({ records: [{ id: 1 }], next_token: null });
-    if (u.startsWith("https://wbsapi.withings.net/v2/oauth2"))
-      return Response.json({ status: 0, body: { access_token: "nat", refresh_token: "nrt2", expires_in: 10800 } });
-    if (u.startsWith("https://wbsapi.withings.net/measure")) return Response.json({ status: 0, body: { measuregrps: [] } });
     return new Response("nope", { status: 404 });
   };
 });
@@ -105,7 +102,8 @@ test("failed refresh is not retried: marked needs_reauth, 502 until re-authorize
   assert.equal((await get("/v2/recovery")).status, 502);
   assert.equal(calls.filter((c) => c.url.includes("oauth2/token")).length, 1);
   const h = await (await get("/health")).json();
-  assert.deepEqual([h.whoop.connected, h.whoop.needs_reauth, h.withings.connected], [false, true, false]);
+  assert.deepEqual([h.whoop.connected, h.whoop.needs_reauth], [false, true]);
+  assert.deepEqual(Object.keys(h), ["whoop"]);
   assert.ok(!JSON.stringify(h).includes("r0"));
 });
 
@@ -116,27 +114,15 @@ test("a held lock means 503 (no concurrent refresh)", async () => {
   assert.ok(!calls.some((c) => c.url.includes("oauth2/token")));
 });
 
-test("withings measure: refresh via requesttoken, getmeas passthrough", async () => {
-  await kv.put("token:withings", JSON.stringify({ access_token: "x", refresh_token: "nrt1", expires_at: 0 }));
-  const r = await get("/withings/measure?meastypes=1,6,8&startdate=1&enddate=2");
-  assert.equal(r.status, 200);
-  assert.deepEqual(await r.json(), { status: 0, body: { measuregrps: [] } });
-  const rc = calls.find((c) => c.url.includes("v2/oauth2"));
-  assert.equal(rc.body.action, "requesttoken");
-  const m = calls.find((c) => c.url.includes("/measure?"));
-  assert.ok(m.url.includes("action=getmeas") && m.url.includes("category=1") && m.auth === "Bearer nat");
-  assert.equal((await kv.get("token:withings", "json")).refresh_token, "nrt2");
-});
-
 test("unknown paths are 404 (only the read-only allowlist is proxied)", async () => {
   assert.equal((await get("/v2/user/profile/basic")).status, 404);
 });
 
 test("callback answers dashboard probes (HEAD, bare GET) with 200", async () => {
-  const h = await worker.fetch(new Request("https://b.example/auth/withings/callback", { method: "HEAD" }), env);
+  const h = await worker.fetch(new Request("https://b.example/auth/whoop/callback", { method: "HEAD" }), env);
   assert.equal(h.status, 200);
-  assert.equal((await get("/auth/withings/callback", null)).status, 200);
-  assert.equal((await get("/auth/withings/callback?state=x&error=access_denied", null)).status, 400);
+  assert.equal((await get("/auth/whoop/callback", null)).status, 200);
+  assert.equal((await get("/auth/whoop/callback?state=x&error=access_denied", null)).status, 400);
 });
 
 test("privacy page is public plain text", async () => {

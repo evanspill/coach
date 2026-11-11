@@ -21,31 +21,30 @@ ruff check . && ruff format --check . && pytest
       `SessionRPE`, `Enjoyment`, `Soreness`, `BarSpeed`); enable "upload planned workouts" on the Garmin connection.
 - [ ] Verify the bar weights assumed in `athlete/config/equipment.yaml` (trap bar 60 lb, SSB 65 lb) and list the lighter KBs.
 
-### Cloud environment
-- [ ] Network allowlist: `api.hevyapp.com`, `intervals.icu`, `api.open-meteo.com`, the Whoop/Withings broker host,
-      `eutils.ncbi.nlm.nih.gov` (science audit). Package registries for the setup script.
-- [ ] Network secrets: Hevy API key (`api-key` header), Intervals.icu API key (Basic auth `API_KEY:<key>`),
-      broker static key. Never as env vars or files.
-- [ ] Setup script: `pip install -e ".[dev]"`.
-- [ ] Unset `COACH_MOCK` for live runs.
+### Cloud environment (done 2026-11-11: personal environment `coach`)
+- [x] Network allowlist: `api.hevyapp.com`, `intervals.icu`, `api.open-meteo.com`, `eutils.ncbi.nlm.nih.gov`
+      (science audit); package registries for the setup script. Add the broker host once it is deployed.
+- [x] Network secrets: Hevy API key (`api-key` header), Intervals.icu API key (Basic auth `API_KEY:<key>`).
+      Broker static key (`X-Broker-Key`) once deployed. Never as env vars or files.
+- [x] Setup script: `pip install -e ".[dev]"`.
+- [x] `COACH_MOCK=0` for live runs.
 
-### Whoop and Withings: direct APIs through a token broker (required)
+### Whoop: direct API through a token broker
 Whoop is worn 24/7 and is the only HR source for gym sessions, so the coach reads it directly (recovery, HRV, RHR,
-sleep, and HR/strain/zones for every workout). Whoop and Withings issue refresh tokens that change on every use, so
-they need a small always-on place to live: the token broker. A free Cloudflare Worker (with its KV store for the
-tokens) is the default choice; any small serverless host works. The broker is also what lets Withings (weight, body
-fat) come straight in.
+sleep, and HR/strain/zones for every workout). Whoop issues refresh tokens that change on every use, so they need a
+small always-on place to live: the token broker, a free Cloudflare Worker with KV, in `broker/` (registration and
+deploy steps in `broker/README.md`). Read WHOOP's API terms first: they restrict AI use and permanent copies, so the
+coach never commits Whoop data (it refetches a rolling 75-day window into a git-ignored cache each run).
 
-The broker is in `broker/`; registration and deploy steps are in `broker/README.md`.
-
-- [ ] Register a Whoop developer app (API v2) and a Withings developer app.
-- [ ] Deploy the token broker (e.g. a free Cloudflare Worker) that holds the rotating refresh tokens and exposes
-      read-only endpoints (`/v2/recovery`, `/v2/activity/sleep`, `/v2/cycle`, `/v2/activity/workout`,
-      `/withings/measure`) behind a static key. Set `WHOOP_BROKER_URL` (non-secret) in the environment.
-- [ ] Store the refresh tokens only in the broker's secret/KV store; refresh atomically and never retry a failed
-      refresh blindly (a rotated token can't be reused).
-- [ ] Verify each live client against the real API (`coach sync --pretty`) and fix field names in
+- [ ] Register a Whoop developer app (API v2); deploy the broker; connect your account once in a browser.
+- [ ] Set `WHOOP_BROKER_URL` (non-secret) and the broker key (network secret) in the `coach` environment.
+- [ ] Verify against the real API (`coach sync --pretty`) and fix field names in
       `src/coach/integrations/normalize.py` if they differ from the docs-based shapes.
+
+### Scale (weight, body fat)
+No direct scale API (the vendor's API terms rule out AI use). Route: scale app -> Apple Health -> Garmin Connect ->
+Intervals.icu wellness (`weight`, `bodyFat`). Check that Garmin Connect shows the weigh-ins and that Intervals.icu's
+Garmin connection downloads wellness.
 
 ### Intervals.icu (runs + the route to the Garmin)
 The Garmin is worn only on runs. Intervals.icu provides run detail (pace, Running Dynamics from the Pod), training

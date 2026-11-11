@@ -127,10 +127,6 @@ def score(test_id: str, raw: dict, battery: TestBattery, day: dt.date) -> TestRe
             details["body_fat_pct"] = round(statistics.fmean(raw["body_fat_pct"]), 1)
         if raw.get("waist_cm"):
             details["waist_cm"] = raw["waist_cm"]
-    elif t.scoring == "rolling_baseline":
-        value = raw["rhr_bpm"]
-        comparable = value
-        details = {"ln_rmssd": raw.get("ln_rmssd")}
     else:
         raise ValueError(f"unknown scoring '{t.scoring}' for {test_id}")
     return TestResult(

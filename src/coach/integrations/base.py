@@ -57,13 +57,6 @@ class WeatherSource(ABC):
         """[{'time': datetime, 'temp_c', 'dew_point_c', 'precip_mm'}]"""
 
 
-class BodyCompSource(ABC):
-    name = "withings"
-
-    @abstractmethod
-    def measurements(self, start: dt.date, end: dt.date) -> list[DailyMetrics]: ...
-
-
 class NutritionSource(ABC):
     name = "nutrition"
 
@@ -80,7 +73,6 @@ class Sources:
     hevy: HevySource
     intervals: IntervalsSource
     weather: WeatherSource
-    withings: BodyCompSource
     nutrition: NutritionSource
     mock: bool
 

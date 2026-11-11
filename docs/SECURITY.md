@@ -18,21 +18,21 @@
 | Data | Lives in | Who can technically see it |
 |---|---|---|
 | Training plans, notes, check-ins, journal, health events, availability, results, labs, readiness, nutrition targets | `athlete/data/` in this private GitHub repo | You; GitHub (hosting); Anthropic while a Claude session processes it |
-| Daily metrics (recovery, HRV, RHR, sleep, weight, body fat, kcal) | `athlete/data/metrics/*.jsonl` | Same as above |
+| Daily metrics (weight, body fat, kcal, CTL/ATL) and workouts (sets, pace, Garmin HR) | `athlete/data/metrics/*.jsonl` | Same as above |
+| Whoop numbers (recovery, HRV, RHR, sleep, strain, workout HR) | Never committed: refetched each run into the git-ignored `athlete/data/.cache/whoop/` (rolling 75 days), gone with the container | Anthropic while a Claude session processes it; Whoop; the token broker in transit |
 | Raw recovery/sleep/workout data | Whoop | Whoop; the token broker in transit |
 | Lifting log, routines | Hevy | Hevy |
 | Runs, wellness fields, planned workouts | Intervals.icu -> Garmin | Intervals.icu, Garmin |
-| Body composition | Withings | Withings; the token broker in transit |
+| Body composition | Scale app -> Apple Health -> Garmin -> Intervals.icu | Those services |
 | Weather | Open-Meteo (no personal data sent beyond home coordinates in the query) | Open-Meteo |
 | Literature searches | PubMed E-utilities / web search | NCBI / search provider (queries only, no health data) |
-| API credentials | Cloud environment network secrets; Whoop/Withings refresh tokens in the broker's secret store | You; Anthropic infrastructure (proxy); the broker host (e.g. Cloudflare) |
+| API credentials | Cloud environment network secrets; the Whoop refresh token in the broker's KV store | You; Anthropic infrastructure (proxy); the broker host (e.g. Cloudflare) |
 
 ## Rotating credentials
 - **Hevy API key**: Hevy app -> Settings -> Developer -> regenerate; update the network secret for `api.hevyapp.com`.
 - **Intervals.icu API key**: intervals.icu -> Settings -> Developer -> regenerate; update the secret for `intervals.icu`.
 - **Whoop**: revoke the app in the Whoop developer dashboard, rotate the client secret, re-run the broker's OAuth
   flow to mint a new refresh token; rotate the broker's static read key and update its network secret.
-- **Withings**: same as Whoop via the Withings developer dashboard and the broker.
 - **Broker static key**: rotate in the broker (e.g. Cloudflare Worker secret) and the cloud environment.
 - **GitHub / Claude**: revoke sessions and tokens from account settings if a device is lost.
 

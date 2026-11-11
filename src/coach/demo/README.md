@@ -1,7 +1,7 @@
 # Demo athlete (engine test data)
 
 `athlete/config/` is a complete example athlete configuration and `fixtures/` is ~6 months of synthetic data for it, in raw
-API shapes (Whoop, Hevy, Intervals.icu, Withings, Open-Meteo) plus `athlete_script.json`, which drives the
+API shapes (Whoop, Hevy, Intervals.icu, Open-Meteo) plus `athlete_script.json`, which drives the
 simulated athlete in `coach simulate` (missed days, test results, chat messages).
 
 The engine's tests and `coach simulate` run against this demo, never against a real athlete's `athlete/config/`, so the

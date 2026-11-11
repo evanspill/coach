@@ -6,7 +6,7 @@ Everything about the athlete lives under `athlete/`, separate from the code:
 |---|---|---|---|
 | **Coaching** | `src/coach/coaching/` (+ `.claude/skills/`) | the daily coordinator, planning context, proposals, notifications, deterministic skill stand-ins | code |
 | **Engine** | `src/coach/engine/` | calculations and the validator (pure functions, no I/O) | code |
-| **Integrations** | `src/coach/integrations/` | Whoop, Hevy, Intervals.icu, Withings, Open-Meteo, nutrition; `sync` (in) and `push` (out) | code |
+| **Integrations** | `src/coach/integrations/` | Whoop, Hevy, Intervals.icu, Open-Meteo, nutrition; `sync` (in) and `push` (out) | code |
 | **Data model** | `src/coach/models/` | Pydantic models = the row schemas | code |
 | **Store** | `src/coach/store/` | the only reader/writer of athlete data; collection registry | code |
 | **Athlete config** | `athlete/config/` | settings the athlete edits: profile, season shape, session templates, gym, library, thresholds | editing files (threshold changes need an approved proposal) |
@@ -32,7 +32,7 @@ erDiagram
   WEEK_PLAN ||--o| WEEK_REVIEW : "reviewed by"
   SESSION ||--o| DAY_RECORD : "adjusted on the day"
   DAY_RECORD }o--|| READINESS : includes
-  ATHLETE ||--o{ DAILY_METRICS : "wears (Whoop, Withings)"
+  ATHLETE ||--o{ DAILY_METRICS : "wears (Whoop, scale)"
   ATHLETE ||--o{ SESSION_RECORD : "completes (Hevy, Intervals, Whoop)"
   SESSION_RECORD ||--o{ SET_RECORD : contains
   ATHLETE ||--o{ CHECKIN : reports
@@ -93,10 +93,13 @@ erDiagram
 | `sync_state` | singleton | `SyncState` | `athlete/data/metrics/sync_state.json` | last sync + report |
 | `push_ids` | singleton | `-` | `athlete/data/push_ids.json` | external ids of pushed routines/events |
 
-`metrics` holds three row types per month file: `daily` (key = date; Whoop recovery/HRV/RHR/sleep/strain, Withings
-weight/body fat, nutrition, CTL/ATL, merged across sources), `session` (key = source + start time; one merged
+`metrics` holds three row types per month file: `daily` (key = date; weight/body fat and nutrition from Intervals.icu
+wellness, CTL/ATL, merged across sources), `session` (key = source + start time; one merged
 workout with sets, HR, pace and dynamics) and `checkin` (key = date + source; check-ins parsed from Intervals.icu
-fields or Hevy notes). Chat check-ins live in `checkins`; `Store.checkins()` merges both (Intervals > Hevy notes > chat).
+fields or Hevy notes). Whoop's recovery/HRV/RHR/sleep/strain and workout HR/strain/zones are never committed: sync
+writes them to the same row types under the git-ignored `athlete/data/.cache/whoop/metrics/` (rolling 75 days,
+refetched in a fresh container) and `Store.daily_metrics()` / `Store.sessions()` merge them in. Stored day records
+keep the readiness state and reasons, not Whoop's numbers. Chat check-ins live in `checkins`; `Store.checkins()` merges both (Intervals > Hevy notes > chat).
 
 ## The athlete journal: what earned a place
 

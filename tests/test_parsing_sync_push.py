@@ -168,3 +168,78 @@ def test_live_requests_send_a_user_agent(monkeypatch):
     )
     assert seen["user-agent"] == live.USER_AGENT and not seen["user-agent"].startswith("Python-urllib")
     assert seen["authorization"] == "Basic x"
+
+
+WHOOP_FIELDS = {"recovery_score", "hrv_rmssd_ms", "rhr_bpm", "sleep_hours", "sleep_performance", "day_strain"}
+
+
+def test_whoop_data_is_never_committed(home):
+    """Whoop numbers live only in the git-ignored cache; readers still see them merged in (DECISIONS 73)."""
+    import json
+    import os
+
+    data = home / "athlete" / "data"
+    st = Store(data)
+    d = dt.date(2026, 11, 20)
+    os.environ["COACH_TODAY"] = d.isoformat()
+    sync(mock_sources(MockWorld.load()), st, d)
+
+    committed = [
+        json.loads(line) for p in (data / "metrics").glob("*.jsonl") for line in p.read_text().splitlines()
+    ]
+    assert committed
+    for r in committed:
+        assert not WHOOP_FIELDS & set(r["data"]), r
+        assert "whoop" not in r["data"].get("sources", []), r
+        if r["kind"] == "session" and r["data"].get("avg_hr"):
+            assert r["data"]["sport"] in {"run", "row", "bike"}  # Garmin HR via Intervals, not Whoop
+    assert (data / ".cache" / "whoop" / "metrics").is_dir()
+    merged = st.daily_metrics(d - dt.timedelta(days=60), d)
+    assert sum(m.recovery_score is not None for m in merged) >= 55
+    assert any("whoop" in s.sources for s in st.sessions(d - dt.timedelta(days=30), d))
+    assert any(m.weight_kg for m in merged)  # weigh-ins now come from Intervals wellness
+
+
+def test_fresh_container_refetches_the_whoop_window(home):
+    """Committed state survives, the cache doesn't: the next sync refetches 75 days so baselines are whole."""
+    import os
+    import shutil
+
+    from coach.integrations.sync import WHOOP_WINDOW_DAYS
+
+    data = home / "athlete" / "data"
+    st = Store(data)
+    d = dt.date(2026, 11, 20)
+    os.environ["COACH_TODAY"] = d.isoformat()
+    sync(mock_sources(MockWorld.load()), st, d)
+    shutil.rmtree(data / ".cache")  # new container: git checkout without the cache
+    assert not any(m.recovery_score for m in st.daily_metrics())
+    nxt = d + dt.timedelta(days=1)
+    os.environ["COACH_TODAY"] = nxt.isoformat()
+    sync(mock_sources(MockWorld.load()), st, nxt)
+    since, through = st.whoop_cache_coverage()
+    assert since == nxt - dt.timedelta(days=WHOOP_WINDOW_DAYS) and through == nxt
+    assert sum(m.recovery_score is not None for m in st.daily_metrics(since, nxt)) >= 60
+
+
+def test_day_records_are_stored_without_whoop_numbers(home):
+    from coach.models import DayRecord
+    from coach.models.records import HrvTrend, Readiness
+
+    st = Store(home / "athlete" / "data")
+    d = dt.date(2026, 11, 20)
+    r = Readiness(
+        date=d,
+        state="green",
+        reasons=["recovery >= 67"],
+        recovery_score=81,
+        rhr_delta=-1.2,
+        hrv=HrvTrend(mean7_ln=4.1),
+    )
+    rec = DayRecord(date=d, status="complete", generated_by="fallback", readiness=r)
+    st.put("day_records", rec)
+    assert rec.readiness.recovery_score == 81  # the caller's copy (used for today's call) is untouched
+    back = st.day_record(d)
+    assert back.readiness.state == "green" and back.readiness.reasons == ["recovery >= 67"]
+    assert back.readiness.recovery_score is None and back.readiness.rhr_delta is None
+    assert back.readiness.hrv.mean7_ln is None

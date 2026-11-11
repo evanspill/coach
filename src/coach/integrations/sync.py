@@ -13,6 +13,7 @@ from coach.store import Store
 
 OVERLAP_DAYS = 3  # re-fetch a few days so late uploads are merged
 FIRST_SYNC_DAYS = 75  # enough history for the 60-day HRV/RHR baselines
+WHOOP_WINDOW_DAYS = 75  # Whoop is refetched for this window when the cache is cold (fresh container)
 MATCH_MINUTES = 15
 COMPATIBLE = {
     "strength": {"strength", "metcon", "hiit", "other"},
@@ -117,37 +118,48 @@ def sync(
             report["errors"][name] = f"{type(e).__name__}: {e}"
             return None
 
+    # --- Whoop: never committed. Refetched into the git-ignored cache (DECISIONS 73) for a rolling window. ---
+    cov = state.whoop_cache_coverage()
+    window_start = today - dt.timedelta(days=WHOOP_WINDOW_DAYS)
+    warm = cov is not None and cov[0] <= window_start and cov[1] >= start
+    wstart = max(start, window_start) if warm else window_start
+
+    whoop_daily = run("whoop", lambda: sources.whoop.daily(wstart, today))
+    report["counts"]["whoop_daily"] = len(whoop_daily or [])
+    if whoop_daily is not None:
+        state.upsert_metrics(
+            [
+                ("daily", m.date.isoformat(), m.date, m.model_dump(mode="json", exclude_none=True))
+                for m in whoop_daily
+            ],
+            cache=True,
+        )
+
     daily: list[DailyMetrics] = []
-    for name, fn in [
-        ("whoop", lambda: sources.whoop.daily(start, today)),
-        ("withings", lambda: sources.withings.measurements(start, today)),
-        ("nutrition", lambda: sources.nutrition.daily(start, today)),
-    ]:
-        got = run(name, fn) or []
-        report["counts"][f"{name}_daily"] = len(got)
-        daily.extend(got)
+    nutrition = run("nutrition", lambda: sources.nutrition.daily(start, today)) or []
+    report["counts"]["nutrition_daily"] = len(nutrition)
+    daily.extend(nutrition)
     wellness = run("intervals_wellness", lambda: sources.intervals.wellness(start, today))
     checkins: list[Checkin] = []
     if wellness:
         wm, wc = wellness
-        daily.extend(m for m in wm if m.ctl is not None or m.atl is not None)
+        daily.extend(m for m in wm if any(v is not None for v in (m.ctl, m.atl, m.weight_kg, m.body_fat_pct)))
         checkins.extend(wc)
+    report["counts"]["weigh_ins"] = sum(1 for m in daily if m.weight_kg is not None)
     for m in daily:
         items.append(("daily", m.date.isoformat(), m.date, m.model_dump(mode="json", exclude_none=True)))
 
-    whoop_w = run("whoop_workouts", lambda: sources.whoop.workouts(start, today)) or []
     hevy_w = run("hevy", lambda: sources.hevy.workouts(start, today)) or []
     acts = run("intervals_activities", lambda: sources.intervals.activities(start, today)) or []
     zones = state.zones()
     lthr = zones.lthr if zones else cfg.profile.running.default_zones.lthr  # default until the first TT
-    merged = merge_sessions(whoop_w, [*hevy_w, *acts], lthr)
-    for s in merged:
+    detail = merge_sessions([], [*hevy_w, *acts], lthr)  # committed: no Whoop fields
+    for s in detail:
         s.planned_session_id = _plan_link(state, s)
         items.append(("session", _session_key(s), s.date, s.model_dump(mode="json", exclude_none=True)))
         tag = parse_checkin_tag(s.notes_untrusted) if "hevy" in s.sources else {}
         if tag:
             checkins.append(Checkin(date=s.date, source="hevy_notes", **tag))
-    report["counts"]["sessions"] = len(merged)
     for c in checkins:
         items.append(
             (
@@ -162,17 +174,41 @@ def sync(
         state.put("gear", [g.model_dump(mode="json") for g in gear])
 
     changed = state.upsert_metrics(
-        items, replace_kinds_in={"session": (start, today)} if (hevy_w or acts or whoop_w) else None
+        items, replace_kinds_in={"session": (start, today)} if (hevy_w or acts) else None
     )
     report["changed_files"] = changed
 
+    # Whoop HR/strain/zones merged onto the committed sessions of the window, kept only in the cache
+    whoop_w = run("whoop_workouts", lambda: sources.whoop.workouts(wstart, today))
+    if whoop_w is not None:
+        committed = [
+            SessionRecord.model_validate(r["data"]) for r in state.metric_records("session", wstart, today)
+        ]
+        overlay = [s for s in merge_sessions(whoop_w, committed, lthr) if "whoop" in s.sources]
+        for s in overlay:
+            s.planned_session_id = s.planned_session_id or _plan_link(state, s)
+        state.upsert_metrics(
+            [
+                ("session", _session_key(s), s.date, s.model_dump(mode="json", exclude_none=True))
+                for s in overlay
+            ],
+            replace_kinds_in={"session": (wstart, today)},
+            cache=True,
+        )
+    else:  # don't let a stale cached copy hide a session that was just re-synced
+        state.upsert_metrics([], replace_kinds_in={"session": (start, today)}, cache=True)
+    report["counts"]["sessions"] = len(state.sessions(start, today))
+    if whoop_daily is not None and whoop_w is not None:
+        state.set_whoop_cache_coverage(window_start, today)
+    state.prune_whoop_cache(window_start)
+
     # stale-source detection: report, never guess
-    latest: dict[str, dt.date | None] = {k: None for k in ("whoop", "withings")}
+    latest: dict[str, dt.date | None] = {k: None for k in ("whoop", "weight")}
     for m in state.daily_metrics(today - dt.timedelta(days=10), today):
         if m.recovery_score is not None:
             latest["whoop"] = m.date
         if m.weight_kg is not None:
-            latest["withings"] = m.date
+            latest["weight"] = m.date
     if latest["whoop"] != today:
         report["stale"].append(
             "whoop: today's recovery not available yet"
@@ -183,11 +219,11 @@ def sync(
                 else "whoop: no recovery in the last 10 days"
             )
         )
-    if latest["withings"] is None or (today - latest["withings"]).days > 3:
+    if latest["weight"] is None or (today - latest["weight"]).days > 3:
         report["stale"].append(
-            f"withings: no weigh-in since {latest['withings']}"
-            if latest["withings"]
-            else "withings: no weigh-in in the last 10 days"
+            f"weight: no weigh-in since {latest['weight']}"
+            if latest["weight"]
+            else "weight: no weigh-in in the last 10 days"
         )
     for name in report["errors"]:
         report["stale"].append(f"{name}: fetch failed")
