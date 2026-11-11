@@ -1,0 +1,37 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    env:
+      COACH_MOCK: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - uses: pre-commit/action@v3.0.1
+        if: matrix.python-version == '3.12'
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy src/coach
+      - run: pytest --cov=coach --cov-report=term-missing:skip-covered --cov-fail-under=80
+      - run: python -m coach validate config   # the athlete's own config + approved-change lock
+      - run: python -m coach simulate --days 120 --from 2026-11-16 --quiet
+      - run: python -m coach simulate --days 120 --from 2026-11-16 --quiet --config active --no-scenarios

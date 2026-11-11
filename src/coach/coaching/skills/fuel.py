@@ -1,0 +1,48 @@
+"""fuel fallback: today's macros (calorie-neutral weekly redistribution) + peri-workout cue."""
+
+import datetime as dt
+
+from coach.coaching.context import Context
+from coach.engine import nutrition as nut
+from coach.models import NutritionDay, Session, WeekPlan
+
+
+def weekly_target(ctx: Context, week_start: dt.date, sources=None) -> tuple[float, str]:
+    if sources is not None:
+        try:
+            t = sources.nutrition.weekly_target_kcal(week_start)
+            if t:
+                return float(t), "MacroFactor weekly target"
+        except Exception:  # noqa: BLE001 - nutrition is optional until Phase 3
+            pass
+    saved = ctx.state.get("nutrition_target")
+    if saved:
+        return float(saved.weekly_kcal), f"weekly target ({saved.source})"
+    bw = ctx.bodyweight_kg()
+    per_kg = ctx.cfg.profile.nutrition.estimate_kcal_per_kg
+    return round(bw * per_kg * 7), f"estimate ({per_kg:g} kcal/kg/day) until MacroFactor data is connected"
+
+
+def day_targets(
+    ctx: Context, day: dt.date, plan: WeekPlan | None, sources=None, today_session: Session | None = None
+) -> NutritionDay:
+    rules = ctx.cfg.profile.nutrition
+    week_start = day - dt.timedelta(days=day.weekday())
+    sessions = {s.date: s for s in (plan.sessions if plan else []) if s.type != "rest"}
+    if today_session is not None:
+        sessions[day] = today_session
+    tiers = {}
+    for i in range(7):
+        d = week_start + dt.timedelta(days=i)
+        tiers[d] = nut.carb_tier_for(
+            sessions.get(d), sessions.get(d + dt.timedelta(days=1)), ctx.cfg.training.rules.carb_tiers
+        )
+    kcal, source = weekly_target(ctx, week_start, sources)
+    cutting = bool(
+        ctx.outline and ctx.outline.calorie_phase == "cut"
+    )  # protein to the top of the range in a deficit
+    days = nut.distribute_week(kcal, ctx.bodyweight_kg(), tiers, rules, cutting)
+    today = next(d for d in days if d.date == day)
+    today.peri_workout = nut.peri_workout(sessions.get(day), rules)
+    today.note = "; ".join(x for x in [today.note, source] if x)
+    return today

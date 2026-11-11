@@ -1,0 +1,34 @@
+{
+  "id": "2027-03-03-calibration-1",
+  "kind": "calibration",
+  "created": "2027-03-03",
+  "created_by": "learn",
+  "title": "Trial: Green recovery cut-off 67 -> 64",
+  "what": "4-week N=1 trial. Metric: next-day session RPE and completion on 'new Green' days. Stop rule: revert if RPE on those days >= Yellow-day mean + 0.5 or any joint flag.",
+  "why": "Yellow days predicted RPE only +-0.43 vs Green over 8 weeks (n=4).",
+  "before": {
+    "recovery_green_min": 67
+  },
+  "after": {
+    "recovery_green_min": 64
+  },
+  "target_path": "config/athlete_context.json#thresholds.recovery_green_min",
+  "payload": {
+    "config_patch": {
+      "file": "athlete_context.json",
+      "path": [
+        "thresholds",
+        "recovery_green_min"
+      ],
+      "value": 64
+    }
+  },
+  "status": "pending",
+  "history": [
+    {
+      "at": "2027-03-03",
+      "status": "pending",
+      "note": ""
+    }
+  ]
+}

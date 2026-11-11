@@ -1,0 +1,725 @@
+{
+  "id": "2027-01-21-early-deload-1",
+  "kind": "early_deload",
+  "created": "2027-01-21",
+  "created_by": "replan",
+  "title": "Pull deload forward to week 10",
+  "what": "Week 10 becomes a deload; later deloads re-spaced to [4, 7, 10, 12]",
+  "why": "shoulders rated 4/5; shoulders >= 3 on 2 check-ins",
+  "before": [
+    4,
+    7,
+    11
+  ],
+  "after": [
+    4,
+    7,
+    10,
+    12
+  ],
+  "target_path": "blocks/2026-27-B1/outline.json",
+  "payload": {
+    "files": {
+      "blocks/2026-27-B1/outline.json": {
+        "block_id": "2026-27-B1",
+        "name": "Strength base -> CrossFit Open",
+        "focus": "force build, then metcon/gymnastics sharpening into the Open",
+        "start": "2026-11-23",
+        "end": "2027-03-14",
+        "goal_id": "2026-27-B1-goal",
+        "main_lifts": [
+          {
+            "family": "hinge",
+            "exercise_id": null,
+            "scheme": "4 x 3-5 @ 2 RIR (rung cap)",
+            "progression": "+2.5% when all reps hit at target RIR"
+          },
+          {
+            "family": "squat",
+            "exercise_id": null,
+            "scheme": "4 x 5 @ 2 RIR",
+            "progression": "+2.5% when all reps hit"
+          },
+          {
+            "family": "press",
+            "exercise_id": null,
+            "scheme": "4 x 5 @ 2 RIR",
+            "progression": "+1 DB step when all reps hit"
+          },
+          {
+            "family": null,
+            "exercise_id": "strict_pull_up",
+            "scheme": "4 x 5 (add load at 3 x 8)",
+            "progression": "reps then load"
+          }
+        ],
+        "progression": "Loads from recent e1RM; +2.5% when all target reps are hit at >= target RIR; hold after a miss; -5% after two misses. Deloads cut volume ~45% and keep intensity.",
+        "pillars": {
+          "neural": {
+            "mode": "maintain",
+            "description": "primers 2x/wk",
+            "med": 1.0,
+            "deload_med": 1.0
+          },
+          "force": {
+            "mode": "build",
+            "description": "force: 4 d/wk, heavy 3-5 reps at 1-2 RIR",
+            "med": 3.0,
+            "deload_med": 2.0
+          },
+          "glycolytic": {
+            "mode": "build",
+            "description": "Open peak: 2-3 metcons/wk",
+            "med": 2.0,
+            "deload_med": 1.0
+          },
+          "aerobic": {
+            "mode": "maintain",
+            "description": "12-15 mi/wk + erg in bad weather",
+            "med": 90.0,
+            "deload_med": 60.0
+          }
+        },
+        "weeks": [
+          {
+            "week_index": 1,
+            "start": "2026-11-23",
+            "type": "training",
+            "run_miles": 10.0,
+            "long_run_miles": 3.8,
+            "key_sessions": [
+              "lower_heavy",
+              "upper_heavy",
+              "glycolytic",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                8,
+                16
+              ],
+              "hamstrings": [
+                6,
+                14
+              ],
+              "glutes": [
+                8,
+                18
+              ],
+              "chest": [
+                6,
+                14
+              ],
+              "back": [
+                10,
+                20
+              ],
+              "shoulders": [
+                6,
+                16
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 2,
+            "start": "2026-11-30",
+            "type": "training",
+            "run_miles": 10.0,
+            "long_run_miles": 3.8,
+            "key_sessions": [
+              "lower_heavy",
+              "upper_heavy",
+              "glycolytic",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                8,
+                16
+              ],
+              "hamstrings": [
+                6,
+                14
+              ],
+              "glutes": [
+                8,
+                18
+              ],
+              "chest": [
+                6,
+                14
+              ],
+              "back": [
+                10,
+                20
+              ],
+              "shoulders": [
+                6,
+                16
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 3,
+            "start": "2026-12-07",
+            "type": "training",
+            "run_miles": 10.6,
+            "long_run_miles": 4.0,
+            "key_sessions": [
+              "lower_heavy",
+              "upper_heavy",
+              "glycolytic",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                8,
+                16
+              ],
+              "hamstrings": [
+                6,
+                14
+              ],
+              "glutes": [
+                8,
+                18
+              ],
+              "chest": [
+                6,
+                14
+              ],
+              "back": [
+                10,
+                20
+              ],
+              "shoulders": [
+                6,
+                16
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 4,
+            "start": "2026-12-14",
+            "type": "deload",
+            "run_miles": 7.4,
+            "long_run_miles": 2.8,
+            "key_sessions": [
+              "lower_heavy",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                3,
+                11
+              ],
+              "hamstrings": [
+                2,
+                10
+              ],
+              "glutes": [
+                3,
+                12
+              ],
+              "chest": [
+                2,
+                10
+              ],
+              "back": [
+                4,
+                13
+              ],
+              "shoulders": [
+                2,
+                11
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 5,
+            "start": "2026-12-21",
+            "type": "training",
+            "run_miles": 10.6,
+            "long_run_miles": 4.0,
+            "key_sessions": [
+              "lower_heavy",
+              "upper_heavy",
+              "glycolytic",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                8,
+                16
+              ],
+              "hamstrings": [
+                6,
+                14
+              ],
+              "glutes": [
+                8,
+                18
+              ],
+              "chest": [
+                6,
+                14
+              ],
+              "back": [
+                10,
+                20
+              ],
+              "shoulders": [
+                6,
+                16
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 6,
+            "start": "2026-12-28",
+            "type": "training",
+            "run_miles": 11.4,
+            "long_run_miles": 4.3,
+            "key_sessions": [
+              "lower_heavy",
+              "upper_heavy",
+              "glycolytic",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                8,
+                16
+              ],
+              "hamstrings": [
+                6,
+                14
+              ],
+              "glutes": [
+                8,
+                18
+              ],
+              "chest": [
+                6,
+                14
+              ],
+              "back": [
+                10,
+                20
+              ],
+              "shoulders": [
+                6,
+                16
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 7,
+            "start": "2027-01-04",
+            "type": "deload",
+            "run_miles": 8.0,
+            "long_run_miles": 4.6,
+            "key_sessions": [
+              "lower_heavy",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                3,
+                11
+              ],
+              "hamstrings": [
+                2,
+                10
+              ],
+              "glutes": [
+                3,
+                12
+              ],
+              "chest": [
+                2,
+                10
+              ],
+              "back": [
+                4,
+                13
+              ],
+              "shoulders": [
+                2,
+                11
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 8,
+            "start": "2027-01-11",
+            "type": "training",
+            "run_miles": 12.0,
+            "long_run_miles": 3.2,
+            "key_sessions": [
+              "lower_heavy",
+              "upper_heavy",
+              "glycolytic",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                8,
+                16
+              ],
+              "hamstrings": [
+                6,
+                14
+              ],
+              "glutes": [
+                8,
+                18
+              ],
+              "chest": [
+                6,
+                14
+              ],
+              "back": [
+                10,
+                20
+              ],
+              "shoulders": [
+                6,
+                16
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 9,
+            "start": "2027-01-18",
+            "type": "training",
+            "run_miles": 12.5,
+            "long_run_miles": 4.8,
+            "key_sessions": [
+              "lower_heavy",
+              "upper_heavy",
+              "glycolytic",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                8,
+                16
+              ],
+              "hamstrings": [
+                6,
+                14
+              ],
+              "glutes": [
+                8,
+                18
+              ],
+              "chest": [
+                6,
+                14
+              ],
+              "back": [
+                10,
+                20
+              ],
+              "shoulders": [
+                6,
+                16
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 10,
+            "start": "2027-01-25",
+            "type": "deload",
+            "run_miles": 8.8,
+            "long_run_miles": 4.8,
+            "key_sessions": [
+              "lower_heavy",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                3,
+                11
+              ],
+              "hamstrings": [
+                2,
+                10
+              ],
+              "glutes": [
+                3,
+                12
+              ],
+              "chest": [
+                2,
+                10
+              ],
+              "back": [
+                4,
+                13
+              ],
+              "shoulders": [
+                2,
+                11
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 11,
+            "start": "2027-02-01",
+            "type": "training",
+            "run_miles": 12.5,
+            "long_run_miles": 5.1,
+            "key_sessions": [
+              "lower_heavy",
+              "upper_heavy",
+              "glycolytic",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                8,
+                16
+              ],
+              "hamstrings": [
+                6,
+                14
+              ],
+              "glutes": [
+                8,
+                18
+              ],
+              "chest": [
+                6,
+                14
+              ],
+              "back": [
+                10,
+                20
+              ],
+              "shoulders": [
+                6,
+                16
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 12,
+            "start": "2027-02-08",
+            "type": "deload",
+            "run_miles": 6.2,
+            "long_run_miles": 3.6,
+            "key_sessions": [
+              "lower_heavy",
+              "long_run"
+            ],
+            "hard_sets": {
+              "quads": [
+                3,
+                11
+              ],
+              "hamstrings": [
+                2,
+                10
+              ],
+              "glutes": [
+                3,
+                12
+              ],
+              "chest": [
+                2,
+                10
+              ],
+              "back": [
+                4,
+                13
+              ],
+              "shoulders": [
+                2,
+                11
+              ]
+            },
+            "notes": ""
+          },
+          {
+            "week_index": 13,
+            "start": "2027-02-15",
+            "type": "competition",
+            "run_miles": 10.8,
+            "long_run_miles": 4.1,
+            "key_sessions": [
+              "competition"
+            ],
+            "hard_sets": {
+              "quads": [
+                1,
+                16
+              ],
+              "hamstrings": [
+                1,
+                14
+              ],
+              "glutes": [
+                1,
+                18
+              ],
+              "chest": [
+                1,
+                14
+              ],
+              "back": [
+                1,
+                20
+              ],
+              "shoulders": [
+                1,
+                16
+              ]
+            },
+            "notes": "Open week: attempt Friday after Thursday release"
+          },
+          {
+            "week_index": 14,
+            "start": "2027-02-22",
+            "type": "competition",
+            "run_miles": 10.8,
+            "long_run_miles": 4.1,
+            "key_sessions": [
+              "competition"
+            ],
+            "hard_sets": {
+              "quads": [
+                1,
+                16
+              ],
+              "hamstrings": [
+                1,
+                14
+              ],
+              "glutes": [
+                1,
+                18
+              ],
+              "chest": [
+                1,
+                14
+              ],
+              "back": [
+                1,
+                20
+              ],
+              "shoulders": [
+                1,
+                16
+              ]
+            },
+            "notes": "Open week: attempt Friday after Thursday release"
+          },
+          {
+            "week_index": 15,
+            "start": "2027-03-01",
+            "type": "competition",
+            "run_miles": 10.8,
+            "long_run_miles": 4.1,
+            "key_sessions": [
+              "competition"
+            ],
+            "hard_sets": {
+              "quads": [
+                1,
+                16
+              ],
+              "hamstrings": [
+                1,
+                14
+              ],
+              "glutes": [
+                1,
+                18
+              ],
+              "chest": [
+                1,
+                14
+              ],
+              "back": [
+                1,
+                20
+              ],
+              "shoulders": [
+                1,
+                16
+              ]
+            },
+            "notes": "Open week: attempt Friday after Thursday release"
+          },
+          {
+            "week_index": 16,
+            "start": "2027-03-08",
+            "type": "transition",
+            "run_miles": 9.4,
+            "long_run_miles": null,
+            "key_sessions": [
+              "test"
+            ],
+            "hard_sets": {},
+            "notes": "deload early, tests late"
+          }
+        ],
+        "deload_weeks": [
+          4,
+          7,
+          10,
+          12
+        ],
+        "competition_weeks": [
+          13,
+          14,
+          15
+        ],
+        "taper_weeks": [],
+        "transition_week": 16,
+        "calorie_phase": "cut",
+        "macrofactor_setting": "MacroFactor: weight loss ~0.5% BW/week (coached, moderate); protein high (body fat trend 18.2% vs goal 10-12%)",
+        "variety": "Main lifts fixed for the block; accessories, metcon formats, erg modality and run routes rotate weekly.",
+        "generated_by": "fallback",
+        "revisions": [
+          {
+            "at": "2027-01-01",
+            "reason": "recovery <= 33 two days running (21, 18); HRV trend below baseline band 4 days",
+            "change": "deload pulled forward to week 7; deloads now [4, 7, 11]"
+          },
+          {
+            "at": "2027-01-21",
+            "reason": "shoulders rated 4/5; shoulders >= 3 on 2 check-ins",
+            "change": "deload pulled forward to week 10; deloads now [4, 7, 10, 12]"
+          }
+        ]
+      }
+    }
+  },
+  "status": "approved",
+  "history": [
+    {
+      "at": "2027-01-21",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2027-01-21",
+      "status": "approved",
+      "note": "joint >= 4: applied immediately"
+    }
+  ]
+}

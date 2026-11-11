@@ -1,0 +1,150 @@
+{
+  "block_id": "2026-27-B0",
+  "phase": "baseline",
+  "results": [
+    {
+      "test_id": "broad_jump",
+      "date": "2026-11-16",
+      "variant": null,
+      "value": 236.0,
+      "unit": "cm",
+      "comparable_value": 236.0,
+      "details": {
+        "attempts": [
+          231,
+          236,
+          234
+        ]
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "hinge_rm",
+      "date": "2026-11-16",
+      "variant": "trap_bar_deadlift_high",
+      "value": 192.0,
+      "unit": "kg",
+      "comparable_value": 192.0,
+      "details": {
+        "weight_kg": 160.0,
+        "reps": 5,
+        "rir": 1.0,
+        "factor": 1.0
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "squat_rm",
+      "date": "2026-11-16",
+      "variant": "ssb_box_squat",
+      "value": 138.0,
+      "unit": "kg",
+      "comparable_value": 138.0,
+      "details": {
+        "weight_kg": 115.0,
+        "reps": 5,
+        "rir": 1.0,
+        "factor": 1.0
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "db_press_5rm",
+      "date": "2026-11-17",
+      "variant": "db_bench_press_neutral",
+      "value": 40.8,
+      "unit": "kg",
+      "comparable_value": 40.8,
+      "details": {
+        "weight_kg": 34.0,
+        "reps": 5,
+        "rir": 1.0,
+        "factor": 1.0
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "pullups_max",
+      "date": "2026-11-17",
+      "variant": null,
+      "value": 9.0,
+      "unit": "reps",
+      "comparable_value": 9.0,
+      "details": {},
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "run_tt_30",
+      "date": "2026-11-19",
+      "variant": "outdoor",
+      "value": 462.0,
+      "unit": "s_per_mi",
+      "comparable_value": 462.0,
+      "details": {
+        "lthr": 169,
+        "threshold_pace_s_per_mi": 462,
+        "weather_adjust_s": 0.0
+      },
+      "conditions": {
+        "variant": "outdoor"
+      },
+      "notes": ""
+    },
+    {
+      "test_id": "row_2k",
+      "date": "2026-11-21",
+      "variant": null,
+      "value": 426.0,
+      "unit": "s",
+      "comparable_value": 426.0,
+      "details": {
+        "watts": 290,
+        "split_500m_s": 106.5,
+        "watts_per_kg": 2.99
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "body_comp",
+      "date": "2026-11-22",
+      "variant": null,
+      "value": 96.82,
+      "unit": "kg",
+      "comparable_value": 96.82,
+      "details": {
+        "n": 5,
+        "body_fat_pct": 18.2
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "vitals",
+      "date": "2026-11-22",
+      "variant": null,
+      "value": 49.5,
+      "unit": "bpm",
+      "comparable_value": 49.5,
+      "details": {
+        "ln_rmssd": 4.119
+      },
+      "conditions": {},
+      "notes": ""
+    }
+  ],
+  "scheduled": {
+    "broad_jump": "2026-11-16",
+    "hinge_rm": "2026-11-16",
+    "squat_rm": "2026-11-16",
+    "db_press_5rm": "2026-11-17",
+    "pullups_max": "2026-11-17",
+    "run_tt_30": "2026-11-19",
+    "row_2k": "2026-11-21"
+  }
+}

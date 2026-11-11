@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omni-hybrid-coach"
+version = "0.1.0"
+description = "Automated hybrid-athlete coach: deterministic engine, validator and integrations used by Claude Code skills."
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.6", "pyyaml>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.16", "mypy>=1.10", "types-PyYAML>=6", "pre-commit>=3"]
+
+[project.scripts]
+coach = "coach.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+coach = ["demo/fixtures/*.json", "demo/config/*.yaml", "demo/config/*.json", "demo/README.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = ["state"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["E501", "B008", "SIM108"]
+
+[tool.mypy]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+# Scenario checks dereference records that must exist; a None there fails the scenario loudly at runtime.
+[[tool.mypy.overrides]]
+module = "coach.sim.scenarios"
+disable_error_code = ["union-attr", "arg-type", "index"]
+
+[tool.coverage.run]
+source = ["coach"]
+omit = ["*/demo/*"]

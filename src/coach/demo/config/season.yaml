@@ -1,0 +1,138 @@
+# The shape of the athlete's year. The engine knows nothing about specific blocks: it lays out these blocks
+# from the season start and the race anchors in athlete_context.json `races`, then plans each block from its spec.
+#
+# Block length (exactly one of):
+#   weeks: N                                   fixed length
+#   end_after_event: {kind, weeks_after}       ends N weeks after the Sunday of the event's last date
+#   event: {kind, taper_weeks, reset_weeks}    contains the race week: starts (taper_weeks - 1) weeks before race
+#                                              week, ends reset_weeks after it
+#   fill: true                                 takes whatever is left between its neighbours (exactly one block)
+# Anchored blocks fall back to `default_weeks` when their event isn't in `races`.
+season:
+  start: 2026-11-16          # Monday of the baseline week
+  baseline_weeks: 1
+  baseline_week: baseline     # week template (training.yaml week_templates)
+  transition_week: transition
+  min_block_weeks: 4
+  deload:
+    every: 4                 # 3:1, counting back from the transition week
+    earliest_week: 3
+    volume_factor: 0.55      # deload sets = round(sets x factor)
+    run_factor: 0.7
+    taper_run_factor: 0.75
+    competition_run_factor: 0.8
+
+blocks:
+  - key: B1
+    name: Strength base -> CrossFit Open
+    focus: force build, then metcon/gymnastics sharpening into the Open
+    length: {end_after_event: {kind: crossfit_open, weeks_after: 1}, default_weeks: 16}
+    competition_event: crossfit_open
+    weeks: {training: force_open, competition: open_week}
+    run_miles: [12, 15]
+    long_run: {target_minutes: 75, erg_extension: true, mp_finish_min: 20, mp_finish_from_miles: 8}
+    calorie_phase: auto
+    pillars:
+      neural: {mode: maintain, description: primers 2x/wk, med: 1, deload_med: 1}
+      force: {mode: build, description: "force: 4 d/wk, heavy 3-5 reps at 1-2 RIR", med: 3, deload_med: 2}
+      glycolytic: {mode: build, description: "Open peak: 2-3 metcons/wk", med: 2, deload_med: 1}
+      aerobic: {mode: maintain, description: 12-15 mi/wk + erg in bad weather, med: 90, deload_med: 60}
+    hard_sets: {quads: [8, 16], hamstrings: [6, 14], glutes: [8, 18], chest: [6, 14], back: [10, 20], shoulders: [6, 16]}
+    key_sessions:
+      training: [lower_heavy, upper_heavy, glycolytic, long_run]
+      deload: [lower_heavy, long_run]
+      competition: [competition]
+    main_lifts:
+      - {family: hinge, scheme: "4 x 3-5 @ 2 RIR (rung cap)", progression: +2.5% when all reps hit at target RIR}
+      - {family: squat, scheme: "4 x 5 @ 2 RIR", progression: +2.5% when all reps hit}
+      - {family: press, scheme: "4 x 5 @ 2 RIR", progression: +1 DB step when all reps hit}
+      - {exercise_id: strict_pull_up, scheme: "4 x 5 (add load at 3 x 8)", progression: reps then load}
+    tests: [hinge_rm, squat_rm, db_press_5rm, pullups_max, broad_jump, row_2k, run_tt_30]
+    goal:
+      focus_tests: [hinge_rm, squat_rm, db_press_5rm, pullups_max]
+      guardrails:
+        - {test: run_tt_30, change: 10, mode: absolute, description: "running fitness: threshold pace no slower than +10 s/mi"}
+        - {test: body_comp, change: -0.75, mode: weekly_pct, description: "7-day weight trend no faster than -0.75%/wk (protect strength)"}
+
+  - key: B2
+    name: Hypertrophy + run ramp
+    focus: hypertrophy emphasis (12-16 hard sets/muscle/wk), run 15 -> 25 mi/wk
+    length: {fill: true}
+    weeks: {training: hypertrophy_ramp}
+    run_miles: [15, 25]
+    long_run: {target_minutes: 90, erg_extension: false, mp_finish_min: 20, mp_finish_from_miles: 8}
+    calorie_phase: auto
+    pillars:
+      neural: {mode: maintain, description: primers, med: 1, deload_med: 1}
+      force: {mode: build, description: "hypertrophy: 4 d/wk, 12-16 hard sets/muscle", med: 3, deload_med: 2}
+      glycolytic: {mode: maintain, description: 1 metcon + 1 threshold, med: 2, deload_med: 1}
+      aerobic: {mode: build, description: ramp 15 -> 25 mi/wk, med: 90, deload_med: 60}
+    hard_sets: {quads: [12, 16], hamstrings: [10, 16], glutes: [12, 20], chest: [12, 16], back: [12, 18], shoulders: [12, 18]}
+    key_sessions:
+      training: [lower_heavy, upper_heavy, glycolytic, run_quality, long_run]
+      deload: [lower_heavy, long_run]
+    main_lifts:
+      - {family: hinge, scheme: "3 x 6-8 @ 2 RIR", progression: double progression}
+      - {family: squat, scheme: "4 x 6-8 @ 2 RIR", progression: double progression}
+      - {family: press, scheme: "4 x 8-10 @ 2 RIR", progression: double progression}
+      - {exercise_id: chest_supported_db_row, scheme: "4 x 10-12 @ 2 RIR", progression: double progression}
+    tests: [hinge_rm, squat_rm, db_press_5rm, run_tt_30]
+    goal:
+      focus_tests: [squat_rm, hinge_rm, db_press_5rm]
+      guardrails:
+        - {test: hinge_rm, change: -5, mode: pct, description: hinge e1RM no lower than -5%}
+
+  - key: B3
+    name: Marathon build + Hyrox engine
+    focus: 35-50 mi/wk, compromised running, lifting at MED
+    length: {weeks: 13}
+    weeks: {training: marathon_build}
+    run_miles: [35, 50]
+    long_run: {target_minutes: 110, erg_extension: false, mp_finish_min: 25, mp_finish_from_miles: 8}
+    calorie_phase: maintenance
+    pillars:
+      neural: {mode: maintain, description: strides/sprints 1x/wk, med: 1, deload_med: 1}
+      force: {mode: maintain, description: "2-3 d/wk, 4-6 heavy sets/muscle; sleds/trap bar instead of axial squats", med: 2, deload_med: 1}
+      glycolytic: {mode: build, description: "Hyrox: compromised running", med: 2, deload_med: 1}
+      aerobic: {mode: build, description: 35-50 mi/wk + long run, med: 300, deload_med: 180}
+    hard_sets: {quads: [4, 9], hamstrings: [4, 9], glutes: [4, 12], chest: [4, 8], back: [4, 10], shoulders: [4, 10]}
+    key_sessions:
+      training: [run_quality, glycolytic, long_run, lower_heavy]
+      deload: [long_run]
+    main_lifts:
+      - {family: hinge, scheme: "3 x 4-5 @ 2-3 RIR", progression: "hold load, maintain"}
+      - {exercise_id: sled_push, scheme: "4 x 25 m heavy", progression: maintain}
+      - {family: press, scheme: "3 x 5 @ 2 RIR", progression: maintain}
+    tests: [run_tt_30, z2_drift_60, hyrox_sim, row_2k]
+    goal:
+      focus_tests: [run_tt_30]
+      guardrails:
+        - {test: hinge_rm, change: -7.5, mode: pct, description: hinge e1RM no lower than -7.5% while lifting at MED}
+
+  - key: B4
+    name: Taper -> marathon -> reset
+    focus: 3-week taper, race, 2-week structural reset
+    length: {event: {kind: marathon, taper_weeks: 3, reset_weeks: 2}, default_weeks: 5}
+    weeks: {taper: taper, race: race_week, reset: reset}
+    taper_volumes: [0.8, 0.6, 0.4]
+    reset_volume: 0.35
+    run_miles: [20, 40]
+    long_run: {target_minutes: 75, erg_extension: false, mp_finish_min: 20, mp_finish_from_miles: 8}
+    calorie_phase: maintenance
+    pillars:
+      neural: {mode: sharpen, description: short race-pace bursts, med: 1, deload_med: 0}
+      force: {mode: maintain, description: 2 d/wk light (flush), med: 1, deload_med: 1}
+      glycolytic: {mode: taper, description: race execution, med: 1, deload_med: 0}
+      aerobic: {mode: taper, description: taper + flush, med: 150, deload_med: 60}
+    hard_sets: {quads: [2, 8], hamstrings: [2, 8], glutes: [2, 10], chest: [2, 8], back: [2, 10], shoulders: [2, 10]}
+    key_sessions:
+      training: [run_quality, long_run]
+      taper: [run_quality, long_run]
+      competition: [race]
+    main_lifts:
+      - {family: hinge, scheme: "2 x 3 @ 3 RIR (flush)", progression: none}
+    tests: [run_tt_30, hyrox_sim]
+    goal:
+      focus_tests: [run_tt_30]
+      guardrails:
+        - {test: run_tt_30, change: 10, mode: absolute, description: threshold pace no slower than +10 s/mi}

@@ -1,0 +1,84 @@
+{
+  "season": "2026-27",
+  "baseline_start": "2026-11-16",
+  "baseline_end": "2026-11-22",
+  "blocks": [
+    {
+      "id": "2026-27-B1",
+      "key": "B1",
+      "index": 1,
+      "name": "Strength base -> CrossFit Open",
+      "focus": "force build, then metcon/gymnastics sharpening into the Open",
+      "start": "2026-11-23",
+      "end": "2027-03-14",
+      "competition_weeks": [
+        "2027-02-15",
+        "2027-02-22",
+        "2027-03-01"
+      ],
+      "taper_weeks": [],
+      "reset_weeks": [],
+      "events": [
+        "open-2027"
+      ]
+    },
+    {
+      "id": "2026-27-B2",
+      "key": "B2",
+      "index": 2,
+      "name": "Hypertrophy + run ramp",
+      "focus": "hypertrophy emphasis (12-16 hard sets/muscle/wk), run 15 -> 25 mi/wk",
+      "start": "2027-03-15",
+      "end": "2027-06-27",
+      "competition_weeks": [],
+      "taper_weeks": [],
+      "reset_weeks": [],
+      "events": []
+    },
+    {
+      "id": "2026-27-B3",
+      "key": "B3",
+      "index": 3,
+      "name": "Marathon build + Hyrox engine",
+      "focus": "35-50 mi/wk, compromised running, lifting at MED",
+      "start": "2027-06-28",
+      "end": "2027-09-26",
+      "competition_weeks": [],
+      "taper_weeks": [],
+      "reset_weeks": [],
+      "events": []
+    },
+    {
+      "id": "2026-27-B4",
+      "key": "B4",
+      "index": 4,
+      "name": "Taper -> marathon -> reset",
+      "focus": "3-week taper, race, 2-week structural reset",
+      "start": "2027-09-27",
+      "end": "2027-10-31",
+      "competition_weeks": [
+        "2027-10-11"
+      ],
+      "taper_weeks": [
+        "2027-09-27",
+        "2027-10-04",
+        "2027-10-11"
+      ],
+      "reset_weeks": [
+        "2027-10-18",
+        "2027-10-25"
+      ],
+      "events": [
+        "marathon-2027"
+      ]
+    }
+  ],
+  "generated_on": "2026-11-10",
+  "unconfirmed_races": [
+    "Fall marathon",
+    "CrossFit Open 2027"
+  ],
+  "notes": [
+    "Plan depends on unconfirmed race dates: Fall marathon, CrossFit Open 2027"
+  ]
+}

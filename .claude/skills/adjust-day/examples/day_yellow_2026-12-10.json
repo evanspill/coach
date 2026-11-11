@@ -1,0 +1,423 @@
+{
+  "date": "2026-12-10",
+  "status": "complete",
+  "readiness": {
+    "date": "2026-12-10",
+    "state": "yellow",
+    "reasons": [
+      "HRV trend below band 2 days"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": 4.0215,
+      "baseline_ln": 4.1159,
+      "lower_band": 4.0715,
+      "upper_band": 4.1603,
+      "below_days": 2
+    },
+    "rhr_delta": 0.8,
+    "joints": {
+      "back": 2,
+      "shoulders": 2,
+      "knees_achilles": 2
+    },
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": [
+      "whoop_recovery"
+    ]
+  },
+  "weather": {
+    "date": "2026-12-10",
+    "temp_f": 26.1,
+    "dew_point_f": 20.7,
+    "heat_sum": 46.7,
+    "tier": "normal",
+    "icy": false,
+    "daylight": true,
+    "sunrise": "07:07",
+    "sunset": "16:21",
+    "pace_adjust_s_per_mi": [
+      0,
+      0
+    ],
+    "decision": "outdoor OK",
+    "reasons": [
+      "26F, dew point 21F"
+    ]
+  },
+  "planned_session_id": "2026-12-10-squat-hyrox",
+  "session": {
+    "id": "2026-12-10-squat-hyrox",
+    "date": "2026-12-10",
+    "start_time": "09:30",
+    "type": "full_body",
+    "title": "Squat + Hyrox threshold",
+    "intent": "Explosive primer, heavy squat, threshold Hyrox intervals",
+    "location": "gym",
+    "route": null,
+    "expected_minutes": 90,
+    "key": true,
+    "carb_tier": "high",
+    "blocks": [
+      {
+        "kind": "warmup",
+        "title": "Lower/run prep: McGill Big 3, tibs, pogos, couch stretch",
+        "items": [
+          {
+            "exercise_id": "mcgill_curl_up",
+            "sets": 1,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": "10 s holds"
+          },
+          {
+            "exercise_id": "side_plank",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 20,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": null
+          },
+          {
+            "exercise_id": "bird_dog",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": null
+          },
+          {
+            "exercise_id": "tib_raise",
+            "sets": 1,
+            "reps": 15,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "by feel",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          },
+          {
+            "exercise_id": "pogo_hops",
+            "sets": 2,
+            "reps": 20,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          },
+          {
+            "exercise_id": "couch_stretch",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 45,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": null
+          },
+          {
+            "exercise_id": "band_pull_apart",
+            "sets": 1,
+            "reps": 15,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          },
+          {
+            "exercise_id": "thoracic_open_book",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": null
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "power",
+        "title": "Neural primer",
+        "items": [
+          {
+            "exercise_id": "box_jump",
+            "sets": 3,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 60,
+            "per_side": false,
+            "notes": null
+          },
+          {
+            "exercise_id": "med_ball_scoop_toss",
+            "sets": 2,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "strength",
+        "title": "",
+        "items": [
+          {
+            "exercise_id": "ssb_squat",
+            "sets": 4,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": 111.1,
+            "load_lb": 245.0,
+            "load_note": "245 lb",
+            "tempo": null,
+            "rest_s": 180,
+            "per_side": false,
+            "notes": null
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "hypertrophy",
+        "title": "",
+        "items": [
+          {
+            "exercise_id": "hip_thrust",
+            "sets": 3,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "by RIR (2)",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "run",
+        "title": "40 min Zone 2 (replaces hard conditioning)",
+        "items": [],
+        "run": [
+          {
+            "label": "40 min Zone 2 (erg or treadmill)",
+            "zone": "Z2",
+            "duration_min": 40.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "bike",
+            "terrain": "flat",
+            "pace_s_per_mi": null,
+            "hr_bpm": [
+              127,
+              142
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "cooldown",
+        "title": "~3 min easy + slow breathing to HR < 110, then hangs",
+        "items": [
+          {
+            "exercise_id": "easy_cooldown",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 180,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          },
+          {
+            "exercise_id": "dead_hang",
+            "sets": 2,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 30,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": null
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "changes": [
+    {
+      "what": "metcon/threshold work -> 40 min Zone 2; primary strength kept",
+      "why": "Yellow readiness (HRV trend below band 2 days)",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "evening 10-15 min soft tissue + mobility (T-spine/shoulders/hips): foam roller, lacrosse ball, bands, Theragun",
+    "magnesium bisglycinate at night"
+  ],
+  "nutrition": {
+    "date": "2026-12-10",
+    "carb_tier": "high",
+    "kcal": 2969,
+    "protein_g": 221,
+    "fat_g": 100,
+    "carbs_g": 296,
+    "scaled": true,
+    "peri_workout": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.",
+    "note": "carbs scaled down proportionally: weekly target is tight; MacroFactor weekly target"
+  },
+  "fueling_cue": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.",
+  "gear_alerts": [],
+  "pushed": {
+    "dry_run": true,
+    "hevy": [
+      {
+        "session": "2026-12-10-squat-hyrox",
+        "routine": "Thu Dec 10: Squat + Hyrox threshold",
+        "exercises": 13
+      }
+    ],
+    "intervals": []
+  },
+  "handoffs": [],
+  "approvals_pending": [],
+  "stale_sources": [
+    "whoop: today's recovery not available yet"
+  ],
+  "generated_by": "fallback",
+  "notification": "YELLOW: HRV trend below band 2 days.\nToday: Squat + Hyrox threshold (~90 min, gym). Main: 4x5 ssb squat @ 245 lb.\nFuel: Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.\nTonight: evening 10-15 min soft tissue + mobility (T-spine/shoulders/hips): foam roller, lacrosse ball, bands, Theragun; magnesium bisglycinate at night.\nChanged: metcon/threshold work -> 40 min Zone 2; primary strength kept (Yellow readiness (HRV trend below band 2 days))"
+}

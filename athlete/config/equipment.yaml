@@ -1,0 +1,48 @@
+# Work gym inventory. The validator only allows exercises whose equipment is listed for the session's location.
+locations:
+  gym:
+    description: Work gym (all training happens here; treadmills cover bad-weather runs)
+    equipment: [bodyweight, barbell, bumper_plates, iron_plates, fractional_plates, power_rack, wall_rig, pullup_bar,
+      dumbbells, kettlebells, ez_bar, plyo_box, ghd, flat_bench, adjustable_bench, incline_bench, decline_situp_bench,
+      abmat, med_ball, wall_ball, bosu, landmine, dip_station, safety_squat_bar, trap_bar, open_trap_bar, rings,
+      peg_board, ab_wheel, tib_raise, pvc_pipe, sandbag, crossover_symmetry, bands,
+      smith_machine, glute_trainer, preacher_curl, iso_lateral_chest_back, rear_delt_pec_fly, leg_extension,
+      seated_leg_curl, leg_press, hip_adductor_abductor, diverging_seated_row, converging_chest_press,
+      converging_shoulder_press, back_extension, lat_pulldown, dip_chin_assist, cable_crossover, functional_trainer,
+      echo_bike, bikeerg, skierg, rowerg, treadmill, woodway_curve, elliptical, stairmaster, battle_ropes, jump_rope, spin_bike,
+      stationary_bike, peloton, sled, normatec, foam_roller, lacrosse_ball, theragun]
+  outdoor:
+    description: Farmington River Trail / West Hartford Reservoir
+    equipment: [bodyweight]
+  track:
+    description: Canton HS track (daylight, non-school hours)
+    equipment: [bodyweight]
+  home:
+    description: Home (no training equipment; own recovery kit only)
+    equipment: [bodyweight, bands, foam_roller, lacrosse_ball, theragun]
+  travel:
+    description: Away from the gym (no equipment unless listed)
+    equipment: [bodyweight, bands]
+
+loading:
+  barbell:
+    bar_lb: 45
+    smallest_step_lb_per_side: 1.25
+  trap_bar:
+    bar_lb: 60
+    smallest_step_lb_per_side: 1.25
+  open_trap_bar:
+    bar_lb: 65
+    smallest_step_lb_per_side: 1.25
+  safety_squat_bar:
+    bar_lb: 65
+    smallest_step_lb_per_side: 1.25
+  landmine:
+    bar_lb: 0          # loaded end only; prescribe plates on the sleeve
+    smallest_step_lb_per_side: 2.5
+  smith_machine:
+    bar_lb: 20
+    smallest_step_lb_per_side: 1.25
+  dumbbells_lb: {min: 5, max: 100, step: 5}
+  kettlebells_lb: [26, 35, 53, 70]
+  machines: rir_based   # cable/machine work is prescribed by RIR + last used weight from Hevy

@@ -1,0 +1,78 @@
+"""Pydantic models. Everything Claude writes must parse into one of these (extra fields are rejected)."""
+
+from coach.models.common import Model
+from coach.models.library import (
+    EquipmentConfig,
+    Exercise,
+    ExerciseLibrary,
+    MovementProgressions,
+    SkillsConfig,
+    TestBattery,
+)
+from coach.models.metrics import Checkin, DailyMetrics, Gear, SessionRecord, SetRecord
+from coach.models.plans import (
+    BlockGoal,
+    BlockOutline,
+    Deviation,
+    MacroBlock,
+    Macrocycle,
+    Metcon,
+    Prescription,
+    RunSegment,
+    Session,
+    SessionBlock,
+    WeekPlan,
+    WeekTarget,
+)
+from coach.models.profile import AthleteProfile, CoachSettings
+from coach.models.records import (
+    Change,
+    DayRecord,
+    FamilyState,
+    MovementReadiness,
+    NutritionDay,
+    Proposal,
+    Readiness,
+    TestResult,
+    TestSet,
+    WeatherCall,
+)
+
+__all__ = [
+    "AthleteProfile",
+    "BlockGoal",
+    "BlockOutline",
+    "Change",
+    "Checkin",
+    "CoachSettings",
+    "DailyMetrics",
+    "DayRecord",
+    "Deviation",
+    "EquipmentConfig",
+    "Exercise",
+    "ExerciseLibrary",
+    "FamilyState",
+    "Gear",
+    "MacroBlock",
+    "Macrocycle",
+    "Metcon",
+    "Model",
+    "MovementProgressions",
+    "MovementReadiness",
+    "NutritionDay",
+    "Prescription",
+    "Proposal",
+    "Readiness",
+    "RunSegment",
+    "Session",
+    "SessionBlock",
+    "SessionRecord",
+    "SetRecord",
+    "SkillsConfig",
+    "TestBattery",
+    "TestResult",
+    "TestSet",
+    "WeatherCall",
+    "WeekPlan",
+    "WeekTarget",
+]
