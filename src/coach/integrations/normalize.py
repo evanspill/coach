@@ -257,7 +257,13 @@ def intervals_wellness(raw: list[dict], cfg=None) -> tuple[list[DailyMetrics], l
                 protein_g=w.get("protein"),
                 carbs_g=w.get("carbohydrates"),
                 fat_g=w.get("fatTotal"),
-                weight_kg=w.get("weight"),  # scale weigh-ins (e.g. Apple Health -> Garmin -> Intervals.icu)
+                # Whoop via Intervals.icu's own Whoop connection (backup only; sync keeps these out of git)
+                recovery_score=w.get("readiness"),
+                hrv_rmssd_ms=w.get("hrv"),
+                rhr_bpm=w.get("restingHR"),
+                sleep_hours=round(w["sleepSecs"] / 3600, 2) if w.get("sleepSecs") else None,
+                sleep_performance=w.get("sleepScore"),
+                weight_kg=w.get("weight"),  # scale weigh-ins (Apple Health -> HealthFit -> Intervals.icu)
                 body_fat_pct=w.get("bodyFat"),
                 sources=["intervals"],
             )

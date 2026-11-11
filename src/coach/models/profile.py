@@ -265,3 +265,6 @@ class CoachSettings(Model):
     paused: bool = False
     notification_detail: Literal["brief", "normal"] = "normal"
     validator: ValidatorSettings = ValidatorSettings()
+    # Fill days the direct Whoop API missed from Intervals.icu wellness (its Whoop connection). Only turn on when
+    # Intervals.icu's HRV / resting HR / sleep come from Whoop, not a watch worn part-time (DECISIONS 75).
+    whoop_backup: Literal["none", "intervals"] = "none"

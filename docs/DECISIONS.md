@@ -197,7 +197,21 @@ Each entry: **decision** - why - how to reverse.
     - Reverse: write the cache rows to `metrics/` again (one flag in `sync`).
 74. **No direct scale API.** The scale vendor's API terms forbid giving its data to an AI model and require a business
     account, so the scale integration, its broker endpoints and its fixtures were removed. Weigh-ins now arrive
-    as Intervals.icu wellness `weight` / `bodyFat` (scale app -> Apple Health -> Garmin Connect -> Intervals.icu);
+    as Intervals.icu wellness `weight` / `bodyFat` (scale app -> Apple Health -> HealthFit -> Intervals.icu);
     field names are from the Intervals.icu docs, to verify on the first real weigh-in. The demo fixtures carry the
     same weigh-ins in wellness (same random sequence, so simulations are unchanged apart from the source). The
     broker is Whoop-only.
+75. **Intervals.icu's Whoop connection as a backup** (athlete-approved 2026-11-11), off until enabled
+    (`coach.yaml whoop_backup: intervals`). Intervals.icu wellness `readiness` / `hrv` / `restingHR` / `sleepSecs`
+    / `sleepScore` map to recovery / HRV / RHR / sleep (docs-based names, verify once connected). They fill only
+    days the direct API left without a recovery score, go to the same git-ignored cache (never committed, whatever
+    the source: sync strips recovery-type fields from every committed daily row), and carry the source
+    `intervals_whoop`. Off by default because Intervals.icu doesn't say which device a wellness value came from: if
+    a watch worn part-time also feeds HRV/RHR, the baselines would mix devices. Trade-offs vs the direct API: no
+    per-workout HR/strain/zones (gym sessions fall back to session RPE), and the import may land hours after
+    waking; Intervals.icu, not the athlete, is the party bound by WHOOP's API terms on this route.
+    - Reverse: `whoop_backup: none`.
+76. **No API request on the minute.** Hevy's API docs ask scheduled clients not to call exactly at xx:00; applied to
+    every integration: the scheduled tasks start at off-round minutes, and scheduled syncs (`coach sync --jitter 90`,
+    `coach daily --fallback --jitter 90`) wait a random 0-90 s first. Interactive syncs don't wait; mock mode never
+    waits. - Reverse: drop `--jitter` from the coach-daily skill.

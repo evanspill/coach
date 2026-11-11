@@ -327,6 +327,9 @@ class Store:
         return [SessionRecord.model_validate(r["data"]) for r in ordered]
 
     # ---------- Whoop cache (git-ignored, rolling window) ----------
+    def metric_records_daily_cached(self) -> list[DailyMetrics]:
+        return [DailyMetrics.model_validate(r["data"]) for r in self.metric_records("daily", cache=True)]
+
     def whoop_cache_coverage(self) -> tuple[dt.date, dt.date] | None:
         """(first day, last day) the cache was filled for; None = empty (a fresh container)."""
         p = self._path(f"{CACHE_DIR}/coverage.json")

@@ -129,7 +129,7 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 
 ## Body composition (7-day average) (`body_comp`)
 - Quality: body composition (pillar: body, category: body)
-- Procedure: Smart scale (synced to Intervals.icu via Apple Health -> Garmin) every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).
+- Procedure: Smart scale (synced to Intervals.icu via Apple Health -> HealthFit) every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).
 - Rest: n/a
 - Equipment / location: n/a / home
 - Safety: Bioimpedance body fat is noisy: use the trend. Optional DEXA for an anchor.

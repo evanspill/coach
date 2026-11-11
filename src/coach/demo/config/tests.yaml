@@ -275,7 +275,7 @@ tests:
     quality: body composition
     pillar: body
     category: body
-    protocol: {procedure: "Smart scale (synced to Intervals.icu via Apple Health -> Garmin) every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).", rest: "n/a"}
+    protocol: {procedure: "Smart scale (synced to Intervals.icu via Apple Health -> HealthFit) every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).", rest: "n/a"}
     equipment: []
     location: home
     safety: "Bioimpedance body fat is noisy: use the trend. Optional DEXA for an anchor."

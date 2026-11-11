@@ -41,10 +41,16 @@ coach never commits Whoop data (it refetches a rolling 75-day window into a git-
 - [ ] Verify against the real API (`coach sync --pretty`) and fix field names in
       `src/coach/integrations/normalize.py` if they differ from the docs-based shapes.
 
+### Whoop backup via Intervals.icu (optional)
+Connect Whoop in Intervals.icu (Settings -> Connections). Once Intervals.icu shows Whoop's HRV / resting HR / sleep
+(and not a watch's), set `whoop_backup: intervals` in `athlete/config/coach.yaml`: days the direct API misses are
+then filled from Intervals.icu wellness (cache only, never committed). It has no per-workout HR or strain, and
+Intervals.icu may import it hours after you wake.
+
 ### Scale (weight, body fat)
-No direct scale API (the vendor's API terms rule out AI use). Route: scale app -> Apple Health -> Garmin Connect ->
-Intervals.icu wellness (`weight`, `bodyFat`). Check that Garmin Connect shows the weigh-ins and that Intervals.icu's
-Garmin connection downloads wellness.
+No direct scale API (the vendor's API terms rule out AI use). Route: scale app -> Apple Health -> HealthFit ->
+Intervals.icu wellness (`weight`, `bodyFat`). In HealthFit, enable the Intervals.icu connection with weight and body
+fat.
 
 ### Intervals.icu (runs + the route to the Garmin)
 The Garmin is worn only on runs. Intervals.icu provides run detail (pace, Running Dynamics from the Pod), training
@@ -63,6 +69,8 @@ broker needed) and enable "upload planned workouts" on its Garmin connection.
       Phase 1 with today's date; re-run is idempotent.
 - [ ] `python -m coach sync --pretty` and `python -m coach status --pretty`.
 - [ ] Create the two scheduled tasks (push notifications on):
+  Start times are deliberately off-round (never :00 / :30), and every scheduled sync waits a random 0-90 s first
+  (`--jitter 90`), as Hevy's API docs ask; it applies to every integration.
   - ~8:25 AM ET daily: *"Run the coach-daily skill. Commit state to main and push. End with the athlete summary."*
   - ~9:05 AM ET daily (catch-up): *"Run the coach-daily skill in catch-up mode: only continue if today's day record
     is waiting_for_recovery. Commit state to main and push. End with the athlete summary."*

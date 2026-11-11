@@ -243,3 +243,76 @@ def test_day_records_are_stored_without_whoop_numbers(home):
     assert back.readiness.state == "green" and back.readiness.reasons == ["recovery >= 67"]
     assert back.readiness.recovery_score is None and back.readiness.rhr_delta is None
     assert back.readiness.hrv.mean7_ln is None
+
+
+def _offline_whoop_sources():
+    import dataclasses
+
+    from coach.integrations.base import WhoopSource
+
+    class OfflineWhoop(WhoopSource):
+        def daily(self, start, end):
+            raise RuntimeError("broker down")
+
+        def workouts(self, start, end):
+            raise RuntimeError("broker down")
+
+    return dataclasses.replace(mock_sources(MockWorld.load()), whoop=OfflineWhoop())
+
+
+@pytest.mark.parametrize("setting", ["none", "intervals"])
+def test_intervals_whoop_backup_fills_missing_days_without_committing(home, setting):
+    """Direct Whoop down: with whoop_backup=intervals, Intervals.icu wellness HRV/RHR fill the cache (never git)."""
+    import json
+    import os
+
+    from coach.config import load_config
+
+    data = home / "athlete" / "data"
+    st = Store(data)
+    d = dt.date(2026, 11, 20)
+    os.environ["COACH_TODAY"] = d.isoformat()
+    cfg = load_config()
+    cfg.settings.whoop_backup = setting
+    r = sync(_offline_whoop_sources(), st, d, cfg)
+    ms = st.daily_metrics(d - dt.timedelta(days=60), d)
+    filled = [m for m in ms if m.hrv_rmssd_ms is not None]
+    if setting == "none":
+        assert not filled and "whoop_backup_days" not in r["counts"]
+    else:
+        assert len(filled) >= 55 and all("intervals_whoop" in m.sources for m in filled)
+        assert r["counts"]["whoop_backup_days"] >= 55
+    for p in (data / "metrics").glob("*.jsonl"):
+        for line in p.read_text().splitlines():
+            assert not WHOOP_FIELDS & set(json.loads(line)["data"])
+
+
+def test_direct_whoop_wins_over_the_backup(home):
+    import os
+
+    from coach.config import load_config
+
+    st = Store(home / "athlete" / "data")
+    d = dt.date(2026, 11, 20)
+    os.environ["COACH_TODAY"] = d.isoformat()
+    cfg = load_config()
+    cfg.settings.whoop_backup = "intervals"
+    r = sync(mock_sources(MockWorld.load()), st, d, cfg)
+    assert r["counts"].get("whoop_backup_days", 0) == 0  # direct covered every day that had a score
+    assert all("intervals_whoop" not in m.sources for m in st.daily_metrics() if m.recovery_score is not None)
+
+
+def test_jitter_waits_only_for_live_scheduled_runs(monkeypatch):
+    import argparse
+
+    from coach import cli
+
+    slept = []
+    monkeypatch.setattr("time.sleep", lambda s: slept.append(s))
+    monkeypatch.setenv("COACH_MOCK", "0")
+    cli._jitter(argparse.Namespace(jitter=90))
+    assert len(slept) == 1 and 0 <= slept[0] <= 90
+    cli._jitter(argparse.Namespace(jitter=0))
+    monkeypatch.setenv("COACH_MOCK", "1")
+    cli._jitter(argparse.Namespace(jitter=90))
+    assert len(slept) == 1

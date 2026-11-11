@@ -23,7 +23,7 @@
 | Raw recovery/sleep/workout data | Whoop | Whoop; the token broker in transit |
 | Lifting log, routines | Hevy | Hevy |
 | Runs, wellness fields, planned workouts | Intervals.icu -> Garmin | Intervals.icu, Garmin |
-| Body composition | Scale app -> Apple Health -> Garmin -> Intervals.icu | Those services |
+| Body composition | Scale app -> Apple Health -> HealthFit -> Intervals.icu | Those services |
 | Weather | Open-Meteo (no personal data sent beyond home coordinates in the query) | Open-Meteo |
 | Literature searches | PubMed E-utilities / web search | NCBI / search provider (queries only, no health data) |
 | API credentials | Cloud environment network secrets; the Whoop refresh token in the broker's KV store | You; Anthropic infrastructure (proxy); the broker host (e.g. Cloudflare) |

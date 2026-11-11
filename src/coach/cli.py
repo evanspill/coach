@@ -58,9 +58,22 @@ def cmd_init(args):
     return {"done": bootstrap(st, cfg, _today(args))}
 
 
+def _jitter(args) -> None:
+    """Scheduled runs: wait a random 0..N s before the first API call so requests never land on the minute
+    (Hevy asks for this; applied to every integration). No-op in mock mode and for N = 0."""
+    import random
+    import time
+
+    from coach import paths
+
+    if getattr(args, "jitter", 0) and not paths.is_mock():
+        time.sleep(random.uniform(0, args.jitter))
+
+
 def cmd_sync(args):
     from coach.integrations.sync import sync
 
+    _jitter(args)
     return sync(_sources(), Store(), _today(args))
 
 
@@ -599,6 +612,7 @@ def cmd_daily(args):
         return {
             "error": "the daily run is Claude's job (coach-daily skill). Use --fallback for the deterministic safety net."
         }
+    _jitter(args)
     res = run_daily(_sources(), Store(), _today(args), "catchup" if args.catchup else "main")
     return {
         "notification": res.notification,
@@ -661,7 +675,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("init", help="one-time setup: macrocycle, starting rungs, config lock, notes")
-    sub.add_parser("sync", help="fetch, normalize and store new data (idempotent)")
+    sy = sub.add_parser("sync", help="fetch, normalize and store new data (idempotent)")
+    sy.add_argument(
+        "--jitter", type=int, default=0, metavar="S", help="wait a random 0..S seconds first (scheduled runs)"
+    )
     sub.add_parser("status", help="today's context: block/week/day, test day, approvals, flags")
     sub.add_parser("readiness", help="today's readiness with reasons")
     gl = sub.add_parser("goals", help="long-term goal feasibility + race targets")
@@ -722,6 +739,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     d.add_argument("--fallback", action="store_true")
     d.add_argument("--catchup", action="store_true")
+    d.add_argument("--jitter", type=int, default=0, metavar="S", help="wait a random 0..S seconds first")
     lg = sub.add_parser("log", help="parse a chat message into records (red flags stop training)")
     lg.add_argument("text")
     s = sub.add_parser("simulate", help="replay fixtures through the coach + per-skill scenarios")

@@ -14,6 +14,26 @@ from coach.store import Store
 OVERLAP_DAYS = 3  # re-fetch a few days so late uploads are merged
 FIRST_SYNC_DAYS = 75  # enough history for the 60-day HRV/RHR baselines
 WHOOP_WINDOW_DAYS = 75  # Whoop is refetched for this window when the cache is cold (fresh container)
+# Recovery-type fields: never committed, whichever source they came from (DECISIONS 73, 75)
+WHOOP_DAILY_FIELDS = (
+    "recovery_score",
+    "hrv_rmssd_ms",
+    "rhr_bpm",
+    "sleep_hours",
+    "sleep_performance",
+    "day_strain",
+)
+
+
+def _without_whoop(m: DailyMetrics) -> DailyMetrics:
+    return m.model_copy(update=dict.fromkeys(WHOOP_DAILY_FIELDS))
+
+
+def _whoop_part(m: DailyMetrics, source: str) -> DailyMetrics | None:
+    vals = {f: getattr(m, f) for f in WHOOP_DAILY_FIELDS if getattr(m, f) is not None}
+    return DailyMetrics(date=m.date, sources=[source], **vals) if vals else None
+
+
 MATCH_MINUTES = 15
 COMPATIBLE = {
     "strength": {"strength", "metcon", "hiit", "other"},
@@ -138,13 +158,30 @@ def sync(
     daily: list[DailyMetrics] = []
     nutrition = run("nutrition", lambda: sources.nutrition.daily(start, today)) or []
     report["counts"]["nutrition_daily"] = len(nutrition)
-    daily.extend(nutrition)
-    wellness = run("intervals_wellness", lambda: sources.intervals.wellness(start, today))
+    daily.extend(_without_whoop(m) for m in nutrition)
+    backup = cfg.settings.whoop_backup == "intervals"
+    wfrom = min(start, wstart) if backup else start
+    wellness = run("intervals_wellness", lambda: sources.intervals.wellness(wfrom, today))
     checkins: list[Checkin] = []
     if wellness:
         wm, wc = wellness
-        daily.extend(m for m in wm if any(v is not None for v in (m.ctl, m.atl, m.weight_kg, m.body_fat_pct)))
-        checkins.extend(wc)
+        daily.extend(
+            _without_whoop(m)
+            for m in wm
+            if m.date >= start and any(v is not None for v in (m.ctl, m.atl, m.weight_kg, m.body_fat_pct))
+        )
+        checkins.extend(c for c in wc if c.date >= start)
+        if backup:  # only days the direct API left without a recovery score; cache only
+            have = {m.date for m in state.metric_records_daily_cached() if m.recovery_score is not None}
+            fill = [p for m in wm if m.date not in have and (p := _whoop_part(m, "intervals_whoop"))]
+            report["counts"]["whoop_backup_days"] = len(fill)
+            state.upsert_metrics(
+                [
+                    ("daily", m.date.isoformat(), m.date, m.model_dump(mode="json", exclude_none=True))
+                    for m in fill
+                ],
+                cache=True,
+            )
     report["counts"]["weigh_ins"] = sum(1 for m in daily if m.weight_kg is not None)
     for m in daily:
         items.append(("daily", m.date.isoformat(), m.date, m.model_dump(mode="json", exclude_none=True)))
@@ -198,7 +235,7 @@ def sync(
     else:  # don't let a stale cached copy hide a session that was just re-synced
         state.upsert_metrics([], replace_kinds_in={"session": (start, today)}, cache=True)
     report["counts"]["sessions"] = len(state.sessions(start, today))
-    if whoop_daily is not None and whoop_w is not None:
+    if (whoop_daily is not None and whoop_w is not None) or (backup and wellness):
         state.set_whoop_cache_coverage(window_start, today)
     state.prune_whoop_cache(window_start)
 

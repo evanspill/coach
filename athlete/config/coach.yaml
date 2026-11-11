@@ -11,3 +11,6 @@ paused: false
 notification_detail: normal   # brief | normal
 validator:
   max_attempts: 3             # Claude revisions before the deterministic fallback
+# Fill days the direct Whoop API missed from Intervals.icu wellness (its Whoop connection): none | intervals.
+# Turn on only when Intervals.icu's HRV / resting HR / sleep come from Whoop, not a watch worn part-time.
+whoop_backup: none

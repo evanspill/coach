@@ -13,7 +13,8 @@ summary." (and the 9:05 catch-up variant). Never in chat unless the athlete asks
 ## Steps
 1. `git checkout main && git pull --rebase`. **Catch-up run:** if today's day record (`coach record get day_records
    --key <today>`) is missing or its `status` is not `waiting_for_recovery`, stop and end with "Nothing to finish."
-2. `coach sync`. If today's Whoop recovery is missing (`recovery_today: false`): finish everything that doesn't
+2. `coach sync --jitter 90` (a random 0-90 s wait first, so scheduled requests never hit the APIs on the minute).
+   If today's Whoop recovery is missing (`recovery_today: false`): finish everything that doesn't
    depend on it, write today's day record with `status: waiting_for_recovery`, say so in the notification; the
    catch-up completes the adjustment. Report stale sources; never guess missing data.
    If `whoop_offline: true` (fetch failed or no recovery for 2+ days) don't wait: finalize today with readiness
@@ -48,8 +49,8 @@ Gear: <alerts>                        (when relevant)
 ```
 
 ## Safety net
-If you can't complete the run (tool failures, repeated validation failures), run `coach daily --fallback` (and
-`--catchup` for the 9:05 run), commit, and say in the notification that the deterministic fallback was used.
+If you can't complete the run (tool failures, repeated validation failures), run `coach daily --fallback --jitter 90`
+(and `--catchup` for the catch-up run), commit, and say in the notification that the deterministic fallback was used.
 
 ## Never
 - Make coaching decisions here (they belong to the skills it calls).
