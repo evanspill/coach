@@ -7,23 +7,22 @@
     ],
     "counts": {
       "whoop_daily": 0,
-      "withings_daily": 0,
       "nutrition_daily": 0,
+      "weigh_ins": 0,
       "sessions": 0
     },
     "stale": [
-      "whoop: no recovery since None",
-      "withings: no weigh-in since None",
+      "whoop: no recovery in the last 10 days",
+      "weight: no weigh-in in the last 10 days",
       "whoop: fetch failed",
-      "withings: fetch failed",
       "whoop_workouts: fetch failed"
     ],
     "errors": {
       "whoop": "RuntimeError: WHOOP_BROKER_URL not configured (Phase 2: deploy the token broker)",
-      "withings": "RuntimeError: token broker not configured (Withings shares the Whoop broker)",
       "whoop_workouts": "RuntimeError: WHOOP_BROKER_URL not configured (Phase 2: deploy the token broker)"
     },
     "changed_files": 0,
-    "recovery_today": false
+    "recovery_today": false,
+    "whoop_offline": true
   }
 }
