@@ -247,3 +247,31 @@ def test_submit_report_and_plain_record(b1):
     assert out["kind"] == "report"
     with pytest.raises(ValidationError):
         records.submit(ctx.state, ctx.cfg, "journal", {"nonsense": True}, TODAY)
+
+
+def test_whoop_offline_finalizes_without_guessing(home):
+    """Broker down / strap not syncing: the day completes with no readiness score instead of waiting forever."""
+    import dataclasses
+
+    from coach.coaching.daily import run_daily
+    from coach.integrations.base import WhoopSource
+    from coach.integrations.mock import MockWorld, mock_sources
+    from coach.store import Store
+
+    class OfflineWhoop(WhoopSource):
+        def daily(self, start, end):
+            raise RuntimeError("WHOOP_BROKER_URL not configured")
+
+        def workouts(self, start, end):
+            raise RuntimeError("WHOOP_BROKER_URL not configured")
+
+    day = dt.date(2026, 11, 17)
+    src = dataclasses.replace(mock_sources(MockWorld.load()), whoop=OfflineWhoop())
+    res = run_daily(src, Store(), day, auto_approve=True)
+    rec = res.record
+    assert rec is not None and rec.status == "complete"
+    assert rec.readiness.state == "unknown" and rec.readiness.recovery_score is None
+    assert "whoop: fetch failed" in rec.stale_sources
+    assert res.notification.startswith("NO SCORE: Whoop offline")
+    assert "9:05" not in res.notification
+    assert run_daily(src, Store(), day, phase="catchup").log == ["catch-up: nothing waiting"]

@@ -28,12 +28,17 @@ from coach.integrations.base import (
 )
 
 TIMEOUT = 30
+# Intervals.icu sits behind Cloudflare, which rejects urllib's default "Python-urllib/x.y" agent (error 1010).
+USER_AGENT = "omni-hybrid-coach/0.1"
 
 
 def _request(method: str, url: str, headers: dict | None = None, body: dict | None = None):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(
-        url, data=data, method=method, headers={"Accept": "application/json", **(headers or {})}
+        url,
+        data=data,
+        method=method,
+        headers={"Accept": "application/json", "User-Agent": USER_AGENT, **(headers or {})},
     )
     if data is not None:
         req.add_header("Content-Type", "application/json")

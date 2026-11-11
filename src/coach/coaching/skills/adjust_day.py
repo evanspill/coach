@@ -82,7 +82,12 @@ def _weather_route(s: Session, wc: WeatherCall, changes: list[Change]) -> None:
 
 
 def adjust(
-    ctx: Context, day: dt.date, plan: WeekPlan | None, sources=None, weather_hourly: list[dict] | None = None
+    ctx: Context,
+    day: dt.date,
+    plan: WeekPlan | None,
+    sources=None,
+    weather_hourly: list[dict] | None = None,
+    whoop_offline: bool = False,
 ) -> DayRecord:
     cfg = ctx.cfg
     rec = DayRecord(date=day, status="complete", generated_by="fallback")
@@ -126,7 +131,11 @@ def adjust(
     readiness = ctx.readiness(day)
     rec.readiness = readiness
     if readiness.state == "unknown" and "whoop_recovery" in readiness.data_missing:
-        rec.status = "waiting_for_recovery"
+        if whoop_offline:
+            # No score to wait for: keep the plan as written (joint check-ins above still apply), flag it.
+            readiness.reasons = ["Whoop offline, readiness not scored"]
+        else:
+            rec.status = "waiting_for_recovery"
 
     # --- weather ---
     if session is not None and weather_hourly is not None:

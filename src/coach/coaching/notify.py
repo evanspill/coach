@@ -46,7 +46,10 @@ def compose(rec: DayRecord, extras: dict | None = None, detail: str = "normal") 
             f" Stale: {', '.join(extras.get('stale', []))}." if extras.get("stale") else ""
         )
     r = rec.readiness
-    if r:
+    if r and r.state == "unknown" and rec.status != "waiting_for_recovery":
+        top = r.reasons[0] if r.reasons else "readiness not scored"
+        lines.append(f"NO SCORE: {top}. Train as planned; ease off if you feel run down.")
+    elif r:
         top = r.reasons[0] if r.reasons else ""
         lines.append(f"{STATE_WORD[r.state]}: {top}.")
     if rec.status == "waiting_for_recovery":

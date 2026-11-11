@@ -139,3 +139,32 @@ def test_every_cli_command_is_registered():
 
     sub = next(a for a in build_parser()._actions if a.dest == "cmd")
     assert set(COMMANDS) == set(sub.choices)
+
+
+def test_live_requests_send_a_user_agent(monkeypatch):
+    """Intervals.icu's Cloudflare front rejects urllib's default agent (error 1010), so every call names one."""
+    from coach.integrations import live
+
+    seen = {}
+
+    class Resp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b"[]"
+
+    def fake_urlopen(req, timeout):
+        seen.update({k.lower(): v for k, v in req.header_items()})
+        return Resp()
+
+    monkeypatch.setattr(live.urllib.request, "urlopen", fake_urlopen)
+    assert (
+        live._request("GET", "https://intervals.icu/api/v1/athlete/0/gear", {"Authorization": "Basic x"})
+        == []
+    )
+    assert seen["user-agent"] == live.USER_AGENT and not seen["user-agent"].startswith("Python-urllib")
+    assert seen["authorization"] == "Basic x"

@@ -40,7 +40,7 @@ flowchart TB
   G -- completed runs --> I
   T --> N
 ```
-Whoop and Withings are reached through a small token broker (Phase 2) that holds their rotating refresh tokens.
+Whoop and Withings are reached through a small token broker (Phase 2) that holds their rotating refresh tokens. The broker is in `broker/` (Cloudflare Worker + KV; deploy steps in `broker/README.md`).
 
 ## Daily run
 ```mermaid

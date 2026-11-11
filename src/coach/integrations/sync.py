@@ -177,13 +177,26 @@ def sync(
         report["stale"].append(
             "whoop: today's recovery not available yet"
             if latest["whoop"] == today - dt.timedelta(days=1)
-            else f"whoop: no recovery since {latest['whoop']}"
+            else (
+                f"whoop: no recovery since {latest['whoop']}"
+                if latest["whoop"]
+                else "whoop: no recovery in the last 10 days"
+            )
         )
     if latest["withings"] is None or (today - latest["withings"]).days > 3:
-        report["stale"].append(f"withings: no weigh-in since {latest['withings']}")
+        report["stale"].append(
+            f"withings: no weigh-in since {latest['withings']}"
+            if latest["withings"]
+            else "withings: no weigh-in in the last 10 days"
+        )
     for name in report["errors"]:
         report["stale"].append(f"{name}: fetch failed")
     report["recovery_today"] = latest["whoop"] == today
+    # Offline (not just late): the source failed, or nothing for 2+ days. The 9:05 catch-up can't fix that, so
+    # the daily run finalizes without a readiness score instead of waiting (never guesses one).
+    report["whoop_offline"] = latest["whoop"] != today and (
+        "whoop" in report["errors"] or latest["whoop"] is None or (today - latest["whoop"]).days >= 2
+    )
     sync_state.last_sync = today
     sync_state.last_report = report
     state.put("sync_state", sync_state)

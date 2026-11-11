@@ -36,6 +36,8 @@ they need a small always-on place to live: the token broker. A free Cloudflare W
 tokens) is the default choice; any small serverless host works. The broker is also what lets Withings (weight, body
 fat) come straight in.
 
+The broker is in `broker/`; registration and deploy steps are in `broker/README.md`.
+
 - [ ] Register a Whoop developer app (API v2) and a Withings developer app.
 - [ ] Deploy the token broker (e.g. a free Cloudflare Worker) that holds the rotating refresh tokens and exposes
       read-only endpoints (`/v2/recovery`, `/v2/activity/sleep`, `/v2/cycle`, `/v2/activity/workout`,

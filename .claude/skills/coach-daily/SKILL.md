@@ -16,6 +16,9 @@ summary." (and the 9:05 catch-up variant). Never in chat unless the athlete asks
 2. `coach sync`. If today's Whoop recovery is missing (`recovery_today: false`): finish everything that doesn't
    depend on it, write today's day record with `status: waiting_for_recovery`, say so in the notification; the
    catch-up completes the adjustment. Report stale sources; never guess missing data.
+   If `whoop_offline: true` (fetch failed or no recovery for 2+ days) don't wait: finalize today with readiness
+   unscored (joint check-ins still apply, the plan runs as written) and lead the notification with
+   "NO SCORE: Whoop offline".
 3. `coach status` -> today's context (block/week/day, test day, Sunday, transition due, approvals, flags).
    If `paused: true`: only sync and report.
 4. **Every day:** run `rehab` (yesterday's exposures, pain, region flags) -> `adjust-day` (which calls `fuel`, and

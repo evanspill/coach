@@ -160,3 +160,24 @@ Each entry: **decision** - why - how to reverse.
     was added to the gym inventory (assumed; remove it if the gym has none).
 68. **HYROX goal set to sub-1:10 Open** (athlete-approved 2026-11-11, revising 64): ~1:10 is the men's Open top 10%,
     the like-for-like level for a Boston qualifier (~11% of US marathon finishers). 1:05 was a step beyond it.
+
+## Phase 2 go-live (2026-11-11)
+69. **Live HTTP calls send a fixed User-Agent (`omni-hybrid-coach/0.1`).** Intervals.icu is behind Cloudflare,
+    which rejects urllib's default `Python-urllib/x.y` agent with error 1010 (403); curl worked, Python didn't.
+    The agent names no person or account. - Reverse: drop `USER_AGENT` in `integrations/live.py`.
+70. **`normalize.py` field mappings left on the docs-based shapes for now.** The live keys work (Hevy, Intervals,
+    Open-Meteo all 200), but both accounts were empty on 2026-11-11 (0 Hevy workouts, 0 Intervals activities,
+    wellness entries or gear), so there was no real record to compare. The envelopes that did come back match the
+    code (Hevy `page`/`page_count`/`workouts`/`routines`; Intervals bare arrays; Open-Meteo `hourly`). Re-verify
+    after the first logged Hevy workout and the first Garmin run synced through Intervals (baseline week).
+71. **Whoop offline is not the same as Whoop late.** `sync` reports `whoop_offline` when the Whoop fetch failed or
+    there has been no recovery for 2+ days; then the daily run finalizes the day (status `complete`) with readiness
+    `unknown`, no guessed score, joint check-ins still applied, the plan as written, and the notification leads
+    "NO SCORE: Whoop offline". Only a recovery that is merely late (yesterday's present) waits for the 9:05
+    catch-up. Without this, a missing broker left every day `waiting_for_recovery` and the catch-up never closed it.
+72. **Token broker = Cloudflare Worker + KV (`broker/`), plain JS, no dependencies.** Read-only GET allowlist,
+    static `X-Broker-Key`, browser OAuth onboarding (`/auth/<provider>/start?key=`), access tokens cached until
+    5 min before expiry, a 60 s KV lock around refresh, new tokens written before use, and a failed refresh marks
+    `needs_reauth` instead of retrying (a rotated token can't be reused). KV is eventually consistent, so this is
+    safe for one daily caller, not many; a Durable Object is the upgrade if that ever changes. Tests run with
+    `node --test` against fake upstreams and are not part of `make check` (Python CI).

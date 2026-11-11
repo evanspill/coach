@@ -1,0 +1,13 @@
+# Whoop + Withings token broker for the Omni-Hybrid Coach. Deploy steps: broker/README.md.
+name = "coach-broker"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# Created with `npx wrangler kv namespace create TOKENS`; paste the id it prints here.
+[[kv_namespaces]]
+binding = "TOKENS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Secrets (set with `npx wrangler secret put <NAME>`, never in this file):
+#   BROKER_KEY, WHOOP_CLIENT_ID, WHOOP_CLIENT_SECRET, WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET

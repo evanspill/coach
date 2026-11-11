@@ -256,7 +256,9 @@ def run_daily(
             )
 
     # --- adjust-day (+ fuel, rehab swaps) ---
-    rec = adjust_day.adjust(ctx, today, plan, sources, weather)
+    rec = adjust_day.adjust(
+        ctx, today, plan, sources, weather, whoop_offline=bool(report.get("whoop_offline"))
+    )
     rec.stale_sources = report["stale"]
     if rec.session is not None and rec.status == "complete":
         try:
