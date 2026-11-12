@@ -6,8 +6,9 @@
       "2026-11-11"
     ],
     "counts": {
-      "whoop_daily": 75,
+      "whoop_daily": 4,
       "nutrition_daily": 0,
+      "whoop_backup_days": 0,
       "weigh_ins": 0,
       "sessions": 3
     },
