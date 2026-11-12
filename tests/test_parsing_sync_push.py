@@ -413,3 +413,17 @@ def test_generic_hevy_titles_map_back_to_nothing():
     lib.exercises["foam_roll"].hevy_title = "Stretching"
     assert lib.by_hevy_title("Stretching") is None
     assert lib.by_hevy_title("Dead Hang").id == "dead_hang"
+
+
+def test_custom_exercise_type_follows_the_test_scoring():
+    from coach.config import load_config
+    from coach.integrations.push import _custom_spec
+    from coach.models import Prescription
+
+    cfg = load_config()
+    lib, tests = cfg.library, cfg.tests.tests
+    jump = _custom_spec(lib.get("broad_jump"), Prescription(exercise_id="broad_jump", sets=3, reps=1), tests)
+    hold = _custom_spec(
+        lib.get("sorensen_hold"), Prescription(exercise_id="sorensen_hold", sets=1, reps=1), tests
+    )
+    assert jump[0] == "short_distance_weight" and hold[0] == "duration"

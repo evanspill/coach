@@ -249,3 +249,8 @@ Each entry: **decision** - why - how to reverse.
     several library exercises maps back to none when reading logs, so a generic set is never credited to a drill
     or a test, and `SetRecord.exercise_id` defaults to None (an unmatched set used to make the stored workout
     unreadable).
+82. **Hevy push verified live: two fixes.** Creating a custom exercise returns the new id as plain text, not the
+    documented JSON, so the client accepts both (one custom was created before the reply failed to parse; a
+    catalog check confirmed no duplicate, and nothing is retried blindly). A test exercise's custom type follows
+    its scoring (`best_of` -> distance, `max_hold` -> duration), so the athlete can log what the test scores. Dry
+    runs read Hevy's catalog (no writes) so they report the custom exercises a push would really create.

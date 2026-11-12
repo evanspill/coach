@@ -313,7 +313,7 @@ def cmd_push(args):
 
     today = _today(args)
     ctx = build(today=today)
-    sources = None if args.dry_run else _sources()
+    sources = _sources()  # a dry run still reads (the Hevy exercise catalog) but writes nothing
     try:
         if args.week:
             start = clock.monday_of(today) + (

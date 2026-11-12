@@ -31,7 +31,9 @@ TIMEOUT = 30
 USER_AGENT = "omni-hybrid-coach/0.1"
 
 
-def _request(method: str, url: str, headers: dict | None = None, body: dict | None = None):
+def _request(
+    method: str, url: str, headers: dict | None = None, body: dict | None = None, raw_text: bool = False
+):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(
         url,
@@ -43,6 +45,8 @@ def _request(method: str, url: str, headers: dict | None = None, body: dict | No
         req.add_header("Content-Type", "application/json")
     with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:  # noqa: S310 - fixed https hosts
         raw = resp.read()
+        if raw_text:
+            return raw.decode().strip()
         return json.loads(raw) if raw else None
 
 
@@ -119,7 +123,12 @@ class LiveHevy(HevySource):
                 "other_muscles": [],
             }
         }
-        res = _request("POST", f"{self.BASE}/exercise_templates", self.headers, body)
+        # Hevy answers with the new id as plain text (seen live 2026-11-12), not the documented {"id": ...}
+        text = _request("POST", f"{self.BASE}/exercise_templates", self.headers, body, raw_text=True)
+        try:
+            res = json.loads(text)
+        except ValueError:
+            return text.strip('"')
         return str(res.get("id") if isinstance(res, dict) else res)
 
     def upsert_routine(self, routine, routine_id=None):

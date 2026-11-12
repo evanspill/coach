@@ -32,8 +32,9 @@ class TemplateResolver:
     """Hevy needs an exercise_template_id per exercise. Titles come from the library (`hevy_title`, else the name);
     missing ones become custom exercises on first use only (free accounts allow 7). Dry runs only report."""
 
-    def __init__(self, hevy=None):
+    def __init__(self, hevy=None, read_only: bool = False):
         self.hevy = hevy
+        self.read_only = read_only  # dry run: look titles up in the catalog, create nothing
         self.catalog: dict[str, str] | None = None
         self.created: list[str] = []
         self.would_create: list[str] = []
@@ -47,7 +48,7 @@ class TemplateResolver:
         tid = self._ids().get(title.lower())
         if tid:
             return tid
-        if self.hevy is None:
+        if self.hevy is None or self.read_only:
             if title not in self.would_create:
                 self.would_create.append(title)
             return None
@@ -57,8 +58,22 @@ class TemplateResolver:
         return tid
 
 
-def _custom_spec(ex, it) -> tuple[str, str, str]:
-    if it.duration_s is not None:
+# A test's scoring decides how its exercise must be logged (a broad jump is a distance, a hold a duration).
+SCORING_TYPE = {"best_of": "short_distance_weight", "max_hold": "duration", "max_reps": "reps_only"}
+
+
+def _custom_spec(ex, it, tests=None) -> tuple[str, str, str]:
+    scored = next(
+        (
+            SCORING_TYPE[t.scoring]
+            for t in (tests or {}).values()
+            if t.session.get("exercise") == ex.id and t.scoring in SCORING_TYPE
+        ),
+        None,
+    )
+    if scored:
+        kind = scored
+    elif it.duration_s is not None:
         kind = "duration"
     elif it.distance_m is not None:
         kind = "short_distance_weight"
@@ -143,7 +158,7 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             exercises.append(
                 {
                     "exercise_template_id": ex.hevy_template_id
-                    or resolver.resolve(title, *_custom_spec(ex, it)),
+                    or resolver.resolve(title, *_custom_spec(ex, it, ctx.cfg.tests.tests)),
                     "rest_seconds": it.rest_s,
                     "notes": note,
                     "sets": sets,
@@ -192,7 +207,7 @@ def intervals_event(s: Session, ctx: Context) -> dict | None:
 def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | None, dry_run: bool) -> dict:
     ids = ctx.state.get("push_ids") or {}
     out: dict = {"dry_run": dry_run, "hevy": [], "intervals": []}
-    resolver = TemplateResolver(None if dry_run or sources is None else sources.hevy)
+    resolver = TemplateResolver(sources.hevy if sources else None, read_only=dry_run)
     events = []
     for s in sessions:
         if s.type == "rest":
