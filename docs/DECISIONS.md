@@ -220,3 +220,15 @@ Each entry: **decision** - why - how to reverse.
     snake_case variants (`weightlifting_msk`), so `whoop_sport()` normalises separators and the `_msk` suffix; and
     recovery activities (`air-compression-normatec`) arrive as SCORED with `score: null`, so workouts without a
     score are skipped. A 75-day refetch is 75 daily rows and ~60 workouts through the broker.
+79. **Baseline battery reviewed against testing standards** (athlete-approved 2026-11-12). Kept: rep-maxes rather
+    than 1RMs (1RM predicted from a 3-5RM within ~3 kg), high-handle trap bar for the hinge (lower lumbar moment,
+    Swinton 2011), broad jump first, pull-ups, 7-day body comp. Changed: hinge and squat rep-maxes on separate days
+    72 h apart (disc history; new slots `strength_lower_b`, `strength_upper_push`), durability tests after strength
+    (NSCA order: power, strength, local muscular endurance, conditioning); the submax run is pace-locked on a
+    motorized treadmill at 1% instead of HR-locked at 75% of an age-predicted max (~10 bpm error, Tanaka 2001), and
+    its threshold estimate stays low confidence until a 30-min TT (validated to ~8 bpm, McGehee 2005); engine test
+    = 10-min Echo bike instead of the 2k row (low back load, more repeatable for a non-rower; 2k reliability is high
+    only in trained rowers). Added: Biering-Sorensen hold and side bridge (trunk endurance; low-back relevance,
+    noisy below ~43 s), dead hang (practical grip proxy; grip strength predicts mortality, PURE 2015), an unscored
+    mobility screen for starting rungs (FMS-style screens don't predict injury, Moran 2017). New scoring `max_hold`
+    and `coach test score --result` for results reported in chat. Baseline hinge capped at RPE 8 this time.

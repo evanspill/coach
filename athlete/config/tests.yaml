@@ -7,8 +7,8 @@ standard_conditions:
   warmup: "General: 5 min easy erg, then the session's joint-specific warm-up (McGill Big 3 before lower-body tests)."
 # Day offsets (Mon = 0) per test slot. Strength, run and engine never share a day.
 schedule:
-  baseline: {power: 0, strength_lower: 0, strength_upper: 1, run: 3, engine: 5, body: 6}
-  transition: {run: 3, power: 4, strength_lower: 4, strength_upper: 4, engine: 5, body: 6}
+  baseline: {power: 0, strength_lower: 0, strength_upper_push: 0, strength_upper: 1, durability: 1, run: 2, strength_lower_b: 3, engine: 5, body: 6}
+  transition: {run: 3, power: 4, strength_lower: 4, strength_upper_push: 4, strength_lower_b: 4, strength_upper: 4, durability: 4, engine: 5, body: 6}
 # Per test (besides the protocol): slot (schedule key), stress (category for spacing rules), lower_is_better,
 # goal_change_pct (default goal size), typical_error_pct (test-retest noise: smaller changes aren't real; coaching
 # estimates, refine with your own repeat tests), session (what goes in the test block: family/exercise + sets/reps/rir, or run segments).
@@ -56,7 +56,7 @@ tests:
       block_pull: 1.08
       conventional_deadlift: 1.10
   squat_rm:
-    slot: strength_lower
+    slot: strength_lower_b
     typical_error_pct: 3
     stress: lower_heavy
     goal_change_pct: 7.5
@@ -79,7 +79,7 @@ tests:
       ssb_squat: 0.97
       high_bar_back_squat: 0.92
   db_press_5rm:
-    slot: strength_upper
+    slot: strength_upper_push
     typical_error_pct: 4
     stress: upper_heavy
     goal_change_pct: 5
@@ -152,11 +152,11 @@ tests:
     quality: aerobic fitness estimate (low risk)
     pillar: aerobic
     category: run
-    protocol: {procedure: "10 min easy, then 30 min at a locked HR (≈ 75% of estimated max). Record pace for each half.", rest: "n/a"}
-    equipment: [bodyweight]
-    location: outdoor
+    protocol: {procedure: "Motorized treadmill, 1% incline. 10 min easy, then 30 min at one locked pace (the fastest you can still hold a full conversation at); the pace is not changed. HR recorded for each half (drift).", rest: "n/a"}
+    equipment: [treadmill]
+    location: gym
     route: farmington_river_trail
-    safety: "Use when a full 30-min TT is judged too risky after a low-volume period."
+    safety: "Use when a full 30-min TT is judged too risky after a low-volume period. The threshold estimate is low confidence: confirm with the 30-min TT once there is a running base."
     metric: threshold_pace_estimate
     unit: s_per_mi
     scoring: submax_estimate
@@ -283,9 +283,60 @@ tests:
     unit: kg
     scoring: seven_day_avg
     passive: true
+  sorensen_hold:
+    slot: durability
+    typical_error_pct: 25  # MDC about 43 s (Latimer 1999, via SRA Lab); changes smaller than that are noise
+    stress: none
+    goal_change_pct: 25
+    session: {exercise: sorensen_hold, sets: 1, notes: "max hold, stop at 240 s"}
+    name: Biering-Sorensen trunk extensor hold
+    quality: trunk extensor endurance (low-back capacity)
+    pillar: body
+    category: body
+    protocol: {procedure: "Prone on the 45-degree back-extension bench or GHD set horizontal, pelvis at the pad edge, arms crossed on the chest; hold the trunk level until form breaks or 240 s.", rest: "n/a"}
+    equipment: [back_extension]
+    location: gym
+    safety: "Stop on back pain > 2/10 or any leg symptoms (numbness, tingling, radiating pain)."
+    metric: hold_s
+    unit: s
+    scoring: max_hold
+  side_bridge:
+    slot: durability
+    typical_error_pct: 20
+    stress: none
+    goal_change_pct: 25
+    session: {exercise: side_plank, sets: 2, per_side: true, notes: "max hold each side, left first, 2 min between"}
+    name: Side bridge max hold (each side)
+    quality: lateral trunk endurance and symmetry
+    pillar: body
+    category: body
+    protocol: {procedure: "Side plank on the forearm, feet stacked, hips in line; one max hold per side (left first). Scored as the weaker side; both recorded.", rest: "2 min"}
+    equipment: []
+    location: gym
+    safety: "Stop on shoulder or back pain > 2/10."
+    metric: hold_s
+    unit: s
+    scoring: max_hold
+  dead_hang_max:
+    slot: durability
+    typical_error_pct: 10
+    stress: none
+    goal_change_pct: 15
+    session: {exercise: dead_hang, sets: 1, notes: "max hold, passive hang, full grip"}
+    name: Dead hang max time
+    quality: grip endurance (a practical grip-strength proxy)
+    pillar: body
+    category: body
+    protocol: {procedure: "Overhand grip, shoulder width, passive hang from a dead stop; time until the grip fails.", rest: "n/a"}
+    equipment: [pullup_bar]
+    location: gym
+    safety: "Stop on shoulder pain > 2/10."
+    metric: hold_s
+    unit: s
+    scoring: max_hold
 batteries:
   # if average weekly running over the last 4 weeks is below low_volume_miles, swap these baseline tests
   low_volume_miles: 6
   low_volume_swaps: {run_tt_30: run_submax_drift}
-  baseline: [broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp]
+  baseline: [broad_jump, hinge_rm, db_press_5rm, squat_rm, pullups_max, sorensen_hold, side_bridge, dead_hang_max, run_tt_30, bike_10min, body_comp]
   always_tracked: [hinge_rm, db_press_5rm, body_comp]

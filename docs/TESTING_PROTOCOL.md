@@ -13,7 +13,7 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 - **warmup**: General: 5 min easy erg, then the session's joint-specific warm-up (McGill Big 3 before lower-body tests).
 
 ## When
-- **Baseline week** (once, before Block 1): broad_jump, hinge_rm, squat_rm, db_press_5rm, pullups_max, run_tt_30, row_2k, body_comp.
+- **Baseline week** (once, before Block 1): Mon broad_jump, hinge_rm, db_press_5rm; Tue pullups_max, sorensen_hold, side_bridge, dead_hang_max; Wed run_tt_30 (run_submax_drift after a low-volume month); Thu squat_rm (72 h after the hinge); Sat bike_10min; body_comp all week. Order within a day follows NSCA: power, then strength, then local muscular endurance, then conditioning; heavy hinge and squat rep-maxes are never on consecutive days.
 - **Transition week** (last week of every block): deload Mon-Wed; Thu run TT, Fri strength + power, Sat engine. Retest the outgoing block's goal/guardrail tests and run the next block's entry tests.
 - **Tracked every block**: hinge_rm, db_press_5rm, body_comp, plus RHR/HRV baselines (computed live from Whoop, never stored), threshold pace/CTL, joint-rating trends.
 - **Block candidates**: B1: hinge_rm, squat_rm, db_press_5rm, pullups_max, broad_jump, row_2k, run_tt_30; B2: hinge_rm, squat_rm, db_press_5rm, run_tt_30, body_comp; B3: run_tt_30, z2_drift_60, hyrox_sim, row_2k; B4: run_tt_30, hyrox_sim
@@ -73,10 +73,10 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 
 ## Submaximal Zone 2 drift run (40 min) (`run_submax_drift`)
 - Quality: aerobic fitness estimate (low risk) (pillar: aerobic, category: run)
-- Procedure: 10 min easy, then 30 min at a locked HR (≈ 75% of estimated max). Record pace for each half.
+- Procedure: Motorized treadmill, 1% incline. 10 min easy, then 30 min at one locked pace (the fastest you can still hold a full conversation at); the pace is not changed. HR recorded for each half (drift). Pace-locked rather than HR-locked because age-predicted max HR has an error of about 10 bpm (Tanaka 2001).
 - Rest: n/a
-- Equipment / location: bodyweight / outdoor
-- Safety: Use when a full 30-min TT is judged too risky after a low-volume period.
+- Equipment / location: treadmill / gym
+- Safety: Use when a full 30-min TT is judged too risky after a low-volume period. The threshold estimate is low confidence: confirm with the 30-min TT once there is a running base.
 - Metric: threshold_pace_estimate (s_per_mi); scoring: `submax_estimate`
 
 ## 60-minute Zone 2 cardiac drift test (`z2_drift_60`)
@@ -127,6 +127,30 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 - Safety: Standard.
 - Metric: time (s); scoring: `time`
 
+## Biering-Sorensen trunk extensor hold (`sorensen_hold`)
+- Quality: trunk extensor endurance (pillar: body, category: body)
+- Procedure: Prone on the 45-degree back-extension bench or GHD set horizontal, pelvis at the pad edge, arms crossed on the chest; hold the trunk level until form breaks or 240 s.
+- Rest: n/a
+- Equipment / location: back_extension / gym
+- Safety: Stop on back pain > 2/10 or any leg symptoms (numbness, tingling, radiating pain).
+- Metric: hold_s (s); scoring: `max_hold`. Changes under about 43 s are within measurement noise (Latimer 1999).
+
+## Side bridge max hold (each side) (`side_bridge`)
+- Quality: lateral trunk endurance and symmetry (pillar: body, category: body)
+- Procedure: Side plank on the forearm, feet stacked, hips in line; one max hold per side (left first). Scored as the weaker side; both recorded.
+- Rest: 2 min
+- Equipment / location: bodyweight / gym
+- Safety: Stop on shoulder or back pain > 2/10.
+- Metric: hold_s (s); scoring: `max_hold` (per side, weaker side scored; asymmetry % recorded)
+
+## Dead hang max time (`dead_hang_max`)
+- Quality: grip endurance, a practical proxy for grip strength (pillar: body, category: body)
+- Procedure: Overhand grip, shoulder width, passive hang from a dead stop; time until the grip fails. Done after pull-ups and the trunk holds, same order every retest.
+- Rest: n/a
+- Equipment / location: pullup_bar / gym
+- Safety: Stop on shoulder pain > 2/10.
+- Metric: hold_s (s); scoring: `max_hold`
+
 ## Body composition (7-day average) (`body_comp`)
 - Quality: body composition (pillar: body, category: body)
 - Procedure: Smart scale (synced to Intervals.icu via Apple Health -> HealthFit) every morning after the bathroom, before food. 7-day average weight and body fat %; waist at the navel, relaxed exhale; optional progress photos (never in git).
@@ -141,6 +165,7 @@ within +/-2 days. Strength, the run time trial and engine tests are on separate 
 - `submax_estimate`: threshold pace ~ Z2 pace / 1.25, LTHR ~ avg HR / 0.80 (low confidence).
 - `cardiac_drift`: HR:pace drift between halves, pass < 5%.
 - `row_watts`: watts = 2.80 / (s per m)^3.
+- `max_hold`: the longest hold in seconds; per-side tests score the weaker side and record the asymmetry. Holds can be logged in Hevy as timed sets or reported in chat (`coach test score --result sorensen_hold=95`).
 - `seven_day_avg`: 7-day average (Intervals.icu wellness) weight and body fat % (trend over absolute; optional DEXA anchor).
 
 ## Gap analysis

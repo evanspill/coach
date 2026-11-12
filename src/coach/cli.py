@@ -499,7 +499,11 @@ def cmd_test(args):
         return {"error": "no plan for that week"}
     scheduled = {t: s.date for s in plan.sessions for t in s.tests}
     block_id = args.block or plan.block_id
-    ts = assess.score_week(ctx, block_id, args.phase, scheduled, None, end_day=plan.end)
+    try:
+        manual = T.manual_raw(args.result or [], ctx.cfg.tests)
+    except ValueError as e:
+        return {"error": str(e)}
+    ts = assess.score_week(ctx, block_id, args.phase, scheduled, None, end_day=plan.end, manual=manual)
     ctx.state.put("test_sets", ts)
     z = assess.update_zones_from(ctx, ts)
     return {
@@ -717,6 +721,12 @@ def build_parser() -> argparse.ArgumentParser:
     t.add_argument("--tests", help="comma-separated test ids")
     t.add_argument("--block")
     t.add_argument("--phase", default="end", choices=["baseline", "start", "end"])
+    t.add_argument(
+        "--result",
+        action="append",
+        metavar="TEST=V[,V]",
+        help="a result reported in chat, e.g. sorensen_hold=95 or side_bridge=70,62 (left,right) or pullups_max=8",
+    )
     fc = sub.add_parser("form-check", help="record that a form check / physio cleared a family's next rung")
     fc.add_argument("family")
     fc.add_argument("--by", default="coach", choices=["coach", "physio"])

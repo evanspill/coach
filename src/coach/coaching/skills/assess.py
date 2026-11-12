@@ -75,6 +75,13 @@ def extract_raw(
     if t.scoring == "max_reps" and ex_id:
         reps = [st.reps for s in sessions for st in s.sets if st.exercise_id == ex_id and st.reps]
         return {"reps": max(reps)} if reps else None
+    if t.scoring == "max_hold" and ex_id:
+        holds = [
+            st.duration_s for s in sessions for st in s.sets if st.exercise_id == ex_id and st.duration_s
+        ]
+        if not holds:
+            return None
+        return {"holds_s": holds[:2] if t.session.get("per_side") else [max(holds)]}
     if t.scoring == "best_of" and ex_id:
         att = [
             round(st.distance_m * 100)
@@ -125,13 +132,15 @@ def score_week(
     scheduled: dict[str, dt.date],
     weather_hourly: list[dict] | None = None,
     end_day: dt.date | None = None,
+    manual: dict[str, dict] | None = None,
 ) -> TestSet:
+    """`manual`: raw results the athlete reported in chat (test id -> raw), used when the logs don't carry them."""
     ts = ctx.state.tests(block_id, phase) or TestSet(block_id=block_id, phase=phase)
     ts.scheduled = {**ts.scheduled, **scheduled}
     for test_id, day in scheduled.items():
         if ts.get(test_id):
             continue
-        raw = extract_raw(test_id, day, ctx, weather_hourly)
+        raw = (manual or {}).get(test_id) or extract_raw(test_id, day, ctx, weather_hourly)
         if raw is None:
             continue
         ts.results.append(T.score(test_id, raw, ctx.cfg.tests, day))

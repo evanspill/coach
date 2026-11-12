@@ -17,7 +17,17 @@ BLOCK_RANK = {
     "mobility": 5,
     "cooldown": 6,
 }
-TEST_RANK = {"power": 1, "strength_lower": 2, "strength_upper": 2, "run": 4, "engine": 4, "body": 5}
+TEST_RANK = {
+    "power": 1,
+    "strength_lower": 2,
+    "strength_lower_b": 2,
+    "strength_upper": 2,
+    "strength_upper_push": 2,
+    "durability": 3,  # local muscular endurance: after strength, before conditioning (NSCA test order)
+    "run": 4,
+    "engine": 4,
+    "body": 5,
+}
 HARD_RIR = 4.0
 QUALITY_ZONES = {"T", "Z5", "Z3"}
 DEFAULT_THRESHOLD_PACE = 480

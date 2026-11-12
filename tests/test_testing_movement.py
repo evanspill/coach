@@ -1,5 +1,7 @@
 import datetime as dt
 
+import pytest
+
 from coach.config import load_config
 from coach.engine import movement as mv
 from coach.engine import testing as T
@@ -155,3 +157,23 @@ def test_validator_rejects_top_rung_without_form_check():
     )
     fs.rung = 2
     assert any("form check" in v.message for v in validate_movement_change(before, after, CFG))
+
+
+def test_max_hold_scoring_and_manual_results():
+    from coach.config import load_config
+    from coach.engine import testing as T
+
+    bat = load_config().tests
+    side = T.score("side_bridge", {"holds_s": [70, 56]}, bat, dt.date(2026, 11, 18))
+    assert side.value == 56 and side.details["asymmetry_pct"] == 20.0  # weaker side counts
+    sor = T.score("sorensen_hold", {"holds_s": [95]}, bat, dt.date(2026, 11, 18))
+    assert sor.value == 95
+    raw = T.manual_raw(["sorensen_hold=95", "side_bridge=70,56", "pullups_max=8"], bat)
+    assert raw == {
+        "sorensen_hold": {"holds_s": [95.0]},
+        "side_bridge": {"holds_s": [70.0, 56.0]},
+        "pullups_max": {"reps": 8.0},
+    }
+    for bad in (["nope=3"], ["hinge_rm=100"], ["sorensen_hold"]):
+        with pytest.raises(ValueError):
+            T.manual_raw(bad, bat)

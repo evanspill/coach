@@ -18,6 +18,30 @@ def schedule(week_start: dt.date, test_ids: list[str], battery: TestBattery, kin
     return {t: week_start + dt.timedelta(days=days[test_slot(t, battery)]) for t in test_ids}
 
 
+MANUAL_KEYS = {"max_hold": "holds_s", "max_reps": "reps", "time": "time_s", "best_of": "attempts"}
+
+
+def manual_raw(entries: list[str], battery: TestBattery) -> dict[str, dict]:
+    """'test_id=v[,v...]' strings (results reported in chat) -> raw dicts for score(). Only simple scorings."""
+    out: dict[str, dict] = {}
+    for e in entries:
+        tid, sep, vals = e.partition("=")
+        tid = tid.strip()
+        if not sep or tid not in battery.tests:
+            raise ValueError(f"bad --result '{e}': expected <test_id>=<value>[,<value>] for a known test")
+        scoring = battery.tests[tid].scoring
+        if scoring not in MANUAL_KEYS:
+            raise ValueError(
+                f"{tid} ({scoring}) is scored from the logged session, not from a reported number"
+            )
+        nums = [float(v) for v in vals.split(",") if v.strip()]
+        if not nums:
+            raise ValueError(f"bad --result '{e}': no value")
+        key = MANUAL_KEYS[scoring]
+        out[tid] = {key: nums if key in {"holds_s", "attempts"} else nums[0]}
+    return out
+
+
 def lower_is_better(test_id: str, battery: TestBattery) -> bool:
     t = battery.tests.get(test_id)
     return bool(t and t.lower_is_better)
@@ -118,6 +142,14 @@ def score(test_id: str, raw: dict, battery: TestBattery, day: dt.date) -> TestRe
     elif t.scoring == "time":
         value = raw["time_s"]
         comparable = value
+    elif t.scoring == "max_hold":
+        holds = [float(h) for h in raw["holds_s"]]
+        # per-side holds (side bridge) are scored on the weaker side; both are kept
+        value = min(holds[:2]) if t.session.get("per_side") and len(holds) >= 2 else max(holds)
+        comparable = value
+        details = {"holds_s": holds}
+        if t.session.get("per_side") and len(holds) >= 2 and max(holds[:2]):
+            details["asymmetry_pct"] = round(100 * (1 - min(holds[:2]) / max(holds[:2])), 1)
     elif t.scoring == "seven_day_avg":
         weights = raw["weights_kg"]
         value = statistics.fmean(weights)

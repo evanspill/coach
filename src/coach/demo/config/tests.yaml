@@ -7,8 +7,8 @@ standard_conditions:
   warmup: "General: 5 min easy erg, then the session's joint-specific warm-up (McGill Big 3 before lower-body tests)."
 # Day offsets (Mon = 0) per test slot. Strength, run and engine never share a day.
 schedule:
-  baseline: {power: 0, strength_lower: 0, strength_upper: 1, run: 3, engine: 5, body: 6}
-  transition: {run: 3, power: 4, strength_lower: 4, strength_upper: 4, engine: 5, body: 6}
+  baseline: {power: 0, strength_lower: 0, strength_upper: 1, durability: 2, run: 3, engine: 5, body: 6}
+  transition: {run: 3, power: 4, strength_lower: 4, strength_upper: 4, durability: 4, engine: 5, body: 6}
 # Per test (besides the protocol): slot (schedule key), stress (category for spacing rules), lower_is_better,
 # goal_change_pct (default goal size), typical_error_pct (test-retest noise: smaller changes aren't real; coaching
 # estimates, refine with your own repeat tests), session (what goes in the test block: family/exercise + sets/reps/rir, or run segments).
@@ -283,6 +283,57 @@ tests:
     unit: kg
     scoring: seven_day_avg
     passive: true
+  sorensen_hold:
+    slot: durability
+    typical_error_pct: 25  # MDC about 43 s (Latimer 1999, via SRA Lab); changes smaller than that are noise
+    stress: none
+    goal_change_pct: 25
+    session: {exercise: sorensen_hold, sets: 1, notes: "max hold, stop at 240 s"}
+    name: Biering-Sorensen trunk extensor hold
+    quality: trunk extensor endurance (low-back capacity)
+    pillar: body
+    category: body
+    protocol: {procedure: "Prone on the 45-degree back-extension bench or GHD set horizontal, pelvis at the pad edge, arms crossed on the chest; hold the trunk level until form breaks or 240 s.", rest: "n/a"}
+    equipment: [back_extension]
+    location: gym
+    safety: "Stop on back pain > 2/10 or any leg symptoms (numbness, tingling, radiating pain)."
+    metric: hold_s
+    unit: s
+    scoring: max_hold
+  side_bridge:
+    slot: durability
+    typical_error_pct: 20
+    stress: none
+    goal_change_pct: 25
+    session: {exercise: side_plank, sets: 2, per_side: true, notes: "max hold each side, left first, 2 min between"}
+    name: Side bridge max hold (each side)
+    quality: lateral trunk endurance and symmetry
+    pillar: body
+    category: body
+    protocol: {procedure: "Side plank on the forearm, feet stacked, hips in line; one max hold per side (left first). Scored as the weaker side; both recorded.", rest: "2 min"}
+    equipment: []
+    location: gym
+    safety: "Stop on shoulder or back pain > 2/10."
+    metric: hold_s
+    unit: s
+    scoring: max_hold
+  dead_hang_max:
+    slot: durability
+    typical_error_pct: 10
+    stress: none
+    goal_change_pct: 15
+    session: {exercise: dead_hang, sets: 1, notes: "max hold, passive hang, full grip"}
+    name: Dead hang max time
+    quality: grip endurance (a practical grip-strength proxy)
+    pillar: body
+    category: body
+    protocol: {procedure: "Overhand grip, shoulder width, passive hang from a dead stop; time until the grip fails.", rest: "n/a"}
+    equipment: [pullup_bar]
+    location: gym
+    safety: "Stop on shoulder pain > 2/10."
+    metric: hold_s
+    unit: s
+    scoring: max_hold
 batteries:
   # if average weekly running over the last 4 weeks is below low_volume_miles, swap these baseline tests
   low_volume_miles: 6

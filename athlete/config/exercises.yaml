@@ -56,6 +56,7 @@ exercises:
   single_leg_rdl_db: {name: Single-leg DB RDL, equipment: [dumbbells], implement: dumbbell, muscles: [hamstrings, glutes], tags: [lower, hinge, unilateral], regressions: [hip_thrust], load_mode: e1rm, estimate_from: {exercise: trap_bar_deadlift_high, factor: 0.16}}
   hip_thrust: {name: Hip thrust (glute trainer), equipment: [glute_trainer], implement: machine, muscles: [glutes], tags: [lower, hinge], load_mode: last_used, hevy_title: Hip Thrust (Machine)}
   back_extension: {name: Back extension (45°), equipment: [back_extension], muscles: [glutes, hamstrings], tags: [lower, hinge], load_mode: bodyweight, hevy_title: Back Extension}
+  sorensen_hold: {name: Biering-Sorensen hold, equipment: [back_extension], muscles: [back, core], tags: [core, isometric], load_mode: bodyweight, hevy_title: Back Extension Hold}
   ghd_hip_extension: {name: GHD hip extension, equipment: [ghd], muscles: [glutes, hamstrings], tags: [lower, hinge], regressions: [back_extension], load_mode: bodyweight}
   nordic_curl: {name: Nordic hamstring curl (GHD), equipment: [ghd], muscles: [hamstrings], tags: [lower, eccentric_heavy], regressions: [seated_leg_curl], deload_swap: seated_leg_curl, load_mode: bodyweight}
   seated_leg_curl: {name: Seated leg curl, equipment: [seated_leg_curl], implement: machine, muscles: [hamstrings], tags: [lower, isolation], load_mode: last_used, hevy_title: Seated Leg Curl (Machine)}
