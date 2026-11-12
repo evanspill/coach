@@ -129,7 +129,7 @@ def test_hevy_and_intervals_payloads(b1):
     ev = intervals_event(run, ctx)
     assert (
         ev["category"] == "WORKOUT"
-        and "% Pace" in ev["description"]
+        and "/mi Pace" in ev["description"]
         and ev["external_id"].startswith("coach-")
     )
 

@@ -174,6 +174,21 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
     }
 
 
+def _mmss(sec: float) -> str:
+    sec = int(round(sec))
+    return f"{sec // 60}:{sec % 60:02d}"
+
+
+def _pace_target(seg) -> str:
+    """Absolute pace from the coach's own zones ('9:46-10:48/mi Pace'), so the watch target doesn't depend on a
+    threshold pace being set in Intervals.icu (seen unset live 2026-11-12); % of threshold only as a fallback."""
+    if seg.pace_s_per_mi:
+        fast, slow = sorted(seg.pace_s_per_mi)
+        return f"{_mmss(fast)}-{_mmss(slow)}/mi Pace"
+    lo, hi = PACE_FACTORS[seg.zone]
+    return f"{round(100 / hi)}-{round(100 / lo)}% Pace"
+
+
 def intervals_event(s: Session, ctx: Context) -> dict | None:
     segs = s.run_segments()
     if not any(seg.modality == "run" for seg in segs):
@@ -182,12 +197,10 @@ def intervals_event(s: Session, ctx: Context) -> dict | None:
     for seg in segs:
         if seg.modality != "run":
             continue
-        lo, hi = PACE_FACTORS[seg.zone]
-        pct = (round(100 / hi), round(100 / lo))  # % of threshold pace (speed)
         size = f"{seg.distance_mi:g}mi" if seg.distance_mi else f"{seg.duration_min:g}m"
         prefix = f"{seg.reps}x\n" if seg.reps > 1 else ""
         rec = f"\n- {seg.recovery_min:g}m 60-70% Pace" if seg.recovery_min and seg.reps > 1 else ""
-        lines.append(f"{prefix}- {size} {pct[0]}-{pct[1]}% Pace {seg.label}{rec}")
+        lines.append(f"{prefix}- {size} {_pace_target(seg)} {seg.label}{rec}")
     paces = [
         f"{seg.label}: {fmt_pace(seg.pace_s_per_mi[0])}-{fmt_pace(seg.pace_s_per_mi[1])}"
         for seg in segs
@@ -198,7 +211,10 @@ def intervals_event(s: Session, ctx: Context) -> dict | None:
         "type": "Run",
         "start_date_local": f"{s.date.isoformat()}T{s.start_time}:00",
         "name": s.title,
-        "description": "\n".join(lines) + ("\n\n" + "; ".join(paces) if paces else "") + f"\n\n{s.intent}",
+        "description": "\n".join(lines)
+        + ("\n\n" + "; ".join(paces) if paces else "")
+        + "".join(f"\n\n{b.notes}" for b in s.blocks if b.kind == "test" and b.notes)
+        + f"\n\n{s.intent}",
         "external_id": f"coach-{s.id}",
         "moving_time": s.expected_minutes * 60,
     }

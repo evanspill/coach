@@ -254,3 +254,8 @@ Each entry: **decision** - why - how to reverse.
     catalog check confirmed no duplicate, and nothing is retried blindly). A test exercise's custom type follows
     its scoring (`best_of` -> distance, `max_hold` -> duration), so the athlete can log what the test scores. Dry
     runs read Hevy's catalog (no writes) so they report the custom exercises a push would really create.
+83. **Planned runs carry absolute pace targets** ("9:46-10:48/mi Pace"), from the coach's zones, instead of % of
+    threshold pace: the athlete's Intervals.icu run threshold pace is unset (verified live), so % targets would
+    reach the watch without real paces, and the coach owns the zones anyway. Intervals.icu parses them as
+    `secs/mi` steps (verified live); % of threshold remains the fallback when a segment has no pace. Test-block
+    notes (e.g. "motorized treadmill at 1%") go into the event description.
