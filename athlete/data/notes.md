@@ -10,3 +10,4 @@ Rendered from athlete/data/notes/; add with `coach record add notes` or the skil
 - 2026-11-11 [skill] Double-unders: 30 unbroken fresh, but repeated sets of 30 or DUs under fatigue are a challenge: in metcons, prescribe planned breaks (e.g. sets of 10-20) rather than big unbroken sets.
 - 2026-11-11 [equipment] Owns a jump rope (brings it to the gym; usable when travelling).
 - 2026-11-11 [equipment] Bar weights in equipment.yaml (trap bar 60 lb, SSB 65 lb) not yet confirmed: ask at the first session using them.
+- 2026-11-12 [response] No running in the 4 weeks before the baseline week (athlete-reported 2026-11-12): use run_submax_drift, not the 30-min TT, and ramp running from a low base.
