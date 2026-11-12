@@ -1,27 +1,32 @@
 # Week 2026-W47 (baseline) - 2026-11-16 to 2026-11-22
 
-Baseline week: full test battery spread so strength, run and engine tests fall on separate days.
+Baseline week, reviewed against testing standards: power before strength; hinge and squat rep-maxes on separate days (disc history); trunk-endurance and grip tests fresh on their own day; a pace-locked treadmill submax run instead of the 30-min TT after 4 weeks of no running; a 10-min bike for the engine (low back load, repeatable).
 
-- **Mon** Test day: Standing broad jump, Hinge 3-5RM (current hinge rung), Squat 5RM (current squat rung) (85 min, gym, key; carbs high)
+- **Mon** Test day: Standing broad jump, Hinge 3-5RM (current hinge rung), Neutral-grip DB press 5RM (85 min, gym, key; carbs high)
   - broad_jump: 3x1 @ bodyweight
-  - trap_bar_deadlift_high: 5x5 @1 RIR @ pick a load you can do for 5 @ 1 RIR
-  - ssb_box_squat: 5x5 @1 RIR @ pick a load you can do for 5 @ 1 RIR
-- **Tue** Test day: Neutral-grip DB press 5RM, Strict pull-ups, max reps (60 min, gym, key; carbs high)
+  - trap_bar_deadlift_high: 5x5 @2 RIR @ pick a load you can do for 5 @ 2 RIR
   - db_bench_press_neutral: 5x5 @1 RIR @ pick a load you can do for 5 @ 1 RIR
+- **Tue** Test day: pull-ups, trunk endurance, dead hang + Zone 2 bike (155 min, gym, key; carbs high)
   - strict_pull_up: 1x @ bodyweight
-- **Wed** Zone 2 bike + hip/adductor work (65 min, gym; carbs low)
+  - sorensen_hold: 1x @ bodyweight
+  - side_plank: 2x @ bodyweight
+  - dead_hang: 1x @ bodyweight
   - Zone 2 bike: 35 min Z2
-- **Thu** Test day: Submaximal Zone 2 drift run (40 min) (90 min, outdoor, key; carbs high)
+- **Wed** Test day: Submaximal Zone 2 drift run (40 min) (90 min, gym, key; carbs high)
   - Easy: 10 min Z1
   - Locked-HR drift run: 30 min Z2
   - Cool-down walk: 10 min Z1
+- **Thu** Test day: Squat 5RM (current squat rung) (55 min, gym, key; carbs high)
+  - ssb_box_squat: 5x5 @1 RIR @ pick a load you can do for 5 @ 1 RIR
 - **Fri** Recovery: Z1 walk + mobility (50 min, home; carbs low)
   - Z1 walk: 35 min Z1
-- **Sat** Test day: 2 km row (40 min, gym, key; carbs high)
-  - row_erg: 1x
+- **Sat** Test day: Echo bike 10-minute max calories (40 min, gym, key; carbs high)
+  - echo_bike: 1x
 - **Sun** Recovery: Z1 walk + mobility (50 min, home; carbs low)
   - Z1 walk: 35 min Z1
 
 **Deviations from the outline:**
-- 2026-11-18 session: Zone 2 run (3 mi) -> Zone 2 bike 35 min + Copenhagen planks (No running in the last 4 weeks and a past left groin/hip injury: the only run this week is the Thursday submax test.)
-- 2026-11-19 cool-down: 10 min cool-down jog -> 10 min walk (Keeps the week's running to the 40-min test while returning from zero.)
+- week layout: Template: Tue upper tests, Wed Z2 run, Thu run test -> Tue pull-ups + trunk endurance + dead hang + Z2 bike; Wed submax run; Thu squat 5RM (Hinge and squat rep-maxes 72 h apart (disc history, no back-to-back heavy lower days); run test not the day after a heavy squat; durability tests after strength (NSCA order).)
+- Z2 run: Zone 2 run (3 mi) -> Zone 2 bike 35 min + Copenhagen planks (No running in the last 4 weeks and a past left groin/hip injury: the only run this week is the submax test.)
+- run test cool-down: 10 min cool-down jog -> 10 min walk (Keeps the week's running to the 40-min test while returning from zero.)
+- hinge_rm target: RPE 9 (1 in reserve) -> RPE 8 (2 in reserve) (Rebuilding deadlift confidence after two back episodes (latest 2026-06-03); a conservative first estimate.)
