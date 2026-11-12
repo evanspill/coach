@@ -160,7 +160,8 @@ def sync(
     report["counts"]["nutrition_daily"] = len(nutrition)
     daily.extend(_without_whoop(m) for m in nutrition)
     backup = cfg.settings.whoop_backup == "intervals"
-    wfrom = min(start, wstart) if backup else start
+    # a week of lead-in so the first day's weight can be told apart from Intervals.icu's carried-forward value
+    wfrom = (min(start, wstart) if backup else start) - dt.timedelta(days=7)
     wellness = run("intervals_wellness", lambda: sources.intervals.wellness(wfrom, today))
     checkins: list[Checkin] = []
     if wellness:

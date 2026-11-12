@@ -257,8 +257,15 @@ def checkin_fields(cfg=None) -> tuple[dict[str, str], dict[str, str]]:
 def intervals_wellness(raw: list[dict], cfg=None) -> tuple[list[DailyMetrics], list[Checkin]]:
     joint_fields, other_fields = checkin_fields(cfg)
     metrics, checkins = [], []
-    for w in raw:
+    prev_weight = None
+    for w in sorted(raw, key=lambda r: r["id"]):
         day = dt.date.fromisoformat(w["id"])
+        # Intervals.icu repeats the last known weight on days without a weigh-in (seen live 2026-11-12): only a
+        # changed value, or one that comes with body fat, is a real weigh-in.
+        weight = w.get("weight")
+        weighed = weight is not None and (weight != prev_weight or w.get("bodyFat") is not None)
+        if weight is not None:
+            prev_weight = weight
         metrics.append(
             DailyMetrics(
                 date=day,
@@ -274,7 +281,9 @@ def intervals_wellness(raw: list[dict], cfg=None) -> tuple[list[DailyMetrics], l
                 rhr_bpm=w.get("restingHR"),
                 sleep_hours=round(w["sleepSecs"] / 3600, 2) if w.get("sleepSecs") else None,
                 sleep_performance=w.get("sleepScore"),
-                weight_kg=w.get("weight"),  # scale weigh-ins (Apple Health -> HealthFit -> Intervals.icu)
+                weight_kg=weight
+                if weighed
+                else None,  # scale weigh-ins (Apple Health -> HealthFit -> Intervals.icu)
                 body_fat_pct=w.get("bodyFat"),
                 sources=["intervals"],
             )

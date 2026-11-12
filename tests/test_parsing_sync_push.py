@@ -358,3 +358,18 @@ def test_whoop_workouts_skip_unscored_recovery_activities():
     ]
     out = whoop_workouts(raw)
     assert [s.sport for s in out] == ["strength"] and out[0].avg_hr == 120
+
+
+def test_carried_forward_weight_is_not_a_weigh_in():
+    """Intervals.icu repeats the last weight on days without a weigh-in; only new readings count."""
+    from coach.integrations.normalize import intervals_wellness
+
+    raw = [
+        {"id": "2026-11-10", "weight": 96.512, "bodyFat": 18.1},
+        {"id": "2026-11-11", "weight": 96.512},  # carried forward
+        {"id": "2026-11-12", "weight": 96.512},  # carried forward
+        {"id": "2026-11-13", "weight": 96.204, "bodyFat": 17.9},
+        {"id": "2026-11-14", "weight": 96.204, "bodyFat": 18.0},  # same value but a real reading (body fat)
+    ]
+    ms, _ = intervals_wellness(raw)
+    assert [m.weight_kg for m in ms] == [96.512, None, None, 96.204, 96.204]

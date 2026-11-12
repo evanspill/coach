@@ -236,3 +236,7 @@ Each entry: **decision** - why - how to reverse.
     noisy below ~43 s), dead hang (practical grip proxy; grip strength predicts mortality, PURE 2015), an unscored
     mobility screen for starting rungs (FMS-style screens don't predict injury, Moran 2017). New scoring `max_hold`
     and `coach test score --result` for results reported in chat. Baseline hinge capped at RPE 8 this time.
+80. **Carried-forward weights are not weigh-ins.** Intervals.icu repeats the last known weight on days without a
+    reading (seen live: 35 of 42 consecutive days identical to the gram; every real reading came with body fat). A
+    wellness weight counts only when it changes or comes with body fat; sync reads 7 extra days so the first day of
+    its window can be judged. Otherwise the 7-day average and the "no weigh-in" flag would count filler.
