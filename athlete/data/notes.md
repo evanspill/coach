@@ -11,3 +11,8 @@ Rendered from athlete/data/notes/; add with `coach record add notes` or the skil
 - 2026-11-11 [equipment] Owns a jump rope (brings it to the gym; usable when travelling).
 - 2026-11-11 [equipment] Bar weights in equipment.yaml (trap bar 60 lb, SSB 65 lb) not yet confirmed: ask at the first session using them.
 - 2026-11-12 [response] No running in the 4 weeks before the baseline week (athlete-reported 2026-11-12): use run_submax_drift, not the 30-min TT, and ramp running from a low base.
+- 2026-11-12 [injury] Back: popped twice in the last 1-2 years during floating deadlifts; MRI showed a minor disc bulge (cause uncertain). Has PT exercises (to be uploaded). Hinge from blocks / trap bar via the ladder; floor and floating pulls only when the rungs open.
+- 2026-11-12 [injury] Shoulders: some overhead and pressing movements aggravated them in the past; pain-free for a few years. Keep the overhead/press gates.
+- 2026-11-12 [injury] History of one concussion (college intramural flag football).
+- 2026-11-12 [injury] Got injured near the end of a COVID-era sub-20 5K plan (injury type not yet known: ask). Ramp running conservatively.
+- 2026-11-12 [preference] Loves training and variety; no strong exercise likes or dislikes: rotate exercises and metcon formats freely.
