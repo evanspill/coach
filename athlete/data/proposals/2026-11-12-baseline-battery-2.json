@@ -10,12 +10,17 @@
   "after": null,
   "target": "week_plans/2026-W47",
   "payload": null,
-  "status": "pending",
+  "status": "rejected",
   "history": [
     {
       "at": "2026-11-12",
       "status": "pending",
       "note": ""
+    },
+    {
+      "at": "2026-11-12",
+      "status": "rejected",
+      "note": "Superseded: Tuesday too long; Z2 bike moved to Friday"
     }
   ]
 }

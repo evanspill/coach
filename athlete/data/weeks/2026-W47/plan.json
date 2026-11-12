@@ -316,11 +316,11 @@
       "date": "2026-11-17",
       "start_time": "09:30",
       "type": "test",
-      "title": "Test day: pull-ups, trunk endurance, dead hang + Zone 2 bike",
-      "intent": "Pulling strength, then trunk-endurance and grip baselines (NSCA order: strength before local endurance), then aerobic base without impact.",
+      "title": "Test day: pull-ups, trunk endurance, dead hang",
+      "intent": "Pulling strength, then trunk-endurance and grip baselines (NSCA order: strength before local endurance), then hip/adductor work.",
       "location": "gym",
       "route": null,
-      "expected_minutes": 155,
+      "expected_minutes": 65,
       "key": true,
       "carb_tier": "high",
       "blocks": [
@@ -522,7 +522,7 @@
           "items": [
             {
               "exercise_id": "side_plank",
-              "sets": 2,
+              "sets": 1,
               "reps": null,
               "reps_max": null,
               "duration_s": 180,
@@ -570,31 +570,6 @@
           "run": [],
           "metcon": null,
           "test_id": "dead_hang_max",
-          "notes": ""
-        },
-        {
-          "kind": "run",
-          "title": "Zone 2 bike",
-          "items": [],
-          "run": [
-            {
-              "label": "Zone 2 bike",
-              "zone": "Z2",
-              "duration_min": 35.0,
-              "distance_mi": null,
-              "reps": 1,
-              "recovery_min": null,
-              "modality": "bike",
-              "terrain": "flat",
-              "pace_s_per_mi": null,
-              "hr_bpm": [
-                124,
-                139
-              ]
-            }
-          ],
-          "metcon": null,
-          "test_id": null,
           "notes": ""
         },
         {
@@ -708,7 +683,7 @@
       "intent": "Rep-max tests at current rungs (no true 1RMs)",
       "location": "gym",
       "route": null,
-      "expected_minutes": 90,
+      "expected_minutes": 70,
       "key": true,
       "carb_tier": "high",
       "blocks": [
@@ -854,7 +829,7 @@
               ]
             },
             {
-              "label": "Locked-HR drift run",
+              "label": "Locked-pace drift run",
               "zone": "Z2",
               "duration_min": 30.0,
               "distance_mi": null,
@@ -1189,39 +1164,36 @@
       "shoe": null
     },
     {
-      "id": "2026-11-20-recovery",
+      "id": "2026-11-20-z2-bike",
       "date": "2026-11-20",
       "start_time": "09:30",
       "type": "recovery",
-      "title": "Recovery: Z1 walk + mobility",
-      "intent": "Promote recovery; nothing hard.",
-      "location": "home",
-      "route": "neighbourhood walk",
+      "title": "Zone 2 bike + mobility",
+      "intent": "Easy aerobic base without impact, the day after the squat test and before Saturday's bike test.",
+      "location": "gym",
+      "route": null,
       "expected_minutes": 50,
       "key": false,
       "carb_tier": "low",
       "blocks": [
         {
           "kind": "run",
-          "title": "Zone 1 walk",
+          "title": "Zone 2 bike",
           "items": [],
           "run": [
             {
-              "label": "Z1 walk",
-              "zone": "Z1",
+              "label": "Zone 2 bike",
+              "zone": "Z2",
               "duration_min": 35.0,
               "distance_mi": null,
               "reps": 1,
               "recovery_min": null,
-              "modality": "walk",
+              "modality": "bike",
               "terrain": "flat",
-              "pace_s_per_mi": [
-                662,
-                744
-              ],
+              "pace_s_per_mi": null,
               "hr_bpm": [
-                107,
-                124
+                124,
+                139
               ]
             }
           ],
@@ -1325,7 +1297,7 @@
       "intent": "Rep-max tests at current rungs (no true 1RMs)",
       "location": "gym",
       "route": null,
-      "expected_minutes": 40,
+      "expected_minutes": 30,
       "key": true,
       "carb_tier": "high",
       "blocks": [
@@ -1697,13 +1669,13 @@
     {
       "field": "week layout",
       "planned": "Template: Tue upper tests, Wed Z2 run, Thu run test",
-      "actual": "Tue pull-ups + trunk endurance + dead hang + Z2 bike; Wed submax run; Thu squat 5RM",
+      "actual": "Tue pull-ups + trunk endurance + dead hang; Wed submax run; Thu squat 5RM; Fri Zone 2 bike",
       "reason": "Hinge and squat rep-maxes 72 h apart (disc history, no back-to-back heavy lower days); run test not the day after a heavy squat; durability tests after strength (NSCA order)."
     },
     {
       "field": "Z2 run",
       "planned": "Zone 2 run (3 mi)",
-      "actual": "Zone 2 bike 35 min + Copenhagen planks",
+      "actual": "Zone 2 bike 35 min (Friday) + Copenhagen planks (Tuesday)",
       "reason": "No running in the last 4 weeks and a past left groin/hip injury: the only run this week is the submax test."
     },
     {
@@ -1720,7 +1692,7 @@
     }
   ],
   "generated_by": "claude",
-  "approval": "pending",
+  "approval": "approved",
   "rationale": "Baseline week, reviewed against testing standards: power before strength; hinge and squat rep-maxes on separate days (disc history); trunk-endurance and grip tests fresh on their own day; a pace-locked treadmill submax run instead of the 30-min TT after 4 weeks of no running; a 10-min bike for the engine (low back load, repeatable).",
   "illness_dates": [],
   "travel_dates": [],

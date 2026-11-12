@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-12-baseline-battery-4",
+  "kind": "baseline_battery",
+  "created": "2026-11-12",
+  "created_by": "plan-week",
+  "title": "Week 2026-W47 plan (baseline)",
+  "what": "see week_plans/2026-W47",
+  "why": "Baseline week, reviewed against testing standards: power before strength; hinge and squat rep-maxes on separate days (disc history); trunk-endurance and grip tests fresh on their own day; a pace-locked treadmill submax run instead of the 30-min TT after 4 weeks of no running; a 10-min bike for the engine (low back load, repeatable).",
+  "before": null,
+  "after": null,
+  "target": "week_plans/2026-W47",
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-12",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12",
+      "status": "approved",
+      "note": ""
+    }
+  ]
+}
