@@ -2,21 +2,19 @@
   "last_sync": "2026-11-12",
   "last_report": {
     "window": [
-      "2026-11-08",
+      "2026-11-09",
       "2026-11-12"
     ],
     "counts": {
-      "whoop_daily": 5,
+      "whoop_daily": 4,
       "nutrition_daily": 0,
       "whoop_backup_days": 0,
-      "weigh_ins": 0,
-      "sessions": 4
+      "weigh_ins": 1,
+      "sessions": 1
     },
-    "stale": [
-      "weight: no weigh-in in the last 10 days"
-    ],
+    "stale": [],
     "errors": {},
-    "changed_files": 0,
+    "changed_files": 1,
     "recovery_today": true,
     "whoop_offline": false
   }
