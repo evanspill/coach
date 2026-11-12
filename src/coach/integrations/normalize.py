@@ -57,24 +57,35 @@ def whoop_daily(recovery: list[dict], sleep: list[dict], cycles: list[dict]) -> 
 WHOOP_SPORT = {
     "running": "run",
     "weightlifting": "strength",
-    "functional fitness": "metcon",
+    "powerlifting": "strength",
+    "functional_fitness": "metcon",
+    "crossfit": "metcon",
     "hiit": "metcon",
     "rowing": "row",
     "cycling": "bike",
+    "spin": "bike",
     "walking": "walk",
+    "hiking": "walk",
     "skiing": "ski",
 }
+
+
+def whoop_sport(name: object) -> str:
+    """Whoop v2 sport names are snake_case with variants (e.g. 'weightlifting_msk', seen live 2026-11-12)."""
+    key = str(name or "").strip().lower().replace("-", "_").replace(" ", "_").removesuffix("_msk")
+    return WHOOP_SPORT.get(key, "other")
 
 
 def whoop_workouts(raw: list[dict]) -> list[SessionRecord]:
     out = []
     for w in raw:
-        if w.get("score_state") != "SCORED":
+        # Recovery activities (e.g. 'air-compression-normatec', seen live) can be SCORED with score = null
+        if w.get("score_state") != "SCORED" or not w.get("score") or not w.get("end"):
             continue
         start = _local(_parse_ts(w["start"]))
         end = _local(_parse_ts(w["end"]))
         sc = w["score"]
-        z = sc.get("zone_durations", {})
+        z = sc.get("zone_durations") or {}
         zones = [
             round(z.get(k, 0) / 60000, 1)
             for k in (
@@ -91,7 +102,7 @@ def whoop_workouts(raw: list[dict]) -> list[SessionRecord]:
                 id=f"whoop:{w['id']}",
                 date=start.date(),
                 start=start,
-                sport=WHOOP_SPORT.get(str(w.get("sport_name", "")).lower(), "other"),
+                sport=whoop_sport(w.get("sport_name")),
                 title=str(w.get("sport_name", "Workout")),
                 duration_min=round((end - start).total_seconds() / 60, 1),
                 strain=sc.get("strain"),

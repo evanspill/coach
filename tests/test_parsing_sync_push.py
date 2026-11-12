@@ -316,3 +316,45 @@ def test_jitter_waits_only_for_live_scheduled_runs(monkeypatch):
     monkeypatch.setenv("COACH_MOCK", "1")
     cli._jitter(argparse.Namespace(jitter=90))
     assert len(slept) == 1
+
+
+@pytest.mark.parametrize(
+    "name,sport",
+    [
+        ("weightlifting_msk", "strength"),  # live Whoop v2 name
+        ("Weightlifting", "strength"),
+        ("functional_fitness", "metcon"),
+        ("functional fitness", "metcon"),
+        ("running", "run"),
+        ("golf", "other"),
+        ("activity", "other"),
+        (None, "other"),
+    ],
+)
+def test_whoop_sport_names(name, sport):
+    from coach.integrations.normalize import whoop_sport
+
+    assert whoop_sport(name) == sport
+
+
+def test_whoop_workouts_skip_unscored_recovery_activities():
+    from coach.integrations.normalize import whoop_workouts
+
+    base = {"start": "2026-11-07T14:00:00.000Z", "end": "2026-11-07T15:00:00.000Z", "score_state": "SCORED"}
+    raw = [
+        {**base, "id": "a", "sport_name": "air-compression-normatec", "score": None},  # live shape
+        {
+            **base,
+            "id": "b",
+            "sport_name": "weightlifting_msk",
+            "score": {
+                "strain": 9.1,
+                "average_heart_rate": 120,
+                "max_heart_rate": 160,
+                "kilojoule": 1200.0,
+                "zone_durations": None,
+            },
+        },
+    ]
+    out = whoop_workouts(raw)
+    assert [s.sport for s in out] == ["strength"] and out[0].avg_hr == 120

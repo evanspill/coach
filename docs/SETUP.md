@@ -36,9 +36,9 @@ small always-on place to live: the token broker, a free Cloudflare Worker with K
 deploy steps in `broker/README.md`). Read WHOOP's API terms first: they restrict AI use and permanent copies, so the
 coach never commits Whoop data (it refetches a rolling 75-day window into a git-ignored cache each run).
 
-- [ ] Register a Whoop developer app (API v2); deploy the broker; connect your account once in a browser.
-- [ ] Set `WHOOP_BROKER_URL` (non-secret) and the broker key (network secret) in the `coach` environment.
-- [ ] Verify against the real API (`coach sync --pretty`) and fix field names in
+- [x] Register a Whoop developer app (API v2); deploy the broker; connect your account once in a browser.
+- [x] Set `WHOOP_BROKER_URL` (non-secret) and the broker key (network secret) in the `coach` environment.
+- [x] Verify against the real API (`coach sync --pretty`) and fix field names in
       `src/coach/integrations/normalize.py` if they differ from the docs-based shapes.
 
 ### Whoop backup via Intervals.icu (optional)

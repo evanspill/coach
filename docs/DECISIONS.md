@@ -215,3 +215,8 @@ Each entry: **decision** - why - how to reverse.
     every integration: the scheduled tasks start at off-round minutes, and scheduled syncs (`coach sync --jitter 90`,
     `coach daily --fallback --jitter 90`) wait a random 0-90 s first. Interactive syncs don't wait; mock mode never
     waits. - Reverse: drop `--jitter` from the coach-daily skill.
+77. **Whoop v2 verified live** (2026-11-12, via the broker). Recovery, sleep and cycle fields match the docs-based
+    mapping (recovery, HRV, RHR, sleep hours/performance, day strain all present). Two fixes: sport names are
+    snake_case variants (`weightlifting_msk`), so `whoop_sport()` normalises separators and the `_msk` suffix; and
+    recovery activities (`air-compression-normatec`) arrive as SCORED with `score: null`, so workouts without a
+    score are skipped. A 75-day refetch is 75 daily rows and ~60 workouts through the broker.
