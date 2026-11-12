@@ -124,7 +124,7 @@ def test_hevy_and_intervals_payloads(b1):
 
     ctx, plan, _ = b1
     r = hevy_routine(plan.sessions[1], ctx)
-    assert any(e["title"].startswith("METCON") and "Stimulus" in e["notes"] for e in r["exercises"])
+    assert any(e["notes"].startswith("METCON") and "Stimulus" in e["notes"] for e in r["exercises"])
     run = next(s for s in plan.sessions if s.type == "run_long")
     ev = intervals_event(run, ctx)
     assert (
@@ -373,3 +373,43 @@ def test_carried_forward_weight_is_not_a_weigh_in():
     ]
     ms, _ = intervals_wellness(raw)
     assert [m.weight_kg for m in ms] == [96.512, None, None, 96.204, 96.204]
+
+
+def test_hevy_routines_carry_template_ids_and_match_the_schema(b1):
+    """Hevy needs exercise_template_id per exercise and accepts only its own fields; missing titles become customs."""
+    from coach.integrations.push import TemplateResolver, hevy_routine
+
+    ctx, plan, _ = b1
+    world = MockWorld.load()
+    src = mock_sources(world)
+    world.templates = {k: v for k, v in src.hevy.template_ids().items() if k not in {"broad jump", "metcon"}}
+    res = TemplateResolver(src.hevy)
+    allowed_ex = {"exercise_template_id", "superset_id", "rest_seconds", "notes", "sets"}
+    allowed_set = {
+        "type",
+        "weight_kg",
+        "reps",
+        "distance_meters",
+        "duration_seconds",
+        "custom_metric",
+        "rep_range",
+    }
+    for s in plan.sessions:
+        r = hevy_routine(s, ctx, res)
+        if not r:
+            continue
+        assert set(r) == {"title", "folder_id", "notes", "exercises"}
+        for ex in r["exercises"]:
+            assert ex["exercise_template_id"] and set(ex) <= allowed_ex
+            assert all(set(st) <= allowed_set for st in ex["sets"])
+    assert len(res.created) == len(set(res.created))  # each custom created once
+
+
+def test_generic_hevy_titles_map_back_to_nothing():
+    from coach.config import load_config
+
+    lib = load_config().library
+    lib.exercises["couch_stretch"].hevy_title = "Stretching"
+    lib.exercises["foam_roll"].hevy_title = "Stretching"
+    assert lib.by_hevy_title("Stretching") is None
+    assert lib.by_hevy_title("Dead Hang").id == "dead_hang"

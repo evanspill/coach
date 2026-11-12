@@ -29,7 +29,7 @@ class DailyMetrics(Model):
 
 
 class SetRecord(Model):
-    exercise_id: str | None
+    exercise_id: str | None = None  # None: a Hevy exercise with no single library match (e.g. "Warm Up")
     exercise_name: str
     set_type: Literal["normal", "warmup", "failure", "dropset"] = "normal"
     weight_kg: float | None = None

@@ -240,3 +240,12 @@ Each entry: **decision** - why - how to reverse.
     reading (seen live: 35 of 42 consecutive days identical to the gram; every real reading came with body fat). A
     wellness weight counts only when it changes or comes with body fat; sync reads 7 extra days so the first day of
     its window can be judged. Otherwise the 7-day average and the "no weigh-in" flag would count filler.
+81. **Hevy routines are built from Hevy's exercise catalog** (verified against the live API spec, 2026-11-12). Hevy
+    requires an `exercise_template_id` per exercise and accepts only its schema's fields, and the coach sent neither
+    ids nor a valid shape. Each library exercise now carries a reviewed `hevy_title` (a built-in Hevy exercise where
+    one exists); warm-up and mobility drills share the generic "Warm Up" / "Stretching" with the drill named in the
+    note; titles with no equivalent (back-extension hold, broad jump, Copenhagen planks, low-handle trap bar, SSB
+    squat, metcons) become custom exercises on first push only, because free accounts allow 7. A title shared by
+    several library exercises maps back to none when reading logs, so a generic set is never credited to a drill
+    or a test, and `SetRecord.exercise_id` defaults to None (an unmatched set used to make the stored workout
+    unreadable).

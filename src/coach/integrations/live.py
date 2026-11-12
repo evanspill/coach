@@ -99,6 +99,29 @@ class LiveHevy(HevySource):
         recs = N.hevy_workouts(out, load_config().library)
         return [r for r in recs if start <= r.date <= end]
 
+    def template_ids(self):
+        out, page = {}, 1
+        while True:
+            data = _request("GET", f"{self.BASE}/exercise_templates?page={page}&pageSize=100", self.headers)
+            for t in data.get("exercise_templates", []):
+                out[str(t["title"]).lower()] = str(t["id"])
+            if page >= data.get("page_count", 1):
+                return out
+            page += 1
+
+    def create_template(self, title, exercise_type, equipment, muscle):
+        body = {
+            "exercise": {
+                "title": title,
+                "exercise_type": exercise_type,
+                "equipment_category": equipment,
+                "muscle_group": muscle,
+                "other_muscles": [],
+            }
+        }
+        res = _request("POST", f"{self.BASE}/exercise_templates", self.headers, body)
+        return str(res.get("id") if isinstance(res, dict) else res)
+
     def upsert_routine(self, routine, routine_id=None):
         if routine_id:
             res = _request("PUT", f"{self.BASE}/routines/{routine_id}", self.headers, {"routine": routine})

@@ -30,6 +30,14 @@ class HevySource(ABC):
     @abstractmethod
     def upsert_routine(self, routine: dict, routine_id: str | None = None) -> str: ...
 
+    @abstractmethod
+    def template_ids(self) -> dict[str, str]:
+        """Exercise templates the account can use (built-in + custom): lower-cased title -> template id."""
+
+    @abstractmethod
+    def create_template(self, title: str, exercise_type: str, equipment: str, muscle: str) -> str:
+        """Create a custom exercise template; returns its id. Free Hevy accounts allow 7 custom exercises."""
+
 
 class IntervalsSource(ABC):
     """Runs (+ Running Dynamics), wellness (incl. custom check-in fields), gear, planned events -> Garmin."""

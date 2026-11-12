@@ -14,14 +14,73 @@ from coach.models import Session, WeekPlan
 RUN_TYPES = {"run_easy", "run_long", "run_quality", "race", "test"}
 
 
+METCON_TITLE = "Metcon"
+EQUIPMENT = {
+    "barbell": "barbell",
+    "safety_squat_bar": "barbell",
+    "trap_bar": "barbell",
+    "dumbbell": "dumbbell",
+    "kettlebell": "kettlebell",
+    "machine": "machine",
+    "cable": "machine",
+    "band": "resistance_band",
+}
+MUSCLE = {"quads": "quadriceps", "core": "abdominals", "back": "upper_back"}
+
+
+class TemplateResolver:
+    """Hevy needs an exercise_template_id per exercise. Titles come from the library (`hevy_title`, else the name);
+    missing ones become custom exercises on first use only (free accounts allow 7). Dry runs only report."""
+
+    def __init__(self, hevy=None):
+        self.hevy = hevy
+        self.catalog: dict[str, str] | None = None
+        self.created: list[str] = []
+        self.would_create: list[str] = []
+
+    def _ids(self) -> dict[str, str]:
+        if self.catalog is None:
+            self.catalog = self.hevy.template_ids() if self.hevy else {}
+        return self.catalog
+
+    def resolve(self, title: str, exercise_type: str, equipment: str, muscle: str) -> str | None:
+        tid = self._ids().get(title.lower())
+        if tid:
+            return tid
+        if self.hevy is None:
+            if title not in self.would_create:
+                self.would_create.append(title)
+            return None
+        tid = self.hevy.create_template(title, exercise_type, equipment, muscle)
+        self._ids()[title.lower()] = tid
+        self.created.append(title)
+        return tid
+
+
+def _custom_spec(ex, it) -> tuple[str, str, str]:
+    if it.duration_s is not None:
+        kind = "duration"
+    elif it.distance_m is not None:
+        kind = "short_distance_weight"
+    elif ex.load_mode == "bodyweight":
+        kind = "reps_only"
+    else:
+        kind = "weight_reps"
+    equipment = EQUIPMENT.get(ex.implement or "", "none" if ex.load_mode == "bodyweight" else "other")
+    first = (ex.muscles or ["other"])[0]
+    muscle = "lower_back" if first == "back" and "isometric" in ex.tags else MUSCLE.get(first, first)
+    return kind, equipment, muscle
+
+
 class PushRefused(Exception):
     def __init__(self, violations: list[Violation]):
         super().__init__("push refused: plan fails validation")
         self.violations = violations
 
 
-def hevy_routine(s: Session, ctx: Context) -> dict | None:
+def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = None) -> dict | None:
     lib = ctx.cfg.library
+    resolver = resolver or TemplateResolver()
     exercises: list[dict[str, Any]] = []
     for b in s.blocks:
         if b.metcon is not None:
@@ -42,9 +101,8 @@ def hevy_routine(s: Session, ctx: Context) -> dict | None:
             )
             exercises.append(
                 {
-                    "exercise_template_id": None,
-                    "title": f"METCON: {mc.name}",
-                    "notes": f"{mc.format.upper()} {mc.time_cap_min:g} min cap. {moves}. Stimulus: {mc.stimulus}. Scaling: {mc.scaling}. "
+                    "exercise_template_id": resolver.resolve(METCON_TITLE, "duration", "other", "full_body"),
+                    "notes": f"METCON: {mc.name}. {mc.format.upper()} {mc.time_cap_min:g} min cap. {moves}. Stimulus: {mc.stimulus}. Scaling: {mc.scaling}. "
                     "Log your score in the workout notes (e.g. 'score 5+7 rpe 8').",
                     "sets": [{"type": "normal", "duration_seconds": int(mc.time_cap_min * 60)}],
                 }
@@ -79,10 +137,13 @@ def hevy_routine(s: Session, ctx: Context) -> dict | None:
                 ]
                 if x
             )
+            title = ex.hevy_title or ex.name
+            if title.lower() in {"warm up", "stretching"} and ex.name.lower() != title.lower():
+                note = f"{ex.name}" + (f" | {note}" if note else "")  # generic Hevy exercise: name the drill
             exercises.append(
                 {
-                    "exercise_template_id": ex.hevy_template_id,
-                    "title": ex.hevy_title or ex.name,
+                    "exercise_template_id": ex.hevy_template_id
+                    or resolver.resolve(title, *_custom_spec(ex, it)),
                     "rest_seconds": it.rest_s,
                     "notes": note,
                     "sets": sets,
@@ -131,6 +192,7 @@ def intervals_event(s: Session, ctx: Context) -> dict | None:
 def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | None, dry_run: bool) -> dict:
     ids = ctx.state.get("push_ids") or {}
     out: dict = {"dry_run": dry_run, "hevy": [], "intervals": []}
+    resolver = TemplateResolver(None if dry_run or sources is None else sources.hevy)
     events = []
     for s in sessions:
         if s.type == "rest":
@@ -141,7 +203,7 @@ def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | Non
             "run_quality",
             "race",
         }:
-            r = hevy_routine(s, ctx)
+            r = hevy_routine(s, ctx, resolver)
             if r:
                 if dry_run or sources is None:
                     out["hevy"].append(
@@ -159,6 +221,10 @@ def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | Non
             out["intervals"] = [{"session": e["external_id"], "name": e["name"]} for e in events]
         else:
             out["intervals"] = sources.intervals.upsert_events(events)
+    if resolver.would_create:
+        out["hevy_custom_exercises_needed"] = resolver.would_create
+    if resolver.created:
+        out["hevy_custom_exercises_created"] = resolver.created
     if not dry_run:
         ctx.state.put("push_ids", ids)
     return out

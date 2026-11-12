@@ -59,11 +59,13 @@ class ExerciseLibrary(Model):
         return exercise_id in self.exercises
 
     def by_hevy_title(self, title: str) -> Exercise | None:
+        """The library exercise a logged Hevy title belongs to. Generic titles shared by several exercises
+        ('Warm Up', 'Stretching') are ambiguous and map to None rather than to an arbitrary drill."""
         t = title.strip().lower()
-        for ex in self.exercises.values():
-            if (ex.hevy_title and ex.hevy_title.lower() == t) or ex.name.lower() == t:
-                return ex
-        return None
+        hits = [ex for ex in self.exercises.values() if ex.hevy_title and ex.hevy_title.lower() == t]
+        if not hits:
+            hits = [ex for ex in self.exercises.values() if ex.name.lower() == t]
+        return hits[0] if len(hits) == 1 else None
 
 
 class LocationEquipment(Model):

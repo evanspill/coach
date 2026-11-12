@@ -37,6 +37,7 @@ class MockWorld:
     script: dict
     hide_recovery_for: set[dt.date] = field(default_factory=set)
     routines: dict[str, dict] = field(default_factory=dict)
+    templates: dict[str, str] = field(default_factory=dict)
     events: dict[str, dict] = field(default_factory=dict)
     extra_gear_miles: dict[str, float] = field(default_factory=dict)
 
@@ -101,6 +102,20 @@ class MockHevy(HevySource):
             for s in N.hevy_workouts(self.w.hevy["workouts"], lib)
             if _in(s.date, start, end) and s.date < today
         ]
+
+    def template_ids(self):
+        if not self.w.templates:  # a stand-in catalog: every mapped library title exists
+            from coach.config import load_config
+
+            for ex in load_config().library.exercises.values():
+                title = ex.hevy_title or ex.name
+                self.w.templates[title.lower()] = f"mock-tpl-{len(self.w.templates) + 1}"
+        return dict(self.w.templates)
+
+    def create_template(self, title, exercise_type, equipment, muscle):
+        tid = f"mock-custom-{len(self.w.templates) + 1}"
+        self.w.templates[title.lower()] = tid
+        return tid
 
     def upsert_routine(self, routine, routine_id=None):
         rid = routine_id or f"mock-routine-{len(self.w.routines) + 1}"
