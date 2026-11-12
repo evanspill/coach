@@ -220,6 +220,10 @@ Each entry: **decision** - why - how to reverse.
     snake_case variants (`weightlifting_msk`), so `whoop_sport()` normalises separators and the `_msk` suffix; and
     recovery activities (`air-compression-normatec`) arrive as SCORED with `score: null`, so workouts without a
     score are skipped. A 75-day refetch is 75 daily rows and ~60 workouts through the broker.
+78. **Whoop backup on** (athlete-approved 2026-11-12, `whoop_backup: intervals`), after Garmin wellness download was
+    turned off in Intervals.icu so its HRV / resting HR / sleep come only from Whoop. Field names verified live
+    (`readiness`, `hrv`, `restingHR`, `sleepSecs`, `sleepScore`), and the values matched the direct API on all 7
+    days checked (recovery, HRV, RHR, sleep). Direct data still wins; backup days are cache-only.
 79. **Baseline battery reviewed against testing standards** (athlete-approved 2026-11-12). Kept: rep-maxes rather
     than 1RMs (1RM predicted from a 3-5RM within ~3 kg), high-handle trap bar for the hinge (lower lumbar moment,
     Swinton 2011), broad jump first, pull-ups, 7-day body comp. Changed: hinge and squat rep-maxes on separate days

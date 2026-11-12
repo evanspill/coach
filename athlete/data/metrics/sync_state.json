@@ -1,28 +1,23 @@
 {
-  "last_sync": "2026-11-10",
+  "last_sync": "2026-11-11",
   "last_report": {
     "window": [
-      "2026-11-07",
-      "2026-11-10"
+      "2026-11-08",
+      "2026-11-11"
     ],
     "counts": {
-      "whoop_daily": 0,
+      "whoop_daily": 4,
       "nutrition_daily": 0,
+      "whoop_backup_days": 0,
       "weigh_ins": 0,
-      "sessions": 0
+      "sessions": 3
     },
     "stale": [
-      "whoop: no recovery in the last 10 days",
-      "weight: no weigh-in in the last 10 days",
-      "whoop: fetch failed",
-      "whoop_workouts: fetch failed"
+      "weight: no weigh-in in the last 10 days"
     ],
-    "errors": {
-      "whoop": "RuntimeError: WHOOP_BROKER_URL not configured (Phase 2: deploy the token broker)",
-      "whoop_workouts": "RuntimeError: WHOOP_BROKER_URL not configured (Phase 2: deploy the token broker)"
-    },
+    "errors": {},
     "changed_files": 0,
-    "recovery_today": false,
-    "whoop_offline": true
+    "recovery_today": true,
+    "whoop_offline": false
   }
 }
