@@ -253,7 +253,15 @@ def estimate_minutes(s: Session, threshold_pace: float) -> int:
         elif b.kind == "mobility":
             total += 15
         elif b.kind == "test":
-            total += 22
+            if b.run:
+                total += 5  # run tests: the segments below carry the time
+            elif b.items and all(it.duration_s or it.reps is None for it in b.items):
+                # single max-effort sets (holds, max reps): effort + ~2 min rest each, not a rep-max work-up
+                total += 2 + sum(
+                    it.sets * (2 if it.per_side else 1) * ((it.duration_s or 60) / 60 + 2) for it in b.items
+                )
+            else:
+                total += 22  # rep-max work-up (4-6 sets) or attempts
         if b.metcon:
             total += b.metcon.time_cap_min + 5
         for seg in b.run:

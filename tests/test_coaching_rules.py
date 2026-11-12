@@ -275,3 +275,43 @@ def test_whoop_offline_finalizes_without_guessing(home):
     assert res.notification.startswith("NO SCORE: Whoop offline")
     assert "9:05" not in res.notification
     assert run_daily(src, Store(), day, phase="catchup").log == ["catch-up: nothing waiting"]
+
+
+def test_test_block_minutes_follow_the_work():
+    from coach.coaching.skills.design import estimate_minutes
+    from coach.models import Session
+    from coach.models.plans import Prescription
+    from coach.models.plans import SessionBlock as Block
+
+    def sess(*blocks):
+        return Session(
+            id="x",
+            date=dt.date(2026, 11, 17),
+            type="test",
+            title="t",
+            intent="i",
+            expected_minutes=0,
+            blocks=list(blocks),
+        )
+
+    hold = Block(
+        kind="test",
+        title="h",
+        test_id="sorensen_hold",
+        items=[Prescription(exercise_id="sorensen_hold", sets=1, duration_s=240)],
+    )
+    sides = Block(
+        kind="test",
+        title="s",
+        test_id="side_bridge",
+        items=[Prescription(exercise_id="side_plank", sets=1, duration_s=180, per_side=True)],
+    )
+    rm = Block(
+        kind="test",
+        title="r",
+        test_id="hinge_rm",
+        items=[Prescription(exercise_id="trap_bar_deadlift_high", sets=5, reps=5, rir=2)],
+    )
+    assert estimate_minutes(sess(hold), 480) == 10  # 4 min hold + 2 rest + 2 setup -> rounded to 5s
+    assert estimate_minutes(sess(sides), 480) == 15  # two sides x (3 + 2) + 2
+    assert estimate_minutes(sess(rm), 480) == 25  # rep-max work-up keeps the 22-min allowance
