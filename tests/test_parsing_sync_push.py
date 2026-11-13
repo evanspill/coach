@@ -427,3 +427,42 @@ def test_custom_exercise_type_follows_the_test_scoring():
         lib.get("sorensen_hold"), Prescription(exercise_id="sorensen_hold", sets=1, reps=1), tests
     )
     assert jump[0] == "short_distance_weight" and hold[0] == "duration"
+
+
+def test_hevy_notes_name_the_variant_and_keep_reps(b1):
+    """Seen in the app: 'Deadlift (Trap bar)' hid 'high handle', and Warm Up items lost their reps."""
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models import Session
+    from coach.models.plans import Prescription
+    from coach.models.plans import SessionBlock as Block
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    lib.exercises["tib_raise"].hevy_title = "Warm Up"
+    lib.exercises["trap_bar_deadlift_high"].hevy_title = "Deadlift (Trap bar)"
+    s = Session(
+        id="t",
+        date=dt.date(2026, 12, 1),
+        type="test",
+        title="t",
+        intent="i",
+        expected_minutes=60,
+        blocks=[
+            Block(
+                kind="warmup",
+                title="w",
+                items=[Prescription(exercise_id="tib_raise", sets=1, reps=15, load_note="bodyweight")],
+            ),
+            Block(
+                kind="test",
+                title="h",
+                test_id="hinge_rm",
+                items=[Prescription(exercise_id="trap_bar_deadlift_high", sets=5, reps=5, rir=2)],
+            ),
+        ],
+    )
+    world = MockWorld.load()
+    ex = hevy_routine(s, ctx, TemplateResolver(mock_sources(world).hevy))["exercises"]
+    assert ex[0]["notes"].startswith(lib.get("tib_raise").name) and "15 reps" in ex[0]["notes"]
+    assert "bodyweight" not in ex[0]["notes"]
+    assert ex[1]["notes"].startswith(lib.get("trap_bar_deadlift_high").name) and "RPE 9" in ex[1]["notes"]

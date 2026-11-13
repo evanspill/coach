@@ -15,6 +15,7 @@ RUN_TYPES = {"run_easy", "run_long", "run_quality", "race", "test"}
 
 
 METCON_TITLE = "Metcon"
+TIMED_GENERIC = {"warm up", "stretching"}  # Hevy's generic exercises are timed: reps go in the note
 EQUIPMENT = {
     "barbell": "barbell",
     "safety_squat_bar": "barbell",
@@ -143,20 +144,31 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 if it.distance_m is not None:
                     st["distance_meters"] = it.distance_m
                 sets.append(st)
+            title = ex.hevy_title or ex.name
+            timed_generic = title.lower() in TIMED_GENERIC and it.duration_s is None
+            test = ctx.cfg.tests.tests.get(b.test_id) if b.kind == "test" and b.test_id else None
+            # block notes (e.g. the movement screen) on its first item; a test's procedure only when the plan
+            # didn't already write this item's own instructions (e.g. "RPE 8, not 9")
+            procedure = test.protocol.get("procedure", "") if test and not it.notes else ""
+            block_notes = "" if test and it.notes else b.notes
+            protocol = (block_notes or procedure) if it is b.items[0] else ""
             note = " | ".join(
                 x
                 for x in [
+                    # the coach's exercise when Hevy's differs ("Trap bar deadlift (high handle)" in "Deadlift (Trap bar)")
+                    ex.name if ex.name.lower() != title.lower() else "",
+                    f"{it.reps} reps"
+                    if timed_generic and it.reps
+                    else "",  # a timed Hevy exercise shows no reps
                     f"{it.rir:g} RIR" if it.rir is not None else "",
-                    it.load_note or "",
+                    "" if (it.load_note or "").lower() == "bodyweight" else (it.load_note or ""),
                     it.tempo and f"tempo {it.tempo}",
                     "per side" if it.per_side else "",
                     it.notes or "",
+                    protocol,
                 ]
                 if x
             )
-            title = ex.hevy_title or ex.name
-            if title.lower() in {"warm up", "stretching"} and ex.name.lower() != title.lower():
-                note = f"{ex.name}" + (f" | {note}" if note else "")  # generic Hevy exercise: name the drill
             exercises.append(
                 {
                     "exercise_template_id": ex.hevy_template_id
