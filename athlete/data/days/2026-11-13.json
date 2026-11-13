@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-13",
+  "status": "complete",
+  "readiness": {
+    "date": "2026-11-13",
+    "state": "green",
+    "reasons": [
+      "recovery under 67 with HRV trend in band"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {},
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": []
+  },
+  "weather": null,
+  "planned_session_id": null,
+  "session": null,
+  "changes": [],
+  "recovery_prescription": [
+    "Optional 10-15 min evening mobility (T-spine/shoulders/hips) to prep for Monday's tests",
+    "magnesium bisglycinate at night",
+    "Bed 10-10:30 pm"
+  ],
+  "nutrition": null,
+  "fueling_cue": "Eat normally; restart MacroFactor Monday at maintenance, log everything and weigh daily during the baseline week.",
+  "gear_alerts": [],
+  "pushed": null,
+  "handoffs": [],
+  "approvals_pending": [],
+  "stale_sources": [],
+  "generated_by": "claude",
+  "notification": "GREEN: recovery fine, HRV in range.\nToday: no session (pre-season). Baseline testing starts Mon.\nFuel: eat normally; MacroFactor restarts Mon at maintenance, weigh daily.\nTonight: optional 10-15 min T-spine/hip mobility, bed by 10:30."
+}
