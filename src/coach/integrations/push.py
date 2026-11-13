@@ -6,7 +6,6 @@ from typing import Any
 
 from coach.coaching.context import Context
 from coach.engine.paces import PACE_FACTORS
-from coach.engine.units import fmt_pace
 from coach.engine.validator import Violation, validate_session, validate_week
 from coach.integrations.base import Sources
 from coach.models import Session, WeekPlan
@@ -215,18 +214,12 @@ def intervals_event(s: Session, ctx: Context) -> dict | None:
         prefix = f"{seg.reps}x\n" if seg.reps > 1 else ""
         rec = f"\n- {seg.recovery_min:g}m 60-70% Pace" if seg.recovery_min and seg.reps > 1 else ""
         lines.append(f"{prefix}- {size} {_pace_target(seg)} {seg.label}{rec}")
-    paces = [
-        f"{seg.label}: {fmt_pace(seg.pace_s_per_mi[0])}-{fmt_pace(seg.pace_s_per_mi[1])}"
-        for seg in segs
-        if seg.pace_s_per_mi
-    ]
     return {
         "category": "WORKOUT",
         "type": "Run",
         "start_date_local": f"{s.date.isoformat()}T{s.start_time}:00",
         "name": s.title,
         "description": "\n".join(lines)
-        + ("\n\n" + "; ".join(paces) if paces else "")
         + "".join(f"\n\n{b.notes}" for b in s.blocks if b.kind == "test" and b.notes)
         + f"\n\n{s.intent}",
         "external_id": f"coach-{s.id}",

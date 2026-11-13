@@ -285,10 +285,19 @@ def test_session(ctx: Context, day: dt.date, tests: list[str], week_type: str) -
         "test",
         "test",
         f"Test day: {names}",
-        tpl.intent if tpl else "Tests",
+        _test_intent(tests, battery, tpl.intent if tpl else ""),
         blocks,
         location=location,
         route=td.run_route if is_run else None,
         key=True,
         tests=tests,
     )
+
+
+def _test_intent(tests: list[str], battery, rep_max_note: str) -> str:
+    """What the day measures, from the tests themselves (the template's rep-max wording only fits strength tests)."""
+    qualities = list(dict.fromkeys(battery.tests[t].quality for t in tests))
+    text = "Measure " + ", ".join(qualities) if qualities else "Tests"
+    if rep_max_note and any(battery.tests[t].scoring == "epley_e1rm" for t in tests):
+        text += f". {rep_max_note}"
+    return text + "."
