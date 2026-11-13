@@ -131,7 +131,9 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 {"type": "warmup", "weight_kg": r.load_kg, "reps": r.reps} for r in it.ramp
             ]
             for _ in range(it.sets):
-                st: dict = {"type": "warmup" if b.kind == "warmup" else "normal"}
+                st: dict = {
+                    "type": "warmup" if b.kind in {"warmup", "cooldown"} else "normal"
+                }  # Hevy has no cooldown type
                 if it.load_kg is not None:
                     st["weight_kg"] = it.load_kg
                 if it.reps is not None:
