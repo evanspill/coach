@@ -62,6 +62,11 @@ class TemplateResolver:
 SCORING_TYPE = {"best_of": "short_distance_weight", "max_hold": "duration", "max_reps": "reps_only"}
 
 
+def _plain(name: str) -> str:
+    """'Band pull-apart' == 'Band Pullaparts': letters only, no trailing plural."""
+    return "".join(c for c in name.lower() if c.isalnum()).rstrip("s")
+
+
 def _custom_spec(ex, it, tests=None) -> tuple[str, str, str]:
     scored = next(
         (
@@ -155,7 +160,7 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 x
                 for x in [
                     # the coach's exercise when Hevy's differs ("Trap bar deadlift (high handle)" in "Deadlift (Trap bar)")
-                    ex.name if ex.name.lower() != title.lower() else "",
+                    ex.name if _plain(ex.name) != _plain(title) else "",
                     f"{it.reps} reps"
                     if timed_generic and it.reps
                     else "",  # a timed Hevy exercise shows no reps
