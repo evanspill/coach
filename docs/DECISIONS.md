@@ -259,3 +259,8 @@ Each entry: **decision** - why - how to reverse.
     reach the watch without real paces, and the coach owns the zones anyway. Intervals.icu parses them as
     `secs/mi` steps (verified live); % of threshold remains the fallback when a segment has no pace. Test-block
     notes (e.g. "motorized treadmill at 1%") go into the event description.
+84. **Code goes through pull requests; athlete state commits directly** (athlete decision, 2026-11-13). The daily
+    run and chat sessions keep committing `athlete/data/` (and approved `athlete/config/` changes) straight to
+    `main`, because a PR per check-in would stall the loop. Code and docs go on a branch and a PR the athlete
+    merges. `main` is protected against force pushes and deletion only (GitHub ruleset set by the athlete):
+    "require a pull request" or "require status checks" would block the direct state commits.

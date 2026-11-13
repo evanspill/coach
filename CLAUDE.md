@@ -95,8 +95,11 @@ The scheduled daily run uses `coach-daily` (the coordinator), which calls the ot
 - **Evidence**: state confidence, never invent citations (every PMID/DOI must have been retrieved), frame
   experiments as 4-week N=1 trials with a metric and a stop rule.
 - **Notifications** are short and contain no detailed health numbers; details live in `athlete/data/`.
-- **Commits**: state changes from chat or the daily run are committed to `main` with a clear message, then
-  `git pull --rebase && git push` (retry on conflict).
+- **Commits**: athlete state (`athlete/data/`, plus `athlete/config/` changes the athlete approved) is committed
+  straight to `main` with a clear message, then `git pull --rebase && git push` (retry on conflict). Code and docs
+  (`src/`, `tests/`, `docs/`, `.claude/`, `broker/`, `scripts/`, `CLAUDE.md`, `pyproject.toml`, `Makefile`) never go
+  to `main` directly: commit them on a branch and open a pull request for the athlete to merge. Never force-push
+  `main`. A commit that mixes the two is split.
 
 ## Definition of done (for any coaching action)
 
@@ -108,4 +111,5 @@ The scheduled daily run uses `coach-daily` (the coordinator), which calls the ot
 ## Definition of done (for code changes, only when asked)
 
 `make check` passes (ruff, ruff format, mypy, pytest with >= 80% coverage, `coach validate config`, and the 120-day
-simulation on the demo and the active config); decisions recorded in `docs/DECISIONS.md`; diagrams in `docs/ARCHITECTURE.md` kept accurate.
+simulation on the demo and the active config); decisions recorded in `docs/DECISIONS.md`; diagrams in `docs/ARCHITECTURE.md` kept accurate;
+the change is on a branch with a pull request against `main` (the athlete merges it), never pushed to `main`.
