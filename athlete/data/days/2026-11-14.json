@@ -1,11 +1,11 @@
 {
   "date": "2026-11-14",
-  "status": "waiting_for_recovery",
+  "status": "complete",
   "readiness": {
     "date": "2026-11-14",
     "state": "unknown",
     "reasons": [
-      "today's Whoop recovery not available yet"
+      "Whoop recovery still not in at the catch-up, readiness not scored"
     ],
     "recovery_score": null,
     "hrv": {
@@ -38,8 +38,8 @@
   "handoffs": [],
   "approvals_pending": [],
   "stale_sources": [
-    "whoop: today's recovery not available yet"
+    "whoop: today's recovery still not available at the catch-up"
   ],
   "generated_by": "claude",
-  "notification": "WAITING: Whoop recovery not in yet; catch-up run finishes the check.\nToday: no session (pre-season rest). Baseline testing starts Mon.\nFuel: eat normally; MacroFactor restarts Mon at maintenance.\nTonight: optional 10-15 min T-spine/hip mobility, bed by 10:30."
+  "notification": "NO SCORE: Whoop recovery still not in; rest day, so nothing changes.\nToday: no session (pre-season rest). Baseline testing starts Mon.\nFuel: eat normally; MacroFactor restarts Mon at maintenance.\nTonight: optional 10-15 min T-spine/hip mobility, bed by 10:30."
 }
