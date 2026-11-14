@@ -302,9 +302,13 @@ Each entry: **decision** - why - how to reverse.
 89. **Engine review fixes** (code review of `src/coach/engine`, 2026-11-14):
     - Progression: a work set logged without RPE/RIR is judged on reps alone (its e1RM already assumes 0 RIR);
       before, a missing RIR counted as a miss, so an athlete who skipped RPE had loads cut 5% every session.
+      This loosens progression for an athlete who never logs RPE: loads then rise +2.5% whenever the target reps
+      are hit, with no effort check. Accepted because the e1RM behind each prescription treats an unlogged set as
+      all-out, which keeps the starting load conservative; logging RPE restores the RIR check.
       Sessions with only warm-up sets of the exercise no longer count as exposures.
-    - Illness parsing: a bare "cold" is weather; only "a cold", "my cold", "caught (a/the) cold", "head cold" and
-      the other above-neck symptoms count. "Sick"/"ill" still do.
+    - Illness parsing: a bare "cold" is weather; "a/my/have cold", "caught (a/the) cold", "cold symptoms",
+      "cold and/with ...", "head cold", "cough" and the other above-neck symptoms count, and "flu" stays
+      below-neck. "Sick"/"ill" still do. "A cold run/shower" still matches, which fails safe.
     - `RUN_INCREASE` uses `thresholds.weekly_run_increase_pct` instead of a hard-coded 10% (same value today).
     - Test stress for lower-body rules comes from the config being validated, not the active athlete config.
     - Unnamed next-morning stiffness goes to the first configured region (was hash-order dependent); an AMRAP

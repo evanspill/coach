@@ -480,3 +480,22 @@ def test_stiffness_fallback_region_is_deterministic():
     out = parse_checkin_tag("more stiff today")
     assert out["stiffness_up"] == parse_checkin_tag("more stiff today")["stiffness_up"]
     assert len(out["stiffness_up"]) == 1
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "I have a cold",
+        "have cold",
+        "cold symptoms today",
+        "cold and cough",
+        "caught the cold going around",
+        "bad cough",
+    ],
+)
+def test_cold_phrases_still_trigger_the_neck_check(text):
+    assert classify_illness(text) == "above_neck"
+
+
+def test_flu_is_below_the_neck():
+    assert classify_illness("think it's the flu") == "below_neck"

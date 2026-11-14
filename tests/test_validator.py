@@ -276,3 +276,19 @@ def test_long_run_growth_limited(P):
     lr = sum(seg.distance_mi or 0 for seg in long.run_segments() if seg.modality == "run")
     assert "LONG_RUN_INCREASE" not in codes(plan, ctx, previous_long_run=lr - 1.0)
     assert "LONG_RUN_INCREASE" in codes(plan, ctx, previous_long_run=lr - 1.6)
+
+
+def test_run_increase_uses_the_configured_pct(P, monkeypatch):
+    from coach.engine import sessions as S
+
+    ctx, plan = P
+    long = next(s for s in plan.sessions if s.type == "run_long")
+    long.blocks[1].run[0].distance_mi += 15  # well above the ramp floor, so the pct sets the cap
+    vctx = ctx.validation(plan)
+    miles = S.week_miles(plan, vctx.threshold_pace)
+    trailing = [round(miles / 1.1, 2)] * 3  # this week is a 10% increase
+    th = vctx.cfg.profile.thresholds
+    monkeypatch.setattr(th, "weekly_run_increase_pct", 10.0)
+    assert "RUN_INCREASE" not in codes(plan, ctx, trailing_miles=trailing)
+    monkeypatch.setattr(th, "weekly_run_increase_pct", 2.0)
+    assert "RUN_INCREASE" in codes(plan, ctx, trailing_miles=trailing)

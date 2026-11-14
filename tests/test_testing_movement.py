@@ -177,3 +177,21 @@ def test_max_hold_scoring_and_manual_results():
     for bad in (["nope=3"], ["hinge_rm=100"], ["sorensen_hold"]):
         with pytest.raises(ValueError):
             T.manual_raw(bad, bat)
+
+
+def test_red_day_reschedule_sees_every_slot_on_a_shared_date():
+    red = dt.date(2027, 3, 10)
+    # engine and run tests share the next day: it is taken even though one of them is a run test
+    s = {"run_tt_30": red, "row_2k": red + dt.timedelta(days=1), "z2_drift_60": red + dt.timedelta(days=1)}
+    assert T.reschedule_for_red(
+        "run_tt_30", s, CFG.tests, red, red - dt.timedelta(days=7)
+    ) == red - dt.timedelta(days=1)
+
+
+def test_test_stress_comes_from_the_given_battery():
+    from coach.engine import sessions as S
+
+    battery = CFG.tests.model_copy(deep=True)
+    battery.tests["hinge_rm"].stress = "none"
+    assert S._test_stress("hinge_rm", battery) == "none"
+    assert S._test_stress("hinge_rm", None) == "lower_heavy"

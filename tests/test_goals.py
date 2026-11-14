@@ -301,5 +301,5 @@ def test_open_skills_are_gated_for_the_shoulder(b1):
 
 
 def test_same_slot_next_year_stays_in_month_for_a_fifth_weekday():
-    # Mon 2026-03-30 is the 5th Monday; March 2027 has four, so use the last one
-    assert G.same_slot_next_year(dt.date(2026, 3, 30)) == dt.date(2027, 3, 29)
+    # Mon 2026-06-29 is the 5th Monday; June 2027 starts on a Tuesday and has four, so use the last one
+    assert G.same_slot_next_year(dt.date(2026, 6, 29)) == dt.date(2027, 6, 28)
