@@ -278,3 +278,24 @@ Each entry: **decision** - why - how to reverse.
     commit it reviewed. No summary for the head commit = the review did not really happen. Workflow changes take
     effect only once on `main` (the action checks the workflow against the default branch).
     - Reverse: drop `show_full_output` and the summary rule from the prompt.
+87. **Trend weight = EWMA of daily weigh-ins** (spec section 7; built 2026-11-14). `engine/bodycomp.py`: 10%/day
+    exponential smoothing (the classic "Hacker's Diet" trend), a gap of n days counted as n steps, duplicates on a
+    day averaged; the weekly rate is the trend change over the last 14 days. It replaces 7-day means in
+    `Context.bodyweight_kg()` (macros and grams-per-kg), the calorie-phase choice (body fat trend), the weekly review
+    ("Trend weight ... kg/week"), the block review, and `coach report weight` (`trend_weight_kg`). The
+    `body_comp` test keeps its 7-day average (its protocol). Staleness (`STALE_DAYS` = 21): a body-fat trend whose
+    last reading is older than that no longer picks the calorie phase (falls back to recomp and says why); trend
+    weight is still used for macros when stale (it beats the 95 kg default): `coach context` shows its age
+    (`bodyweight_trend_age_days`), and after 3 days without a weigh-in sync adds "weight: no weigh-in since ..." to
+    the day's stale sources, which the morning notification prints on its "Data:" line. A block review starts the
+    trend at block start, or at the first day with `MIN_READINGS` (5) readings if the block began with the first
+    weigh-ins, and says so; it names an end trend older than `STALE_DAYS` as stale. The history is read once per
+    `Context`.
+    - Reverse: point `bodyweight_kg()` back at the mean.
+88. **Shadow mode ended after the supervised push test** (athlete decision, 2026-11-14): `push.enabled: true`.
+    The push paths were verified live (Hevy routines and custom exercises, Intervals.icu events with absolute
+    paces), weekly plans still need the athlete's approval before anything is pushed, and there is no parallel
+    human-coach program to compare against. The scheduled-task prompts were updated to match. Approval: the
+    athlete's own instruction in the setup session ("Turn off shadow mode"), committed to main as 717821c; an
+    athlete-initiated config change is its own approval, so no coach proposal was opened. docs/BUILD_PROMPT.md is
+    the original build brief and keeps its 4-week shadow plan as history.

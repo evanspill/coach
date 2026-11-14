@@ -1,6 +1,6 @@
 # Behaviour settings. Threshold changes live in athlete_context.json and need an approved proposal.
 push:
-  enabled: false          # shadow mode: plans are built and validated, pushes are dry-run only
+  enabled: false          # demo athlete only: pushes are dry-run (the real athlete's config is live, DECISIONS 88)
 approval:
   weekly_plan: manual     # manual | auto
   daily_adjustments: auto # small changes are applied automatically

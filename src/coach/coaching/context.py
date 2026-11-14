@@ -1,11 +1,11 @@
 """Everything a skill needs to know about 'now', assembled from state + config (read-only)."""
 
 import datetime as dt
-import statistics
 from dataclasses import dataclass, field
 
 from coach import clock
 from coach.config import Config, load_config
+from coach.engine import bodycomp as BC
 from coach.engine import movement as mv
 from coach.engine.paces import Zones
 from coach.engine.readiness import compute_readiness
@@ -40,6 +40,7 @@ class Context:
     zones: Zones
     health: list[HealthEvent]
     _readiness: dict[dt.date, Readiness] = field(default_factory=dict)
+    _body: dict[str, list[tuple[dt.date, float]]] = field(default_factory=dict)
 
     @property
     def block_id(self) -> str:
@@ -63,16 +64,39 @@ class Context:
             )
         return self._readiness[day]
 
+    def body_trend(self, field: str = "weight_kg", until: dt.date | None = None) -> "BC.Trend | None":
+        """EWMA trend (DECISIONS 87) of `weight_kg` or `body_fat_pct` from all readings up to `until`."""
+        end = until or self.today
+        return BC.trend([(d, v) for d, v in self._readings(field) if d <= end])
+
+    def _readings(self, field: str) -> list[tuple[dt.date, float]]:
+        """(date, value) for every day with a reading, oldest first; read once per Context (callers ask often)."""
+        if field not in self._body:
+            self._body[field] = [
+                (m.date, v) for m in self.state.daily_metrics(None, self.today) if (v := getattr(m, field))
+            ]
+        return self._body[field]
+
+    def settled_trend(self, field: str, start: dt.date) -> "BC.Trend | None":
+        """Trend at `start`, or at the first later day with BC.MIN_READINGS readings so far (a block that starts
+        with the first weigh-ins would otherwise compare against one unsmoothed reading)."""
+        t = self.body_trend(field, start)
+        if t and t.readings >= BC.MIN_READINGS:
+            return t
+        days = [d for d, _ in self._readings(field)]
+        settled = [d for i, d in enumerate(days) if d >= start and i + 1 >= BC.MIN_READINGS]
+        return self.body_trend(field, settled[0]) if settled else None
+
     def bodyweight_kg(self) -> float:
-        ms = [
-            m.weight_kg
-            for m in self.state.daily_metrics(self.today - dt.timedelta(days=7), self.today)
-            if m.weight_kg
-        ]
-        if ms:
-            return round(statistics.fmean(ms), 1)
-        older = [m.weight_kg for m in self.state.daily_metrics() if m.weight_kg]
-        return older[-1] if older else 95.0
+        """Trend weight (not a raw reading), so loads and macros don't jump with a single weigh-in.
+        A stale trend is still used (it beats the 95 kg default); its age is surfaced by `bodyweight_age_days`
+        and `coach context`, and sync flags a stale scale on the notification's Data line."""
+        t = self.body_trend()
+        return round(t.value, 1) if t else 95.0
+
+    def bodyweight_age_days(self) -> int | None:
+        t = self.body_trend()
+        return t.age_days(self.today) if t else None
 
     def week_plan(self, day: dt.date | None = None) -> WeekPlan | None:
         return self.state.week_plan(clock.iso_week_id(day or self.today))
