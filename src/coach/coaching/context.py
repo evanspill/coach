@@ -65,7 +65,7 @@ class Context:
         return self._readiness[day]
 
     def body_trend(self, field: str = "weight_kg", until: dt.date | None = None) -> "BC.Trend | None":
-        """EWMA trend (DECISIONS 86) of `weight_kg` or `body_fat_pct` from all readings up to `until`."""
+        """EWMA trend (DECISIONS 87) of `weight_kg` or `body_fat_pct` from all readings up to `until`."""
         if field not in self._body:  # history is read once per Context; callers ask several times per run
             self._body[field] = [
                 (m.date, v) for m in self.state.daily_metrics(None, self.today) if (v := getattr(m, field))

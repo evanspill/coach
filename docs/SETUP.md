@@ -9,7 +9,7 @@ ruff check . && ruff format --check . && pytest
 ```
 `coach simulate` writes into a temp directory and prints its path; the repo's `athlete/data/` is never touched.
 
-## Phase 2: go live (setup session with the athlete; started in shadow mode, ended 2026-11-14, DECISIONS 87)
+## Phase 2: go live (setup session with the athlete; started in shadow mode, ended 2026-11-14, DECISIONS 88)
 
 ### Before the baseline week (athlete checklist)
 - [ ] Intake questionnaire with the coach in a chat session (`assess`; fills `athlete/data/athlete_intake.json`).

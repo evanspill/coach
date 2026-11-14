@@ -1,4 +1,4 @@
-"""Trend weight and body fat: exponentially smoothed daily weigh-ins (DECISIONS 86).
+"""Trend weight and body fat: exponentially smoothed daily weigh-ins (DECISIONS 87).
 
 Scale readings swing 1-2 kg day to day with water, glycogen and food in the gut, so goals, calorie phases and
 reviews use a smoothed trend instead of raw values or plain averages. Each reading moves the trend by ALPHA

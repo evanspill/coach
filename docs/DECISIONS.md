@@ -271,7 +271,14 @@ Each entry: **decision** - why - how to reverse.
     rules (code calculates numbers, push re-validates, safety and approval rules, no Whoop data or secrets in git,
     decisions recorded) rather than generic style, which ruff already covers. It comments only; merging stays
     with the athlete.
-86. **Trend weight = EWMA of daily weigh-ins** (spec section 7; built 2026-11-14). `engine/bodycomp.py`: 10%/day
+86. **PR reviews must leave evidence** (athlete-requested, 2026-11-14). After the token fix, a re-review of PR #5
+    ran 15 s and 5 turns and posted nothing, so a quiet pass could not be told apart from a skipped one. The
+    review workflow now sets `show_full_output: true` (the repo is private; the log shows what was read), reviews
+    the whole PR diff, re-checks every earlier finding, and always posts one summary comment that names the head
+    commit it reviewed. No summary for the head commit = the review did not really happen. Workflow changes take
+    effect only once on `main` (the action checks the workflow against the default branch).
+    - Reverse: drop `show_full_output` and the summary rule from the prompt.
+87. **Trend weight = EWMA of daily weigh-ins** (spec section 7; built 2026-11-14). `engine/bodycomp.py`: 10%/day
     exponential smoothing (the classic "Hacker's Diet" trend), a gap of n days counted as n steps, duplicates on a
     day averaged; the weekly rate is the trend change over the last 14 days. It replaces 7-day means in
     `Context.bodyweight_kg()` (macros and grams-per-kg), the calorie-phase choice (body fat trend), the weekly review
@@ -281,7 +288,7 @@ Each entry: **decision** - why - how to reverse.
     weight is still used for macros when stale (it beats the 95 kg default) but `coach status` shows its age
     (`bodyweight_trend_age_days`) and sync flags a stale scale. The history is read once per `Context`.
     - Reverse: point `bodyweight_kg()` back at the mean.
-87. **Shadow mode ended after the supervised push test** (athlete decision, 2026-11-14): `push.enabled: true`.
+88. **Shadow mode ended after the supervised push test** (athlete decision, 2026-11-14): `push.enabled: true`.
     The push paths were verified live (Hevy routines and custom exercises, Intervals.icu events with absolute
     paces), weekly plans still need the athlete's approval before anything is pushed, and there is no parallel
     human-coach program to compare against. The scheduled-task prompts were updated to match. Approval: the
