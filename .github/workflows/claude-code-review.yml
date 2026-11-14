@@ -30,6 +30,8 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           use_sticky_comment: true
+          # Private repo: show what the reviewer read and decided in the job log, so a quiet pass can be checked.
+          show_full_output: true
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -48,7 +50,16 @@ jobs:
             5. Security: no credentials, tokens, API payloads or personal health data in the diff.
             6. Docs: judgment calls recorded in docs/DECISIONS.md; docs/ARCHITECTURE.md and DATA_MODEL.md still accurate.
 
-            Use inline comments for specific lines and one summary comment overall. If nothing needs changing,
-            say so in one short summary comment.
+            Review the whole PR diff (`gh pr diff`), not only the latest push, and read the changed files in full.
+
+            If this PR already has review comments or a "Review summary" comment from an earlier run (`gh pr view
+            --comments`), go through each earlier finding and say whether the current head fixes it, partly fixes
+            it, or does not, with the file and line you checked.
+
+            Use inline comments for new problems on specific lines. ALWAYS finish with exactly one summary comment
+            (`gh pr comment`), even when nothing needs changing. It must start with
+            "Review summary for <head commit SHA, first 7 chars>:", then list: earlier findings and their status,
+            new findings (most severe first), and the files you read. A run that ends without this comment counts
+            as a failed review.
           claude_args: |
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
