@@ -124,13 +124,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
     run_plan = week_miles(plan, ctx.zones.threshold_pace_s_per_mi)
     ms = ctx.state.daily_metrics(plan.start, plan.end)
     sleep = _avg([m.sleep_hours for m in ms])  # Whoop: used for the call, never written out (DECISIONS 73)
-    weights = [m.weight_kg for m in ms if m.weight_kg]
-    prev_w = [
-        m.weight_kg
-        for m in ctx.state.daily_metrics(plan.start - dt.timedelta(days=7), plan.start - dt.timedelta(days=1))
-        if m.weight_kg
-    ]
-    w_now, w_prev = _avg(weights), _avg(prev_w)
+    w_trend = ctx.body_trend("weight_kg", plan.end)
     states = []
     for i in range(7):
         r = ctx.state.day_record(plan.start + dt.timedelta(days=i))
@@ -213,8 +207,17 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         ),
         "- **Sleep:** "
         + ("n/a" if sleep is None else "under 7 h on average" if sleep < 7 else "7 h or more on average"),
-        f"- **Weight (7-day avg):** {w_now} kg"
-        + (f" ({w_now - w_prev:+.2f} vs last week)" if w_now and w_prev else ""),
+        "- **Trend weight:** "
+        + (
+            f"{w_trend.value:.1f} kg"
+            + (
+                f" ({w_trend.rate_per_week:+.2f} kg/week over 2 weeks)"
+                if w_trend.rate_per_week is not None
+                else ""
+            )
+            if w_trend
+            else "n/a (no weigh-ins)"
+        ),
         "- **Peak joint ratings:** " + ", ".join(f"{k} {v}" for k, v in joints.items()),
         "- **Planned hard sets:** "
         + ", ".join(f"{m} {v:g}" for m, v in sorted(planned_sets.items()) if m in tracked_muscles),
@@ -333,12 +336,14 @@ def block_review(ctx: Context, block_id: str) -> str:
                 *[f"- {r.at}: {r.change} ({r.reason})" for r in outline.revisions],
             ]
     ms = ctx.state.daily_metrics(outline.start if outline else ctx.today - dt.timedelta(days=90), ctx.today)
-    first = [m.weight_kg for m in ms[:14] if m.weight_kg]
-    last = [m.weight_kg for m in ms[-14:] if m.weight_kg]
-    if first and last:
+    start_day = ms[0].date if ms else ctx.today
+    w0, w1 = ctx.body_trend("weight_kg", start_day), ctx.body_trend("weight_kg")
+    b0, b1 = ctx.body_trend("body_fat_pct", start_day), ctx.body_trend("body_fat_pct")
+    if w0 and w1:
         lines += [
             "",
-            f"## Trends: weight {_avg(first)} -> {_avg(last)} kg",
+            f"## Trends: trend weight {w0.value:.1f} -> {w1.value:.1f} kg"
+            + (f"; body fat trend {b0.value:.1f} -> {b1.value:.1f}%" if b0 and b1 else ""),
         ]
     lines += [
         "",

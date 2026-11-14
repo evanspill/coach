@@ -1,11 +1,11 @@
 """Everything a skill needs to know about 'now', assembled from state + config (read-only)."""
 
 import datetime as dt
-import statistics
 from dataclasses import dataclass, field
 
 from coach import clock
 from coach.config import Config, load_config
+from coach.engine import bodycomp as BC
 from coach.engine import movement as mv
 from coach.engine.paces import Zones
 from coach.engine.readiness import compute_readiness
@@ -63,16 +63,18 @@ class Context:
             )
         return self._readiness[day]
 
-    def bodyweight_kg(self) -> float:
-        ms = [
-            m.weight_kg
-            for m in self.state.daily_metrics(self.today - dt.timedelta(days=7), self.today)
-            if m.weight_kg
+    def body_trend(self, field: str = "weight_kg", until: dt.date | None = None) -> "BC.Trend | None":
+        """EWMA trend (DECISIONS 86) of `weight_kg` or `body_fat_pct` from all readings up to `until`."""
+        end = until or self.today
+        readings = [
+            (m.date, getattr(m, field)) for m in self.state.daily_metrics(None, end) if getattr(m, field)
         ]
-        if ms:
-            return round(statistics.fmean(ms), 1)
-        older = [m.weight_kg for m in self.state.daily_metrics() if m.weight_kg]
-        return older[-1] if older else 95.0
+        return BC.trend(readings)
+
+    def bodyweight_kg(self) -> float:
+        """Trend weight (not a raw reading), so loads and macros don't jump with a single weigh-in."""
+        t = self.body_trend()
+        return round(t.value, 1) if t else 95.0
 
     def week_plan(self, day: dt.date | None = None) -> WeekPlan | None:
         return self.state.week_plan(clock.iso_week_id(day or self.today))

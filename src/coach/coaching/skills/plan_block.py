@@ -15,12 +15,8 @@ def calorie_phase_from(ctx: Context, block: MacroBlock) -> tuple[str, str]:
     spec = ctx.cfg.season.spec(block.key)
     if spec.calorie_phase != "auto":
         return spec.calorie_phase, f"{spec.name}: {spec.calorie_phase} (season.yaml)"
-    bfs = [
-        m.body_fat_pct
-        for m in ctx.state.daily_metrics(ctx.today - dt.timedelta(days=14), ctx.today)
-        if m.body_fat_pct
-    ]
-    bf = sum(bfs) / len(bfs) if bfs else None
+    bf_trend = ctx.body_trend("body_fat_pct")  # smoothed: bioimpedance body fat is noisy day to day
+    bf = bf_trend.value if bf_trend else None
     bc = ctx.cfg.profile.goals.body_composition
     goal_lo, goal_hi = bc.target_body_fat_pct
     if bf is None:

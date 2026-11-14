@@ -178,7 +178,7 @@ def cmd_context(args):
     out: dict = {
         "date": today.isoformat(),
         "zones": ctx.zones.as_dict(),
-        "bodyweight_kg_7d": ctx.bodyweight_kg(),
+        "bodyweight_trend_kg": ctx.bodyweight_kg(),
         "movement_rungs": {
             f: {
                 "rung": fs.rung,
@@ -399,6 +399,8 @@ def cmd_report(args):
         elif args.metric in {"weight", "bodyweight"}:
             w = [m.weight_kg for m in ms if m.weight_kg]
             bf = [m.body_fat_pct for m in ms if m.body_fat_pct]
+            tw = ctx.body_trend("weight_kg", we)
+            row["trend_weight_kg"] = round(tw.value, 2) if tw and tw.day >= ws else None
             row["weight_kg"] = round(statistics.fmean(w), 2) if w else None
             row["body_fat_pct"] = round(statistics.fmean(bf), 1) if bf else None
         elif args.metric in {"hrv", "rhr", "recovery", "sleep"}:

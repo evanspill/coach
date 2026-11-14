@@ -74,8 +74,8 @@ broker needed) and enable "upload planned workouts" on its Garmin connection.
   - ~8:25 AM ET daily: *"Run the coach-daily skill. Commit state to main and push. End with the athlete summary."*
   - ~9:05 AM ET daily (catch-up): *"Run the coach-daily skill in catch-up mode: only continue if today's day record
     is waiting_for_recovery. Commit state to main and push. End with the athlete summary."*
-- [ ] Run the baseline week, approve the Block 1 goal, then **4 weeks of shadow mode** (`push.enabled: false`)
-      comparing with the human coach.
+- [x] Shadow mode ended early (2026-11-14, after the supervised push test): `push.enabled: true`; weekly plans stay
+      manual-approve. Run the baseline week, then approve the Block 1 goal.
 
 ## Phase 3
 Turn on `push.enabled` (weekly plans `manual` at first), connect nutrition (MacroFactor -> Apple Health ->

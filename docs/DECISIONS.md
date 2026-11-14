@@ -271,3 +271,13 @@ Each entry: **decision** - why - how to reverse.
     rules (code calculates numbers, push re-validates, safety and approval rules, no Whoop data or secrets in git,
     decisions recorded) rather than generic style, which ruff already covers. It comments only; merging stays
     with the athlete.
+86. **Trend weight = EWMA of daily weigh-ins** (spec section 7; built 2026-11-14). `engine/bodycomp.py`: 10%/day
+    exponential smoothing (the classic "Hacker's Diet" trend), a gap of n days counted as n steps, duplicates on a
+    day averaged; the weekly rate is the trend change over the last 14 days. It replaces 7-day means in
+    `Context.bodyweight_kg()` (macros and grams-per-kg), the calorie-phase choice (body fat trend), the weekly review
+    ("Trend weight ... kg/week"), the block review, and `coach report weight` (`trend_weight_kg`). The
+    `body_comp` test keeps its 7-day average (its protocol). - Reverse: point `bodyweight_kg()` back at the mean.
+87. **Shadow mode ended after the supervised push test** (athlete decision, 2026-11-14): `push.enabled: true`.
+    The push paths were verified live (Hevy routines and custom exercises, Intervals.icu events with absolute
+    paces), weekly plans still need the athlete's approval before anything is pushed, and there is no parallel
+    human-coach program to compare against. The scheduled-task prompts were updated to match.
