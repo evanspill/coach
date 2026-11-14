@@ -59,20 +59,21 @@ def reschedule_for_red(
     """Move a test off a Red day to the nearest day within +/- window that is free of other test slots
     and not adjacent to a conflicting slot (run next to engine). Returns None if nothing fits."""
     slot = test_slot(test_id, battery)
-    others = {
-        d: test_slot(t, battery)
-        for t, d in scheduled.items()
-        if t != test_id and test_slot(t, battery) != "body"
-    }
-    taken = {d for d, s in others.items() if s != slot}
+    others: dict[dt.date, set[str]] = {}
+    for t, d in scheduled.items():
+        if t != test_id and test_slot(t, battery) != "body":
+            others.setdefault(d, set()).add(test_slot(t, battery))
+    taken = {d for d, slots in others.items() if slots - {slot}}
     blocked = blocked or set()
     conflict = {("run", "engine"), ("engine", "run")}
     for delta in [1, -1, 2, -2][: 2 * window]:
         cand = red_day + dt.timedelta(days=delta)
         if cand < today or cand in taken or cand in blocked:
             continue
-        neighbours = {others.get(cand - dt.timedelta(days=1)), others.get(cand + dt.timedelta(days=1))}
-        if any((slot, n) in conflict for n in neighbours if n):
+        neighbours = others.get(cand - dt.timedelta(days=1), set()) | others.get(
+            cand + dt.timedelta(days=1), set()
+        )
+        if any((slot, n) in conflict for n in neighbours):
             continue
         return cand
     return None

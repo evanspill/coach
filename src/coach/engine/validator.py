@@ -106,7 +106,7 @@ def validate_session(
         if not s.blocks or s.blocks[-1].kind != "cooldown" or not (s.blocks[-1].items or s.blocks[-1].run):
             v.append(Violation("WARMUP_COOLDOWN", "session must end with a cool-down block", s.id))
     required = set(cfg.training.rules.required_warmup.get("lower_body", []))
-    if required and S.is_lower_body(s, lib) and s.type not in EXEMPT_STRUCTURE:
+    if required and S.is_lower_body(s, lib, cfg.tests) and s.type not in EXEMPT_STRUCTURE:
         warm = {it.exercise_id for b in s.blocks if b.kind == "warmup" for it in b.items}
         if not warm >= required:
             names = ", ".join(getattr(lib.get(x), "name", x) for x in sorted(required - warm))
@@ -321,7 +321,7 @@ def validate_week(plan: WeekPlan, ctx: ValidationContext) -> list[Violation]:
         for x, y in cfg.training.rules.forbidden_back_to_back:
             if x in cats[id(a)] and y in cats[id(b)]:
                 v.append(Violation("BACK_TO_BACK", f"{a.date:%a} {x} followed by {b.date:%a} {y}", b.id))
-        if "long_run" in cats[id(b)] and S.has_hard_lower_lifting(a, lib):
+        if "long_run" in cats[id(b)] and S.has_hard_lower_lifting(a, lib, cfg.tests):
             v.append(
                 Violation(
                     "LONG_RUN_LOWER_24H", "hard lower-body lifting within 24 h before the long run", a.id
@@ -334,7 +334,10 @@ def validate_week(plan: WeekPlan, ctx: ValidationContext) -> list[Violation]:
     exempt = week_type in NO_VOLUME_RULE_TYPES or bool(plan.illness_dates)
     if not exempt:
         r = cfg.profile.running
-        cap = allowed_increase_cap(ctx.trailing_miles, RampRules(start_miles=r.ramp_start_miles))
+        cap = allowed_increase_cap(
+            ctx.trailing_miles,
+            RampRules(start_miles=r.ramp_start_miles, max_increase_pct=th.weekly_run_increase_pct),
+        )
         if miles > cap + 0.5:
             v.append(
                 Violation(

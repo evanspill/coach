@@ -139,19 +139,19 @@ class ProgressionDecision:
 def progression(
     history: list[SessionRecord], exercise_id: str, target_reps: int, target_rir: float, today: dt.date
 ) -> ProgressionDecision:
-    """Add load when all target reps were hit at >= target RIR last time; hold/reduce after two misses."""
-    sessions = sorted(
-        (s for s in history if s.date < today and any(st.exercise_id == exercise_id for st in s.sets)),
-        key=lambda s: s.date,
-    )
+    """Add load when all target reps were hit at >= target RIR last time; hold/reduce after two misses.
+    A set logged without RPE/RIR is judged on reps alone (the e1RM already assumes 0 RIR for it)."""
+
+    def work(s: SessionRecord) -> list:
+        return [st for st in s.sets if st.exercise_id == exercise_id and st.set_type != "warmup"]
+
+    sessions = sorted((s for s in history if s.date < today and work(s)), key=lambda s: s.date)
     if not sessions:
         return ProgressionDecision(1.0, "no history: load from e1RM")
 
     def hit(s: SessionRecord) -> bool:
-        work = [st for st in s.sets if st.exercise_id == exercise_id and st.set_type != "warmup"]
-        return bool(work) and all(
-            (st.reps or 0) >= target_reps and (st.rir if st.rir is not None else 0) >= target_rir - 0.5
-            for st in work
+        return all(
+            (st.reps or 0) >= target_reps and (st.rir is None or st.rir >= target_rir - 0.5) for st in work(s)
         )
 
     last = sessions[-1]

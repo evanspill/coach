@@ -299,3 +299,15 @@ Each entry: **decision** - why - how to reverse.
     athlete's own instruction in the setup session ("Turn off shadow mode"), committed to main as 717821c; an
     athlete-initiated config change is its own approval, so no coach proposal was opened. docs/BUILD_PROMPT.md is
     the original build brief and keeps its 4-week shadow plan as history.
+89. **Engine review fixes** (code review of `src/coach/engine`, 2026-11-14):
+    - Progression: a work set logged without RPE/RIR is judged on reps alone (its e1RM already assumes 0 RIR);
+      before, a missing RIR counted as a miss, so an athlete who skipped RPE had loads cut 5% every session.
+      Sessions with only warm-up sets of the exercise no longer count as exposures.
+    - Illness parsing: a bare "cold" is weather; only "a cold", "my cold", "caught (a/the) cold", "head cold" and
+      the other above-neck symptoms count. "Sick"/"ill" still do.
+    - `RUN_INCREASE` uses `thresholds.weekly_run_increase_pct` instead of a hard-coded 10% (same value today).
+    - Test stress for lower-body rules comes from the config being validated, not the active athlete config.
+    - Unnamed next-morning stiffness goes to the first configured region (was hash-order dependent); an AMRAP
+      score with "+ N reps" is `rounds_reps` even when a time cap is in the text; a 5th-weekday race date rolls to
+      the last such weekday next year; Red-day test rescheduling sees every test slot on a shared date.
+    - Reverse: revert the commit; no data migration.

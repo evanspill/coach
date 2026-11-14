@@ -235,3 +235,36 @@ def test_shoe_alerts():
     assert len(alerts) == 1 and "Cushioned" in alerts[0]
     assert G.shoe_for("hyrox", gear) == "Firm trainer"
     assert G.shoe_for("run_long", gear) == "Cushioned trainer"
+
+
+def test_progression_judges_unlogged_rir_on_reps_and_skips_warmup_only_sessions():
+    from coach.models import SessionRecord, SetRecord
+
+    def sess(day, reps, rir, set_type="normal"):
+        return SessionRecord(
+            id=str(day),
+            date=day,
+            start=dt.datetime(day.year, day.month, day.day, 9),
+            sport="strength",
+            title="x",
+            duration_min=60,
+            sets=[
+                SetRecord(
+                    exercise_id="trap_bar_deadlift_high",
+                    exercise_name="x",
+                    weight_kg=150,
+                    reps=reps,
+                    rir=rir,
+                    set_type=set_type,
+                )
+            ],
+        )
+
+    today = dt.date(2026, 12, 20)
+    no_rpe = [sess(today - dt.timedelta(days=14), 5, None), sess(today - dt.timedelta(days=7), 5, None)]
+    assert loads.progression(no_rpe, "trap_bar_deadlift_high", 5, 2, today).factor > 1
+    warm_only_last = [
+        sess(today - dt.timedelta(days=14), 5, 2),
+        sess(today - dt.timedelta(days=7), 5, None, set_type="warmup"),
+    ]
+    assert loads.progression(warm_only_last, "trap_bar_deadlift_high", 5, 2, today).factor > 1
