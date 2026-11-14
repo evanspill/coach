@@ -66,12 +66,16 @@ class Context:
 
     def body_trend(self, field: str = "weight_kg", until: dt.date | None = None) -> "BC.Trend | None":
         """EWMA trend (DECISIONS 87) of `weight_kg` or `body_fat_pct` from all readings up to `until`."""
-        if field not in self._body:  # history is read once per Context; callers ask several times per run
+        end = until or self.today
+        return BC.trend([(d, v) for d, v in self._readings(field) if d <= end])
+
+    def _readings(self, field: str) -> list[tuple[dt.date, float]]:
+        """(date, value) for every day with a reading, oldest first; read once per Context (callers ask often)."""
+        if field not in self._body:
             self._body[field] = [
                 (m.date, v) for m in self.state.daily_metrics(None, self.today) if (v := getattr(m, field))
             ]
-        end = until or self.today
-        return BC.trend([(d, v) for d, v in self._body[field] if d <= end])
+        return self._body[field]
 
     def settled_trend(self, field: str, start: dt.date) -> "BC.Trend | None":
         """Trend at `start`, or at the first later day with BC.MIN_READINGS readings so far (a block that starts
@@ -79,7 +83,7 @@ class Context:
         t = self.body_trend(field, start)
         if t and t.readings >= BC.MIN_READINGS:
             return t
-        days = [d for d, _ in self._body[field]]
+        days = [d for d, _ in self._readings(field)]
         settled = [d for i, d in enumerate(days) if d >= start and i + 1 >= BC.MIN_READINGS]
         return self.body_trend(field, settled[0]) if settled else None
 

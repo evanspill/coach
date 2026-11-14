@@ -132,3 +132,18 @@ def test_weekly_review_rate_label(b1):
     ctx, plan, _ = b1
     md, _ = weekly_review(ctx, plan)
     assert "over 2 weeks)" not in md.split("Trend weight:")[1].splitlines()[0]
+
+
+def test_settled_trend_reads_history_itself_and_block_review_flags_stale_end(home):
+    from coach.coaching.context import build
+    from coach.coaching.skills.review import block_review
+
+    _weigh([(day(i), 96.0) for i in range(6)])
+    ctx = build(today=day(5))
+    assert ctx.settled_trend("weight_kg", day(0)).day == day(
+        4
+    )  # first call on a fresh Context: no body_trend first
+    late = build(today=day(5 + BC.STALE_DAYS + 1))
+    md = block_review(late, "unplanned")
+    assert "Stale: last weight reading" in md and f"{BC.STALE_DAYS + 1} days ago" in md
+    assert "Stale:" not in block_review(build(today=day(5)), "unplanned")

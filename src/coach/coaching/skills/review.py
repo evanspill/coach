@@ -341,11 +341,17 @@ def block_review(ctx: Context, block_id: str) -> str:
     b0, b1 = ctx.settled_trend("body_fat_pct", start_day), ctx.body_trend("body_fat_pct")
     if w0 and w1:
         since = f" (from {w0.day}, once the trend had settled)" if w0.day > start_day else ""
+        stale = [
+            f"last {name} reading {t.day}, {t.age_days(ctx.today)} days ago"
+            for name, t in (("weight", w1), ("body fat", b1))
+            if t and t.is_stale(ctx.today)
+        ]
         lines += [
             "",
             f"## Trends: trend weight {w0.value:.1f} -> {w1.value:.1f} kg"
             + (f"; body fat trend {b0.value:.1f} -> {b1.value:.1f}%" if b0 and b1 else "")
-            + since,
+            + since
+            + (f". Stale: {'; '.join(stale)}." if stale else ""),
         ]
     lines += [
         "",

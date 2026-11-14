@@ -289,7 +289,8 @@ Each entry: **decision** - why - how to reverse.
     (`bodyweight_trend_age_days`), and after 3 days without a weigh-in sync adds "weight: no weigh-in since ..." to
     the day's stale sources, which the morning notification prints on its "Data:" line. A block review starts the
     trend at block start, or at the first day with `MIN_READINGS` (5) readings if the block began with the first
-    weigh-ins, and says so. The history is read once per `Context`.
+    weigh-ins, and says so; it names an end trend older than `STALE_DAYS` as stale. The history is read once per
+    `Context`.
     - Reverse: point `bodyweight_kg()` back at the mean.
 88. **Shadow mode ended after the supervised push test** (athlete decision, 2026-11-14): `push.enabled: true`.
     The push paths were verified live (Hevy routines and custom exercises, Intervals.icu events with absolute
