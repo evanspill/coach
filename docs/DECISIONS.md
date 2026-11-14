@@ -276,7 +276,11 @@ Each entry: **decision** - why - how to reverse.
     day averaged; the weekly rate is the trend change over the last 14 days. It replaces 7-day means in
     `Context.bodyweight_kg()` (macros and grams-per-kg), the calorie-phase choice (body fat trend), the weekly review
     ("Trend weight ... kg/week"), the block review, and `coach report weight` (`trend_weight_kg`). The
-    `body_comp` test keeps its 7-day average (its protocol). - Reverse: point `bodyweight_kg()` back at the mean.
+    `body_comp` test keeps its 7-day average (its protocol). Staleness (`STALE_DAYS` = 21): a body-fat trend whose
+    last reading is older than that no longer picks the calorie phase (falls back to recomp and says why); trend
+    weight is still used for macros when stale (it beats the 95 kg default) but `coach status` shows its age
+    (`bodyweight_trend_age_days`) and sync flags a stale scale. The history is read once per `Context`.
+    - Reverse: point `bodyweight_kg()` back at the mean.
 87. **Shadow mode ended after the supervised push test** (athlete decision, 2026-11-14): `push.enabled: true`.
     The push paths were verified live (Hevy routines and custom exercises, Intervals.icu events with absolute
     paces), weekly plans still need the athlete's approval before anything is pushed, and there is no parallel

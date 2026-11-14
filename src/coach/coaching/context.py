@@ -40,6 +40,7 @@ class Context:
     zones: Zones
     health: list[HealthEvent]
     _readiness: dict[dt.date, Readiness] = field(default_factory=dict)
+    _body: dict[str, list[tuple[dt.date, float]]] = field(default_factory=dict)
 
     @property
     def block_id(self) -> str:
@@ -65,16 +66,23 @@ class Context:
 
     def body_trend(self, field: str = "weight_kg", until: dt.date | None = None) -> "BC.Trend | None":
         """EWMA trend (DECISIONS 86) of `weight_kg` or `body_fat_pct` from all readings up to `until`."""
+        if field not in self._body:  # history is read once per Context; callers ask several times per run
+            self._body[field] = [
+                (m.date, v) for m in self.state.daily_metrics(None, self.today) if (v := getattr(m, field))
+            ]
         end = until or self.today
-        readings = [
-            (m.date, getattr(m, field)) for m in self.state.daily_metrics(None, end) if getattr(m, field)
-        ]
-        return BC.trend(readings)
+        return BC.trend([(d, v) for d, v in self._body[field] if d <= end])
 
     def bodyweight_kg(self) -> float:
-        """Trend weight (not a raw reading), so loads and macros don't jump with a single weigh-in."""
+        """Trend weight (not a raw reading), so loads and macros don't jump with a single weigh-in.
+        A stale trend is still used (it beats the 95 kg default); its age is surfaced by `bodyweight_age_days`
+        and `coach status`, and sync flags a stale scale."""
         t = self.body_trend()
         return round(t.value, 1) if t else 95.0
+
+    def bodyweight_age_days(self) -> int | None:
+        t = self.body_trend()
+        return t.age_days(self.today) if t else None
 
     def week_plan(self, day: dt.date | None = None) -> WeekPlan | None:
         return self.state.week_plan(clock.iso_week_id(day or self.today))

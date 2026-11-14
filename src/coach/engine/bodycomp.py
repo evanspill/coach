@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 ALPHA = 0.10  # per-day smoothing: ~10-day effective window
 RATE_WINDOW_DAYS = 14  # weekly rate = trend change over the last 14 days
+STALE_DAYS = 21  # a trend whose last reading is older than this no longer decides anything (calorie phase)
 
 
 @dataclass(frozen=True)
@@ -19,6 +20,12 @@ class Trend:
     day: dt.date  # date of the last reading
     readings: int
     rate_per_week: float | None  # change per week over RATE_WINDOW_DAYS (None until enough history)
+
+    def age_days(self, today: dt.date) -> int:
+        return (today - self.day).days
+
+    def is_stale(self, today: dt.date, max_age_days: int = STALE_DAYS) -> bool:
+        return self.age_days(today) > max_age_days
 
 
 def ewma_series(readings: list[tuple[dt.date, float]], alpha: float = ALPHA) -> list[tuple[dt.date, float]]:

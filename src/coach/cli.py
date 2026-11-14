@@ -179,6 +179,7 @@ def cmd_context(args):
         "date": today.isoformat(),
         "zones": ctx.zones.as_dict(),
         "bodyweight_trend_kg": ctx.bodyweight_kg(),
+        "bodyweight_trend_age_days": ctx.bodyweight_age_days(),
         "movement_rungs": {
             f: {
                 "rung": fs.rung,

@@ -38,3 +38,78 @@ def test_duplicates_are_averaged_and_empty_is_none():
     assert BC.ewma_series([(day(0), 95.0), (day(0), 97.0)]) == [(day(0), 96.0)]
     assert BC.trend([]) is None
     assert BC.trend([(day(0), 96.0)]).rate_per_week is None
+
+
+def test_out_of_order_input_and_same_day_end():
+    readings = [(day(2), 95.0), (day(0), 97.0), (day(1), 96.0)]
+    assert BC.ewma_series(readings) == BC.ewma_series(sorted(readings))
+    t = BC.trend(readings)
+    assert t.day == day(2) and t.age_days(day(2)) == 0 and not t.is_stale(day(2))
+
+
+def test_rate_needs_five_readings_and_fourteen_days():
+    four = [(day(i * 5), 96.0 - i) for i in range(4)]  # 15 days span, only 4 readings
+    assert BC.trend(four).rate_per_week is None
+    short = [(day(i), 96.0) for i in range(14)]  # 13 days of history: no reading 14 days back
+    assert BC.trend(short).rate_per_week is None
+    exact = [(day(i), 96.0 - 0.1 * i) for i in range(15)]  # first reading exactly 14 days back
+    assert BC.trend(exact).rate_per_week is not None and BC.trend(exact).rate_per_week < 0
+
+
+def test_staleness_window():
+    t = BC.trend([(day(0), 96.0)])
+    assert not t.is_stale(day(BC.STALE_DAYS)) and t.is_stale(day(BC.STALE_DAYS + 1))
+
+
+# ---------- callers: Context, calorie phase, reviews, report ----------
+
+
+def _weigh(dates_values, field="weight_kg"):
+    from coach.store import Store
+
+    Store().upsert_metrics(
+        [("daily", d.isoformat(), d, {"date": d.isoformat(), field: v}) for d, v in dates_values]
+    )
+
+
+def test_context_trend_weight_default_and_age(home):
+    from coach.coaching.context import build
+
+    ctx = build(today=day(10))
+    assert ctx.bodyweight_kg() == 95.0 and ctx.bodyweight_age_days() is None
+    _weigh([(day(i), 96.0) for i in range(5)] + [(day(5), 99.0)])
+    ctx = build(today=day(10))
+    assert ctx.bodyweight_kg() == pytest.approx(96.3, abs=0.05)  # one high reading only nudges it
+    assert ctx.bodyweight_age_days() == 5
+    assert ctx.body_trend("weight_kg", day(3)).value == 96.0  # `until` cuts the history
+    assert ctx.body_trend("body_fat_pct") is None
+
+
+def test_calorie_phase_uses_fresh_body_fat_trend_only(home):
+    from types import SimpleNamespace
+
+    from coach.coaching.context import build
+    from coach.coaching.skills.plan_block import calorie_phase_from
+
+    block = SimpleNamespace(key="B1")  # demo B1: calorie_phase auto, goal 10-12%
+    assert calorie_phase_from(build(today=day(10)), block)[0] == "recomp"  # no trend yet
+    _weigh([(day(i), 18.0) for i in range(7)], "body_fat_pct")
+    phase, why = calorie_phase_from(build(today=day(10)), block)
+    assert phase == "cut" and "18.0%" in why
+    phase, why = calorie_phase_from(build(today=day(6 + BC.STALE_DAYS + 1)), block)
+    assert phase == "recomp" and "days old" in why  # stale trend no longer decides
+
+
+def test_reviews_and_report_show_trend_weight(b1):
+    import argparse
+
+    from coach.cli import cmd_report
+    from coach.coaching.skills.review import block_review, weekly_review
+
+    ctx, plan, _ = b1
+    md, _ = weekly_review(ctx, plan)
+    assert "Trend weight:" in md
+    assert isinstance(block_review(ctx, ctx.block.id), str)
+    out = cmd_report(argparse.Namespace(date=ctx.today.isoformat(), metric="weight", weeks=2))
+    rows = out["rows"] if isinstance(out, dict) else out
+    assert all("trend_weight_kg" in r for r in rows)
