@@ -113,3 +113,22 @@ def test_reviews_and_report_show_trend_weight(b1):
     out = cmd_report(argparse.Namespace(date=ctx.today.isoformat(), metric="weight", weeks=2))
     rows = out["rows"] if isinstance(out, dict) else out
     assert all("trend_weight_kg" in r for r in rows)
+
+
+def test_block_review_trend_starts_once_settled(home):
+    from coach.coaching.context import build
+
+    _weigh([(day(i), 100.0 - i) for i in range(10)])  # weigh-ins start on the block's first day
+    ctx = build(today=day(9))
+    t = ctx.settled_trend("weight_kg", day(0))
+    assert t.day == day(BC.MIN_READINGS - 1) and t.readings == BC.MIN_READINGS
+    assert ctx.settled_trend("weight_kg", day(7)).day == day(7)  # enough history already: start where asked
+    assert ctx.settled_trend("body_fat_pct", day(0)) is None
+
+
+def test_weekly_review_rate_label(b1):
+    from coach.coaching.skills.review import weekly_review
+
+    ctx, plan, _ = b1
+    md, _ = weekly_review(ctx, plan)
+    assert "over 2 weeks)" not in md.split("Trend weight:")[1].splitlines()[0]

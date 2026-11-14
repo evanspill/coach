@@ -211,7 +211,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         + (
             f"{w_trend.value:.1f} kg"
             + (
-                f" ({w_trend.rate_per_week:+.2f} kg/week over 2 weeks)"
+                f" ({w_trend.rate_per_week:+.2f} kg/week, 14-day trend)"
                 if w_trend.rate_per_week is not None
                 else ""
             )
@@ -337,13 +337,15 @@ def block_review(ctx: Context, block_id: str) -> str:
             ]
     ms = ctx.state.daily_metrics(outline.start if outline else ctx.today - dt.timedelta(days=90), ctx.today)
     start_day = ms[0].date if ms else ctx.today
-    w0, w1 = ctx.body_trend("weight_kg", start_day), ctx.body_trend("weight_kg")
-    b0, b1 = ctx.body_trend("body_fat_pct", start_day), ctx.body_trend("body_fat_pct")
+    w0, w1 = ctx.settled_trend("weight_kg", start_day), ctx.body_trend("weight_kg")
+    b0, b1 = ctx.settled_trend("body_fat_pct", start_day), ctx.body_trend("body_fat_pct")
     if w0 and w1:
+        since = f" (from {w0.day}, once the trend had settled)" if w0.day > start_day else ""
         lines += [
             "",
             f"## Trends: trend weight {w0.value:.1f} -> {w1.value:.1f} kg"
-            + (f"; body fat trend {b0.value:.1f} -> {b1.value:.1f}%" if b0 and b1 else ""),
+            + (f"; body fat trend {b0.value:.1f} -> {b1.value:.1f}%" if b0 and b1 else "")
+            + since,
         ]
     lines += [
         "",

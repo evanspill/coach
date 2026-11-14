@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 ALPHA = 0.10  # per-day smoothing: ~10-day effective window
 RATE_WINDOW_DAYS = 14  # weekly rate = trend change over the last 14 days
+MIN_READINGS = 5  # readings before the trend has settled (weekly rate; a block's starting trend)
 STALE_DAYS = 21  # a trend whose last reading is older than this no longer decides anything (calorie phase)
 
 
@@ -55,7 +56,7 @@ def trend(readings: list[tuple[dt.date, float]], alpha: float = ALPHA) -> Trend 
     end_day, end = series[-1]
     start = [v for d, v in series if d <= end_day - dt.timedelta(days=RATE_WINDOW_DAYS)]
     rate = None
-    if start and len(series) >= 5:
+    if start and len(series) >= MIN_READINGS:
         first_day = max(d for d, _ in series if d <= end_day - dt.timedelta(days=RATE_WINDOW_DAYS))
         weeks = (end_day - first_day).days / 7
         rate = round((end - start[-1]) / weeks, 2) if weeks > 0 else None

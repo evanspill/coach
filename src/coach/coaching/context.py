@@ -73,10 +73,20 @@ class Context:
         end = until or self.today
         return BC.trend([(d, v) for d, v in self._body[field] if d <= end])
 
+    def settled_trend(self, field: str, start: dt.date) -> "BC.Trend | None":
+        """Trend at `start`, or at the first later day with BC.MIN_READINGS readings so far (a block that starts
+        with the first weigh-ins would otherwise compare against one unsmoothed reading)."""
+        t = self.body_trend(field, start)
+        if t and t.readings >= BC.MIN_READINGS:
+            return t
+        days = [d for d, _ in self._body[field]]
+        settled = [d for i, d in enumerate(days) if d >= start and i + 1 >= BC.MIN_READINGS]
+        return self.body_trend(field, settled[0]) if settled else None
+
     def bodyweight_kg(self) -> float:
         """Trend weight (not a raw reading), so loads and macros don't jump with a single weigh-in.
         A stale trend is still used (it beats the 95 kg default); its age is surfaced by `bodyweight_age_days`
-        and `coach status`, and sync flags a stale scale."""
+        and `coach context`, and sync flags a stale scale on the notification's Data line."""
         t = self.body_trend()
         return round(t.value, 1) if t else 95.0
 
