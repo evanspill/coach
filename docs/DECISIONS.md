@@ -284,4 +284,7 @@ Each entry: **decision** - why - how to reverse.
 87. **Shadow mode ended after the supervised push test** (athlete decision, 2026-11-14): `push.enabled: true`.
     The push paths were verified live (Hevy routines and custom exercises, Intervals.icu events with absolute
     paces), weekly plans still need the athlete's approval before anything is pushed, and there is no parallel
-    human-coach program to compare against. The scheduled-task prompts were updated to match.
+    human-coach program to compare against. The scheduled-task prompts were updated to match. Approval: the
+    athlete's own instruction in the setup session ("Turn off shadow mode"), committed to main as 717821c; an
+    athlete-initiated config change is its own approval, so no coach proposal was opened. docs/BUILD_PROMPT.md is
+    the original build brief and keeps its 4-week shadow plan as history.
