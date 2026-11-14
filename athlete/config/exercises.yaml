@@ -175,3 +175,17 @@ exercises:
   ab_wheel: {name: Ab wheel rollout, equipment: [ab_wheel], muscles: [core], tags: [core], regressions: [dead_bug], load_mode: bodyweight, hevy_title: "Ab Wheel"}
   dead_bug: {name: Dead bug, equipment: [bodyweight], muscles: [core], tags: [core], load_mode: bodyweight, hevy_title: "Dead Bug"}
   pallof_press: {name: Pallof press, equipment: [cable_crossover], implement: cable, muscles: [core], tags: [core, anti_rotation], load_mode: last_used, hevy_title: "Cable Core Pallof Press"}
+  # Physical therapist's home program (Advanced Physical Therapy, Aug 2024 - Jun 2025); shoulder, low back and neck
+  band_serratus_flexion: {name: Band shoulder flexion with serratus (PT), equipment: [bands], muscles: [shoulders], tags: [upper, warmup, prehab], load_mode: none, hevy_title: "Warm Up"}
+  w_wall_slide: {name: W wall slide with chin tuck (PT), equipment: [bodyweight], muscles: [shoulders, back], tags: [upper, warmup, prehab], load_mode: bodyweight, hevy_title: "Warm Up"}
+  reverse_wall_push_up: {name: Reverse wall push-up in a corner (PT), equipment: [bodyweight], muscles: [back], tags: [upper, warmup, prehab], load_mode: bodyweight, hevy_title: "Warm Up"}
+  prone_t: {name: Prone T (PT; floor or chest-down on an incline bench), equipment: [bodyweight], muscles: [back, shoulders], tags: [upper, prehab], load_mode: bodyweight, hevy_title: "Warm Up"}
+  chin_tuck_fly: {name: Chin-tuck fly with arms in Y (PT), equipment: [bodyweight], muscles: [back], tags: [upper, prehab, neck], load_mode: bodyweight, hevy_title: "Warm Up"}
+  oa_nod: {name: Neck nod with rotation (PT), equipment: [bodyweight], tags: [mobility, neck], load_mode: bodyweight, hevy_title: "Stretching"}
+  scalene_stretch: {name: Scalene stretch with strap (PT), equipment: [bands], tags: [mobility, neck], load_mode: none, hevy_title: "Stretching"}
+  lower_trunk_rotation: {name: Lower trunk rotations (PT), equipment: [bodyweight], muscles: [core], tags: [core, mobility], load_mode: bodyweight, hevy_title: "Stretching"}
+  thread_the_needle: {name: Thoracic thread the needle with band (PT), equipment: [bands], tags: [upper, mobility], load_mode: none, hevy_title: "Stretching"}
+  childs_pose_traction: {name: Child's pose with band traction (PT), equipment: [bands], tags: [mobility, decompression], load_mode: none, hevy_title: "Stretching"}
+  foam_roll_shoulder_flexion: {name: Kneeling foam-roll shoulder flexion with external rotation (PT), equipment: [foam_roller], tags: [upper, mobility], load_mode: none, hevy_title: "Stretching"}
+  half_tgu: {name: Half Turkish get-up (PT), equipment: [kettlebells], implement: kettlebell, muscles: [shoulders, core], tags: [upper, core, prehab, overhead_light], load_mode: last_used, hevy_title: "Kettlebell Turkish Get Up"}
+  eccentric_biceps: {name: Eccentric biceps loading (PT), equipment: [dumbbells], implement: dumbbell, muscles: [biceps], tags: [upper, prehab, isolation], load_mode: last_used, hevy_title: "Eccentric Biceps Curl"}

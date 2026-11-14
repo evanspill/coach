@@ -45,8 +45,9 @@ rules:
 
 warmups:
   lower:
-    title: "Lower/run prep: McGill Big 3, tibs, pogos, couch stretch"
+    title: "Lower/run prep: cat-camel, McGill Big 3, tibs, pogos, couch stretch"
     items:
+      - {exercise: cat_cow, sets: 1, reps: 6, notes: "PT cat-camel: slow, unloaded"}
       - {exercise: mcgill_curl_up, sets: 1, reps: 5, notes: 10 s holds}
       - {exercise: side_plank, sets: 1, duration_s: 20, per_side: true}
       - {exercise: bird_dog, sets: 1, reps: 6, per_side: true}
@@ -56,8 +57,9 @@ warmups:
   run:
     same_as: lower
   full:
-    title: "Full-body prep: McGill Big 3, tibs, pogos, couch stretch, shoulders"
+    title: "Full-body prep: cat-camel, McGill Big 3, tibs, pogos, couch stretch, shoulders"
     items:
+      - {exercise: cat_cow, sets: 1, reps: 6, notes: "PT cat-camel: slow, unloaded"}
       - {exercise: mcgill_curl_up, sets: 1, reps: 5, notes: 10 s holds}
       - {exercise: side_plank, sets: 1, duration_s: 20, per_side: true}
       - {exercise: bird_dog, sets: 1, reps: 6, per_side: true}
@@ -70,10 +72,11 @@ warmups:
     title: Shoulder prep
     items:
       - {exercise: band_pull_apart, sets: 2, reps: 15}
-      - {exercise: scap_push_up, sets: 1, reps: 10}
+      - {exercise: scap_push_up, sets: 1, reps: 10, notes: "serratus push-up (PT): push the floor away"}
       - {exercise: thoracic_open_book, sets: 1, reps: 8, per_side: true}
       - {exercise: bottoms_up_kb_press, sets: 2, reps: 5, per_side: true}
-      - {exercise: crossover_symmetry_activation, sets: 1, reps: 1, notes: activation sequence}
+      - {exercise: band_serratus_flexion, sets: 1, reps: 8, notes: "PT: elbows in, forearms parallel"}
+      - {exercise: w_wall_slide, sets: 1, reps: 10, notes: "PT: chin tucked, everything on the wall"}
   easy:
     title: Easy mobility warm-up
     items:
@@ -102,11 +105,16 @@ item_sets:
     items:
       - {exercise: curve_sprint, sets: 6, duration_s: 10, rest_s: 120, notes: "first 3 weeks of a block or after a layoff: smooth build-ups to ~90%, not all-out"}
   recovery_mobility:
-    title: "Mobility: foam roller, bands, lacrosse ball"
+    title: "Mobility + PT routine (back, neck, shoulders)"
     items:
       - {exercise: foam_roll, sets: 1, duration_s: 300}
       - {exercise: hip_90_90, sets: 1, reps: 8, per_side: true}
-      - {exercise: band_mobility, sets: 1, duration_s: 300}
+      - {exercise: lower_trunk_rotation, sets: 1, reps: 10}
+      - {exercise: thread_the_needle, sets: 1, reps: 8, per_side: true}
+      - {exercise: childs_pose_traction, sets: 1, reps: 5, notes: "5 slow breaths per rep"}
+      - {exercise: chin_tuck_fly, sets: 1, reps: 10}
+      - {exercise: prone_t, sets: 1, reps: 10}
+      - {exercise: oa_nod, sets: 1, reps: 10}
       - {exercise: thoracic_open_book, sets: 1, reps: 8, per_side: true}
   run_mobility:
     title: Mobility + Copenhagen planks
