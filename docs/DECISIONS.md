@@ -271,3 +271,10 @@ Each entry: **decision** - why - how to reverse.
     rules (code calculates numbers, push re-validates, safety and approval rules, no Whoop data or secrets in git,
     decisions recorded) rather than generic style, which ruff already covers. It comments only; merging stays
     with the athlete.
+86. **PR reviews must leave evidence** (athlete-requested, 2026-11-14). After the token fix, a re-review of PR #5
+    ran 15 s and 5 turns and posted nothing, so a quiet pass could not be told apart from a skipped one. The
+    review workflow now sets `show_full_output: true` (the repo is private; the log shows what was read), reviews
+    the whole PR diff, re-checks every earlier finding, and always posts one summary comment that names the head
+    commit it reviewed. No summary for the head commit = the review did not really happen. Workflow changes take
+    effect only once on `main` (the action checks the workflow against the default branch).
+    - Reverse: drop `show_full_output` and the summary rule from the prompt.
