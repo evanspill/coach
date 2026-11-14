@@ -4,7 +4,7 @@
 - **Running:** 0 mi actual vs 8.7 mi planned
 - **Readiness:** green x6
 - **Sleep:** 7 h or more on average
-- **Weight (7-day avg):** 95.4 kg (+0.40 vs last week)
+- **Trend weight:** 95.4 kg (+0.40 kg/week over 2 weeks)
 - **Peak joint ratings:** back 2, shoulders 2, knees_achilles 1
 - **Planned hard sets:** back 9, chest 4, glutes 8, hamstrings 4, quads 4, shoulders 7
 - **Enjoyment / RPE (2-wk vs prior):** 3.6 vs 3.8 / 6.5 vs 6.4
