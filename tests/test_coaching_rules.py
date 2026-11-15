@@ -634,3 +634,35 @@ def test_rejecting_a_new_race_target_keeps_the_approved_one(home):
     proposals.reject(ctx.state, p.id, day, "too aggressive")
     t = ctx.state.get("race_targets", race.id)
     assert t.target_time == "9:59:00" and t.status == "approved"
+
+
+def test_a_short_deload_week_is_topped_up_to_the_aerobic_minimum(home):
+    from coach.coaching.skills import plan_week as PW
+    from coach.engine import sessions as S
+    from coach.sim.scenarios import world_at
+
+    ctx = world_at(dt.date(2026, 11, 29))
+    start = dt.date(2026, 11, 30)
+    plan = PW.plan_week(ctx, start)
+    outline = ctx.state.outline(plan.block_id)
+    for s in plan.sessions:  # a heavily capped week: every run cut to a mile
+        for b in s.blocks:
+            b.run = [
+                seg.model_copy(update={"distance_mi": 1.0, "duration_min": None})
+                for seg in b.run
+                if seg.modality == "run"
+            ]
+    plan.week_type = "deload"
+    assert (
+        S.pillar_doses(plan, ctx.cfg.library, ctx.cfg.tests)["aerobic"]
+        < outline.pillars["aerobic"].deload_med
+    )
+    PW._top_up_aerobic(ctx, plan.sessions, outline, "deload", start)
+    assert (
+        S.pillar_doses(plan, ctx.cfg.library, ctx.cfg.tests)["aerobic"]
+        >= outline.pillars["aerobic"].deload_med
+    )
+    host = next(s for s in plan.sessions if s.type == "run_long")
+    assert host.blocks[-1].kind == "cooldown" and any(
+        seg.modality == "bike" for b in host.blocks for seg in b.run
+    )

@@ -23,7 +23,7 @@ def pytest_configure(config):
 def home():
     from coach.sim.run import sandbox
 
-    with sandbox() as h:
+    with sandbox(keep=False) as h:
         yield h
 
 
@@ -34,7 +34,7 @@ def b1():
     from coach.sim.run import sandbox
     from coach.sim.scenarios import world_at
 
-    with sandbox() as h:
+    with sandbox(keep=False) as h:
         ctx = world_at(dt.date(2026, 11, 29))
         plan = plan_week(ctx, dt.date(2026, 11, 30))
         yield ctx, plan, h

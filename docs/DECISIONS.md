@@ -389,3 +389,17 @@ Each entry: **decision** - why - how to reverse.
     - Left as is (config-defined or cosmetic): skills.yaml and YAML config patches lose comments when rewritten;
       a few messages hard-code the cadence range and heat numbers instead of reading config.
     - Reverse: revert the commit; `last_exposure_date` defaults to None, so stored data loads either way.
+93. **Simulation and demo review fixes** (code review of `src/coach/sim` and `src/coach/demo`, 2026-11-15):
+    - `coach simulate` fails on day-level problems (a plan that fails validation after the fallback, a refused
+      push), not only on failed scenarios. Before, CI's active-config run logged a failing plan and still passed.
+    - That exposed a real planner gap: a deload (or heavily capped) week could fall below the aerobic pillar's
+      minimum effective dose, because the long-run erg extension only runs in training weeks. plan-week now covers
+      the shortfall with zero-impact Z2 bike after the long run (or an easy run), rounded up to 5 min.
+    - Scenarios that couldn't fail now can: empty lists no longer pass the sick-day, travel and pillar checks,
+      the deload check needs volume in the normal week, and the adherence dip logs real sessions.
+    - `sandbox(out_dir)` refuses a folder whose `athlete/` it didn't create (it used to delete it), clears a
+      caller's pretend date, and removes temp homes in tests; the catch-up keeps the 08:25 run's log; simulated
+      runs log the shoe the coach picked.
+    - Left as is: the demo's late-recovery day 2026-12-10 never exercises the catch-up (HRV alone rates it
+      Yellow), and the 120-day demo window has no quality runs. Both are fixture coverage, not code bugs.
+    - Reverse: revert the commit.

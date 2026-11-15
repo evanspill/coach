@@ -295,6 +295,7 @@ class SimAthlete:
                 hrs.append(sum(seg.hr_bpm) / 2)
         if miles > 0.2:
             name = "Treadmill run" if s.location == "gym" else s.title
+            shoe = self._shoe_id(s)
             acts.append(
                 self._activity(
                     day,
@@ -305,13 +306,20 @@ class SimAthlete:
                     miles * M_PER_MI,
                     sum(hrs) / len(hrs) if hrs else 140,
                     cadence,
+                    gear=shoe,
                 )
             )
-            shoe = "g-2" if s.type in {"run_quality", "hyrox"} else "g-1"
             self.w.extra_gear_miles[shoe] = self.w.extra_gear_miles.get(shoe, 0) + miles
         return acts
 
-    def _activity(self, day, start, typ, name, secs, meters, hr, cadence, laps=None) -> dict:
+    def _shoe_id(self, s: Session) -> str:
+        """The shoe the coach picked for the session (adjust-day sets it by name), else firm for quality work."""
+        by_name = {g["name"]: g["id"] for g in self.w.intervals.get("gear", [])}
+        if s.shoe in by_name:
+            return by_name[s.shoe]
+        return "g-2" if s.type in {"run_quality", "hyrox"} else "g-1"
+
+    def _activity(self, day, start, typ, name, secs, meters, hr, cadence, laps=None, gear="g-1") -> dict:
         self.n += 1
         a = {
             "id": f"sim-{day.isoformat()}-{self.n}",
@@ -324,7 +332,7 @@ class SimAthlete:
             "average_heartrate": round(hr),
             "max_heartrate": round(hr + 15),
             "icu_training_load": round(secs / 60 * 0.9),
-            "gear": {"id": "g-1"} if typ == "Run" else None,
+            "gear": {"id": gear} if typ == "Run" else None,
         }
         if cadence:
             a.update(

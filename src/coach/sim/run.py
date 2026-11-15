@@ -17,6 +17,11 @@ from coach.integrations.mock import MockWorld, mock_sources
 from coach.sim.athlete import SimAthlete
 from coach.store import Store
 
+# Log fragments run_daily writes when something failed; any of them fails the simulation.
+PROBLEM_MARKERS = ("fails validation", "refused")
+# Written into every sandbox home: only a directory carrying it may have its athlete/ wiped on reuse.
+SANDBOX_MARKER = ".coach-sim"
+
 
 @dataclass
 class SimResult:
@@ -26,22 +31,34 @@ class SimResult:
     scenarios: list[dict] = field(default_factory=list)
 
     @property
+    def problems(self) -> list[str]:
+        """Day-level events that mean the run went wrong (a plan that failed validation, a refused push)."""
+        return [e for e in self.events if any(m in e for m in PROBLEM_MARKERS)]
+
+    @property
     def ok(self) -> bool:
-        return all(s["passed"] for s in self.scenarios)
+        return not self.problems and all(s["passed"] for s in self.scenarios)
 
 
 @contextlib.contextmanager
-def sandbox(out_dir: Path | None = None, config: str = "demo"):
+def sandbox(out_dir: Path | None = None, config: str = "demo", keep: bool = True):
     """Temp COACH_HOME with a copy of the demo config (or the active config) and an empty state/.
-    The athlete's own state is never touched."""
+    The athlete's own state is never touched: an `out_dir` that already holds an athlete/ not created by a
+    sandbox is refused. `keep=False` deletes a temp home (one this call created) on exit."""
     home = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="coach-sim-"))
     if (home / "athlete").exists():
+        if not (home / SANDBOX_MARKER).exists():
+            raise ValueError(
+                f"{home} holds an athlete/ that is not a simulation sandbox; refusing to overwrite it"
+            )
         shutil.rmtree(home / "athlete")
     shutil.copytree(
         paths.demo_config_dir() if config == "demo" else paths.config_dir(), home / "athlete" / "config"
     )
     (home / "athlete" / "data").mkdir(parents=True, exist_ok=True)
+    (home / SANDBOX_MARKER).touch()
     saved = {k: os.environ.get(k) for k in ("COACH_HOME", "COACH_STATE_DIR", "COACH_TODAY", "COACH_MOCK")}
+    os.environ.pop("COACH_TODAY", None)  # a pretend date from the caller must not leak into a fresh sandbox
     os.environ.update(
         {"COACH_HOME": str(home), "COACH_STATE_DIR": str(home / "athlete" / "data"), "COACH_MOCK": "1"}
     )
@@ -53,6 +70,8 @@ def sandbox(out_dir: Path | None = None, config: str = "demo"):
                 os.environ.pop(k, None)
             else:
                 os.environ[k] = v
+        if not keep and out_dir is None:
+            shutil.rmtree(home, ignore_errors=True)
 
 
 def simulate(
@@ -84,8 +103,10 @@ def simulate(
                 world.hide_recovery_for.discard(day)
                 out2 = run_daily(sources, state, day, "catchup", auto_approve=True, cfg=cfg)
                 rec = out2.record or rec
-                catchup_note = f"[08:25 run] {first.splitlines()[0]} ... waiting_for_recovery -> [09:05 catch-up] completed"
-                out.log += out2.log
+                head = first.splitlines()[0] if first else ""
+                catchup_note = f"[08:25 run] {head} ... waiting_for_recovery -> [09:05 catch-up] {rec.status}"
+                # keep the 08:25 run's log (Sunday review, plan saves) alongside the catch-up's
+                out2.log = out.log + out2.log
                 out = out2 if out2.record else out
             echo(f"\n=== {day:%a %Y-%m-%d} ===")
             if catchup_note:
@@ -160,6 +181,8 @@ def write_report(res: SimResult, state: Store) -> None:
             )
         ],
     ]
+    if res.problems:
+        lines += ["", "## Problems (fail the simulation)", *[f"- {e}" for e in res.problems]]
     if res.scenarios:
         lines += [
             "",
