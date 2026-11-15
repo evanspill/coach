@@ -298,3 +298,8 @@ def test_open_skills_are_gated_for_the_shoulder(b1):
     assert lib.get("double_under").has_tag("achilles_load")
     qf = next(g for g in ctx.cfg.profile.goals.long_term if g.kind == "open_percentile")
     assert {"double_under", "handstand_push_up", "wall_walk", "ring_muscle_up"} <= set(qf.prerequisite_skills)
+
+
+def test_same_slot_next_year_stays_in_month_for_a_fifth_weekday():
+    # Mon 2026-06-29 is the 5th Monday; June 2027 starts on a Tuesday and has four, so use the last one
+    assert G.same_slot_next_year(dt.date(2026, 6, 29)) == dt.date(2027, 6, 28)

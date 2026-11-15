@@ -466,3 +466,36 @@ def test_hevy_notes_name_the_variant_and_keep_reps(b1):
     assert ex[0]["notes"].startswith(lib.get("tib_raise").name) and "15 reps" in ex[0]["notes"]
     assert "bodyweight" not in ex[0]["notes"]
     assert ex[1]["notes"].startswith(lib.get("trap_bar_deadlift_high").name) and "RPE 9" in ex[1]["notes"]
+
+
+def test_cold_weather_is_not_an_illness_and_amrap_with_a_time_is_rounds_reps():
+    assert classify_illness("ran in the cold this morning") is None
+    assert classify_illness("I think I have a cold") == "above_neck"
+    r = parse_metcon_result("AMRAP 20:00: 5 rounds + 3 reps, rpe 8")
+    assert r["score_type"] == "rounds_reps"
+    assert parse_metcon_result("4 rounds in 26:40")["score_type"] == "time"
+
+
+def test_stiffness_fallback_region_is_deterministic():
+    out = parse_checkin_tag("more stiff today")
+    assert out["stiffness_up"] == parse_checkin_tag("more stiff today")["stiffness_up"]
+    assert len(out["stiffness_up"]) == 1
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "I have a cold",
+        "have cold",
+        "cold symptoms today",
+        "cold and cough",
+        "caught the cold going around",
+        "bad cough",
+    ],
+)
+def test_cold_phrases_still_trigger_the_neck_check(text):
+    assert classify_illness(text) == "above_neck"
+
+
+def test_flu_is_below_the_neck():
+    assert classify_illness("think it's the flu") == "below_neck"

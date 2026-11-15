@@ -33,10 +33,12 @@ QUALITY_ZONES = {"T", "Z5", "Z3"}
 DEFAULT_THRESHOLD_PACE = 480
 
 
-def _test_stress(test_id: str) -> str:
-    from coach.config import load_config
+def _test_stress(test_id: str, battery: TestBattery | None) -> str:
+    if battery is None:
+        from coach.config import load_config
 
-    t = load_config().tests.tests.get(test_id)
+        battery = load_config().tests
+    t = battery.tests.get(test_id)
     return t.stress if t else "none"
 
 
@@ -86,7 +88,7 @@ def hard_sets(plan_or_sessions, library: ExerciseLibrary) -> dict[str, float]:
     return out
 
 
-def is_lower_body(s: Session, library: ExerciseLibrary) -> bool:
+def is_lower_body(s: Session, library: ExerciseLibrary, battery: TestBattery | None = None) -> bool:
     if s.type in {"lower", "full_body"}:
         return True
     for b in s.blocks:
@@ -95,19 +97,23 @@ def is_lower_body(s: Session, library: ExerciseLibrary) -> bool:
                 ex = library.get(it.exercise_id)
                 if ex and "lower" in ex.tags and ex.has_tag("hinge", "squat", "lunge", "plyo", "sprint"):
                     return True
-            if b.kind == "test" and b.test_id and _test_stress(b.test_id) in {"lower_heavy", "neural"}:
+            if (
+                b.kind == "test"
+                and b.test_id
+                and _test_stress(b.test_id, battery) in {"lower_heavy", "neural"}
+            ):
                 return True
     return False
 
 
-def has_hard_lower_lifting(s: Session, library: ExerciseLibrary) -> bool:
+def has_hard_lower_lifting(s: Session, library: ExerciseLibrary, battery: TestBattery | None = None) -> bool:
     for b in s.blocks:
         if b.kind in {"strength", "hypertrophy"}:
             for it in b.items:
                 ex = library.get(it.exercise_id)
                 if ex and "lower" in ex.tags and ex.has_tag("hinge", "squat", "lunge") and (it.rir or 0) <= 3:
                     return True
-        if b.kind == "test" and b.test_id and _test_stress(b.test_id) == "lower_heavy":
+        if b.kind == "test" and b.test_id and _test_stress(b.test_id, battery) == "lower_heavy":
             return True
     return False
 
@@ -168,11 +174,11 @@ def pillar_doses(
             continue
         cats = categories(s, library, battery)
         if "neural" in cats or any(
-            (ex := library.get(it.exercise_id)) and ex.has_tag("plyo", "sprint", "power")
+            (ex := library.get(it.exercise_id)) is not None
+            and ex.has_tag(*(("plyo", "sprint", "power") if b.kind == "power" else ("plyo",)))
             for b in s.blocks
             if b.kind in {"power", "warmup"}
             for it in b.items
-            if b.kind == "power" or ((wx := library.get(it.exercise_id)) is not None and wx.has_tag("plyo"))
         ):
             neural += 1
         if any(

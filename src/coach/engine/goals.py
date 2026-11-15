@@ -325,4 +325,5 @@ def same_slot_next_year(day: dt.date) -> dt.date:
     nth = (day.day - 1) // 7
     first = dt.date(day.year + 1, day.month, 1)
     offset = (day.weekday() - first.weekday()) % 7
-    return first + dt.timedelta(days=offset + 7 * nth)
+    out = first + dt.timedelta(days=offset + 7 * nth)
+    return out if out.month == day.month else out - dt.timedelta(weeks=1)

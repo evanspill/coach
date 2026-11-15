@@ -85,7 +85,7 @@ def parse_checkin_tag(text: str | None, cfg=None) -> dict:
         low = text.lower()
         out["stiffness_up"] = sorted(
             {r for w, r in region_words.items() if re.search(rf"\b{re.escape(w)}", low)}
-        ) or [next(iter(set(region_words.values())), "back")]
+        ) or [next(iter(region_words.values()), "back")]
     return out
 
 
@@ -131,7 +131,7 @@ def parse_metcon_result(text: str) -> dict:
             notes.append(note)
     if notes:
         out["movement_notes"] = notes
-    if "time_s" in out and "rounds" in out:
+    if "time_s" in out and "rounds" in out and "extra_reps" not in out:
         out["score_type"] = "time"
     elif "rounds" in out:
         out["score_type"] = "rounds_reps"
@@ -158,7 +158,7 @@ RED_FLAG_PATTERNS = {
     "possible heat illness": r"stopped sweating|confus\w* (?:on|during|after) the run|heat stroke|heatstroke|disoriented",
 }
 BELOW_NECK = r"fever|chills|chest congestion|congested chest|body aches?|aching all over|vomit|diarrh|stomach bug|flu\b"
-ABOVE_NECK = r"runny nose|stuffy|sneez|sore throat|head cold|sinus|congested nose|nasal"
+ABOVE_NECK = r"runny nose|stuffy|sneez|sore throat|head cold|sinus|congested nose|nasal|cough"
 
 
 def detect_red_flags(text: str) -> list[str]:
@@ -170,6 +170,8 @@ def classify_illness(text: str) -> str | None:
     low = text.lower()
     if re.search(BELOW_NECK, low):
         return "below_neck"
-    if re.search(ABOVE_NECK, low) or re.search(r"\b(sick|cold|ill)\b", low):
+    if re.search(ABOVE_NECK, low) or re.search(
+        r"\b(?:sick|ill)\b|\b(?:a|my|have|caught(?: a| the)?) cold\b|\bcold (?:symptoms|and|with)\b", low
+    ):
         return "above_neck"
     return None
