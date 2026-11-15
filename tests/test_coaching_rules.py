@@ -315,3 +315,268 @@ def test_test_block_minutes_follow_the_work():
     assert estimate_minutes(sess(hold), 480) == 10  # 4 min hold + 2 rest + 2 setup -> rounded to 5s
     assert estimate_minutes(sess(sides), 480) == 15  # two sides x (3 + 2) + 2
     assert estimate_minutes(sess(rm), 480) == 25  # rep-max work-up keeps the 22-min allowance
+
+
+# --- coaching skill fallbacks ---------------------------------------------------------------------------
+
+
+def test_plan_week_ramp_cap_uses_the_configured_pct(home, monkeypatch):
+    from coach.coaching.skills.plan_week import plan_week
+    from coach.sim.scenarios import world_at
+
+    ctx = world_at(dt.date(2026, 11, 29))
+    monkeypatch.setattr(ctx.cfg.profile.running, "ramp_start_miles", (5.0, 6.0))
+    monkeypatch.setattr(ctx, "trailing_miles", lambda *a, **k: [9.5, 9.5, 9.5])
+    th = ctx.cfg.profile.thresholds
+    monkeypatch.setattr(th, "weekly_run_increase_pct", 10.0)
+    assert not [d for d in plan_week(ctx, dt.date(2026, 11, 30)).deviations if d.field == "run_miles"]
+    monkeypatch.setattr(th, "weekly_run_increase_pct", 2.0)
+    dev = [d for d in plan_week(ctx, dt.date(2026, 11, 30)).deviations if d.field == "run_miles"]
+    assert dev and dev[0].actual == "9.7" and "+2%" in dev[0].reason
+
+
+def test_block_outline_ramp_uses_the_configured_pct(home, monkeypatch):
+    from coach.coaching.skills import plan_block
+    from coach.sim.scenarios import world_at
+
+    ctx = world_at(dt.date(2026, 11, 29))
+    b1 = ctx.macro.blocks[0]
+    th = ctx.cfg.profile.thresholds
+    monkeypatch.setattr(th, "weekly_run_increase_pct", 10.0)
+    assert plan_block.build_outline(ctx, b1, None, [11.0] * 3).weeks[0].run_miles == 12.1
+    monkeypatch.setattr(th, "weekly_run_increase_pct", 2.0)
+    assert plan_block.build_outline(ctx, b1, None, [11.0] * 3).weeks[0].run_miles == 11.2
+
+
+@pytest.mark.parametrize(
+    "text,symptoms",
+    [
+        ("bad cough today", "above_neck"),
+        ("sneezing all morning", "above_neck"),
+        ("chills and vomiting overnight", "below_neck"),
+        ("stomach bug, diarrhea since last night", "below_neck"),
+    ],
+)
+def test_log_neck_check_catches_every_symptom_classify_knows(home, text, symptoms):
+    from coach.coaching.skills import log as log_skill
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day, with_outline=False, sync_data=False)
+    r = log_skill.handle(ctx, text, day)
+    assert r.get("handoff") == "replan"
+    ev = next(e for e in ctx.state.health_events() if e.kind == "illness")
+    assert ev.symptoms == symptoms
+
+
+def test_exertional_vomiting_logs_the_metcon_not_an_illness(home):
+    from coach.coaching.skills import log as log_skill
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day, with_outline=False, sync_data=False)
+    r = log_skill.handle(ctx, "metcon: 5 rounds + 3 reps, almost threw up during the burpees, rpe 9", day)
+    assert "handoff" not in r and not [e for e in ctx.state.health_events() if e.kind == "illness"]
+    assert r["reply"].startswith("Logged")
+
+
+def test_reported_skill_milestone_below_the_current_level_never_demotes(home):
+    import yaml
+
+    from coach.coaching.skills import technique
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day, with_outline=False, sync_data=False)
+    path = ctx.cfg.root / "skills.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["skills"]["strict_pull_up"]["current_level"] = 3
+    path.write_text(yaml.safe_dump(data, sort_keys=False))
+    msg = technique.set_skill_level(ctx, "strict_pull_up", 2, "reported in chat", day)
+    assert "already at level 3" in msg
+    assert yaml.safe_load(path.read_text())["skills"]["strict_pull_up"]["current_level"] == 3
+
+
+def test_family_movement_in_a_metcon_respects_skill_competence(home):
+    from types import SimpleNamespace
+
+    from coach.coaching.skills import design as D
+    from coach.sim.scenarios import world_at
+
+    ctx = world_at(dt.date(2026, 11, 29), with_outline=False, sync_data=False)
+    ctx.movement.families["kipping"].rung = 2  # rung exercise: kipping pull-up, a skill not yet competent
+    P = D.Picker(ctx, "training", "gym", restricted=set())
+    spec = SimpleNamespace(
+        family="kipping",
+        exercise=None,
+        deload_exercise=None,
+        sets=1,
+        reps=10,
+        reps_max=None,
+        rir=None,
+        duration_s=None,
+        distance_m=None,
+        calories=None,
+        rest_s=None,
+        per_side=False,
+        notes=None,
+        tempo=None,
+    )
+    assert D._from_spec(spec, P, "strength").exercise_id == "kipping_pull_up"
+    got = D._from_spec(spec, P, "conditioning", for_metcon=True)
+    assert got is None or P.ok(ctx.cfg.library.get(got.exercise_id), for_metcon=True)
+
+
+def test_adjust_day_reschedules_tests_on_the_second_day_after_red(home):
+    from coach.coaching.skills import adjust_day
+    from coach.coaching.skills.plan_week import plan_week
+    from coach.models import DayRecord
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 17)
+    ctx = world_at(day, with_outline=False)
+    plan = plan_week(ctx, dt.date(2026, 11, 16))
+    tests = plan.session_on(day).tests
+    assert tests and ctx.readiness(day).state != "red"
+    red = ctx.readiness(day - dt.timedelta(days=1)).model_copy(update={"state": "red"})
+    ctx.state.put("day_records", DayRecord(date=day - dt.timedelta(days=1), status="complete", readiness=red))
+    rec = adjust_day.adjust(ctx, day, plan)
+    assert rec.session.type == "recovery"
+    assert any(c.what.startswith(f"tests {tests} moved to") for c in rec.changes)
+    assert any(set(tests) <= set(s.tests) for s in plan.sessions if s.date > day)
+
+
+def test_adjust_day_keeps_the_high_carb_tier_before_the_long_run(home):
+    from coach.coaching.skills import adjust_day
+    from coach.coaching.skills.plan_week import plan_week
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 12, 4)
+    ctx = world_at(day)
+    plan = plan_week(ctx, dt.date(2026, 11, 30))
+    assert plan.session_on(day + dt.timedelta(days=1)).type == "run_long"
+    plan.session_on(day).type = "upper"  # a moderate-tier type on its own
+    rec = adjust_day.adjust(ctx, day, plan)
+    assert rec.status == "complete"
+    assert rec.session.carb_tier == "high" == rec.nutrition.carb_tier
+
+
+def test_a_week_plan_draft_cannot_approve_itself(home):
+    from coach.coaching.records import submit
+    from coach.coaching.skills.plan_week import plan_week
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day)
+    draft = plan_week(ctx, dt.date(2026, 11, 30)).model_dump(mode="json")
+    draft["approval"] = "approved"
+    submit(ctx.state, ctx.cfg, "week_plans", draft, day)
+    assert ctx.state.week_plan(draft["week_id"]).approval == "pending"
+    assert any(p.kind == "weekly_plan" for p in ctx.state.proposals("pending"))
+
+
+def test_a_block_goal_draft_cannot_approve_itself(home):
+    from coach.coaching import proposals
+    from coach.coaching.records import submit
+    from coach.coaching.skills import assess
+    from coach.sim.scenarios import baseline_testset, world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day)
+    goal, _ = assess.propose_goal(ctx, ctx.macro.blocks[1], baseline_testset(ctx))
+    draft = goal.model_dump(mode="json")
+    draft["status"] = "approved"
+    submit(ctx.state, ctx.cfg, "block_goals", draft, day)  # nothing stored yet
+    assert ctx.state.goal(goal.block_id).status == "pending"
+    prop = next(p for p in ctx.state.proposals("pending") if p.kind == "block_goal")
+    proposals.approve(ctx.state, prop.id, day, ctx.cfg)
+    stored = ctx.state.goal(goal.block_id).model_dump(mode="json")
+    submit(ctx.state, ctx.cfg, "block_goals", stored, day)  # unchanged approved goal stays approved
+    assert ctx.state.goal(goal.block_id).status == "approved"
+    stored["primary"]["target_value"] += 5
+    submit(ctx.state, ctx.cfg, "block_goals", stored, day)  # changed target: back to pending
+    assert ctx.state.goal(goal.block_id).status == "pending"
+
+
+def test_approve_and_reject_guard_their_state(home):
+    import argparse
+
+    from coach.cli import cmd_approve, cmd_reject
+    from coach.coaching import proposals
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day)
+    ns = dict(date=day.isoformat(), note="")
+    ctx.state.delete("config_lock")
+    assert cmd_approve(argparse.Namespace(target="initial-config", **ns)) == {"approved": "initial-config"}
+    assert "error" in cmd_approve(argparse.Namespace(target="initial-config", **ns))  # only once
+    assert "error" in cmd_approve(argparse.Namespace(target="2026-11-29-typo", **ns))
+    p = proposals.create(ctx.state, "config_change", "coach", "t", "w", "y", day)
+    cmd_approve(argparse.Namespace(target=p.id, **ns))
+    r = cmd_reject(argparse.Namespace(id=p.id, reason="changed my mind", date=day.isoformat()))
+    assert "error" in r and ctx.state.proposal(p.id).status == "approved"
+
+
+def test_record_add_with_bad_json_returns_an_error(home):
+    import argparse
+
+    from coach.cli import cmd_record
+    from coach.sim.scenarios import world_at
+
+    world_at(dt.date(2026, 11, 29), with_outline=False, sync_data=False)
+    base = dict(
+        action="add", collection="notes", key=None, file=None, start=None, end=None, date="2026-11-29"
+    )
+    assert "error" in cmd_record(argparse.Namespace(json="{bad", **base))
+    assert "error" in cmd_record(argparse.Namespace(json="[1, 2]", **base))
+
+
+def test_a_transition_with_no_scored_tests_skips_the_goal(home, monkeypatch):
+    from coach.coaching import daily
+    from coach.coaching.skills import assess
+    from coach.models import TestSet
+    from coach.sim.scenarios import world_at
+
+    ctx = world_at(dt.date(2026, 11, 29))
+    monkeypatch.setattr(
+        assess, "score_week", lambda ctx, bid, phase, *a, **k: TestSet(block_id=bid, phase=phase, results=[])
+    )
+    called = []
+    monkeypatch.setattr(assess, "propose_goal", lambda *a, **k: called.append(1))
+    nxt = ctx.macro.blocks[1].start
+    log = daily._transition(ctx, nxt - dt.timedelta(days=1), nxt, None, False, None)
+    assert not called and any("block goal waits for a retest" in line for line in log)
+
+
+def test_an_approved_race_target_survives_a_new_prediction(home):
+    from coach.coaching import proposals
+    from coach.coaching.skills import assess
+    from coach.models.goals import RaceTarget
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day)
+    race = next((r for r in ctx.cfg.profile.races if r.kind == "marathon"), None)
+    if race is None:
+        pytest.skip("demo config has no marathon")
+    old = RaceTarget(
+        race_id=race.id,
+        set_on=day,
+        target_time="9:59:00",
+        predicted_s=35940,
+        basis="x",
+        status="approved",
+        rationale="x",
+    )
+    ctx.state.put("race_targets", old)
+    out = assess.propose_race_targets(ctx, day)
+    if not out:
+        pytest.skip("no new prediction for this race")
+    assert (
+        ctx.state.get("race_targets", race.id).target_time == "9:59:00"
+    )  # still pacing from the approved one
+    p = next(p for p in ctx.state.proposals("pending") if p.kind == "race_target")
+    proposals.approve(ctx.state, p.id, day, ctx.cfg)
+    t = ctx.state.get("race_targets", race.id)
+    assert t.target_time != "9:59:00" and t.status == "approved"

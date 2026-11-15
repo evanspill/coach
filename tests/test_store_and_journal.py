@@ -162,3 +162,37 @@ def test_health_resolve_needs_a_doctor_for_a_red_flag(home):
     assert st.get("health_events", "2026-12-01-red-flag-1").resolved_on is None
     assert "error" in resolve("doctor", "2026-11-30")  # before it started
     assert resolve("doctor", "2026-12-03")["cleared_by"] == "doctor"
+
+
+def test_a_config_patch_that_breaks_the_config_is_undone(home):
+    import pytest
+
+    from coach.coaching import proposals
+    from coach.config import load_config
+    from coach.store import Store
+
+    st = Store()
+    cfg = load_config()
+    f = home / "athlete" / "config" / "athlete_context.json"
+    original = f.read_text()
+    d = dt.date(2026, 12, 1)
+    p = proposals.create(
+        st,
+        "calibration",
+        "learn",
+        "bad patch",
+        "x",
+        "y",
+        d,
+        payload={
+            "config_patch": {
+                "file": "athlete_context.json",
+                "path": ["thresholds", "recovery_green_min"],
+                "value": "not a number",
+            }
+        },
+    )
+    with pytest.raises(ValueError):
+        proposals.approve(st, p.id, d, cfg)
+    assert f.read_text() == original
+    assert st.proposal(p.id).status == "pending"

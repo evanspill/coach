@@ -360,3 +360,25 @@ Each entry: **decision** - why - how to reverse.
     - Left as is: the live nutrition source refetches the Intervals wellness endpoint the sync already read (one
       extra HTTP call per sync); sharing it would couple two sources for little gain.
     - Reverse: revert the commit.
+92. **Coaching, CLI and config review fixes** (code review of `src/coach/coaching`, `cli.py`, `config.py`,
+    2026-11-15):
+    - Approvals can't be bypassed by a draft: `coach record add week_plans` saves a draft as pending unless that
+      week's stored plan is already approved (a revision of an approved week keeps its approval, as adjust-day's
+      small changes always have; larger replans still go through proposals). A block-goal draft stays approved
+      only if it is identical to an approved stored goal. `coach approve initial-config` works once; after that
+      only an approved proposal moves the config lock. Only pending proposals can be rejected.
+    - Movement exposures are logged at most once per family per day (`FamilyState.last_exposure_date`), and the
+      9:05 catch-up skips the once-a-day work the 8:25 run already did. Before, the catch-up re-logged
+      yesterday's sets, so a painful session regressed two rungs and clean sessions counted twice.
+    - A config patch that leaves the config unloadable is undone and the proposal stays pending.
+    - An approved race target stays in force until a new one is approved (the new one waits in the proposal).
+    - A transition week with no scored tests skips the block goal (logged) instead of crashing the daily run.
+    - The weekly and block mileage ramps use `thresholds.weekly_run_increase_pct` (10% today, unchanged).
+    - The log skill's neck check uses `classify_illness` directly (cough, chills, vomiting, stomach bug ...), but
+      exertional nausea in a workout ("almost threw up during the burpees") is effort, not illness.
+    - Smaller: a refill clears stale warm-up ramps; carb tier on a day record accounts for tomorrow; tests on
+      the day after a Red day are rescheduled, not dropped; skills never demote from a chat milestone; family
+      metcon movements get the competence gate; CLI errors return JSON; config cache keyed per file.
+    - Left as is (config-defined or cosmetic): skills.yaml and YAML config patches lose comments when rewritten;
+      a few messages hard-code the cadence range and heat numbers instead of reading config.
+    - Reverse: revert the commit; `last_exposure_date` defaults to None, so stored data loads either way.

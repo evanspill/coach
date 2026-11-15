@@ -37,12 +37,12 @@ def set_skill_level(ctx: Context, skill: str, level: int, why: str, day: dt.date
     data = yaml.safe_load(path.read_text())
     sk = data["skills"][skill]
     cur = sk["current_level"]
-    new = min(level, cur + 1)
+    if level <= cur:  # a milestone below the current level is an easy day, not a lost skill
+        return f"{skill}: already at level {cur}"
+    new = cur + 1
     gate = sk.get("gate")
     if gate and ctx.movement.rung(gate["family"]) < gate["rung"] and new >= sk["competent_level"]:
         return f"{skill}: held at level {cur} ({gate['family']} rung {ctx.movement.rung(gate['family'])} < {gate['rung']})"
-    if new == cur:
-        return f"{skill}: already at level {cur}"
     sk["current_level"] = new
     path.write_text(yaml.safe_dump(data, sort_keys=False))
     competent = new >= sk["competent_level"]

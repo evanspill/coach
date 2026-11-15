@@ -527,7 +527,13 @@ def propose_race_targets(ctx: Context, today: dt.date, horizon_days: int = 550) 
             status="pending",
             rationale=rationale,
         )
-        ctx.state.put("race_targets", t)
+        ref = ctx.state.ref("race_targets", race.id)
+        payload = None
+        if prev and prev.status == "approved":
+            # keep pacing from the approved target until the athlete approves the new one
+            payload = {"records": {ref: t.model_copy(update={"status": "approved"}).model_dump(mode="json")}}
+        else:
+            ctx.state.put("race_targets", t)
         p = proposals.create(
             ctx.state,
             "race_target",
@@ -538,7 +544,8 @@ def propose_race_targets(ctx: Context, today: dt.date, horizon_days: int = 550) 
             today,
             before=prev.target_time if prev else None,
             after=t.target_time,
-            target=ctx.state.ref("race_targets", race.id),
+            target=ref,
+            payload=payload,
         )
         out.append(f"assess: race target proposed for {race.name}: {t.target_time} ({p.id})")
     return out

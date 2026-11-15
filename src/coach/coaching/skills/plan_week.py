@@ -82,28 +82,31 @@ def plan_week(
     templates = ctx.cfg.training.sessions
 
     deviations: list[Deviation] = []
-    # --- run volume: outline target, capped by the 10% rule over the trailing 3 normal weeks ---
+    th = ctx.cfg.profile.thresholds
+    # --- run volume: outline target, capped by the weekly-increase rule over the trailing 3 normal weeks ---
     trailing = ctx.trailing_miles(week_start)
     if week_type == "baseline":
         run_total = 0.0
     else:
         run_total = target.run_miles  # type: ignore[union-attr]
         if week_type not in {"taper", "transition", "reset"}:
-            cap = allowed_increase_cap(
-                trailing, RampRules(start_miles=ctx.cfg.profile.running.ramp_start_miles)
+            rules = RampRules(
+                start_miles=ctx.cfg.profile.running.ramp_start_miles,
+                max_increase_pct=th.weekly_run_increase_pct,
             )
+            cap = allowed_increase_cap(trailing, rules)
             if run_total > cap:
                 deviations.append(
                     Deviation(
                         field="run_miles",
                         planned=f"{run_total:.1f}",
                         actual=f"{cap:.1f}",
-                        reason=f"held to +10% over the trailing 3-week average ({', '.join(f'{m:g}' for m in trailing)} mi)",
+                        reason=f"held to +{th.weekly_run_increase_pct:g}% over the trailing 3-week average "
+                        f"({', '.join(f'{m:g}' for m in trailing)} mi)",
                     )
                 )
                 run_total = cap
     shares = {r: templates[r].run_share for r in dict.fromkeys(roles) if templates[r].run_share > 0}
-    th = ctx.cfg.profile.thresholds
     limit = (
         th.long_run_max_fraction
         if run_total >= th.long_run_rule_min_weekly_miles

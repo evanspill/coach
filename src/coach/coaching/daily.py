@@ -146,7 +146,7 @@ def _transition(
         bid, phase = prev.id, "end"
         week_start = prev.transition_start
     plan = ctx.state.week_plan(clock.iso_week_id(week_start))
-    scheduled = {t: s.date for s in (plan.sessions if plan else []) for t in s.tests}
+    scheduled = tests_scheduled(plan) if plan else {}
     ts = assess.score_week(ctx, bid, phase, scheduled, weather, end_day=today)
     ctx.state.put("test_sets", ts)
     log.append(f"assess: scored {len(ts.results)} tests ({', '.join(r.test_id for r in ts.results)})")
@@ -170,17 +170,21 @@ def _transition(
         if tp:
             log.append(f"assess: {tp.title} ({tp.id})")
     log += assess.propose_race_targets(ctx, today)
-    goal, _ = assess.propose_goal(ctx, new_block, ts)
-    prop = assess.save_goal_proposal(ctx, goal, today)
-    log.append(
-        f"assess: goal proposed ({goal.primary.test_id} {goal.primary.baseline_value} -> {goal.primary.target_value})"
-    )
-    if auto_approve:
-        proposals.approve(ctx.state, prop.id, today, ctx.cfg, note="simulated athlete approval")
-        goal.status = "approved"
-        log.append(f"[sim] athlete approved block goal {prop.id}")
-    outline = plan_block.build_outline(ctx, new_block, goal if goal.status == "approved" else None)
-    if goal.status != "approved":
+    goal = None
+    if any(r.test_id != "body_comp" for r in ts.results):
+        goal, _ = assess.propose_goal(ctx, new_block, ts)
+        prop = assess.save_goal_proposal(ctx, goal, today)
+        log.append(
+            f"assess: goal proposed ({goal.primary.test_id} {goal.primary.baseline_value} -> {goal.primary.target_value})"
+        )
+        if auto_approve:
+            proposals.approve(ctx.state, prop.id, today, ctx.cfg, note="simulated athlete approval")
+            goal.status = "approved"
+            log.append(f"[sim] athlete approved block goal {prop.id}")
+    else:  # every transition test missed: no goal to propose until a retest (`coach test schedule`)
+        log.append("assess: no tests scored this transition: block goal waits for a retest")
+    outline = plan_block.build_outline(ctx, new_block, goal if goal and goal.status == "approved" else None)
+    if goal is None or goal.status != "approved":
         outline.revisions.append(
             Revision(at=today, reason="goal pending approval", change="provisional outline")
         )
@@ -233,9 +237,13 @@ def run_daily(
         log += save_plan(ctx, plan, "assess" if ctx.in_baseline else "plan-week", today, auto_approve)
         plan = ctx.week_plan(today)
 
+    # Once-a-day work (exposure logging, Sunday review/planning/transition, monthly learn) already ran in the
+    # 08:25 run; the catch-up only finalizes today's readiness, or it would log yesterday's exposures twice.
+    once_a_day = phase != "catchup"
+
     # --- rehab: yesterday's exposures, pain reports, region flags ---
     form_checks = []
-    for ev in rehab.update(ctx, today):
+    for ev in rehab.update(ctx, today) if once_a_day else []:
         log.append(f"rehab: {ev}")
         if ev.startswith("FORM CHECK"):
             form_checks.append(ev.removeprefix("FORM CHECK: "))
@@ -312,7 +320,7 @@ def run_daily(
                 log.append(f"replan: reactive deload -> week {wk} ({p.id})")
 
     # --- Sunday: review this week, plan next week (block transition first if due) ---
-    if today.weekday() == 6:
+    if today.weekday() == 6 and once_a_day:
         this_plan = ctx.week_plan(today)
         if this_plan:
             md, summary = review.weekly_review(ctx, this_plan)
@@ -345,7 +353,7 @@ def run_daily(
                 )
 
     # --- first Wednesday: learn ---
-    if clock.first_wednesday(today):
+    if clock.first_wednesday(today) and once_a_day:
         md, prop = learn.calibration(ctx, today)
         state.save_report("science", learn.science_audit_scaffold(ctx, today) + "\n" + md, f"{today:%Y-%m}")
         log.append(
@@ -354,7 +362,7 @@ def run_daily(
         if prop:
             extras["learn"] = f"Monthly calibration: proposed a 4-week trial ({prop.title})."
 
-    if ctx.macro and ctx.macro.unconfirmed_races and today.weekday() == 6:
+    if ctx.macro and ctx.macro.unconfirmed_races and today.weekday() == 6 and once_a_day:
         extras["unconfirmed"] = (
             "Note: plan depends on unconfirmed race dates (" + ", ".join(ctx.macro.unconfirmed_races) + ")."
         )

@@ -195,3 +195,16 @@ def test_test_stress_comes_from_the_given_battery():
     battery.tests["hinge_rm"].stress = "none"
     assert S._test_stress("hinge_rm", battery) == "none"
     assert S._test_stress("hinge_rm", None) == "lower_heavy"
+
+
+def test_logging_the_same_day_twice_changes_nothing():
+    """A second daily run (or the catch-up) must not count an exposure twice or regress twice."""
+    mr = mv.initial_state(CFG.progressions, dt.date(2026, 11, 16), {"hinge": 2})
+    d = dt.date(2026, 12, 1)
+    mv.record_exposure(mr, "hinge", d, 3.0, False, CFG.progressions)
+    assert mr.rung("hinge") == 1
+    assert mv.record_exposure(mr, "hinge", d, 3.0, False, CFG.progressions) == []
+    assert mr.rung("hinge") == 1
+    n = len(mr.families["hinge"].exposures)
+    mv.record_exposure(mr, "hinge", d, 0.0, False, CFG.progressions)
+    assert len(mr.families["hinge"].exposures) == n

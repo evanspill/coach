@@ -339,6 +339,9 @@ def cmd_approve(args):
     st, cfg = Store(), load_config()
     target = args.target
     if target == "initial-config":
+        # once, at setup: later config changes need an approved proposal
+        if st.get("config_lock") is not None:
+            return {"error": "config lock already recorded: config changes need an approved proposal"}
         proposals.record_config_lock(st, cfg, "initial", today)
         return {"approved": "initial-config"}
     if target in {"week", "block-goal", "plan"}:
@@ -351,7 +354,10 @@ def cmd_approve(args):
         if not pend:
             return {"error": f"no pending {kind} proposal"}
         target = pend[-1].id
-    actions = proposals.approve(st, target, today, cfg, args.note or "")
+    try:
+        actions = proposals.approve(st, target, today, cfg, args.note or "")
+    except (KeyError, ValueError) as e:
+        return {"error": str(e).strip("'\"")}
     p = st.proposal(target)
     result = {"approved": target, "actions": actions}
     if p and p.kind in {"weekly_plan", "baseline_battery"} and p.target:
@@ -366,7 +372,10 @@ def cmd_approve(args):
 
 
 def cmd_reject(args):
-    proposals.reject(Store(), args.id, _today(args), args.reason)
+    try:
+        proposals.reject(Store(), args.id, _today(args), args.reason)
+    except (KeyError, ValueError) as e:
+        return {"error": str(e).strip("'\"")}
     return {"rejected": args.id, "reason": args.reason}
 
 
@@ -451,6 +460,7 @@ def cmd_report(args):
                     "recovery",
                     "sleep",
                     "e1rm",
+                    "load",
                     "adherence",
                     "hard_sets",
                 ],
@@ -487,6 +497,7 @@ def cmd_macrocycle(args):
 
 
 def cmd_test(args):
+    from coach.coaching.daily import tests_scheduled
     from coach.coaching.skills import assess
     from coach.engine import testing as T
 
@@ -500,7 +511,7 @@ def cmd_test(args):
     plan = ctx.week_plan(dt.date.fromisoformat(args.week) if args.week else today)
     if plan is None:
         return {"error": "no plan for that week"}
-    scheduled = {t: s.date for s in plan.sessions for t in s.tests}
+    scheduled = tests_scheduled(plan)
     block_id = args.block or plan.block_id
     try:
         manual = T.manual_raw(args.result or [], ctx.cfg.tests)
@@ -585,16 +596,20 @@ def cmd_record(args):
             return {"error": "give the record as JSON or --file"}
         if c.kind == "report":
             return submit(st, load_config(), args.collection, raw, today, args.key)
-        data = json.loads(raw)
-        if "id" in c.model.model_fields and "id" not in data:
-            day = dt.date.fromisoformat(str(data.get("date") or data.get("start") or today))
-            data["id"] = st.new_id(
-                args.collection, day, str(data.get("kind", args.collection.rstrip("s"))).replace("_", "-")
-            )
         try:
+            data = json.loads(raw)
+            if not isinstance(data, dict):
+                return {"error": "the record must be a JSON object"}
+            if "id" in c.model.model_fields and "id" not in data:
+                day = dt.date.fromisoformat(str(data.get("date") or data.get("start") or today))
+                data["id"] = st.new_id(
+                    args.collection, day, str(data.get("kind", args.collection.rstrip("s"))).replace("_", "-")
+                )
             return submit(st, load_config(), args.collection, data, today, args.key)
         except SubmitRefused as e:
             return {"refused": True, "violations": [str(v) for v in e.violations]}
+        except ValueError as e:  # bad JSON or a schema error (pydantic's ValidationError is a ValueError)
+            return {"error": f"SCHEMA: {e}"}
     return {"error": f"unknown action {args.action}"}
 
 

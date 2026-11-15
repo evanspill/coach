@@ -9,6 +9,7 @@ from coach.coaching.skills import fuel
 from coach.coaching.skills.design import Picker
 from coach.coaching.skills.plan_week import finalize
 from coach.engine import gear as G
+from coach.engine import nutrition as nut
 from coach.engine import testing as T
 from coach.engine.weather import weather_call
 from coach.models import Change, DayRecord, Deviation, RunSegment, Session, SessionBlock, WeekPlan
@@ -151,7 +152,6 @@ def adjust(
         )
 
     if session is not None and session.type != "rest" and rec.status != "waiting_for_recovery":
-        P = Picker(ctx, week_type, session.location)
         yesterday = ctx.state.day_record(day - dt.timedelta(days=1))
         red_carry = bool(
             yesterday
@@ -160,7 +160,7 @@ def adjust(
             and readiness.state != "red"
         )
         state = readiness.state
-        if session.tests and state == "red":
+        if session.tests and (state == "red" or red_carry):  # the 48 h after a Red day are Z1 too
             new_day = None
             if plan:
                 new_day = _reschedule_tests(ctx, plan, session, day)
@@ -169,7 +169,8 @@ def adjust(
                     what=f"tests {session.tests} moved to {new_day}"
                     if new_day
                     else f"tests {session.tests} postponed (no slot within +/-2 days)",
-                    why="test day needs Green or Yellow readiness",
+                    why="test day needs Green or Yellow readiness"
+                    + ("" if state == "red" else " (second day of the 48 h after a Red day)"),
                     kind="replan",
                 )
             )
@@ -260,8 +261,10 @@ def adjust(
                         why=f"bar speed +{delta:.0f}% vs usual",
                     )
                 )
-        session.expected_minutes = D.estimate_minutes(session, ctx.zones.threshold_pace_s_per_mi)
         finalize(ctx, [session])
+        # finalize sees one session; the carb tier also depends on tomorrow (high before the long run)
+        tomorrow = plan.session_on(day + dt.timedelta(days=1)) if plan else None
+        session.carb_tier = nut.carb_tier_for(session, tomorrow, cfg.training.rules.carb_tiers)  # type: ignore[assignment]
         if load_cap:
             for b in session.blocks:
                 for it in b.items:
@@ -275,8 +278,6 @@ def adjust(
         rec.session = session
     elif session is not None:
         rec.session = session
-    elif rec.session is None:
-        rec.session = None
 
     rec.changes = changes + rec.changes
     # --- recovery prescription ---

@@ -79,6 +79,9 @@ def record_exposure(
     rules = progressions.rules
     fs = mr.families[family]
     events: list[RungEvent] = []
+    if fs.last_exposure_date is not None and day <= fs.last_exposure_date:
+        return events  # already logged (a second daily run, the catch-up): never count or regress twice
+    fs.last_exposure_date = day
     pain = session_pain or 0.0
     clean = pain <= rules.max_session_pain_to_advance and not stiffness_up
     fs.exposures.append(
