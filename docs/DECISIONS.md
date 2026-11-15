@@ -363,19 +363,22 @@ Each entry: **decision** - why - how to reverse.
 92. **Coaching, CLI and config review fixes** (code review of `src/coach/coaching`, `cli.py`, `config.py`,
     2026-11-15):
     - Approvals can't be bypassed by a draft: `coach record add week_plans` saves a draft as pending unless that
-      week's stored plan is already approved (a revision of an approved week keeps its approval, as adjust-day's
-      small changes always have; larger replans still go through proposals). A block-goal draft stays approved
+      week's stored plan is already approved and every session keeps its date and type (a swap within a day,
+      like adjust-day's small changes). Moving, adding or dropping a session needs the athlete's OK again. A block-goal draft stays approved
       only if it is identical to an approved stored goal. `coach approve initial-config` works once; after that
       only an approved proposal moves the config lock. Only pending proposals can be rejected.
-    - Movement exposures are logged at most once per family per day (`FamilyState.last_exposure_date`), and the
-      9:05 catch-up skips the once-a-day work the 8:25 run already did. Before, the catch-up re-logged
-      yesterday's sets, so a painful session regressed two rungs and clean sessions counted twice.
+    - Movement exposures are logged at most once per family per day (`FamilyState.last_exposure_date`); before,
+      the 9:05 catch-up re-logged yesterday's sets, so a painful session regressed two rungs and clean sessions
+      counted twice. A later report that makes a logged clean exposure unclean (pain or stiffness filed after the
+      first run) replaces it, so the pain rule still applies, once. The catch-up still runs rehab (for late
+      reports and joint flags) but skips the Sunday and monthly work the 8:25 run already did.
     - A config patch that leaves the config unloadable is undone and the proposal stays pending.
     - An approved race target stays in force until a new one is approved (the new one waits in the proposal).
     - A transition week with no scored tests skips the block goal (logged) instead of crashing the daily run.
     - The weekly and block mileage ramps use `thresholds.weekly_run_increase_pct` (10% today, unchanged).
     - The log skill's neck check uses `classify_illness` directly (cough, chills, vomiting, stomach bug ...), but
-      exertional nausea in a workout ("almost threw up during the burpees") is effort, not illness.
+      exertional nausea tied to a named workout ("almost threw up during the burpees") is effort, not illness;
+      "threw up after dinner" still counts.
     - Smaller: a refill clears stale warm-up ramps; carb tier on a day record accounts for tomorrow; tests on
       the day after a Red day are rescheduled, not dropped; skills never demote from a chat milestone; family
       metcon movements get the competence gate; CLI errors return JSON; config cache keyed per file.

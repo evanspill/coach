@@ -237,13 +237,14 @@ def run_daily(
         log += save_plan(ctx, plan, "assess" if ctx.in_baseline else "plan-week", today, auto_approve)
         plan = ctx.week_plan(today)
 
-    # Once-a-day work (exposure logging, Sunday review/planning/transition, monthly learn) already ran in the
-    # 08:25 run; the catch-up only finalizes today's readiness, or it would log yesterday's exposures twice.
+    # Once-a-day work (Sunday review/planning/transition, monthly learn) already ran in the 08:25 run. Rehab runs
+    # again: exposure logging is idempotent per family and day, and a pain report or joint flag filed since the
+    # first run still applies.
     once_a_day = phase != "catchup"
 
     # --- rehab: yesterday's exposures, pain reports, region flags ---
     form_checks = []
-    for ev in rehab.update(ctx, today) if once_a_day else []:
+    for ev in rehab.update(ctx, today):
         log.append(f"rehab: {ev}")
         if ev.startswith("FORM CHECK"):
             form_checks.append(ev.removeprefix("FORM CHECK: "))

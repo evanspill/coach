@@ -80,8 +80,16 @@ def record_exposure(
     fs = mr.families[family]
     events: list[RungEvent] = []
     if fs.last_exposure_date is not None and day <= fs.last_exposure_date:
-        return events  # already logged (a second daily run, the catch-up): never count or regress twice
-    fs.last_exposure_date = day
+        # already logged (a second daily run, the catch-up): never count or regress twice. The one exception is a
+        # later report that makes a logged clean exposure unclean (pain or stiffness filed after the first run):
+        # it replaces that exposure, so the pain rule still applies, once.
+        prior = next((e for e in fs.exposures if e.date == day), None)
+        pain_now = session_pain or 0.0
+        unclean_now = pain_now > rules.max_session_pain_to_advance or stiffness_up
+        if prior is None or not prior.clean or not unclean_now:
+            return events
+        fs.exposures.remove(prior)
+    fs.last_exposure_date = max(day, fs.last_exposure_date or day)
     pain = session_pain or 0.0
     clean = pain <= rules.max_session_pain_to_advance and not stiffness_up
     fs.exposures.append(

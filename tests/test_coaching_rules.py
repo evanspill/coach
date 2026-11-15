@@ -355,6 +355,8 @@ def test_block_outline_ramp_uses_the_configured_pct(home, monkeypatch):
         ("sneezing all morning", "above_neck"),
         ("chills and vomiting overnight", "below_neck"),
         ("stomach bug, diarrhea since last night", "below_neck"),
+        ("threw up after dinner, feverish", "below_neck"),
+        ("vomiting on and off since last night", "below_neck"),
     ],
 )
 def test_log_neck_check_catches_every_symptom_classify_knows(home, text, symptoms):
@@ -580,3 +582,55 @@ def test_an_approved_race_target_survives_a_new_prediction(home):
     proposals.approve(ctx.state, p.id, day, ctx.cfg)
     t = ctx.state.get("race_targets", race.id)
     assert t.target_time != "9:59:00" and t.status == "approved"
+
+
+def test_an_approved_week_keeps_approval_only_for_a_same_shape_revision(home):
+    from coach.coaching import proposals
+    from coach.coaching.records import submit
+    from coach.coaching.skills.plan_week import plan_week
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day)
+    draft = plan_week(ctx, dt.date(2026, 11, 30)).model_dump(mode="json")
+    submit(ctx.state, ctx.cfg, "week_plans", draft, day)
+    prop = next(p for p in ctx.state.proposals("pending") if p.kind == "weekly_plan")
+    proposals.approve(ctx.state, prop.id, day, ctx.cfg)
+    same = ctx.state.week_plan(draft["week_id"]).model_dump(mode="json")
+    submit(ctx.state, ctx.cfg, "week_plans", same, day)
+    assert ctx.state.week_plan(draft["week_id"]).approval == "approved"
+    moved = ctx.state.week_plan(draft["week_id"]).model_dump(mode="json")
+    moved["sessions"] = [
+        s for s in moved["sessions"] if s["type"] != "recovery"
+    ]  # a session dropped: re-approve
+    submit(ctx.state, ctx.cfg, "week_plans", moved, day)
+    assert ctx.state.week_plan(draft["week_id"]).approval == "pending"
+
+
+def test_rejecting_a_new_race_target_keeps_the_approved_one(home):
+    from coach.coaching import proposals
+    from coach.coaching.skills import assess
+    from coach.models.goals import RaceTarget
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 11, 29)
+    ctx = world_at(day)
+    race = next((r for r in ctx.cfg.profile.races if r.kind == "marathon"), None)
+    if race is None:
+        pytest.skip("demo config has no marathon")
+    old = RaceTarget(
+        race_id=race.id,
+        set_on=day,
+        target_time="9:59:00",
+        predicted_s=35940,
+        basis="x",
+        status="approved",
+        rationale="x",
+    )
+    ctx.state.put("race_targets", old)
+    if not assess.propose_race_targets(ctx, day):
+        pytest.skip("no new prediction for this race")
+    p = next(p for p in ctx.state.proposals("pending") if p.kind == "race_target")
+    proposals.reject(ctx.state, p.id, day, "too aggressive")
+    t = ctx.state.get("race_targets", race.id)
+    assert t.target_time == "9:59:00" and t.status == "approved"

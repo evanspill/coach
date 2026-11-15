@@ -73,7 +73,7 @@ erDiagram
 | `week_plans` | doc | `WeekPlan` | `athlete/data/weeks/{key}/plan.json` | weekly plan |
 | `day_records` | doc | `DayRecord` | `athlete/data/days/{key}.json` | daily readiness, adjustments, notification |
 | `proposals` | doc | `Proposal` | `athlete/data/proposals/{key}.json` | everything awaiting approval |
-| `movement_readiness` | singleton | `MovementReadiness` | `athlete/data/movement_readiness.json` | rungs |
+| `movement_readiness` | singleton | `MovementReadiness` | `athlete/data/movement_readiness.json` | rungs; per family `last_exposure_date` makes exposure logging idempotent |
 | `zones` | singleton | `ThresholdZones` | `athlete/data/zones.json` | LTHR + threshold pace |
 | `notes` | doc | `Note` | `athlete/data/notes/{key}.json` | durable facts (rendered to notes.md) |
 | `config_lock` | singleton | `ConfigLock` | `athlete/data/config_lock.json` | approved-thresholds fingerprint |

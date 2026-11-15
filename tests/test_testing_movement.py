@@ -208,3 +208,14 @@ def test_logging_the_same_day_twice_changes_nothing():
     n = len(mr.families["hinge"].exposures)
     mv.record_exposure(mr, "hinge", d, 0.0, False, CFG.progressions)
     assert len(mr.families["hinge"].exposures) == n
+
+
+def test_a_late_pain_report_still_applies_the_pain_rule_once():
+    mr = mv.initial_state(CFG.progressions, dt.date(2026, 11, 16), {"hinge": 2})
+    d = dt.date(2026, 12, 1)
+    mv.record_exposure(mr, "hinge", d, 0.0, False, CFG.progressions)  # 08:25: no pain reported yet
+    assert mr.rung("hinge") == 2
+    mv.record_exposure(mr, "hinge", d, 6.0, False, CFG.progressions)  # pain filed later the same morning
+    assert mr.rung("hinge") == 1
+    assert mv.record_exposure(mr, "hinge", d, 6.0, False, CFG.progressions) == []  # and only once
+    assert mr.rung("hinge") == 1

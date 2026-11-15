@@ -22,7 +22,9 @@ STOP_MESSAGE = (
 
 
 EXERTIONAL_VOMIT = re.compile(
-    r"\b(?:almost |nearly )?(?:vomit\w*|threw up|throw(?:ing)? up|puk\w*)\s+(?:after|during|on|in|at)\b[^.,;]*",
+    r"\b(?:almost |nearly )?(?:vomit\w*|threw up|throw(?:ing)? up|puk\w*)\s+(?:after|during|on|in|at)\s+"
+    r"(?:the |my |that |this |a )?(?:metcon|burpees?|workout|wod|run|intervals?|sprints?|row|bike|sled|"
+    r"wall ?balls?|thrusters?|amrap|emom|hyrox|race|test|set|squats?|deadlifts?|session)\b",
     re.IGNORECASE,
 )
 

@@ -57,9 +57,14 @@ def submit(
         if cfg.settings.approval.weekly_plan == "auto":
             obj.approval = "auto"
         elif obj.approval != "pending":
-            # a draft can't approve itself: only a revision of an already-approved week stays approved
+            # a draft can't approve itself. A revision of an approved week stays approved only if every session
+            # keeps its date and type (a swap within a day); anything larger needs the athlete's OK again.
             stored = store.week_plan(obj.week_id)
-            if stored is None or stored.approval == "pending":
+
+            def shape(p) -> list:
+                return sorted((s.date, s.type) for s in p.sessions)
+
+            if stored is None or stored.approval == "pending" or shape(stored) != shape(obj):
                 obj.approval = "pending"
         store.put(collection, obj)
         store.save_report("week_summaries", week_summary_md(ctx, obj), obj.week_id)
