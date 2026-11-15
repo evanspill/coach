@@ -315,3 +315,19 @@ Each entry: **decision** - why - how to reverse.
       score with "+ N reps" is `rounds_reps` even when a time cap is in the text; a 5th-weekday race date rolls to
       the last such weekday next year; Red-day test rescheduling sees every test slot on a shared date.
     - Reverse: revert the commit; no data migration.
+90. **Store and model review fixes** (code review of `src/coach/store` and `src/coach/models`, 2026-11-15):
+    - `new_id` returns one past the highest `<day>-<kind>-<n>` in use. Counting the keys handed out an existing id
+      after a gap (a deleted or hand-numbered record), and the next `put` overwrote it.
+    - A `red_flag` health event can't be resolved without `cleared_by` (docs/SAFETY.md: only a clearance via
+      `coach health resolve <id> --by doctor` ends one), and no event resolves before it starts. The check runs
+      when JSON is validated (`coach record add`, loading from disk); `coach health resolve` sets both fields.
+    - Availability rejects `end < start`; check-in `session_pain` must be 0-10.
+    - Collection keys can't contain `/`, `\`, a null byte or a leading `.`, and composite keys must be `a:b`, so a
+      record id can't write outside its collection.
+    - Report collections (`event_plans/<race>`) go through `put`/`get` as markdown, not JSON.
+    - Deleting a note re-renders notes.md; `same_as` chains in training item sets are followed (a cycle is an
+      error); metric reads skip month files outside the date range.
+    - Left as is: `query()` loads a whole collection before filtering by date. Filtering by key only works for
+      date-keyed collections, so it stays generic.
+    - Reverse: revert the commit; current athlete data passes the new checks (no health events or availability
+      records yet).

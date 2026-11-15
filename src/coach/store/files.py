@@ -92,6 +92,8 @@ class Store:
 
     def get(self, name: str, key: str | None = None) -> Any:
         c = self.collection(name)
+        if c.kind == "report":
+            return self.report(name, key) or None
         data = self._read(c.file(key))
         if data is None or c.model is None:
             return data
@@ -99,6 +101,9 @@ class Store:
 
     def put(self, name: str, obj: Any, key: str | None = None) -> Any:
         c = self.collection(name)
+        if c.kind == "report":  # markdown, not JSON (e.g. a proposal's payload record "event_plans/<race>")
+            self.save_report(name, str(obj), key)
+            return obj
         if c.model is not None and not isinstance(obj, BaseModel):
             obj = c.model.model_validate(obj)
         if c.kind == "doc" and key is None:
@@ -110,10 +115,12 @@ class Store:
 
     def delete(self, name: str, key: str | None = None) -> bool:
         p = self._path(self.collection(name).file(key))
-        if p.exists():
-            p.unlink()
-            return True
-        return False
+        if not p.exists():
+            return False
+        p.unlink()
+        if name == "notes":
+            self._render_notes()
+        return True
 
     def exists(self, name: str, key: str | None = None) -> bool:
         return self._path(self.collection(name).file(key)).exists()
@@ -177,8 +184,15 @@ class Store:
         raise ValueError(f"can't derive a key for {name}")
 
     def new_id(self, name: str, day: dt.date, kind: str) -> str:
-        existing = [k for k in self.keys(name) if k.startswith(f"{day.isoformat()}-{kind}-")]
-        return f"{day.isoformat()}-{kind}-{len(existing) + 1}"
+        """Next free `<day>-<kind>-<n>`: one past the highest n in use, so a gap (a deleted record, or an id written
+        by hand) never hands out an id that already exists and overwrites it."""
+        prefix = f"{day.isoformat()}-{kind}-"
+        used = [
+            int(k[len(prefix) :])
+            for k in self.keys(name)
+            if k.startswith(prefix) and k[len(prefix) :].isdigit()
+        ]
+        return f"{prefix}{max(used, default=0) + 1}"
 
     # ---------- reports (markdown) ----------
     def report(self, name: str, key: str | None = None) -> str:
@@ -238,7 +252,7 @@ class Store:
         cache: bool = False,
     ) -> int:
         """items: (kind, key, date, data). `replace_kinds_in` deletes existing records of a kind in a date range first
-        (used for sessions, which are re-merged every sync). Returns number of changed records."""
+        (used for sessions, which are re-merged every sync). Returns the number of month files that changed."""
         by_file: dict[Path, list[tuple[str, str, dt.date, dict]]] = {}
         for it in items:
             by_file.setdefault(self._month_file(it[2], cache), []).append(it)
@@ -295,6 +309,9 @@ class Store:
         if not mdir.exists():
             return out
         for p in sorted(mdir.glob("*.jsonl")):
+            # month files are named YYYY-MM: skip whole months outside the range without reading them
+            if (start and p.stem < f"{start:%Y-%m}") or (end and p.stem > f"{end:%Y-%m}"):
+                continue
             for rec in self._read_month(p).values():
                 if rec["kind"] != kind:
                     continue

@@ -95,3 +95,48 @@ def test_data_model_doc_lists_every_collection():
     doc = (Path(__file__).resolve().parents[1] / "docs" / "DATA_MODEL.md").read_text()
     missing = [name for name in COLLECTIONS if f"`{name}`" not in doc]
     assert not missing, f"docs/DATA_MODEL.md is missing collections: {missing}"
+
+
+def test_new_id_skips_ids_already_in_use(home):
+    st = Store(home / "athlete" / "data")
+    d = dt.date(2026, 12, 1)
+    # a hand-written id leaves a gap: counting keys would hand out -2 again and overwrite it
+    st.put("notes", Note(id="2026-12-01-note-2", date=d, text="kept"))
+    assert st.new_id("notes", d, "note") == "2026-12-01-note-3"
+    st.add_note(d, "new")
+    assert st.get("notes", "2026-12-01-note-2").text == "kept"
+    st.delete("notes", "2026-12-01-note-2")
+    assert "kept" not in st.notes()  # rendered view follows a delete
+
+
+def test_keys_cannot_escape_the_collection(home):
+    import pytest
+
+    st = Store(home / "athlete" / "data")
+    for bad in ("../../x", "a/b", ".hidden", ""):
+        with pytest.raises(ValueError):
+            st.get("journal", bad)
+    with pytest.raises(ValueError):
+        st.get("test_sets", "B1")  # composite key needs block:phase
+
+
+def test_report_collections_go_through_put_and_get_as_markdown(home):
+    st = Store(home / "athlete" / "data")
+    st.put_ref("event_plans/marathon", "# Race plan\n\nGo out easy.\n")
+    assert st.report("event_plans", "marathon").startswith("# Race plan")
+    assert st.get_ref("event_plans/marathon").startswith("# Race plan")
+    assert st.get("event_plans", "missing") is None
+
+
+def test_record_invariants():
+    import pytest
+    from pydantic import ValidationError
+
+    d = dt.date(2026, 12, 1)
+    with pytest.raises(ValidationError):  # red flags clear only with a clearance
+        HealthEvent(id="x", kind="red_flag", start=d, resolved_on=d + dt.timedelta(days=2))
+    HealthEvent(id="x", kind="red_flag", start=d, resolved_on=d, cleared_by="doctor")
+    with pytest.raises(ValidationError):
+        Availability(id="x", start=d, end=d - dt.timedelta(days=1), kind="travel")
+    with pytest.raises(ValidationError):
+        Checkin(date=d, session_pain={"hinge": 12})
