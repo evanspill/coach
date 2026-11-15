@@ -35,6 +35,11 @@ def _whoop_part(m: DailyMetrics, source: str) -> DailyMetrics | None:
 
 
 MATCH_MINUTES = 15
+# identity fields a merged Hevy/Intervals twin keeps from whichever record started first
+TWIN_KEEP = {"id", "date", "start", "sport", "title", "duration_min", "notes_untrusted", "sources"}
+# sources whose records are committed: a failure here must not advance last_sync or rewrite sessions
+COMMITTED_SOURCES = ("nutrition", "intervals_wellness", "hevy", "intervals_activities")
+NUTRITION_FIELDS = ("kcal", "protein_g", "carbs_g", "fat_g")
 COMPATIBLE = {
     "strength": {"strength", "metcon", "hiit", "other"},
     "metcon": {"strength", "metcon", "hiit", "other"},
@@ -90,9 +95,12 @@ def merge_sessions(
             ),
             None,
         )
-        if twin:
-            twin.sets = twin.sets or rec.sets
-            twin.distance_mi = twin.distance_mi or rec.distance_mi
+        if twin:  # keep both halves: Hevy's sets and the Garmin pace/dynamics/load, whichever started first
+            for name in SessionRecord.model_fields:
+                if name not in TWIN_KEEP and getattr(twin, name) in (None, []):
+                    setattr(twin, name, getattr(rec, name))
+            notes = [n for n in (twin.notes_untrusted, rec.notes_untrusted) if n]
+            twin.notes_untrusted = " ".join(notes) or None
             twin.sources = sorted(set(twin.sources) | set(rec.sources))
         else:
             final.append(rec)
@@ -110,8 +118,19 @@ def _session_key(s: SessionRecord) -> str:
     return f"{prio[0] if prio else 'x'}:{s.start.isoformat()}"
 
 
-def _plan_link(state: Store, s: SessionRecord) -> str | None:
-    plan = state.week_plan(clock.iso_week_id(s.date))
+def _nutrition_only(m: DailyMetrics) -> DailyMetrics:
+    """Weight/body fat come from the wellness fetch (with its lead-in), never from the nutrition one."""
+    vals = {f: getattr(m, f) for f in NUTRITION_FIELDS}
+    return DailyMetrics(date=m.date, sources=m.sources, **vals)
+
+
+def _plan_link(state: Store, s: SessionRecord, plans: dict | None = None) -> str | None:
+    week = clock.iso_week_id(s.date)
+    if plans is None:
+        plans = {}
+    if week not in plans:
+        plans[week] = state.week_plan(week)
+    plan = plans[week]
     if plan:
         ps = plan.session_on(s.date)
         if ps:
@@ -128,6 +147,8 @@ def sync(
     sync_state = state.get("sync_state") or SyncState()
     last = sync_state.last_sync
     start = (last - dt.timedelta(days=OVERLAP_DAYS)) if last else today - dt.timedelta(days=FIRST_SYNC_DAYS)
+    # a source that keeps failing holds last_sync back; never let the window grow past a first sync's
+    start = max(start, today - dt.timedelta(days=FIRST_SYNC_DAYS))
     report: dict = {"window": [start.isoformat(), today.isoformat()], "counts": {}, "stale": [], "errors": {}}
     items: list[tuple[str, str, dt.date, dict]] = []
 
@@ -158,7 +179,7 @@ def sync(
     daily: list[DailyMetrics] = []
     nutrition = run("nutrition", lambda: sources.nutrition.daily(start, today)) or []
     report["counts"]["nutrition_daily"] = len(nutrition)
-    daily.extend(_without_whoop(m) for m in nutrition)
+    daily.extend(_nutrition_only(m) for m in nutrition)
     backup = cfg.settings.whoop_backup == "intervals"
     # a week of lead-in so the first day's weight can be told apart from Intervals.icu's carried-forward value
     wfrom = (min(start, wstart) if backup else start) - dt.timedelta(days=7)
@@ -187,15 +208,31 @@ def sync(
     for m in daily:
         items.append(("daily", m.date.isoformat(), m.date, m.model_dump(mode="json", exclude_none=True)))
 
-    hevy_w = run("hevy", lambda: sources.hevy.workouts(start, today)) or []
-    acts = run("intervals_activities", lambda: sources.intervals.activities(start, today)) or []
+    hevy_w = run("hevy", lambda: sources.hevy.workouts(start, today))
+    acts = run("intervals_activities", lambda: sources.intervals.activities(start, today))
+    # sessions are re-merged from both sources and the window replaced. With one source missing, a replace would
+    # delete the other's committed records, so the answered source's new sessions are only added: anything
+    # starting within MATCH_MINUTES of a committed session is skipped (it may be the stored half of a twin).
+    # last_sync is held, so the next sync where both answer replaces the window and tidies any twin.
+    sessions_ok = hevy_w is not None and acts is not None
     zones = state.zones()
     lthr = zones.lthr if zones else cfg.profile.running.default_zones.lthr  # default until the first TT
-    detail = merge_sessions([], [*hevy_w, *acts], lthr)  # committed: no Whoop fields
+    plans: dict = {}
+    detail = merge_sessions([], [*(hevy_w or []), *(acts or [])], lthr)  # committed: no Whoop fields
+    if not sessions_ok and detail:
+        stored = [
+            SessionRecord.model_validate(r["data"]).start
+            for r in state.metric_records("session", start, today)
+        ]
+        detail = [
+            s for s in detail if all(abs((s.start - t).total_seconds()) > MATCH_MINUTES * 60 for t in stored)
+        ]
+        report["sessions_partial"] = [n for n in ("hevy", "intervals_activities") if n in report["errors"]]
     for s in detail:
-        s.planned_session_id = _plan_link(state, s)
+        s.planned_session_id = _plan_link(state, s, plans)
         items.append(("session", _session_key(s), s.date, s.model_dump(mode="json", exclude_none=True)))
-        tag = parse_checkin_tag(s.notes_untrusted) if "hevy" in s.sources else {}
+    for s in hevy_w or []:  # the tag is read from Hevy's own notes, never from a merged Garmin description
+        tag = parse_checkin_tag(s.notes_untrusted)
         if tag:
             checkins.append(Checkin(date=s.date, source="hevy_notes", **tag))
     for c in checkins:
@@ -212,7 +249,7 @@ def sync(
         state.put("gear", [g.model_dump(mode="json") for g in gear])
 
     changed = state.upsert_metrics(
-        items, replace_kinds_in={"session": (start, today)} if (hevy_w or acts) else None
+        items, replace_kinds_in={"session": (start, today)} if sessions_ok else None
     )
     report["changed_files"] = changed
 
@@ -224,7 +261,7 @@ def sync(
         ]
         overlay = [s for s in merge_sessions(whoop_w, committed, lthr) if "whoop" in s.sources]
         for s in overlay:
-            s.planned_session_id = s.planned_session_id or _plan_link(state, s)
+            s.planned_session_id = s.planned_session_id or _plan_link(state, s, plans)
         state.upsert_metrics(
             [
                 ("session", _session_key(s), s.date, s.model_dump(mode="json", exclude_none=True))
@@ -271,7 +308,12 @@ def sync(
     report["whoop_offline"] = latest["whoop"] != today and (
         "whoop" in report["errors"] or latest["whoop"] is None or (today - latest["whoop"]).days >= 2
     )
-    sync_state.last_sync = today
+    # a committed source that failed keeps the old window start, so its days are fetched again next time
+    held = [name for name in COMMITTED_SOURCES if name in report["errors"]]
+    if held:
+        report["window_held_by"] = held
+    else:
+        sync_state.last_sync = today
     sync_state.last_report = report
     state.put("sync_state", sync_state)
     return report

@@ -237,28 +237,32 @@ def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | Non
     out: dict = {"dry_run": dry_run, "hevy": [], "intervals": []}
     resolver = TemplateResolver(sources.hevy if sources else None, read_only=dry_run)
     events = []
-    for s in sessions:
-        if s.type == "rest":
-            continue
-        if s.location in {"gym", "travel", "home"} and s.type not in {
-            "run_easy",
-            "run_long",
-            "run_quality",
-            "race",
-        }:
-            r = hevy_routine(s, ctx, resolver)
-            if r:
-                if dry_run or sources is None:
-                    out["hevy"].append(
-                        {"session": s.id, "routine": r["title"], "exercises": len(r["exercises"])}
-                    )
-                else:
-                    rid = sources.hevy.upsert_routine(r, ids.get(f"hevy:{s.id}"))
-                    ids[f"hevy:{s.id}"] = rid
-                    out["hevy"].append({"session": s.id, "routine_id": rid})
-        e = intervals_event(s, ctx)
-        if e:
-            events.append(e)
+    try:
+        for s in sessions:
+            if s.type == "rest":
+                continue
+            if s.location in {"gym", "travel", "home"} and s.type not in {
+                "run_easy",
+                "run_long",
+                "run_quality",
+                "race",
+            }:
+                r = hevy_routine(s, ctx, resolver)
+                if r:
+                    if dry_run or sources is None:
+                        out["hevy"].append(
+                            {"session": s.id, "routine": r["title"], "exercises": len(r["exercises"])}
+                        )
+                    else:
+                        rid = sources.hevy.upsert_routine(r, ids.get(f"hevy:{s.id}"))
+                        ids[f"hevy:{s.id}"] = rid
+                        out["hevy"].append({"session": s.id, "routine_id": rid})
+            e = intervals_event(s, ctx)
+            if e:
+                events.append(e)
+    finally:  # routines already created keep their ids even if a later one fails (a re-push would duplicate them)
+        if not dry_run:
+            ctx.state.put("push_ids", ids)
     if events:
         if dry_run or sources is None:
             out["intervals"] = [{"session": e["external_id"], "name": e["name"]} for e in events]
@@ -268,8 +272,6 @@ def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | Non
         out["hevy_custom_exercises_needed"] = resolver.would_create
     if resolver.created:
         out["hevy_custom_exercises_created"] = resolver.created
-    if not dry_run:
-        ctx.state.put("push_ids", ids)
     return out
 
 

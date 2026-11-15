@@ -499,3 +499,187 @@ def test_cold_phrases_still_trigger_the_neck_check(text):
 
 def test_flu_is_below_the_neck():
     assert classify_illness("think it's the flu") == "below_neck"
+
+
+def test_a_failed_hevy_fetch_keeps_committed_sessions(home):
+    """Hevy down while Intervals answers: committed Hevy sessions stay and the window isn't advanced past them."""
+    import dataclasses
+    import os
+
+    from coach.integrations.base import HevySource
+
+    class OfflineHevy(HevySource):
+        def workouts(self, start, end):
+            raise RuntimeError("hevy down")
+
+        def upsert_routine(self, routine, routine_id=None):
+            raise RuntimeError("hevy down")
+
+        def template_ids(self):
+            return {}
+
+        def create_template(self, title, exercise_type, equipment, muscle):
+            raise RuntimeError("hevy down")
+
+    st = Store(home / "athlete" / "data")
+    d = dt.date(2026, 11, 14)  # Hevy fixture has a workout on Nov 13
+    os.environ["COACH_TODAY"] = d.isoformat()
+    sync(mock_sources(MockWorld.load()), st, d)
+    window = (d - dt.timedelta(days=2), d)  # inside the next sync's overlap, so a replace would hit it
+    before = [s.id for s in st.sessions(*window) if "hevy" in s.sources]
+    assert before
+    nxt = d + dt.timedelta(days=1)
+    os.environ["COACH_TODAY"] = nxt.isoformat()
+    world = MockWorld.load()
+    new_run = {**world.intervals["activities"][-1], "id": "i-new", "start_date_local": f"{d}T21:30:00"}
+    world.intervals["activities"].append(new_run)  # Intervals still answers: its new run is written
+    r = sync(dataclasses.replace(mock_sources(world), hevy=OfflineHevy()), st, nxt)
+    assert "hevy" in r["errors"] and r["window_held_by"] == ["hevy"] and r["sessions_partial"] == ["hevy"]
+    late = [s for s in st.sessions(d, d) if s.start.hour == 21 and s.start.minute == 30]
+    assert late and "intervals" in late[0].sources
+    assert [s.id for s in st.sessions(*window) if "hevy" in s.sources] == before
+    assert st.get("sync_state").last_sync == d
+    # a source that never recovers can't grow the window past a first sync's
+    far = d + dt.timedelta(days=200)
+    os.environ["COACH_TODAY"] = far.isoformat()
+    r = sync(dataclasses.replace(mock_sources(MockWorld.load()), hevy=OfflineHevy()), st, far)
+    assert r["window"][0] == (far - dt.timedelta(days=75)).isoformat()
+
+
+def test_live_hevy_recreates_a_routine_deleted_in_the_app(monkeypatch):
+    import io
+    import urllib.error
+
+    from coach.integrations import live
+
+    calls = []
+
+    def fake_request(method, url, headers=None, body=None, raw_text=False):
+        calls.append(method)
+        if method == "PUT":
+            raise urllib.error.HTTPError(url, 404, "Not Found", {}, io.BytesIO(b""))  # type: ignore[arg-type]
+        return {"routine": [{"id": "new-1"}]}
+
+    monkeypatch.setattr(live, "_request", fake_request)
+    assert live.LiveHevy().upsert_routine({"title": "x"}, "gone-1") == "new-1"
+    assert calls == ["PUT", "POST"]
+
+    def fail(method, url, headers=None, body=None, raw_text=False):
+        raise urllib.error.HTTPError(url, 500, "boom", {}, io.BytesIO(b""))  # type: ignore[arg-type]
+
+    monkeypatch.setattr(live, "_request", fail)
+    with pytest.raises(urllib.error.HTTPError):
+        live.LiveHevy().upsert_routine({"title": "x"}, "r-1")
+
+
+def test_twin_merge_keeps_both_halves():
+    t = dt.datetime(2026, 12, 1, 6, 0)
+    iv = SessionRecord(
+        id="i",
+        date=t.date(),
+        start=t,
+        sport="strength",
+        title="Strength",
+        duration_min=60,
+        training_load=55,
+        notes_untrusted="garmin",
+        sources=["intervals"],
+    )
+    hv = SessionRecord(
+        id="h",
+        date=t.date(),
+        start=t + dt.timedelta(minutes=5),
+        sport="strength",
+        title="Lower",
+        duration_min=55,
+        notes_untrusted="back 2",
+        sources=["hevy"],
+    )
+    (m,) = merge_sessions([], [hv, iv], None)
+    assert m.training_load == 55 and m.sources == ["hevy", "intervals"]
+    assert "back 2" in m.notes_untrusted and "garmin" in m.notes_untrusted
+
+
+def test_laps_without_hr_or_distance_are_skipped():
+    from coach.integrations import normalize as N
+
+    a = {
+        "id": "i-x",
+        "start_date_local": "2026-12-01T07:00:00",
+        "type": "Run",
+        "name": "Run",
+        "moving_time": 2400,
+        "distance": 6400,
+        "average_heartrate": 150,
+        "laps": [
+            {"start_offset_s": 700, "moving_time": 300, "distance": 1000, "average_heartrate": None},
+            {"start_offset_s": 1000, "moving_time": 300, "distance": 0, "average_heartrate": 150},
+            {"start_offset_s": 1300, "moving_time": 600, "distance": 1609.344, "average_heartrate": 160},
+        ],
+    }
+    (rec,) = N.intervals_activities([a])
+    assert rec.last20_avg_hr == 160 and round(rec.last20_pace_s_per_mi) == 600
+
+
+def test_whoop_strain_only_from_a_finished_cycle():
+    from coach.integrations import normalize as N
+
+    w = MockWorld.load().whoop
+    rec, sleep, cyc = w["recovery"][0], w["sleep"], w["cycles"][0]
+    assert N.whoop_daily([rec], sleep, [cyc])[0].day_strain == cyc["score"]["strain"]
+    assert N.whoop_daily([rec], sleep, [{**cyc, "end": None}])[0].day_strain is None
+
+
+def test_whoop_next_token_is_url_encoded(monkeypatch):
+    from coach.integrations import live
+
+    urls = []
+
+    def fake_request(method, url, headers=None, body=None, raw_text=False):
+        urls.append(url)
+        return {"records": [], "next_token": "a+b/c=" if len(urls) == 1 else None}
+
+    monkeypatch.setenv("WHOOP_BROKER_URL", "https://broker.example")
+    monkeypatch.setattr(live, "_request", fake_request)
+    live.LiveWhoop()._get("/v2/cycle", dt.date(2026, 12, 1), dt.date(2026, 12, 2))
+    assert "nextToken=a%2Bb%2Fc%3D" in urls[1]
+
+
+def test_nutrition_contributes_only_kcal_and_macros():
+    from coach.integrations.sync import _nutrition_only
+    from coach.models import DailyMetrics
+
+    m = DailyMetrics(
+        date=dt.date(2026, 12, 1), kcal=2500, protein_g=180, weight_kg=82.0, sources=["intervals"]
+    )
+    out = _nutrition_only(m)
+    assert out.kcal == 2500 and out.protein_g == 180 and out.weight_kg is None
+
+
+def test_push_keeps_routine_ids_when_a_later_routine_fails(b1):
+    import dataclasses
+
+    from coach.integrations.mock import MockHevy
+    from coach.integrations.push import _push_sessions
+
+    ctx, plan, _ = b1
+
+    class FlakyHevy(MockHevy):
+        calls = 0
+
+        def upsert_routine(self, routine, routine_id=None):
+            FlakyHevy.calls += 1
+            if FlakyHevy.calls > 1:
+                raise RuntimeError("429")
+            return "r-1"
+
+    world = MockWorld.load()
+    src = dataclasses.replace(mock_sources(world), hevy=FlakyHevy(world))
+    before = dict(ctx.state.get("push_ids") or {})
+    try:
+        with pytest.raises(RuntimeError):
+            _push_sessions(plan.sessions, ctx, src, dry_run=False)
+        ids = ctx.state.get("push_ids") or {}
+        assert "r-1" in ids.values()
+    finally:
+        ctx.state.put("push_ids", before)
