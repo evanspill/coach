@@ -337,7 +337,13 @@ Each entry: **decision** - why - how to reverse.
 91. **Integrations review fixes** (code review of `src/coach/integrations`, 2026-11-15):
     - Sessions are re-merged and the window replaced only when both Hevy and Intervals answered. Before, a Hevy
       failure became an empty list, Intervals' activities alone triggered the replace, and committed Hevy
-      sessions in the window were deleted. With either missing, sessions wait for the next sync.
+      sessions in the window were deleted. With either missing, nothing is deleted: the answered source's sessions
+      are added, except any starting within 15 min of a committed session (possibly the stored half of a
+      Hevy/Garmin twin), and the report's `sessions_partial` names the missing source. `last_sync` is held, so
+      the next sync where both answer replaces the window and merges any twin. A source that never answers (an
+      expired key) therefore doesn't block the other's sessions; it shows up in `errors` and `window_held_by`.
+      Whether a source is configured can't be read from its key variable: in the cloud environment the proxy
+      injects the Hevy and Intervals credentials, so the variables are unset while the APIs work.
     - `last_sync` only advances when every committed source (nutrition, wellness, Hevy, Intervals activities)
       answered, so an outage longer than the 3-day overlap no longer loses those days. The window is capped at
       a first sync's 75 days so a source that never recovers (an expired key) can't grow it without limit, and

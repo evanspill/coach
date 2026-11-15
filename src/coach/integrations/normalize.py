@@ -198,7 +198,9 @@ def intervals_activities(raw: list[dict]) -> list[SessionRecord]:
         pace = moving / miles if miles else None
         last20_hr = last20_pace = None
         laps = a.get("laps") or []
-        if laps:
+        if (
+            laps
+        ):  # laps without HR or distance (no strap, a pause) are skipped, not a crash of the whole fetch
             tail = [
                 lap
                 for lap in laps
@@ -207,9 +209,7 @@ def intervals_activities(raw: list[dict]) -> list[SessionRecord]:
                 and lap.get("distance")
                 and lap.get("average_heartrate") is not None
             ]
-            if (
-                tail
-            ):  # laps without HR or distance (no strap, a pause) are skipped, not a crash of the whole fetch
+            if tail:
                 secs = sum(lap["moving_time"] for lap in tail)
                 dist = sum(lap["distance"] for lap in tail)
                 last20_hr = sum(lap["average_heartrate"] * lap["moving_time"] for lap in tail) / secs

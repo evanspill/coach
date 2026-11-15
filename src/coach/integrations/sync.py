@@ -210,17 +210,27 @@ def sync(
 
     hevy_w = run("hevy", lambda: sources.hevy.workouts(start, today))
     acts = run("intervals_activities", lambda: sources.intervals.activities(start, today))
-    # sessions are re-merged from both sources; with one missing, a replace would delete the other's committed
-    # records (and a partial merge would duplicate twins), so sessions wait for a sync where both answered
+    # sessions are re-merged from both sources and the window replaced. With one source missing, a replace would
+    # delete the other's committed records, so the answered source's new sessions are only added: anything
+    # starting within MATCH_MINUTES of a committed session is skipped (it may be the stored half of a twin).
+    # last_sync is held, so the next sync where both answer replaces the window and tidies any twin.
     sessions_ok = hevy_w is not None and acts is not None
     zones = state.zones()
     lthr = zones.lthr if zones else cfg.profile.running.default_zones.lthr  # default until the first TT
     plans: dict = {}
-    if sessions_ok:
-        detail = merge_sessions([], [*(hevy_w or []), *(acts or [])], lthr)  # committed: no Whoop fields
-        for s in detail:
-            s.planned_session_id = _plan_link(state, s, plans)
-            items.append(("session", _session_key(s), s.date, s.model_dump(mode="json", exclude_none=True)))
+    detail = merge_sessions([], [*(hevy_w or []), *(acts or [])], lthr)  # committed: no Whoop fields
+    if not sessions_ok and detail:
+        stored = [
+            SessionRecord.model_validate(r["data"]).start
+            for r in state.metric_records("session", start, today)
+        ]
+        detail = [
+            s for s in detail if all(abs((s.start - t).total_seconds()) > MATCH_MINUTES * 60 for t in stored)
+        ]
+        report["sessions_partial"] = [n for n in ("hevy", "intervals_activities") if n in report["errors"]]
+    for s in detail:
+        s.planned_session_id = _plan_link(state, s, plans)
+        items.append(("session", _session_key(s), s.date, s.model_dump(mode="json", exclude_none=True)))
     for s in hevy_w or []:  # the tag is read from Hevy's own notes, never from a merged Garmin description
         tag = parse_checkin_tag(s.notes_untrusted)
         if tag:
