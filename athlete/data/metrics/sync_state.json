@@ -2,7 +2,7 @@
   "last_sync": "2026-11-15",
   "last_report": {
     "window": [
-      "2026-11-11",
+      "2026-11-12",
       "2026-11-15"
     ],
     "counts": {
@@ -10,7 +10,7 @@
       "nutrition_daily": 0,
       "whoop_backup_days": 7,
       "weigh_ins": 1,
-      "sessions": 1
+      "sessions": 0
     },
     "stale": [
       "whoop: today's recovery not available yet"
