@@ -11,7 +11,7 @@ from coach.coaching.skills.templates import build_session
 from coach.engine import nutrition as nut
 from coach.engine import testing as T
 from coach.engine.running import RampRules, allowed_increase_cap
-from coach.models import Deviation, Session, WeekPlan
+from coach.models import Deviation, RunSegment, Session, SessionBlock, WeekPlan
 from coach.models.season import BlockSpec
 
 
@@ -155,6 +155,8 @@ def plan_week(
         )
     if target and target.hard_sets:
         D.balance_hard_sets(sessions, target.hard_sets, ctx, week_type)
+    if outline is not None:
+        _top_up_aerobic(ctx, sessions, outline, week_type, week_start)
     finalize(ctx, sessions)
     rationale = RATIONALE[week_type]
     return WeekPlan(
@@ -169,6 +171,42 @@ def plan_week(
         approval="pending",
         rationale=rationale + (" " + " ".join(notes) if notes else ""),
     )
+
+
+def _top_up_aerobic(
+    ctx: Context, sessions: list[Session], outline, week_type: str, week_start: dt.date
+) -> None:
+    """A capped or deload run total can leave the aerobic pillar under its minimum effective dose (the long-run erg
+    extension only runs in training weeks). Cover the shortfall with zero-impact Z2 bike after the long run, so the
+    fallback never builds a week its own validator rejects."""
+    from coach.engine import sessions as S
+    from coach.engine.validator import DELOAD_TYPES
+
+    pp = outline.pillars.get("aerobic")
+    if pp is None or week_type in {"baseline", "transition", "reset"}:
+        return
+    need = pp.deload_med if week_type in DELOAD_TYPES | {"competition"} else pp.med
+    probe = WeekPlan(
+        week_id=clock.iso_week_id(week_start),
+        block_id=outline.block_id,
+        week_index=0,
+        week_type=week_type,
+        start=week_start,
+        sessions=sessions,
+        generated_by="fallback",
+        approval="pending",
+    )
+    short = need - S.pillar_doses(probe, ctx.cfg.library, ctx.cfg.tests)["aerobic"]
+    host = next((s for s in sessions if s.type == "run_long"), None) or next(
+        (s for s in sessions if s.type == "run_easy"), None
+    )
+    if short <= 0 or host is None:
+        return
+    minutes = int(-(-short // 5) * 5)  # round up to 5 min
+    seg = RunSegment(label="Z2 bike (aerobic minimum)", zone="Z2", duration_min=minutes, modality="bike")
+    blk = SessionBlock(kind="run", title="Erg top-up (aerobic volume without impact)", run=[seg])
+    at = len(host.blocks) - 1 if host.blocks and host.blocks[-1].kind == "cooldown" else len(host.blocks)
+    host.blocks.insert(at, blk)
 
 
 def finalize(ctx: Context, sessions: list[Session]) -> None:

@@ -684,6 +684,7 @@ def cmd_simulate(args):
         "scenarios_passed": sum(s["passed"] for s in res.scenarios),
         "scenarios_total": len(res.scenarios),
         "failed": [f"{s['skill']}: {s['name']} - {s['detail']}" for s in res.scenarios if not s["passed"]],
+        "problems": res.problems,
     }
     print("\n" + json.dumps(summary, indent=2))
     return None if res.ok else {"exit": 1}

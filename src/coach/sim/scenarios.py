@@ -159,8 +159,10 @@ def sc_plan_week_normal(c: Check) -> None:
     v = validate_week(plan, ctx.validation(plan))
     c.that(not v, f"normal week passes the validator ({[str(x) for x in v][:3]})")
     doses = pillar_doses(plan, ctx.cfg.library, ctx.cfg.tests)
+    pillars = ctx.outline.pillars
     c.that(
-        all(doses[p] >= ctx.outline.pillars[p].med for p in doses), f"all four pillars at/above MED {doses}"
+        len(pillars) == 4 and all(doses.get(p, 0) >= pillars[p].med for p in pillars),
+        f"all four pillars at/above MED {doses}",
     )
     miles = week_miles(plan, 462)
     c.that(long_run_miles(plan, 462) / miles <= 0.40 + 1e-6, "long run within the low-volume fraction")
@@ -185,7 +187,7 @@ def sc_plan_week_deload(c: Check) -> None:
     ]
     c.that(not bad, f"no eccentric-heavy / high-impact work in the deload ({bad})")
     hn, hd = sum(hard_sets(normal, lib).values()), sum(hard_sets(plan, lib).values())
-    c.that(hd <= 0.7 * hn, f"deload volume cut (~40-50%): {hn:g} -> {hd:g} hard sets")
+    c.that(hn > 0 and hd <= 0.7 * hn, f"deload volume cut (~40-50%): {hn:g} -> {hd:g} hard sets")
     c.note(f"hard sets {hn:g} -> {hd:g}")
 
 
@@ -228,7 +230,7 @@ def _adjust_case(
     weather=None,
     session_role: str = "upper_skill_metcon",
 ) -> DayRecord:
-    with sandbox():
+    with sandbox(keep=False):
         day = dt.date(2026, 12, 8)
         ctx = world_at(day, sync_data=False)
         synthetic_metrics(ctx.state, day, today_rec, yesterday_rec, hrv_drop, drop_days=drop_days)
@@ -303,7 +305,10 @@ def sc_replan_sick(c: Check) -> None:
     c.that(ill is not None and ill.symptoms == "below_neck", "neck check: below-the-neck symptoms detected")
     new = replan.illness(ctx, plan, day, dt.date(2026, 12, 4), "below_neck")
     sick = [s for s in new.sessions if day <= s.date <= dt.date(2026, 12, 4)]
-    c.that(all(s.type == "rest" for s in sick), "no training while sick (4 days)")
+    c.that(
+        len({s.date for s in sick}) == 4 and all(s.type == "rest" for s in sick),
+        "no training while sick (4 days)",
+    )
     c.that(new.session_on(dt.date(2026, 12, 5)).type == "recovery", "graded return day 1: Z1 only")
     ill.resolved_on = dt.date(2026, 12, 5)
     ctx.state.put("health_events", ill)
@@ -326,12 +331,10 @@ def sc_replan_travel(c: Check) -> None:
     new = replan.travel(ctx, plan, dates)
     v = validate_week(new, ctx.validation(new))
     c.that(not v, f"travel week passes (equipment, spacing) ({[str(x) for x in v][:3]})")
+    away = [s for s in new.sessions if s.date in dates]
     c.that(
-        all(
-            s.location in {"travel", "outdoor", "home"} or s.type == "rest"
-            for s in new.sessions
-            if s.date in dates
-        ),
+        {s.date for s in away} == set(dates)
+        and all(s.location in {"travel", "outdoor", "home"} or s.type == "rest" for s in away),
         "no gym sessions on travel days",
     )
     c.note(next(d.actual for d in new.deviations if d.field == "key_sessions"))
@@ -339,11 +342,27 @@ def sc_replan_travel(c: Check) -> None:
 
 # ---------------------------------------------------------------- review
 def sc_review_adherence(c: Check) -> None:
-    ctx = world_at(dt.date(2026, 12, 6))
+    from coach.sim.athlete import SimAthlete
+
+    day = dt.date(2026, 12, 6)
+    ctx = world_at(day, sync_data=False)
     plan = plan_week.plan_week(ctx, dt.date(2026, 11, 30))
     ctx.state.put("week_plans", plan)
+    # the athlete does the first two training sessions of the week and nothing after
+    world = MockWorld.load()
+    athlete = SimAthlete(world, ctx.cfg)
+    training = [s for s in plan.sessions if s.type not in {"rest", "recovery"}]
+    for s in training[:2]:
+        athlete.do_day(s.date, DayRecord(date=s.date, status="complete", session=s))
+    sync(mock_sources(world), ctx.state, day, ctx.cfg)
+    ctx = build(ctx.state, ctx.cfg, day)
     md, summary = review.weekly_review(ctx, plan)
-    c.that(summary["adherence_pct"] < 70, f"adherence dip detected ({summary['adherence_pct']}%)")
+    expect = round(100 * 2 / len(training))
+    c.that(
+        summary["adherence_pct"] == expect and len(summary["missed"]) == len(training) - 2,
+        f"adherence dip detected ({summary['adherence_pct']}%, expected {expect}%: 2 of {len(training)} done)",
+    )
+    c.that(summary["adherence_pct"] < 70, "the dip is below the 70% line")
     c.that(any("What got in the way" in q for q in summary["questions"]), "asks why before changing the plan")
 
 
@@ -406,6 +425,7 @@ def sc_technique_competent(c: Check) -> None:
     data["skills"]["toes_to_bar"]["current_level"] = 2
     path.write_text(yaml.safe_dump(data, sort_keys=False))
     ctx = build(ctx.state, load_config(), dt.date(2027, 2, 1))
+    c.that(not ctx.cfg.skills.skills["toes_to_bar"].competent, "toes-to-bar starts below competent")
     r = log_skill.handle(
         ctx, "Skill session today: got 10 unbroken toes to bar, felt smooth", dt.date(2027, 2, 1)
     )
@@ -617,7 +637,7 @@ SCENARIOS: list[tuple[str, str, Callable[[Check], None]]] = [
 
 def run_one(fn: Callable[[Check], None]) -> Check:
     c = Check()
-    with sandbox():
+    with sandbox(keep=False):
         try:
             fn(c)
         except Exception as e:  # noqa: BLE001 - report, don't crash the whole suite
