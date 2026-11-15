@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-15",
+  "status": "waiting_for_recovery",
+  "readiness": {
+    "date": "2026-11-15",
+    "state": "unknown",
+    "reasons": [
+      "today's Whoop recovery not available yet"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {},
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": [
+      "whoop_recovery"
+    ]
+  },
+  "weather": null,
+  "planned_session_id": null,
+  "session": null,
+  "changes": [],
+  "recovery_prescription": [
+    "Optional 10-15 min T-spine/shoulder/hip mobility (PT routine) to prep for Monday's tests",
+    "Bed 10-10:30 pm tonight so you test rested tomorrow"
+  ],
+  "nutrition": null,
+  "fueling_cue": "Eat normally today; MacroFactor restarts Monday at maintenance: log everything and weigh daily this week. Normal breakfast with carbs before Monday's tests.",
+  "gear_alerts": [
+    "Running Dynamics Pod replacement due today: pair it before Wednesday's Zone 2 drift run"
+  ],
+  "pushed": null,
+  "handoffs": [],
+  "approvals_pending": [],
+  "stale_sources": [
+    "whoop: today's recovery not available yet"
+  ],
+  "generated_by": "claude",
+  "notification": "WAITING: Whoop recovery not in yet; rest day, so nothing changes.\nToday: no session (pre-season rest). Baseline testing starts Mon: broad jump, hinge, DB press.\nFuel: eat normally; MacroFactor restarts Mon at maintenance.\nTonight: optional 10-15 min mobility, bed by 10:30.\nGear: pair the new Running Dynamics Pod before Wed's run."
+}
