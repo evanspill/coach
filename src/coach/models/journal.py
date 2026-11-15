@@ -40,9 +40,12 @@ class HealthEvent(Model):
 
     @model_validator(mode="after")
     def _red_flag_needs_clearance(self) -> "HealthEvent":
-        # docs/SAFETY.md: a red flag clears only with a clearance (`coach health resolve <id> --by doctor`)
-        if self.kind == "red_flag" and self.resolved_on is not None and not self.cleared_by:
-            raise ValueError(f"red flag {self.id} can only be resolved with a clearance (cleared_by)")
+        # docs/SAFETY.md: a red flag clears only with a doctor's clearance (`coach health resolve <id> --by doctor`)
+        if self.kind == "red_flag" and self.resolved_on is not None and self.cleared_by != "doctor":
+            raise ValueError(
+                f"red flag {self.id} can only be resolved with a doctor's clearance (cleared_by 'doctor'), "
+                f"got {self.cleared_by!r}"
+            )
         if self.resolved_on is not None and self.resolved_on < self.start:
             raise ValueError(f"health event {self.id} resolved_on is before its start")
         return self

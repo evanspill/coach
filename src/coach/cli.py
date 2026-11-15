@@ -606,8 +606,15 @@ def cmd_health(args):
             "error": f"no health event {args.id}",
             "active": [e.id for e in st.health_events(_today(args))],
         }
-    ev.resolved_on = _today(args)
-    ev.cleared_by = args.by
+    from pydantic import ValidationError
+
+    try:  # re-validate: a red flag needs --by doctor, and nothing resolves before it started
+        ev = type(ev).model_validate({**ev.model_dump(), "resolved_on": _today(args), "cleared_by": args.by})
+    except ValidationError as e:
+        return {
+            "error": "; ".join(err["msg"].removeprefix("Value error, ") for err in e.errors()),
+            "id": args.id,
+        }
     st.put("health_events", ev)
     return {"resolved": ev.id, "kind": ev.kind, "on": ev.resolved_on.isoformat(), "cleared_by": args.by}
 

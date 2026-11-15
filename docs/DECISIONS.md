@@ -318,9 +318,12 @@ Each entry: **decision** - why - how to reverse.
 90. **Store and model review fixes** (code review of `src/coach/store` and `src/coach/models`, 2026-11-15):
     - `new_id` returns one past the highest `<day>-<kind>-<n>` in use. Counting the keys handed out an existing id
       after a gap (a deleted or hand-numbered record), and the next `put` overwrote it.
-    - A `red_flag` health event can't be resolved without `cleared_by` (docs/SAFETY.md: only a clearance via
-      `coach health resolve <id> --by doctor` ends one), and no event resolves before it starts. The check runs
-      when JSON is validated (`coach record add`, loading from disk); `coach health resolve` sets both fields.
+    - A `red_flag` health event resolves only with `cleared_by: doctor` (docs/SAFETY.md: a doctor's clearance
+      ends one), and no event resolves before it starts. Before, `coach health resolve` defaulted to
+      `--by athlete` and cleared a red flag with no doctor. The check runs when JSON is validated
+      (`coach record add`, loading from disk), and `coach health resolve` re-validates the resolved record and
+      returns an error instead of saving. A stored record that breaks the rule now fails to load, loudly, rather
+      than being treated as cleared; there are none today.
     - Availability rejects `end < start`; check-in `session_pain` must be 0-10.
     - Collection keys can't contain `/`, `\`, a null byte or a leading `.`, and composite keys must be `a:b`, so a
       record id can't write outside its collection.

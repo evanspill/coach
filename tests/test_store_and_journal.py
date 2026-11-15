@@ -136,7 +136,29 @@ def test_record_invariants():
     with pytest.raises(ValidationError):  # red flags clear only with a clearance
         HealthEvent(id="x", kind="red_flag", start=d, resolved_on=d + dt.timedelta(days=2))
     HealthEvent(id="x", kind="red_flag", start=d, resolved_on=d, cleared_by="doctor")
+    with pytest.raises(ValidationError):  # only a doctor clears a red flag
+        HealthEvent(id="x", kind="red_flag", start=d, resolved_on=d, cleared_by="athlete")
     with pytest.raises(ValidationError):
         Availability(id="x", start=d, end=d - dt.timedelta(days=1), kind="travel")
     with pytest.raises(ValidationError):
         Checkin(date=d, session_pain={"hinge": 12})
+
+
+def test_health_resolve_needs_a_doctor_for_a_red_flag(home):
+    import argparse
+
+    from coach.cli import cmd_health
+    from coach.models.journal import HealthEvent
+    from coach.store import Store
+
+    d = dt.date(2026, 12, 1)
+    st = Store()
+    st.put("health_events", HealthEvent(id="2026-12-01-red-flag-1", kind="red_flag", start=d))
+
+    def resolve(by, day):
+        return cmd_health(argparse.Namespace(id="2026-12-01-red-flag-1", by=by, date=day))
+
+    assert "error" in resolve("athlete", "2026-12-03")
+    assert st.get("health_events", "2026-12-01-red-flag-1").resolved_on is None
+    assert "error" in resolve("doctor", "2026-11-30")  # before it started
+    assert resolve("doctor", "2026-12-03")["cleared_by"] == "doctor"
