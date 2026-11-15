@@ -62,13 +62,13 @@ class Picker:
             return ex.deload_swap
         return mv.safe_substitute(ex_id, self.lib, lambda e: self.ok(e, for_metcon, block_kind))
 
-    def main_lift(self, family: str, prefer: str | None = None) -> str | None:
+    def main_lift(self, family: str, prefer: str | None = None, for_metcon: bool = False) -> str | None:
         ex_id = mv.exercise_for_rung(
             family, self.ctx.movement.rung(family), self.ctx.cfg.progressions, prefer
         )
         if ex_id is None:
             return None
-        return self.pick(ex_id, block_kind="strength")
+        return self.pick(ex_id, for_metcon=for_metcon, block_kind="strength")
 
 
 def rx(
@@ -88,7 +88,7 @@ def _from_spec(
 ) -> Prescription | None:
     """ItemSpec (config) -> Prescription, resolving families to the current rung and swapping what isn't allowed."""
     if spec.family:
-        ex_id = P.main_lift(spec.family)
+        ex_id = P.main_lift(spec.family, for_metcon=for_metcon)
     else:
         target = spec.exercise
         if spec.deload_exercise and P.week_type in DELOAD_LIKE:

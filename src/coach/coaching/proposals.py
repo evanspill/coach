@@ -34,9 +34,8 @@ def create(
                     ProposalEvent(at=day, status="superseded", note="replaced by a newer proposal")
                 )
                 state.save_proposal(p)
-    n = len([k for k in state.keys("proposals") if k.startswith(f"{day.isoformat()}-")]) + 1
     p = Proposal(
-        id=f"{day.isoformat()}-{kind.replace('_', '-')}-{n}",
+        id=state.new_id("proposals", day, kind.replace("_", "-")),
         kind=kind,
         created=day,
         created_by=created_by,
@@ -90,7 +89,7 @@ def approve(state: Store, pid: str, day: dt.date, cfg: Config, note: str = "") -
             plan.approval = "approved"
             state.put_ref(p.target, plan)
             actions.append(f"approved {p.target}")
-    elif p.kind in {"block_goal", "race_target"} and p.target:
+    elif p.kind in {"block_goal", "race_target"} and p.target and not (p.payload and "records" in p.payload):
         rec = state.get_ref(p.target)
         if rec:
             rec.status = "approved"
@@ -101,8 +100,14 @@ def approve(state: Store, pid: str, day: dt.date, cfg: Config, note: str = "") -
             state.put_ref(ref, content)
             actions.append(f"wrote {ref}")
     if p.payload and "config_patch" in p.payload:
-        _apply_config_patch(cfg.root, p.payload["config_patch"])
-        new_cfg = load_config(cfg.root)
+        target = Path(cfg.root) / p.payload["config_patch"]["file"]
+        original = target.read_text()
+        try:  # a patch that leaves the config unloadable is undone; the proposal stays pending
+            _apply_config_patch(cfg.root, p.payload["config_patch"])
+            new_cfg = load_config(cfg.root)
+        except Exception:
+            target.write_text(original)
+            raise
         record_config_lock(state, new_cfg, p.id, day)
         actions.append(
             f"config patched: {'.'.join(p.payload['config_patch']['path'])} = {p.payload['config_patch']['value']}"
@@ -122,6 +127,9 @@ def reject(state: Store, pid: str, day: dt.date, reason: str) -> None:
     p = state.proposal(pid)
     if p is None:
         raise KeyError(f"no proposal {pid}")
+    # an approved proposal's changes are already applied (and it may hold the config lock)
+    if p.status != "pending":
+        raise ValueError(f"proposal {pid} is {p.status}, not pending")
     p.status = "rejected"
     p.history.append(ProposalEvent(at=day, status="rejected", note=reason))
     state.save_proposal(p)

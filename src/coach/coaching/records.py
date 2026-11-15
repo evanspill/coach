@@ -56,6 +56,16 @@ def submit(
             raise SubmitRefused(v)
         if cfg.settings.approval.weekly_plan == "auto":
             obj.approval = "auto"
+        elif obj.approval != "pending":
+            # a draft can't approve itself. A revision of an approved week stays approved only if every session
+            # keeps its date and type (a swap within a day); anything larger needs the athlete's OK again.
+            stored = store.week_plan(obj.week_id)
+
+            def shape(p) -> list:
+                return sorted((s.date, s.type) for s in p.sessions)
+
+            if stored is None or stored.approval == "pending" or shape(stored) != shape(obj):
+                obj.approval = "pending"
         store.put(collection, obj)
         store.save_report("week_summaries", week_summary_md(ctx, obj), obj.week_id)
         if obj.approval == "pending":
@@ -88,7 +98,14 @@ def submit(
             raise SubmitRefused(v)
         store.put(collection, obj)
     elif collection == "block_goals":
-        obj.status = "pending" if obj.status != "approved" or not store.goal(obj.block_id) else obj.status
+        stored_goal = store.goal(obj.block_id)
+        unchanged_approved = (
+            stored_goal is not None
+            and stored_goal.status == "approved"
+            and stored_goal.model_dump(mode="json") == obj.model_dump(mode="json")
+        )
+        # block goals always need the athlete's OK: only an unchanged, already-approved goal stays approved
+        obj.status = "approved" if unchanged_approved else "pending"
         store.put(collection, obj)
         if obj.status == "pending":
             p = proposals.create(

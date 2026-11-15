@@ -81,9 +81,15 @@ def build_outline(
     lo, hi = spec.run_miles
     trailing = trailing if trailing is not None else ctx.trailing_miles(block.start)
     r = ctx.cfg.profile.running
-    rules = RampRules(start_miles=r.ramp_start_miles, deload_factor=dl.run_factor)
+    th = ctx.cfg.profile.thresholds
+    rules = RampRules(
+        start_miles=r.ramp_start_miles,
+        max_increase_pct=th.weekly_run_increase_pct,
+        deload_factor=dl.run_factor,
+    )
     if trailing:
-        start = max(r.ramp_start_miles[0], min(hi, round(sum(trailing[-3:]) / len(trailing[-3:]) * 1.1, 1)))
+        avg = sum(trailing[-3:]) / len(trailing[-3:])
+        start = max(r.ramp_start_miles[0], min(hi, round(avg * (1 + rules.max_increase_pct / 100), 1)))
     else:
         start = r.ramp_start_miles[0]
     if "taper" in types:  # event block: volumes are fractions of the pre-taper level
@@ -97,7 +103,6 @@ def build_outline(
                 miles.append(round(base * spec.reset_volume, 1))
     else:
         miles = ramp_targets(len(types), types, start, hi, rules, trailing)
-    th = ctx.cfg.profile.thresholds
     comp_race = ctx.cfg.profile.race(spec.competition_event) if spec.competition_event else None
     weeks = []
     for i, wt in enumerate(types, start=1):

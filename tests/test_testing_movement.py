@@ -195,3 +195,45 @@ def test_test_stress_comes_from_the_given_battery():
     battery.tests["hinge_rm"].stress = "none"
     assert S._test_stress("hinge_rm", battery) == "none"
     assert S._test_stress("hinge_rm", None) == "lower_heavy"
+
+
+def test_logging_the_same_day_twice_changes_nothing():
+    """A second daily run (or the catch-up) must not count an exposure twice or regress twice."""
+    mr = mv.initial_state(CFG.progressions, dt.date(2026, 11, 16), {"hinge": 2})
+    d = dt.date(2026, 12, 1)
+    mv.record_exposure(mr, "hinge", d, 3.0, False, CFG.progressions)
+    assert mr.rung("hinge") == 1
+    assert mv.record_exposure(mr, "hinge", d, 3.0, False, CFG.progressions) == []
+    assert mr.rung("hinge") == 1
+    n = len(mr.families["hinge"].exposures)
+    mv.record_exposure(mr, "hinge", d, 0.0, False, CFG.progressions)
+    assert len(mr.families["hinge"].exposures) == n
+
+
+def test_a_late_pain_report_still_applies_the_pain_rule_once():
+    mr = mv.initial_state(CFG.progressions, dt.date(2026, 11, 16), {"hinge": 2})
+    d = dt.date(2026, 12, 1)
+    mv.record_exposure(mr, "hinge", d, 0.0, False, CFG.progressions)  # 08:25: no pain reported yet
+    assert mr.rung("hinge") == 2
+    mv.record_exposure(mr, "hinge", d, 6.0, False, CFG.progressions)  # pain filed later the same morning
+    assert mr.rung("hinge") == 1
+    assert mv.record_exposure(mr, "hinge", d, 6.0, False, CFG.progressions) == []  # and only once
+    assert mr.rung("hinge") == 1
+
+
+def test_a_late_pain_report_withdraws_an_advance_made_that_morning():
+    mr = mv.initial_state(CFG.progressions, dt.date(2026, 11, 16), {"press": 1})
+    d = dt.date(2026, 11, 16)
+    days = [d + dt.timedelta(days=7 * k) for k in range(8)]
+    last = None
+    for day in days:  # clean exposures until one of them advances the family
+        if mv.record_exposure(mr, "press", day, 0.0, False, CFG.progressions):
+            last = day
+            break
+    assert last is not None and mr.rung("press") == 2
+    before = mr.model_copy(deep=True)
+    events = mv.record_exposure(mr, "press", last, 6.0, False, CFG.progressions)  # pain filed after the run
+    assert mr.rung("press") == 1 and events and "withdrawn" in events[0].reason
+    assert mr.families["press"].hold_until == last + dt.timedelta(days=7)
+    assert not validate_movement_change(before, mr, CFG)
+    assert mv.record_exposure(mr, "press", last, 6.0, False, CFG.progressions) == []  # only once

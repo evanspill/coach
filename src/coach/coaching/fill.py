@@ -52,6 +52,7 @@ class Filler:
                 if ex is None:
                     continue
                 it.load_kg = it.load_lb = None
+                it.ramp = []  # code-filled: never carry a ramp over from an earlier fill or a swapped exercise
                 if ex.load_mode == "e1rm" and it.reps:
                     est = self.e1rm(ex.id)
                     if est is None:

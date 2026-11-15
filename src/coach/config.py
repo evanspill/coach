@@ -66,12 +66,15 @@ def load_config(config_dir: Path | None = None) -> Config:
     return _load_cached(str(cdir.resolve()), _mtime_key(cdir))
 
 
-def _mtime_key(cdir: Path) -> float:
-    return max((p.stat().st_mtime for p in cdir.glob("*") if p.is_file()), default=0.0)
+def _mtime_key(cdir: Path) -> tuple:
+    """Per-file (name, mtime_ns, size): a max-mtime key misses a rewrite within the same timestamp tick."""
+    return tuple(
+        sorted((p.name, (s := p.stat()).st_mtime_ns, s.st_size) for p in cdir.glob("*") if p.is_file())
+    )
 
 
 @lru_cache(maxsize=8)
-def _load_cached(cdir_str: str, _mtime: float) -> Config:
+def _load_cached(cdir_str: str, _mtime: tuple) -> Config:
     cdir = Path(cdir_str)
     profile = AthleteProfile.model_validate(load_json(cdir / "athlete_context.json"))
     settings = CoachSettings.model_validate(load_yaml(cdir / "coach.yaml"))
@@ -116,7 +119,7 @@ def check_config_consistency(cfg: Config) -> None:
                     errors.append(f"family {fam_name} rung {i}: exercise '{ex_id}' unknown")
                 elif rung_ex.family != fam_name or rung_ex.rung != i:
                     errors.append(
-                        f"family {fam_name} rung {i}: exercise '{ex_id}' declares {ex.family}/{ex.rung}"
+                        f"family {fam_name} rung {i}: exercise '{ex_id}' declares {rung_ex.family}/{rung_ex.rung}"
                     )
     for g in cfg.profile.goals.long_term:
         for sk in g.prerequisite_skills:

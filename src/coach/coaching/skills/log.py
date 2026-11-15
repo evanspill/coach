@@ -21,6 +21,14 @@ STOP_MESSAGE = (
 )
 
 
+EXERTIONAL_VOMIT = re.compile(
+    r"\b(?:almost |nearly )?(?:vomit\w*|threw up|throw(?:ing)? up|puk\w*)\s+(?:after|during|on|in|at)\s+"
+    r"(?:the |my |that |this |a )?(?:metcon|burpees?|workout|wod|run|intervals?|sprints?|row|bike|sled|"
+    r"wall ?balls?|thrusters?|amrap|emom|hyrox|race|test|set|squats?|deadlifts?|session)\b",
+    re.IGNORECASE,
+)
+
+
 def handle(ctx: Context, text: str, day: dt.date) -> dict:
     """Returns {'records': [...paths], 'reply': str, 'follow_up': str|None, 'red_flags': [...]}"""
     out: dict = {"records": [], "reply": "", "follow_up": None, "red_flags": []}
@@ -40,11 +48,9 @@ def handle(ctx: Context, text: str, day: dt.date) -> dict:
         out["red_flags"] = flags
         out["reply"] = STOP_MESSAGE.format(flags=", ".join(flags), emergency=ctx.cfg.profile.emergency_number)
         return out
-    illness = (
-        classify_illness(text)
-        if re.search(r"\b(sick|ill|cold|flu|fever|sore throat|runny|congest|aches?)\b", text, re.I)
-        else None
-    )
+    # classify_illness owns the symptom vocabulary (a separate pre-filter here missed cough, chills, vomiting ...).
+    # Exertional nausea ("almost threw up during the metcon") is effort, not illness: vomiting overnight still counts.
+    illness = classify_illness(EXERTIONAL_VOMIT.sub("", text))
     if illness:
         ev = HealthEvent(
             id=ctx.state.new_id("health_events", day, "illness"),
