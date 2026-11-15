@@ -364,13 +364,17 @@ Each entry: **decision** - why - how to reverse.
     2026-11-15):
     - Approvals can't be bypassed by a draft: `coach record add week_plans` saves a draft as pending unless that
       week's stored plan is already approved and every session keeps its date and type (a swap within a day,
-      like adjust-day's small changes). Moving, adding or dropping a session needs the athlete's OK again. A block-goal draft stays approved
+      like adjust-day's small changes). Moving, adding or dropping a session needs the athlete's OK again.
+      Content inside a same-day session (exercises, run volume) can still change without re-approval, as
+      adjust-day's swaps always could; `coach validate` still runs on every save and push. A block-goal draft stays approved
       only if it is identical to an approved stored goal. `coach approve initial-config` works once; after that
       only an approved proposal moves the config lock. Only pending proposals can be rejected.
     - Movement exposures are logged at most once per family per day (`FamilyState.last_exposure_date`); before,
       the 9:05 catch-up re-logged yesterday's sets, so a painful session regressed two rungs and clean sessions
       counted twice. A later report that makes a logged clean exposure unclean (pain or stiffness filed after the
-      first run) replaces it, so the pain rule still applies, once. The catch-up still runs rehab (for late
+      first run) replaces it, so the pain rule still applies, once. If that clean exposure had advanced the
+      family, the advance is withdrawn (back to the rung trained, held 7 days); a further regression waits for
+      the next painful exposure, since one run moves a family one rung at most. The catch-up still runs rehab (for late
       reports and joint flags) but skips the Sunday and monthly work the 8:25 run already did.
     - A config patch that leaves the config unloadable is undone and the proposal stays pending.
     - An approved race target stays in force until a new one is approved (the new one waits in the proposal).

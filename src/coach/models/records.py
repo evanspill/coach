@@ -118,6 +118,7 @@ class FamilyState(Model):
     form_check_cleared: int | None = None  # highest rung a form check / physio has cleared
     pending_form_check: int | None = None  # rung whose criteria are met but still needs a form check
     last_exposure_date: dt.date | None = None  # makes logging a day's exposure idempotent (re-runs, catch-up)
+    last_exposure_clean: bool | None = None  # outcome of that exposure (a later pain report may overturn it)
 
     def clean_exposures(self) -> int:
         return sum(1 for e in self.exposures if e.clean and e.rung == self.rung)

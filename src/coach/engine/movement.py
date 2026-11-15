@@ -79,19 +79,38 @@ def record_exposure(
     rules = progressions.rules
     fs = mr.families[family]
     events: list[RungEvent] = []
-    if fs.last_exposure_date is not None and day <= fs.last_exposure_date:
-        # already logged (a second daily run, the catch-up): never count or regress twice. The one exception is a
-        # later report that makes a logged clean exposure unclean (pain or stiffness filed after the first run):
-        # it replaces that exposure, so the pain rule still applies, once.
-        prior = next((e for e in fs.exposures if e.date == day), None)
-        pain_now = session_pain or 0.0
-        unclean_now = pain_now > rules.max_session_pain_to_advance or stiffness_up
-        if prior is None or not prior.clean or not unclean_now:
-            return events
-        fs.exposures.remove(prior)
-    fs.last_exposure_date = max(day, fs.last_exposure_date or day)
     pain = session_pain or 0.0
     clean = pain <= rules.max_session_pain_to_advance and not stiffness_up
+    if fs.last_exposure_date is not None and day <= fs.last_exposure_date:
+        # already logged (a second daily run, the catch-up): never count or regress twice. The one exception is a
+        # later report that makes a logged clean exposure unclean (pain or stiffness filed after the first run).
+        if day != fs.last_exposure_date or fs.last_exposure_clean is not True or clean:
+            return events
+        fs.last_exposure_clean = False
+        fs.pending_form_check = None
+        last = fs.history[-1] if fs.history else None
+        if last is not None and last.date == day and last.to_rung > last.from_rung:
+            # that clean exposure advanced the family: the session was at the old rung, so the advance is withdrawn
+            # (one rung per run; a further regression waits for the next painful exposure) and the rung is held
+            why = (
+                f"session pain {pain:g}/10" if pain > rules.max_session_pain_to_advance else "stiffness rose"
+            )
+            events.append(_move(fs, day, last.from_rung, f"advance withdrawn: {why} reported later"))
+            fs.exposures.append(
+                Exposure(
+                    date=day, rung=fs.rung, session_pain=session_pain, stiffness_up=stiffness_up, clean=False
+                )
+            )
+            if stiffness_up:
+                fs.eccentric_tempo_until = day + dt.timedelta(days=14)
+            fs.hold_until = day + dt.timedelta(days=7)
+            mr.updated = day
+            return events
+        fs.exposures = [
+            e for e in fs.exposures if e.date != day
+        ]  # replace the clean entry, then apply the rule
+    fs.last_exposure_date = max(day, fs.last_exposure_date or day)
+    fs.last_exposure_clean = clean
     fs.exposures.append(
         Exposure(date=day, rung=fs.rung, session_pain=session_pain, stiffness_up=stiffness_up, clean=clean)
     )
