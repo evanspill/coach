@@ -36,9 +36,9 @@ def whoop_daily(recovery: list[dict], sleep: list[dict], cycles: list[dict]) -> 
             st = s["score"]["stage_summary"]
             sleep_h = round((st["total_in_bed_time_milli"] - st["total_awake_time_milli"]) / 3_600_000, 2)
             perf = s["score"].get("sleep_performance_percentage")
-        # day strain belongs to the previous (completed) cycle; today's is still accruing
+        # day strain only from a completed cycle: the current one (no end yet) is still accruing
         c = cycles_by_id.get(r.get("cycle_id"))
-        strain = c["score"]["strain"] if c and c.get("score") else None
+        strain = c["score"]["strain"] if c and c.get("score") and c.get("end") else None
         out.append(
             DailyMetrics(
                 date=day,
@@ -199,8 +199,17 @@ def intervals_activities(raw: list[dict]) -> list[SessionRecord]:
         last20_hr = last20_pace = None
         laps = a.get("laps") or []
         if laps:
-            tail = [lap for lap in laps if lap.get("start_offset_s", 0) >= 600]
-            if tail:
+            tail = [
+                lap
+                for lap in laps
+                if lap.get("start_offset_s", 0) >= 600
+                and lap.get("moving_time")
+                and lap.get("distance")
+                and lap.get("average_heartrate") is not None
+            ]
+            if (
+                tail
+            ):  # laps without HR or distance (no strap, a pause) are skipped, not a crash of the whole fetch
                 secs = sum(lap["moving_time"] for lap in tail)
                 dist = sum(lap["distance"] for lap in tail)
                 last20_hr = sum(lap["average_heartrate"] * lap["moving_time"] for lap in tail) / secs

@@ -499,3 +499,97 @@ def test_cold_phrases_still_trigger_the_neck_check(text):
 
 def test_flu_is_below_the_neck():
     assert classify_illness("think it's the flu") == "below_neck"
+
+
+def test_a_failed_hevy_fetch_keeps_committed_sessions(home):
+    """Hevy down while Intervals answers: committed Hevy sessions stay and the window isn't advanced past them."""
+    import dataclasses
+    import os
+
+    from coach.integrations.base import HevySource
+
+    class OfflineHevy(HevySource):
+        def workouts(self, start, end):
+            raise RuntimeError("hevy down")
+
+        def upsert_routine(self, routine, routine_id=None):
+            raise RuntimeError("hevy down")
+
+        def template_ids(self):
+            return {}
+
+        def create_template(self, title, exercise_type, equipment, muscle):
+            raise RuntimeError("hevy down")
+
+    st = Store(home / "athlete" / "data")
+    d = dt.date(2026, 11, 14)  # Hevy fixture has a workout on Nov 13
+    os.environ["COACH_TODAY"] = d.isoformat()
+    sync(mock_sources(MockWorld.load()), st, d)
+    window = (d - dt.timedelta(days=2), d)  # inside the next sync's overlap, so a replace would hit it
+    before = [s.id for s in st.sessions(*window) if "hevy" in s.sources]
+    assert before
+    nxt = d + dt.timedelta(days=1)
+    os.environ["COACH_TODAY"] = nxt.isoformat()
+    r = sync(dataclasses.replace(mock_sources(MockWorld.load()), hevy=OfflineHevy()), st, nxt)
+    assert "hevy" in r["errors"] and r["window_held_by"] == ["hevy"]
+    assert [s.id for s in st.sessions(*window) if "hevy" in s.sources] == before
+    assert st.get("sync_state").last_sync == d
+    # a source that never recovers can't grow the window past a first sync's
+    far = d + dt.timedelta(days=200)
+    os.environ["COACH_TODAY"] = far.isoformat()
+    r = sync(dataclasses.replace(mock_sources(MockWorld.load()), hevy=OfflineHevy()), st, far)
+    assert r["window"][0] == (far - dt.timedelta(days=75)).isoformat()
+
+
+def test_live_hevy_recreates_a_routine_deleted_in_the_app(monkeypatch):
+    import io
+    import urllib.error
+
+    from coach.integrations import live
+
+    calls = []
+
+    def fake_request(method, url, headers=None, body=None, raw_text=False):
+        calls.append(method)
+        if method == "PUT":
+            raise urllib.error.HTTPError(url, 404, "Not Found", {}, io.BytesIO(b""))  # type: ignore[arg-type]
+        return {"routine": [{"id": "new-1"}]}
+
+    monkeypatch.setattr(live, "_request", fake_request)
+    assert live.LiveHevy().upsert_routine({"title": "x"}, "gone-1") == "new-1"
+    assert calls == ["PUT", "POST"]
+
+    def fail(method, url, headers=None, body=None, raw_text=False):
+        raise urllib.error.HTTPError(url, 500, "boom", {}, io.BytesIO(b""))  # type: ignore[arg-type]
+
+    monkeypatch.setattr(live, "_request", fail)
+    with pytest.raises(urllib.error.HTTPError):
+        live.LiveHevy().upsert_routine({"title": "x"}, "r-1")
+
+
+def test_twin_merge_keeps_both_halves():
+    t = dt.datetime(2026, 12, 1, 6, 0)
+    iv = SessionRecord(
+        id="i",
+        date=t.date(),
+        start=t,
+        sport="strength",
+        title="Strength",
+        duration_min=60,
+        training_load=55,
+        notes_untrusted="garmin",
+        sources=["intervals"],
+    )
+    hv = SessionRecord(
+        id="h",
+        date=t.date(),
+        start=t + dt.timedelta(minutes=5),
+        sport="strength",
+        title="Lower",
+        duration_min=55,
+        notes_untrusted="back 2",
+        sources=["hevy"],
+    )
+    (m,) = merge_sessions([], [hv, iv], None)
+    assert m.training_load == 55 and m.sources == ["hevy", "intervals"]
+    assert "back 2" in m.notes_untrusted and "garmin" in m.notes_untrusted

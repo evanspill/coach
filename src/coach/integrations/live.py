@@ -12,6 +12,7 @@ import base64
 import datetime as dt
 import json
 import os
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -68,7 +69,7 @@ class LiveWhoop(WhoopSource):
             page = _request("GET", url, self.headers)
             records.extend(page.get("records", []))
             token = page.get("next_token")
-            url = f"{self.base}{path}?{q}&nextToken={token}" if token else ""
+            url = f"{self.base}{path}?{q}&{urllib.parse.urlencode({'nextToken': token})}" if token else ""
         return records
 
     def daily(self, start, end):
@@ -132,9 +133,17 @@ class LiveHevy(HevySource):
         return str(res.get("id") if isinstance(res, dict) else res)
 
     def upsert_routine(self, routine, routine_id=None):
+        res = None
         if routine_id:
-            res = _request("PUT", f"{self.BASE}/routines/{routine_id}", self.headers, {"routine": routine})
-        else:
+            try:
+                res = _request(
+                    "PUT", f"{self.BASE}/routines/{routine_id}", self.headers, {"routine": routine}
+                )
+            except urllib.error.HTTPError as e:
+                if e.code != 404:
+                    raise
+                routine_id = None  # deleted in the Hevy app: create it again rather than fail the whole push
+        if not routine_id:
             res = _request("POST", f"{self.BASE}/routines", self.headers, {"routine": routine})
         r = res.get("routine", res) if isinstance(res, dict) else {}
         if isinstance(r, list):
