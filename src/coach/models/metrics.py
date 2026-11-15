@@ -103,6 +103,14 @@ class Checkin(Model):
                 raise ValueError(f"joint rating for {region} must be 1-5, got {rating}")
         return v
 
+    @field_validator("session_pain")
+    @classmethod
+    def _pain_0_to_10(cls, v: dict[str, float]) -> dict[str, float]:
+        for family, pain in v.items():
+            if not 0 <= pain <= 10:
+                raise ValueError(f"session pain for {family} must be 0-10, got {pain}")
+        return v
+
 
 class Gear(Model):
     id: str

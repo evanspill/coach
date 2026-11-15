@@ -241,5 +241,10 @@ class TrainingConfig(Model):
 
     def item_set(self, name: str, kind: str = "item_sets") -> ItemSet:
         table = getattr(self, kind)
-        s = table[name]
-        return table[s.same_as] if s.same_as else s
+        s, seen = table[name], {name}
+        while s.same_as:  # follow chains (a same_as b same_as c); a cycle is a config error
+            if s.same_as in seen:
+                raise ValueError(f"training.{kind}: same_as cycle through '{s.same_as}'")
+            seen.add(s.same_as)
+            s = table[s.same_as]
+        return s

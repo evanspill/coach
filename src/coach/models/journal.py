@@ -7,7 +7,7 @@ Each model has a stable `id` (or natural key) so every collection maps 1:1 to a 
 import datetime as dt
 from typing import Any, Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from coach.models.common import Model
 
@@ -38,6 +38,18 @@ class HealthEvent(Model):
     cleared_by: str | None = None  # e.g. "doctor", "physio"
     description_untrusted: str | None = None
 
+    @model_validator(mode="after")
+    def _red_flag_needs_clearance(self) -> "HealthEvent":
+        # docs/SAFETY.md: a red flag clears only with a doctor's clearance (`coach health resolve <id> --by doctor`)
+        if self.kind == "red_flag" and self.resolved_on is not None and self.cleared_by != "doctor":
+            raise ValueError(
+                f"red flag {self.id} can only be resolved with a doctor's clearance (cleared_by 'doctor'), "
+                f"got {self.cleared_by!r}"
+            )
+        if self.resolved_on is not None and self.resolved_on < self.start:
+            raise ValueError(f"health event {self.id} resolved_on is before its start")
+        return self
+
     def active_on(self, day: dt.date) -> bool:
         return self.start <= day and (self.resolved_on is None or day < self.resolved_on)
 
@@ -51,6 +63,12 @@ class Availability(Model):
     kind: Literal["travel", "gym_closed", "busy", "vacation"]
     equipment: list[str] | None = None  # what's available instead (None = athlete_context travel_equipment)
     note: str = ""
+
+    @model_validator(mode="after")
+    def _ordered(self) -> "Availability":
+        if self.end < self.start:
+            raise ValueError(f"availability {self.id}: end {self.end} is before start {self.start}")
+        return self
 
     def covers(self, day: dt.date) -> bool:
         return self.start <= day <= self.end

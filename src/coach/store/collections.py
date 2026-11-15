@@ -49,9 +49,14 @@ class Collection:
     def file(self, key: str | None = None) -> str:
         if key is None:
             return self.path
-        parts = key.split(":")
+        # keys come from record ids (often Claude-written JSON): never let one name a path outside its collection
+        if not key or "/" in key or "\\" in key or key.startswith(".") or "\0" in key:
+            raise ValueError(f"invalid key {key!r} for {self.name}")
         if "{a}" in self.path:
-            return self.path.format(a=parts[0], b=parts[1])
+            a, sep, b = key.partition(":")
+            if not (sep and a and b) or ":" in b:
+                raise ValueError(f"{self.name} keys look like 'a:b', got {key!r}")
+            return self.path.format(a=a, b=b)
         return self.path.format(key=key)
 
 
