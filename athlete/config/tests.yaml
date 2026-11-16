@@ -31,6 +31,61 @@ tests:
     unit: cm
     scoring: best_of
     conditions: "Same floor (gym turf), same shoes, fresh: first after warm-up."
+  # Dunk goal (athlete, 2026-11-14): standing reach + jump-and-touch heights. Not in any battery yet.
+  standing_reach:
+    slot: power
+    typical_error_pct: 0.5
+    stress: none
+    goal_change_pct: 0
+    session: {exercise: standing_reach, sets: 1, reps: 1}
+    name: Standing reach
+    quality: anthropometry (dunk goal)
+    pillar: neural
+    category: power
+    protocol: {procedure: "Shoes on, side to the wall, heels flat. Reach straight up with the wall-side hand (shoulder relaxed up, no lean) and mark the fingertip height. Best of 2, measure floor to mark in cm."}
+    equipment: [bodyweight]
+    location: gym
+    safety: "None."
+    metric: height
+    unit: cm
+    scoring: best_of
+    conditions: "Same shoes and wall each time."
+  standing_jump_touch:
+    slot: power
+    typical_error_pct: 2
+    stress: neural
+    goal_change_pct: 2
+    session: {exercise: standing_jump_touch, sets: 3, reps: 1, rest_s: 60}
+    name: Standing jump and touch
+    quality: vertical power (dunk goal)
+    pillar: neural
+    category: power
+    protocol: {procedure: "Feet planted under the wall mark, no step. Dip and jump, touch as high as possible with one hand (chalk or tape). 3 attempts, best counts; record touch height in cm (vertical = touch - standing reach).", rest: "60 s between attempts"}
+    equipment: [bodyweight]
+    location: gym
+    safety: "Stop if any knee/Achilles pain. Land softly on both feet."
+    metric: height
+    unit: cm
+    scoring: best_of
+    conditions: "Same shoes and wall, after the broad jump, fresh."
+  approach_jump_touch:
+    slot: power
+    typical_error_pct: 2
+    stress: neural
+    goal_change_pct: 2
+    session: {exercise: approach_jump_touch, sets: 3, reps: 1, rest_s: 90}
+    name: Approach jump and touch
+    quality: approach vertical (dunk goal)
+    pillar: neural
+    category: power
+    protocol: {procedure: "2-3 step approach, jump off whichever take-off feels natural (note one or two feet), touch as high as possible. 3 attempts, best counts; record touch height in cm. Rim = 305 cm.", rest: "90 s between attempts"}
+    equipment: [bodyweight]
+    location: gym
+    safety: "Stop if any knee/Achilles pain. Controlled landing; no attempt if the floor is slippery."
+    metric: height
+    unit: cm
+    scoring: best_of
+    conditions: "Same shoes, wall and approach each time."
   hinge_rm:
     slot: strength_lower
     typical_error_pct: 3

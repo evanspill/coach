@@ -28,18 +28,90 @@
     "date": "2026-11-16",
     "start_time": "09:30",
     "type": "test",
-    "title": "Test day: Standing broad jump, Hinge 3-5RM (current hinge rung), Neutral-grip DB press 5RM",
+    "title": "Test day: broad jump, reach + jump-and-touch, hinge 3-5RM, DB press 5RM",
     "intent": "Power, hinge and press baselines at current rungs (rep-max, no 1RMs); first confident hinge exposure.",
     "location": "gym",
     "route": null,
-    "expected_minutes": 85,
+    "expected_minutes": 150,
     "key": true,
     "carb_tier": "high",
     "blocks": [
       {
         "kind": "warmup",
-        "title": "Screen + lower/press prep: McGill Big 3, tibs, pogos, couch stretch, shoulders",
+        "title": "Movement screen (4 checks, record not scored) + lower/press prep",
         "items": [
+          {
+            "exercise_id": "knee_to_wall_test",
+            "sets": 1,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": "Lunge stance facing a wall, big toe X cm from the wall. Drive the knee to touch the wall with the heel flat; slide the foot back until you can just touch. Log the toe-to-wall distance (cm) each side in the set note. Video: https://www.youtube.com/watch?v=UzORz5em45s",
+            "ramp": []
+          },
+          {
+            "exercise_id": "overhead_reach_wall_test",
+            "sets": 1,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": "Back to the wall, feet ~15 cm out, knees soft, low back, upper back and head flat on the wall. Raise straight arms overhead (thumbs up). Note: do thumbs touch the wall without the low back arching? Video: https://www.youtube.com/watch?v=WgsCNDdLQOo",
+            "ramp": []
+          },
+          {
+            "exercise_id": "aslr_test",
+            "sets": 1,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": "Lie on back, legs straight, palms up. Raise one straight leg as high as possible, other leg flat, toes up. Note where the ankle gets to vs the other knee (above mid-thigh / mid-thigh-knee / below knee). Video: https://www.youtube.com/watch?v=mLihBR_9MN8",
+            "ramp": []
+          },
+          {
+            "exercise_id": "hip_rotation_test",
+            "sets": 1,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": true,
+            "notes": "Sit tall on a box/bench edge, knees at 90 deg. Without the hips lifting, swing the foot out (internal rotation) then in (external rotation). Note rough angle each way and any left groin/hip pinch. Video: https://www.youtube.com/watch?v=NQR5quF7grU",
+            "ramp": []
+          },
           {
             "exercise_id": "mcgill_curl_up",
             "sets": 1,
@@ -55,7 +127,7 @@
             "tempo": null,
             "rest_s": null,
             "per_side": false,
-            "notes": "10 s holds",
+            "notes": "10 s holds | Lie on back, one knee bent, hands under low back to keep its natural arch. Brace, lift head and shoulders 1-2 inches as one unit (no neck crank), hold, lower. Video: https://www.youtube.com/watch?v=vLpHJ1Cxj6k",
             "ramp": []
           },
           {
@@ -109,7 +181,7 @@
             "tempo": null,
             "rest_s": null,
             "per_side": false,
-            "notes": null,
+            "notes": "Shins/toes pull up against resistance (tib bar or back against a wall, heels ~30 cm out). Lift toes as high as possible, lower slowly. Video: https://www.youtube.com/watch?v=dnxy5DhY0Ks",
             "ramp": []
           },
           {
@@ -127,7 +199,7 @@
             "tempo": null,
             "rest_s": null,
             "per_side": false,
-            "notes": null,
+            "notes": "Small, quick bounces off the balls of the feet, knees nearly straight, ankles stiff; minimal ground contact. Video: https://www.youtube.com/watch?v=lz6BM6WyJ0k",
             "ramp": []
           },
           {
@@ -145,7 +217,7 @@
             "tempo": null,
             "rest_s": null,
             "per_side": true,
-            "notes": null,
+            "notes": "Back knee on a pad against a wall/bench, shin up the wall, front foot forward. Squeeze glute, ribs down, stand tall to stretch front of hip/quad. Video: https://www.youtube.com/watch?v=7bW0dBwB7Dc",
             "ramp": []
           },
           {
@@ -181,14 +253,14 @@
             "tempo": null,
             "rest_s": null,
             "per_side": false,
-            "notes": null,
+            "notes": "Plank with straight elbows. Let shoulder blades pinch together, then push the floor away to spread them; elbows never bend. Video: https://www.youtube.com/watch?v=LeMk15TN0No",
             "ramp": []
           }
         ],
         "run": [],
         "metcon": null,
         "test_id": null,
-        "notes": "Movement screen first (record in chat, not scored): ankle knee-to-wall distance each side; overhead reach with back flat on the wall (do thumbs touch the wall?); active straight-leg raise each side; hip internal/external rotation each side (note any left groin/hip pinch)."
+        "notes": ""
       },
       {
         "kind": "test",
@@ -220,6 +292,90 @@
       },
       {
         "kind": "test",
+        "title": "Standing reach",
+        "items": [
+          {
+            "exercise_id": "standing_reach",
+            "sets": 1,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": null,
+            "per_side": false,
+            "notes": "Shoes on, side to the wall, heels flat, reach straight up with the wall-side hand, mark fingertips. Best of 2; log height in cm. Video: https://www.youtube.com/watch?v=q8rfAKawjWk",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": "standing_reach",
+        "notes": ""
+      },
+      {
+        "kind": "test",
+        "title": "Standing jump and touch",
+        "items": [
+          {
+            "exercise_id": "standing_jump_touch",
+            "sets": 3,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 60,
+            "per_side": false,
+            "notes": "No step: dip, jump, touch as high as possible (chalk/tape). 3 attempts, best counts; log touch height in cm. Video: https://www.youtube.com/watch?v=ZwNoPMF3v_g",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": "standing_jump_touch",
+        "notes": ""
+      },
+      {
+        "kind": "test",
+        "title": "Approach jump and touch",
+        "items": [
+          {
+            "exercise_id": "approach_jump_touch",
+            "sets": 3,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "notes": "2-3 step approach, natural take-off (note 1 or 2 feet), touch as high as possible. 3 attempts, best counts; log touch height in cm. Rim is 305 cm.",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": "approach_jump_touch",
+        "notes": ""
+      },
+      {
+        "kind": "test",
         "title": "Hinge 3-5RM (current hinge rung)",
         "items": [
           {
@@ -237,7 +393,7 @@
             "tempo": null,
             "rest_s": null,
             "per_side": false,
-            "notes": "Baseline: work up to a 3-5RM at RPE 8 (2 in reserve), not 9. Stop at the first technique break or back discomfort > 2/10; a conservative number is the goal.",
+            "notes": "Baseline: work up to a 3-5RM at RPE 8 (2 in reserve), not 9. Stop at the first technique break or back discomfort > 2/10; a conservative number is the goal. | Stand in the trap bar, grip middle of the HIGH handles, hips back, neutral spine, push the floor away and stand tall; lower under control. Video: https://www.youtube.com/watch?v=mluyMgI8QKw",
             "ramp": []
           }
         ],
@@ -265,7 +421,7 @@
             "tempo": null,
             "rest_s": null,
             "per_side": false,
-            "notes": "work up to a 5RM at RPE 9",
+            "notes": "work up to a 5RM at RPE 9 | Flat bench, dumbbells with palms facing each other, shoulder blades back and down, lower to chest, press up. Video: https://www.youtube.com/watch?v=Lj57a6xk7l0",
             "ramp": []
           }
         ],
@@ -323,13 +479,22 @@
     ],
     "tests": [
       "broad_jump",
+      "standing_reach",
+      "standing_jump_touch",
+      "approach_jump_touch",
       "hinge_rm",
       "db_press_5rm"
     ],
     "recovery_note": "",
     "shoe": null
   },
-  "changes": [],
+  "changes": [
+    {
+      "what": "Added standing reach, standing jump-and-touch and approach jump-and-touch tests after the broad jump; movement screen split into 4 separate items; exercise descriptions + demo videos in notes",
+      "why": "athlete request (dunk goal baseline; clearer logging in Hevy)",
+      "kind": "small"
+    }
+  ],
   "recovery_prescription": [
     "10 min evening mobility: hips/hamstrings, T-spine, shoulders (PT routine); Venom Back heat if the low back feels tight",
     "Log back and shoulder 0-10 tonight and tomorrow morning",
@@ -346,5 +511,5 @@
   "approvals_pending": [],
   "stale_sources": [],
   "generated_by": "claude",
-  "notification": "GREEN: recovery fine, HRV in range, no joint flags.\nToday: Test day: broad jump, trap-bar hinge 3-5RM, DB press 5RM (~85 min, gym). Hinge conservative: stop at first form break or back > 2/10.\nAlso: measure standing reach + best jump-and-touch (dunk goal).\nFuel: carb-rich breakfast 2-3 h before; protein + carbs after. MacroFactor restarts today: log + weigh.\nTonight: 10 min hip/T-spine/shoulder mobility, bed by 10:30.\nGear: confirm the trap bar's weight; pair the new Pod before Wed's run.\nReply with your jump, hinge and press numbers + how the back felt."
+  "notification": ""
 }
