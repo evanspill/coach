@@ -29,7 +29,7 @@ loading:
     bar_lb: 45
     smallest_step_lb_per_side: 1.25
   trap_bar:
-    bar_lb: 60
+    bar_lb: 75
     smallest_step_lb_per_side: 1.25
   open_trap_bar:
     bar_lb: 65
