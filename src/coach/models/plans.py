@@ -44,8 +44,9 @@ Pillar = Literal["neural", "force", "glycolytic", "aerobic"]
 
 class RampSet(Model):
     reps: int
-    load_kg: float
+    load_kg: float | None = None  # None: bodyweight, or a working weight the athlete picks (see pct)
     load_lb: float | None = None
+    pct: float | None = None  # fraction of the working weight when the load is self-selected
 
 
 class Prescription(Model):

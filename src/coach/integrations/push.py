@@ -141,7 +141,9 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             # a pair of DBs/KBs is logged as the total of both when the athlete logs that way (Whoop style)
             pair = ex.implements if pair_total else 1
             sets: list[dict[str, Any]] = [
-                {"type": "warmup", "weight_kg": round(r.load_kg * pair, 2), "reps": r.reps} for r in it.ramp
+                {"type": "warmup", "reps": r.reps}
+                | ({"weight_kg": round(r.load_kg * pair, 2)} if r.load_kg is not None else {})
+                for r in it.ramp
             ]
             for _ in range(it.sets):
                 st: dict = {

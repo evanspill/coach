@@ -437,3 +437,19 @@ Each entry: **decision** - why - how to reverse.
       hold with only one side logged is not scored; `max_reps` also ignores warm-up sets; a library title that
       itself ends in "(Left)" maps as is; the belt needs an explicit rep count.
     - Reverse: revert the commits; `pair_weight_logging: per_implement` restores per-hand logging.
+96. **Warm-up sets on every strength exercise** (athlete request, 2026-11-17; extends 48):
+    - `Filler.warmups` sizes warm-ups to what the exercise's prime mover (its first listed muscle) has already done
+      in the session (strength, hypertrophy, test and power blocks): primary lifts keep the full ramp (~50% x5,
+      70% x3, 85% x1); the first loaded compound for a prime mover gets two build-up sets (~50% x5, 75% x3);
+      isolation work or a prime mover already warm gets one feeler set (~60% x5); bodyweight strength work on a
+      fresh prime mover gets one easy set of about a third of the target (2 reps before a max-reps test).
+      Warm-up reps never exceed the work reps.
+    - Prime mover, not every listed muscle: a deadlift's secondary back work doesn't warm the lats for pull-ups.
+      Common coaching practice: the first exercise for a muscle needs a ramp, later ones a feeler at most; extra
+      warm-up volume beyond that only costs work-set performance.
+    - No warm-up sets for timed holds, carries, jumps/plyos, core/prehab/mobility drills and conditioning
+      movements: the session's warm-up block primes those, and extra holds or jumps before a test add fatigue.
+    - Machine/cable warm-ups round to 5 lb stack steps. Unknown working weights (no e1RM or history yet) get
+      percentage warm-ups (`RampSet.pct`) and a load note ("warm-up ~50% x5, ~75% x3 of your working weight");
+      they and bodyweight warm-ups are pushed to Hevy as warm-up sets without a weight.
+    - Reverse: revert the commit (only primary lifts with a known load get a ramp again).

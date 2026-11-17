@@ -24,8 +24,9 @@ active joint flags from `coach readiness`.
   snatching.
 - Deload weeks: swap eccentric-heavy / high-impact work (`deload_swap`), cut volume ~40-50%, keep intensity.
 - Metcons state the **intended stimulus**, format, time cap and scaling; Hyrox pieces state run pace and stations.
-- Main lifts: 1-3 RIR (people misjudge RIR by about one rep, so 0 RIR is for tests only). `coach` adds warm-up
-  ramp sets to the working weight.
+- Main lifts: 1-3 RIR (people misjudge RIR by about one rep, so 0 RIR is for tests only). `coach` adds
+  warm-up sets to every strength exercise (full ramp for main lifts, fewer for later or isolation work; none for
+  holds, jumps, core/prehab or metcon movements, which the warm-up block covers). Don't write warm-up sets yourself.
 - Prescribe sets, reps, RIR (strength) and zones (runs). **Leave `load_kg` and paces empty**: `coach` fills them.
 - Set `expected_minutes` to the session's purpose and the athlete's current capacity (shorter on Yellow/deload).
 

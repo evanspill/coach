@@ -164,7 +164,7 @@ src/coach/
 | `coach/integrations/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled` |
 | `coach/engine/validator.py` | Every guardrail, with stable rule codes |
 | `coach/engine/goals.py` | Long-term goal feasibility (age-graded standard, Riegel threshold <-> marathon, trend projection) |
-| `coach/coaching/fill.py` | Fills loads (current e1RM -> rounded implement, + warm-up ramp for primary lifts) and paces/HR (zones) into plans |
+| `coach/coaching/fill.py` | Fills loads (current e1RM -> rounded implement, + warm-up sets sized to the session, decision 96) and paces/HR (zones) into plans |
 | `coach/coaching/records.py` | The one submit path for records Claude writes: fill -> validate -> save -> summary/proposal (`coach record add --file`) |
 | `coach/coaching/proposals.py` | Proposals (targets are `collection/key` refs), approve/reject, config lock + changelog |
 | `coach/coaching/skills/` | Deterministic stand-in for each skill (used after 3 failed validations and in simulation) |

@@ -13,6 +13,7 @@ from coach.engine.parsing import detect_red_flags
 from coach.engine.validator import validate_week
 from coach.models import Deviation, Prescription
 from coach.models.metrics import SessionRecord, SetRecord
+from coach.models.plans import RampSet
 
 TODAY = dt.date(2026, 11, 29)
 
@@ -82,10 +83,84 @@ def test_ramp_sets_climb_below_the_working_weight(b1):
 
 def test_primary_lifts_get_a_ramp_in_the_plan(b1):
     _, plan, _ = b1
-    ramps = [it for s in plan.sessions for b in s.blocks if b.kind == "strength" for it in b.items if it.ramp]
+    ramps = [
+        it
+        for s in plan.sessions
+        for b in s.blocks
+        if b.kind == "strength"
+        for it in b.items
+        if it.ramp and it.load_kg
+    ]
     assert ramps, "primary strength lifts should carry warm-up ramp sets"
     for it in ramps:
-        assert all(r.load_kg < it.load_kg for r in it.ramp)
+        assert all(r.load_kg is not None and r.load_kg < it.load_kg for r in it.ramp)
+
+
+def test_ramp_tiers_and_machine_stacks(b1):
+    ctx, _, _ = b1
+    loading = ctx.cfg.equipment.loading
+    assert [r for r, _, _ in L.ramp_sets(100, "barbell", loading, 8, "build")] == [5, 3]
+    assert [r for r, _, _ in L.ramp_sets(100, "barbell", loading, 12, "feeler")] == [5]
+    stack = L.ramp_sets(50, "cable", loading, 10, "build")
+    assert stack and all(lb is not None and lb % 5 == 0 for _, _, lb in stack)
+    assert L.ramp_sets(2, "machine", loading, 10, "feeler") == []  # too light to warm up below
+    assert [L.bodyweight_warmup_reps(n) for n in (None, 1, 5, 12)] == [2, 1, 2, 3]
+
+
+def _warmup_session(items):
+    from coach.models import Session, SessionBlock
+
+    blocks = [SessionBlock(kind=k, title=k, items=[Prescription(**i)]) for k, i in items]
+    return Session(
+        id="t", date=TODAY, type="lower", title="t", intent="t", expected_minutes=60, blocks=blocks
+    )
+
+
+def test_every_strength_exercise_gets_warmups_sized_to_the_session(b1):
+    from coach.coaching.fill import Filler
+
+    ctx, _, _ = b1
+    f = Filler(ctx.cfg.library, ctx.cfg.equipment.loading, [], ctx.zones, TODAY, ctx.cfg.training.rules)
+    s = _warmup_session(
+        [
+            ("power", {"exercise_id": "box_jump", "sets": 3, "reps": 3}),
+            ("strength", {"exercise_id": "trap_bar_deadlift_high", "sets": 4, "reps": 4, "rir": 2}),
+            ("strength", {"exercise_id": "strict_pull_up", "sets": 4, "reps": 6}),
+            ("hypertrophy", {"exercise_id": "seated_leg_curl", "sets": 3, "reps": 10, "rir": 2}),
+            ("hypertrophy", {"exercise_id": "side_plank", "sets": 2, "duration_s": 30}),
+        ]
+    )
+    f.fill(s)
+    by = {it.exercise_id: it for b in s.blocks for it in b.items}
+    assert by["box_jump"].ramp == []  # jumps are primed by the warm-up block
+    dl = by["trap_bar_deadlift_high"]
+    assert [r.pct for r in dl.ramp] == [0.5, 0.7, 0.85]  # no history: percentage ramp + note
+    assert all(r.load_kg is None for r in dl.ramp) and "warm-up ~50% x4" in (dl.load_note or "")
+    assert [(r.reps, r.load_kg) for r in by["strict_pull_up"].ramp] == [(2, None)]
+    assert len(by["seated_leg_curl"].ramp) == 1  # isolation: one feeler set
+    assert by["side_plank"].ramp == []
+    f.fill(s)  # refilling is idempotent
+    assert by["trap_bar_deadlift_high"].load_note.count("warm-up") == 1
+
+
+def test_bodyweight_and_self_selected_warmups_push_without_a_weight(b1):
+    from coach.integrations.push import hevy_routine
+
+    ctx, plan, _ = b1
+    s = next(s for s in plan.sessions if any(it.ramp for b in s.blocks for it in b.items)).model_copy(
+        deep=True
+    )
+    it = next(it for b in s.blocks for it in b.items if it.ramp)
+    it.ramp = [RampSet(reps=2), RampSet(reps=5, pct=0.5)]
+    body = hevy_routine(s, ctx)
+    assert body is not None
+    warm = [
+        st
+        for ex in body["exercises"]
+        for st in ex["sets"]
+        if st["type"] == "warmup" and "weight_kg" not in st and "reps" in st
+    ]
+    assert {st["reps"] for st in warm} >= {2, 5}
 
 
 def test_last_used_loads_round_dumbbells_and_keep_machine_numbers(b1):
