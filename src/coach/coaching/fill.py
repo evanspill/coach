@@ -1,6 +1,7 @@
 """Fill in the numbers Claude must not invent: loads (from e1RM, rounded to real plates/DBs/KBs) and paces/HR."""
 
 import datetime as dt
+import re
 
 from coach.engine import loads as L
 from coach.engine.paces import Zones
@@ -93,7 +94,10 @@ class Filler:
                 steps = L.WARMUP_STEPS[tier]
                 it.ramp = [RampSet(reps=min(r, reps), pct=p) for p, r in steps]
                 plan = ", ".join(f"~{p:.0%} x{min(r, reps)}" for p, r in steps)
-                it.load_note = f"{it.load_note}; warm-up {plan} of your working weight".lstrip("; ")
+                base = re.sub(
+                    r"(^|; )warm-up .*$", "", it.load_note or ""
+                )  # never stack the plan on a refill
+                it.load_note = f"{base}; warm-up {plan} of your working weight".lstrip("; ")
 
     def fill(
         self,

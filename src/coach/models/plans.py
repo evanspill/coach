@@ -46,7 +46,7 @@ class RampSet(Model):
     reps: int
     load_kg: float | None = None  # None: bodyweight, or a working weight the athlete picks (see pct)
     load_lb: float | None = None
-    pct: float | None = None  # fraction of the working weight when the load is self-selected
+    pct: float | None = Field(default=None, gt=0, le=1)  # fraction of the working weight when self-selected
 
 
 class Prescription(Model):

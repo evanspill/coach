@@ -141,6 +141,14 @@ def test_every_strength_exercise_gets_warmups_sized_to_the_session(b1):
     assert by["side_plank"].ramp == []
     f.fill(s)  # refilling is idempotent
     assert by["trap_bar_deadlift_high"].load_note.count("warm-up") == 1
+    dl.load_note = "kept from an earlier fill; warm-up ~50% x4 of your working weight"
+    f.warmups(s)  # even without the load reset, the plan is never appended twice
+    assert (dl.load_note or "").count("warm-up") == 1
+    dl.load_note = "warm-up ~50% x4 of your working weight"
+    f.warmups(s)
+    assert (dl.load_note or "").count("warm-up") == 1
+    with pytest.raises(ValidationError):
+        RampSet(reps=5, pct=5.0)
 
 
 def test_bodyweight_and_self_selected_warmups_push_without_a_weight(b1):
