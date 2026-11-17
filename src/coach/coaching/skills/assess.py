@@ -72,11 +72,11 @@ def extract_raw(
         else:
             top = _top_set(sessions, day, lambda ex: ex == ex_id)
         return {"weight_kg": top[0], "reps": top[1], "rir": top[2], "variant": top[3]} if top else None
-    if t.scoring == "max_reps" and ex_id:
-        reps = [st.reps for s in sessions for st in s.sets if st.exercise_id == ex_id and st.reps]
-        return {"reps": max(reps)} if reps else None
     # test sets only: warm-up sets of the same exercise (a 20 s side plank in the warm-up) are not attempts
     work = [st for s in sessions for st in s.sets if st.exercise_id == ex_id and st.set_type != "warmup"]
+    if t.scoring == "max_reps" and ex_id:
+        reps = [st.reps for st in work if st.reps]
+        return {"reps": max(reps)} if reps else None
     if t.scoring == "max_hold" and ex_id:
         holds = [st.duration_s for st in work if st.duration_s]
         if not holds:
@@ -89,6 +89,8 @@ def extract_raw(
         }
         if by_side["left"] and by_side["right"]:
             return {"holds_s": [by_side["left"], by_side["right"]]}  # (left, right)
+        if any(st.side for st in work):
+            return None  # only one side logged: incomplete, not scored (no invented asymmetry)
         return {"holds_s": holds[:2]}  # older logs without sides: in logged order
     if t.scoring == "best_of" and ex_id:
         att = [round(st.distance_m * 100) for st in work if st.distance_m]

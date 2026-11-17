@@ -101,6 +101,13 @@ writes them to the same row types under the git-ignored `athlete/data/.cache/who
 refetched in a fresh container) and `Store.daily_metrics()` / `Store.sessions()` merge them in. Stored day records
 keep the readiness state and reasons, not Whoop's numbers. Chat check-ins live in `checkins`; `Store.checkins()` merges both (Intervals > Hevy notes > chat).
 
+Session sets from Hevy are stored as the coach plans them: a set's `side` is `left`/`right` for per-side work logged as
+`X (Left)` / `X (Right)` (else empty); inch-logged measurements (`Name (in)`, reps = inches) are stored as
+`distance_m`; DB/KB pairs logged as totals (`coach.yaml pair_weight_logging: total`, from
+`pair_weight_total_since`) are stored per implement. Library fields that drive this (`config/exercises.yaml`):
+`hevy_log` (`default` | `inches`), `implements` (2 = a pair), plus `description` and `video_url`, the how-to and
+demo link added to the routine notes (DECISIONS 94-95).
+
 ## The athlete journal: what earned a place
 
 Good coaches and athletes keep more than numbers. We looked at what coaching platforms and practice commonly

@@ -203,17 +203,18 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 next_superset += 1
             for side in sides:
                 side_title = ex.hevy_name(side)
-                exercises.append(
-                    {
-                        "exercise_template_id": (ex.hevy_template_id if side is None else None)
-                        or resolver.resolve(side_title, *(spec or _custom_spec(ex, it, ctx.cfg.tests.tests))),
-                        "superset_id": superset,
-                        # left side: a short switch; the full rest comes after the right side
-                        "rest_seconds": rules.side_switch_s if side == "Left" else rest,
-                        "notes": note if side != "Right" else f"Right side. {it.notes or ''}".strip(),
-                        "sets": [dict(st) for st in sets],
-                    }
-                )
+                entry: dict[str, Any] = {
+                    "exercise_template_id": (ex.hevy_template_id if side is None else None)
+                    or resolver.resolve(side_title, *(spec or _custom_spec(ex, it, ctx.cfg.tests.tests))),
+                    # left side: a short switch; the full rest comes after the right side
+                    "rest_seconds": rules.side_switch_s if side == "Left" else rest,
+                    # both sides keep every cue (RIR, load, belt, rest, how-to)
+                    "notes": f"{side} side. {note}".strip() if side else note,
+                    "sets": [dict(st) for st in sets],
+                }
+                if superset is not None:  # only per-side pairs are supersets; others send no superset_id
+                    entry["superset_id"] = superset
+                exercises.append(entry)
     if not exercises:
         return None
     return {

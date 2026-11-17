@@ -102,7 +102,7 @@ class LiveHevy(HevySource):
                 break
             page += 1
         cfg = load_config()
-        recs = N.hevy_workouts(out, cfg.library, cfg.settings.pair_weight_logging == "total")
+        recs = N.hevy_workouts(out, cfg.library, cfg.settings.pair_total_on)
         return [r for r in recs if start <= r.date <= end]
 
     def template_ids(self):

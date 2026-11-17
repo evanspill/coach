@@ -26,6 +26,6 @@ def belt_for(block_kind: str, ex: Exercise | None, it: Prescription, rules: Trai
         return None
     if block_kind == "test":  # working up to a rep max: only the heaviest sets
         return f"last {b.test_sets} (heaviest) sets"
-    if it.rir is not None and it.rir <= b.max_rir and (it.reps or 0) <= b.max_reps:
+    if it.rir is not None and it.reps is not None and it.rir <= b.max_rir and it.reps <= b.max_reps:
         return "all work sets (not warm-up/ramp sets)"
     return None

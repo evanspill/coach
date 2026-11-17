@@ -1,6 +1,7 @@
 """Raw API payload -> normalized models. Shared by mock and live clients, so fixtures exercise real code."""
 
 import datetime as dt
+from collections.abc import Callable
 
 from coach.engine.readiness import rpe_to_rir
 from coach.engine.units import M_PER_MI
@@ -117,8 +118,11 @@ def whoop_workouts(raw: list[dict]) -> list[SessionRecord]:
 
 
 # ---------------- Hevy ----------------
-def hevy_workouts(raw: list[dict], library: ExerciseLibrary, pair_total: bool = False) -> list[SessionRecord]:
-    """Hevy workouts -> sessions. `pair_total`: DB/KB pairs are logged as the total of both (stored per implement)."""
+def hevy_workouts(
+    raw: list[dict], library: ExerciseLibrary, pair_total: Callable[[dt.date], bool] | bool = False
+) -> list[SessionRecord]:
+    """Hevy workouts -> sessions. `pair_total` (a flag, or day -> flag): DB/KB pairs were logged as the total of
+    both; they are stored per implement."""
     out = []
     for w in raw:
         start = _local(_parse_ts(w["start_time"]))
@@ -138,7 +142,8 @@ def hevy_workouts(raw: list[dict], library: ExerciseLibrary, pair_total: bool = 
             by_title, side = library.parse_hevy_title(ex["title"])
             match = match or by_title
             inches = match is not None and match.hevy_log == "inches"
-            per = match.implements if match is not None and pair_total else 1
+            totals = pair_total(start.date()) if callable(pair_total) else pair_total
+            per = match.implements if match is not None and totals else 1
             for s in ex.get("sets", []):
                 st = s.get("type", "normal")
                 reps: int | None = s.get("reps")

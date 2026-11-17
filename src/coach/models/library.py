@@ -81,6 +81,9 @@ class ExerciseLibrary(Model):
         """A logged Hevy title -> (library exercise, side). Strips the ' (Left)'/' (Right)' suffix of per-side
         exercises and resolves inch-logged titles ('Standing broad jump (in)')."""
         t = title.strip()
+        exact = self.by_hevy_title(t)
+        if exact is not None:  # a library title that itself ends in "(Left)" maps as is
+            return exact, None
         side = None
         for s in SIDES:
             if t.endswith(f" ({s})"):

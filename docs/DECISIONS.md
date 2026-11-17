@@ -430,4 +430,10 @@ Each entry: **decision** - why - how to reverse.
     - `coach.yaml pair_weight_logging: total`: the athlete logs a pair of dumbbells/kettlebells as the total (as in
       Whoop). Library exercises with `implements: 2` are pushed at 2x the per-implement load (the note names both),
       and sync divides logged weights back, so e1RMs, rounding and the DB rack stay per implement.
+    - `pair_weight_total_since` (2026-11-16, the first workout logged as totals) gates the conversion by workout
+      date, so any per-hand logs from before the switch are never halved on a later sync.
+    - Review follow-ups: both sides of a per-side superset carry the full note (prefixed "Left side."/"Right side.");
+      `superset_id` is sent only for those pairs (live Hevy accepted numeric ids on 2026-11-16 pushes); a per-side
+      hold with only one side logged is not scored; `max_reps` also ignores warm-up sets; a library title that
+      itself ends in "(Left)" maps as is; the belt needs an explicit rep count.
     - Reverse: revert the commits; `pair_weight_logging: per_implement` restores per-hand logging.

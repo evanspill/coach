@@ -723,8 +723,9 @@ def test_per_side_work_is_a_left_right_superset_and_maps_back(b1):
         ex[0]["exercise_template_id"],
         ex[1]["exercise_template_id"],
     ]
-    assert ex[0]["superset_id"] == ex[1]["superset_id"] == 0 and ex[2]["superset_id"] is None
+    assert ex[0]["superset_id"] == ex[1]["superset_id"] == 0 and "superset_id" not in ex[2]
     assert "per side" not in ex[0]["notes"] and ex[1]["notes"].startswith("Right side")
+    assert ex[1]["notes"] == ex[0]["notes"].replace("Left side.", "Right side.", 1)  # same cues both sides
     raw = [
         {
             "id": "w",
@@ -916,3 +917,91 @@ def test_dumbbell_pairs_are_logged_as_the_total_and_stored_per_hand(b1):
         assert hevy_workouts(raw, lib)[0].sets[0].weight_kg == 72.6
     finally:
         ex.implements, ctx.cfg.settings.pair_weight_logging = old
+
+
+def test_several_per_side_items_get_their_own_supersets(b1):
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    s = _one_block_session(
+        "warmup",
+        [
+            Prescription(exercise_id="side_plank", sets=1, duration_s=20, per_side=True, notes="brace"),
+            Prescription(exercise_id="dead_hang", sets=1, duration_s=30),
+            Prescription(exercise_id="bird_dog", sets=1, reps=6, per_side=True),
+        ],
+    )
+    ex = hevy_routine(s, ctx, TemplateResolver(mock_sources(MockWorld.load()).hevy))["exercises"]
+    assert [e.get("superset_id") for e in ex] == [0, 0, None, 1, 1]
+    assert "brace" in ex[1]["notes"] and ex[1]["notes"].startswith("Right side.")
+
+
+def test_one_sided_side_bridge_is_not_scored():
+    import types
+
+    from coach.coaching.skills.assess import extract_raw
+    from coach.config import load_config
+    from coach.models import SetRecord
+
+    cfg = load_config()
+    day = dt.date(2026, 11, 17)
+    sets = [
+        SetRecord(exercise_id="side_plank", exercise_name="x", duration_s=70, side="left"),
+        SetRecord(exercise_id="side_plank", exercise_name="x", duration_s=65, side="left"),
+    ]
+    session = SessionRecord(
+        id="s",
+        date=day,
+        start=dt.datetime(2026, 11, 17, 9),
+        sport="strength",
+        title="t",
+        duration_min=60,
+        sets=sets,
+    )
+    ctx = types.SimpleNamespace(cfg=cfg, state=types.SimpleNamespace(sessions=lambda a, b: [session]))
+    tid = next(t for t, d in cfg.tests.tests.items() if d.scoring == "max_hold" and d.session.get("per_side"))
+    assert extract_raw(tid, day, ctx) is None
+
+
+def test_a_library_title_ending_in_a_side_maps_as_is():
+    from coach.config import load_config
+
+    lib = load_config().library
+    lib.exercises["bird_dog"].hevy_title = "Bird Dog (Left)"
+    try:
+        assert lib.parse_hevy_title("Bird Dog (Left)") == (lib.get("bird_dog"), None)
+        assert lib.parse_hevy_title("Side Plank (Right)")[1] == "right"
+    finally:
+        lib.exercises["bird_dog"].hevy_title = "Bird Dog"
+
+
+def test_pair_totals_only_from_the_switch_date():
+    from coach.config import load_config
+    from coach.integrations.normalize import hevy_workouts
+    from coach.models.profile import CoachSettings
+
+    lib = load_config().library
+    ex = lib.exercises["db_bench_press_neutral"]
+    old = ex.implements
+    ex.implements = 2
+    settings = CoachSettings(pair_weight_logging="total", pair_weight_total_since=dt.date(2026, 11, 16))
+
+    def workout(day):
+        return {
+            "id": day,
+            "title": "t",
+            "start_time": f"{day}T14:00:00Z",
+            "end_time": f"{day}T15:00:00Z",
+            "exercises": [
+                {"title": ex.hevy_name(), "sets": [{"type": "normal", "weight_kg": 72.6, "reps": 5}]}
+            ],
+        }
+
+    try:
+        before, after = hevy_workouts(
+            [workout("2026-11-10"), workout("2026-11-16")], lib, settings.pair_total_on
+        )
+        assert before.sets[0].weight_kg == 72.6 and after.sets[0].weight_kg == 36.3
+    finally:
+        ex.implements = old

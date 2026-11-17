@@ -97,7 +97,7 @@ class MockHevy(HevySource):
     def workouts(self, start, end):
         today = MockWorld.now_cutoff()
         cfg = load_config()
-        lib, pair_total = cfg.library, cfg.settings.pair_weight_logging == "total"
+        lib, pair_total = cfg.library, cfg.settings.pair_total_on
         return [
             s
             for s in N.hevy_workouts(self.w.hevy["workouts"], lib, pair_total)

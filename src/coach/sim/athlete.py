@@ -108,7 +108,7 @@ class SimAthlete:
 
     def _pair(self, ex) -> int:
         """How many implements the athlete adds up when logging (a DB pair logged as the total)."""
-        total = self.cfg.settings.pair_weight_logging == "total"
+        total = self.cfg.settings.pair_weight_logging == "total"  # simulated days are all after the switch
         return ex.implements if ex is not None and total else 1
 
     def _lifts(self, s: Session, day: dt.date, results: dict, rpe_add: float) -> list[dict]:
