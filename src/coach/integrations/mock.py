@@ -96,10 +96,11 @@ class MockHevy(HevySource):
 
     def workouts(self, start, end):
         today = MockWorld.now_cutoff()
-        lib = load_config().library
+        cfg = load_config()
+        lib, pair_total = cfg.library, cfg.settings.pair_total_on
         return [
             s
-            for s in N.hevy_workouts(self.w.hevy["workouts"], lib)
+            for s in N.hevy_workouts(self.w.hevy["workouts"], lib, pair_total)
             if _in(s.date, start, end) and s.date < today
         ]
 
@@ -108,7 +109,7 @@ class MockHevy(HevySource):
             from coach.config import load_config
 
             for ex in load_config().library.exercises.values():
-                title = ex.hevy_title or ex.name
+                title = ex.hevy_name()
                 self.w.templates[title.lower()] = f"mock-tpl-{len(self.w.templates) + 1}"
         return dict(self.w.templates)
 

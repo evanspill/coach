@@ -212,7 +212,9 @@ def _top_up_aerobic(
 def finalize(ctx: Context, sessions: list[Session]) -> None:
     """Minutes, carb tiers, loads and paces (code-computed numbers)."""
     hist = ctx.state.sessions(ctx.today - dt.timedelta(weeks=10), ctx.today)
-    filler = Filler(ctx.cfg.library, ctx.cfg.equipment.loading, hist, ctx.zones, ctx.today)
+    filler = Filler(
+        ctx.cfg.library, ctx.cfg.equipment.loading, hist, ctx.zones, ctx.today, ctx.cfg.training.rules
+    )
     ordered = sorted(sessions, key=lambda s: s.date)
     for i, s in enumerate(ordered):
         s.expected_minutes = D.estimate_minutes(s, ctx.zones.threshold_pace_s_per_mi)

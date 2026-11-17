@@ -209,6 +209,14 @@ class SkillPractice(Model):
     fallback: list[str] = Field(default_factory=list)
 
 
+class BeltRule(Model):
+    tags_all: list[str] = Field(default_factory=list)  # exercise needs all of these tags (empty: never)
+    block_kinds: list[str] = Field(default_factory=lambda: ["strength", "test"])
+    max_rir: float = 2  # heavy work sets: RIR at or below this
+    max_reps: int = 8
+    test_sets: int = 2  # rep-max tests: the last N (heaviest) sets
+
+
 class TrainingRules(Model):
     required_warmup: dict[str, list[str]] = Field(default_factory=dict)
     forbidden_back_to_back: list[tuple[str, str]] = Field(default_factory=list)
@@ -220,6 +228,11 @@ class TrainingRules(Model):
     min_recovery_days_per_week: int = 1
     carb_tiers: dict[str, list[str]] = Field(default_factory=dict)
     intra_session_carb_types: list[str] = Field(default_factory=list)
+    # rest between sets (s) by block kind when the plan doesn't set one; "default" for anything else
+    rest_s: dict[str, int] = Field(default_factory=lambda: {"default": 60})
+    rest_primary_s: dict[str, int] = Field(default_factory=dict)  # primary lifts, by block kind
+    side_switch_s: int = 10  # rest after the left side of a per-side exercise, before the right
+    belt: BeltRule = BeltRule()
 
 
 class TestsDay(Model):

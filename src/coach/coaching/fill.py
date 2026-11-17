@@ -4,9 +4,11 @@ import datetime as dt
 
 from coach.engine import loads as L
 from coach.engine.paces import Zones
+from coach.engine.prescribe import rest_for
 from coach.models import Session, SessionRecord
 from coach.models.library import ExerciseLibrary
 from coach.models.plans import RampSet
+from coach.models.season import TrainingRules
 
 
 class Filler:
@@ -17,12 +19,14 @@ class Filler:
         history: list[SessionRecord],
         zones: Zones,
         today: dt.date,
+        rules: TrainingRules | None = None,
     ):
         self.lib = library
         self.loading = loading
         self.history = history
         self.zones = zones
         self.today = today
+        self.rules = rules
         self._e1rm_cache: dict[str, float | None] = {}
 
     def e1rm(self, ex_id: str) -> float | None:
@@ -46,6 +50,11 @@ class Filler:
         notes: list[str] = []
         ecc = eccentric_families or set()
         for b in s.blocks:
+            if (
+                self.rules is not None
+            ):  # every set-based exercise gets a rest (metcon movements run on the clock)
+                for it in b.items:
+                    it.rest_s = rest_for(b.kind, self.lib.get(it.exercise_id), it, self.rules)
             items = list(b.items) + (list(b.metcon.movements) if b.metcon else [])
             for it in items:
                 ex = self.lib.get(it.exercise_id)

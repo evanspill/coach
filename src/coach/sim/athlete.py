@@ -106,6 +106,11 @@ class SimAthlete:
         notes.append(f"[athlete] did {s.title} (RPE {session_rpe})")
         return notes
 
+    def _pair(self, ex) -> int:
+        """How many implements the athlete adds up when logging (a DB pair logged as the total)."""
+        total = self.cfg.settings.pair_weight_logging == "total"  # simulated days are all after the switch
+        return ex.implements if ex is not None and total else 1
+
     def _lifts(self, s: Session, day: dt.date, results: dict, rpe_add: float) -> list[dict]:
         lib = self.cfg.library
         out = []
@@ -141,14 +146,14 @@ class SimAthlete:
                         {
                             "index": i,
                             "type": "normal",
-                            "weight_kg": load,
+                            "weight_kg": load * self._pair(ex) if load else load,
                             "reps": reps,
                             "rpe": rpe,
                             "duration_seconds": it.duration_s,
                             "distance_meters": it.distance_m,
                         }
                     )
-                out.append({"title": ex.hevy_title or ex.name, "sets": sets})
+                out.append({"title": ex.hevy_name(), "sets": sets})
         return out
 
     def _test_sets(self, test_id: str, items, results: dict) -> list[dict]:
@@ -158,7 +163,7 @@ class SimAthlete:
             return []
         it = items[0]
         ex = lib.get(it.exercise_id)
-        title = (ex.hevy_title or ex.name) if ex else it.exercise_id
+        title = ex.hevy_name() if ex else it.exercise_id
         if test_id in {"hinge_rm", "squat_rm"}:
             factor = self.cfg.tests.tests[test_id].variants.get(it.exercise_id, 1.0)
             w = round(r["weight_kg"] / factor / 2.5) * 2.5
@@ -189,7 +194,7 @@ class SimAthlete:
                         {
                             "index": 0,
                             "type": "normal",
-                            "weight_kg": r["weight_kg"],
+                            "weight_kg": r["weight_kg"] * self._pair(ex),
                             "reps": r["reps"],
                             "rpe": 10 - r["rir"],
                         }
@@ -203,7 +208,10 @@ class SimAthlete:
                 {
                     "title": title,
                     "sets": [
-                        {"index": i, "type": "normal", "distance_meters": a / 100, "reps": 1}
+                        # inch-logged jumps carry the distance in the reps box
+                        {"index": i, "type": "normal", "reps": round(a / 2.54)}
+                        if ex is not None and ex.hevy_log == "inches"
+                        else {"index": i, "type": "normal", "distance_meters": a / 100, "reps": 1}
                         for i, a in enumerate(r["attempts"])
                     ],
                 }

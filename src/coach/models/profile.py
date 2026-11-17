@@ -268,3 +268,13 @@ class CoachSettings(Model):
     # Fill days the direct Whoop API missed from Intervals.icu wellness (its Whoop connection). Only turn on when
     # Intervals.icu's HRV / resting HR / sleep come from Whoop, not a watch worn part-time (DECISIONS 75).
     whoop_backup: Literal["none", "intervals"] = "none"
+    # How the athlete logs a pair of dumbbells/kettlebells in Hevy: one implement, or the total of both (Whoop style).
+    # The coach always plans per implement; push and sync convert.
+    pair_weight_logging: Literal["per_implement", "total"] = "per_implement"
+    # first day logged as totals: earlier workouts were per implement and are not divided (None: all of them)
+    pair_weight_total_since: dt.date | None = None
+
+    def pair_total_on(self, day: dt.date) -> bool:
+        """True when a workout on `day` logged DB/KB pairs as the total of both."""
+        since = self.pair_weight_total_since
+        return self.pair_weight_logging == "total" and (since is None or day >= since)

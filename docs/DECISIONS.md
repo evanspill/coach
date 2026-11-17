@@ -403,3 +403,37 @@ Each entry: **decision** - why - how to reverse.
     - Left as is: the demo's late-recovery day 2026-12-10 never exercises the catch-up (HRV alone rates it
       Yellow), and the 120-day demo window has no quality runs. Both are fixture coverage, not code bugs.
     - Reverse: revert the commit.
+94. **Hevy logging: how-to notes, left/right supersets, inch-logged jumps** (athlete request, 2026-11-16):
+    - Hevy's public API can create a custom exercise (title, type, equipment, muscles) but can't set its description
+      or media. So library exercises take an optional `description` and `video_url`, and `coach push` appends them
+      to that exercise's routine notes ("How ... Video: url"). The how-to text and links live in `exercises.yaml`.
+    - Per-side work (`per_side: true`) is pushed as two exercises in a superset, `X (Left)` and `X (Right)` (custom
+      exercises, the same pattern Whoop uses), instead of one exercise with "per side" in the note. Sync strips the
+      suffix, maps both to the library exercise and stores `SetRecord.side`; per-side holds (side bridge) score
+      left/right from the sides, falling back to logged order for older logs.
+    - Hevy's API returns `distance_meters` as an integer, so a 2.13 m broad jump came back as 2 m. Exercises with
+      `hevy_log: inches` (broad jump, standing reach, jump-and-touch) are logged as a separate custom exercise
+      `Name (in)` of type reps-only, with the measurement in inches in the reps box; sync converts it to metres.
+    - Test extraction ignores warm-up sets (the 20 s warm-up side planks were being read as side-bridge attempts).
+    - Hevy has no official per-hand/total convention for dumbbells; the coach stays per hand (one dumbbell), which
+      is what the routine pre-fills.
+    - Reverse: revert the commit. Old logs still map (no suffix = no side); custom exercises already created in
+      Hevy stay and can be archived in the app.
+95. **Rest on every exercise, belt guidance, DB/KB pairs logged as totals** (athlete request, 2026-11-16):
+    - Every set-based exercise gets a rest: the plan's `rest_s` wins; otherwise `training.yaml rules.rest_s` by block
+      kind (the stimulus) and `rest_primary_s` for primary lifts. `Filler` writes it into the plan and `coach push`
+      uses the same rule, so older plans without rests still push with them. Per-side supersets rest
+      `side_switch_s` after the left side and the full rest after the right.
+    - Belt (`rules.belt`, `engine/prescribe.belt_for`): only exercises with all of `tags_all` (primary + spine_load:
+      hinge and squat main lifts), in strength blocks on work sets at RIR <= 2 and <= 8 reps, and the heaviest
+      `test_sets` of a rep-max test. Never on warm-up or ramp sets. The routine note says which sets.
+    - `coach.yaml pair_weight_logging: total`: the athlete logs a pair of dumbbells/kettlebells as the total (as in
+      Whoop). Library exercises with `implements: 2` are pushed at 2x the per-implement load (the note names both),
+      and sync divides logged weights back, so e1RMs, rounding and the DB rack stay per implement.
+    - `pair_weight_total_since` (2026-11-16, the first workout logged as totals) gates the conversion by workout
+      date, so any per-hand logs from before the switch are never halved on a later sync.
+    - Review follow-ups: both sides of a per-side superset carry the full note (prefixed "Left side."/"Right side.");
+      `superset_id` is sent only for those pairs (live Hevy accepted numeric ids on 2026-11-16 pushes); a per-side
+      hold with only one side logged is not scored; `max_reps` also ignores warm-up sets; a library title that
+      itself ends in "(Left)" maps as is; the belt needs an explicit rep count.
+    - Reverse: revert the commits; `pair_weight_logging: per_implement` restores per-hand logging.

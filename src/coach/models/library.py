@@ -20,6 +20,10 @@ Implement = Literal[
     "none",
 ]
 LoadMode = Literal["e1rm", "last_used", "bodyweight", "kb", "none"]
+HevyLog = Literal["default", "inches"]
+SIDES = ("Left", "Right")
+INCHES_SUFFIX = " (in)"
+M_PER_IN = 0.0254
 
 
 class EstimateFrom(Model):
@@ -43,10 +47,25 @@ class Exercise(Model):
     load_mode: LoadMode = "none"
     hevy_title: str | None = None
     hevy_template_id: str | None = None
+    # "inches": logged in Hevy as reps = inches. Hevy's API returns distances in whole metres, too coarse for jumps.
+    hevy_log: HevyLog = "default"
+    implements: int = Field(
+        default=1, ge=1, le=2
+    )  # 2 = a pair of dumbbells/kettlebells (loads are per implement)
+    description: str | None = (
+        None  # short how-to, shown in the Hevy routine notes (the API can't set it on the exercise)
+    )
+    video_url: str | None = None  # demo video, shown next to the how-to
     estimate_from: "EstimateFrom | None" = None
 
     def has_tag(self, *tags: str) -> bool:
         return any(t in self.tags for t in tags)
+
+    def hevy_name(self, side: str | None = None) -> str:
+        """The Hevy exercise title this exercise is logged under. Inch-logged exercises get their own custom
+        exercise ('Standing broad jump (in)'); per-side work is two exercises, 'X (Left)' and 'X (Right)'."""
+        base = f"{self.name}{INCHES_SUFFIX}" if self.hevy_log == "inches" else (self.hevy_title or self.name)
+        return f"{base} ({side})" if side else base
 
 
 class ExerciseLibrary(Model):
@@ -57,6 +76,28 @@ class ExerciseLibrary(Model):
 
     def __contains__(self, exercise_id: str) -> bool:
         return exercise_id in self.exercises
+
+    def parse_hevy_title(self, title: str) -> tuple[Exercise | None, str | None]:
+        """A logged Hevy title -> (library exercise, side). Strips the ' (Left)'/' (Right)' suffix of per-side
+        exercises and resolves inch-logged titles ('Standing broad jump (in)')."""
+        t = title.strip()
+        exact = self.by_hevy_title(t)
+        if exact is not None:  # a library title that itself ends in "(Left)" maps as is
+            return exact, None
+        side = None
+        for s in SIDES:
+            if t.endswith(f" ({s})"):
+                t, side = t[: -len(f" ({s})")], s.lower()
+                break
+        if t.endswith(INCHES_SUFFIX):
+            base = t[: -len(INCHES_SUFFIX)].lower()
+            hit = next(
+                (e for e in self.exercises.values() if e.hevy_log == "inches" and e.name.lower() == base),
+                None,
+            )
+            if hit:
+                return hit, side
+        return self.by_hevy_title(t), side
 
     def by_hevy_title(self, title: str) -> Exercise | None:
         """The library exercise a logged Hevy title belongs to. Generic titles shared by several exercises
