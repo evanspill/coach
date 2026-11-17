@@ -403,3 +403,19 @@ Each entry: **decision** - why - how to reverse.
     - Left as is: the demo's late-recovery day 2026-12-10 never exercises the catch-up (HRV alone rates it
       Yellow), and the 120-day demo window has no quality runs. Both are fixture coverage, not code bugs.
     - Reverse: revert the commit.
+94. **Hevy logging: how-to notes, left/right supersets, inch-logged jumps** (athlete request, 2026-11-16):
+    - Hevy's public API can create a custom exercise (title, type, equipment, muscles) but can't set its description
+      or media. So library exercises take an optional `description` and `video_url`, and `coach push` appends them
+      to that exercise's routine notes ("How ... Video: url"). The how-to text and links live in `exercises.yaml`.
+    - Per-side work (`per_side: true`) is pushed as two exercises in a superset, `X (Left)` and `X (Right)` (custom
+      exercises, the same pattern Whoop uses), instead of one exercise with "per side" in the note. Sync strips the
+      suffix, maps both to the library exercise and stores `SetRecord.side`; per-side holds (side bridge) score
+      left/right from the sides, falling back to logged order for older logs.
+    - Hevy's API returns `distance_meters` as an integer, so a 2.13 m broad jump came back as 2 m. Exercises with
+      `hevy_log: inches` (broad jump, standing reach, jump-and-touch) are logged as a separate custom exercise
+      `Name (in)` of type reps-only, with the measurement in inches in the reps box; sync converts it to metres.
+    - Test extraction ignores warm-up sets (the 20 s warm-up side planks were being read as side-bridge attempts).
+    - Hevy has no official per-hand/total convention for dumbbells; the coach stays per hand (one dumbbell), which
+      is what the routine pre-fills.
+    - Reverse: revert the commit. Old logs still map (no suffix = no side); custom exercises already created in
+      Hevy stay and can be archived in the app.

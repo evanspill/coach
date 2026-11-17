@@ -683,3 +683,150 @@ def test_push_keeps_routine_ids_when_a_later_routine_fails(b1):
         assert "r-1" in ids.values()
     finally:
         ctx.state.put("push_ids", before)
+
+
+def _one_block_session(kind, items, test_id=None):
+    from coach.models import Session
+    from coach.models.plans import SessionBlock as Block
+
+    block = Block(kind=kind, title="b", test_id=test_id, items=items)
+    return Session(
+        id="t",
+        date=dt.date(2026, 12, 1),
+        type="test",
+        title="t",
+        intent="i",
+        expected_minutes=60,
+        blocks=[block],
+    )
+
+
+def test_per_side_work_is_a_left_right_superset_and_maps_back(b1):
+    """Hevy has no per-side sets: 'X (Left)' and 'X (Right)' in one superset, and sync reads the side back."""
+    from coach.integrations.normalize import hevy_workouts
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    s = _one_block_session(
+        "warmup",
+        [
+            Prescription(exercise_id="side_plank", sets=1, duration_s=20, per_side=True),
+            Prescription(exercise_id="dead_hang", sets=2, duration_s=30),
+        ],
+    )
+    res = TemplateResolver(mock_sources(MockWorld.load()).hevy)
+    ex = hevy_routine(s, ctx, res)["exercises"]
+    name = lib.get("side_plank").hevy_name()
+    assert [res._ids()[f"{name} ({x})".lower()] for x in ("Left", "Right")] == [
+        ex[0]["exercise_template_id"],
+        ex[1]["exercise_template_id"],
+    ]
+    assert ex[0]["superset_id"] == ex[1]["superset_id"] == 0 and ex[2]["superset_id"] is None
+    assert "per side" not in ex[0]["notes"] and ex[1]["notes"].startswith("Right side")
+    raw = [
+        {
+            "id": "w",
+            "title": "t",
+            "start_time": "2026-12-01T14:00:00Z",
+            "end_time": "2026-12-01T15:00:00Z",
+            "exercises": [
+                {"title": f"{name} (Left)", "sets": [{"type": "normal", "duration_seconds": 70}]},
+                {"title": f"{name} (Right)", "sets": [{"type": "normal", "duration_seconds": 62}]},
+            ],
+        }
+    ]
+    sets = hevy_workouts(raw, lib)[0].sets
+    assert [(st.exercise_id, st.side, st.duration_s) for st in sets] == [
+        ("side_plank", "left", 70),
+        ("side_plank", "right", 62),
+    ]
+
+
+def test_inch_logged_jumps_use_the_reps_box_and_convert_back(b1):
+    """Hevy's API returns distances in whole metres (a 2.13 m jump came back as 2): jumps are logged in inches."""
+    from coach.integrations.normalize import hevy_workouts
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    lib.exercises["broad_jump"].hevy_log = "inches"
+    try:
+        s = _one_block_session(
+            "test", [Prescription(exercise_id="broad_jump", sets=3, reps=1, rest_s=90)], test_id="broad_jump"
+        )
+        world = MockWorld.load()
+        res = TemplateResolver(mock_sources(world).hevy)
+        res._ids().pop(f"{lib.get('broad_jump').name} (in)".lower(), None)
+        created = []
+        res.hevy.create_template = lambda title, kind, eq, mu: created.append((title, kind)) or "tpl-in"
+        ex = hevy_routine(s, ctx, res)["exercises"][0]
+        assert created == [(f"{lib.get('broad_jump').name} (in)", "reps_only")]
+        assert all("reps" not in st and "distance_meters" not in st for st in ex["sets"])
+        assert "inches" in ex["notes"]
+        raw = [
+            {
+                "id": "w",
+                "title": "t",
+                "start_time": "2026-12-01T14:00:00Z",
+                "end_time": "2026-12-01T15:00:00Z",
+                "exercises": [
+                    {"title": f"{lib.get('broad_jump').name} (in)", "sets": [{"type": "normal", "reps": 84}]}
+                ],
+            }
+        ]
+        st = hevy_workouts(raw, lib)[0].sets[0]
+        assert st.exercise_id == "broad_jump" and st.reps is None and round(st.distance_m * 100) == 213
+    finally:
+        lib.exercises["broad_jump"].hevy_log = "default"
+
+
+def test_routine_notes_carry_the_how_to_and_video(b1):
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    ex = ctx.cfg.library.exercises["tib_raise"]
+    ex.description, ex.video_url = "Toes up, lower slowly.", "https://www.youtube.com/watch?v=abc"
+    try:
+        s = _one_block_session("warmup", [Prescription(exercise_id="tib_raise", sets=1, reps=15)])
+        note = hevy_routine(s, ctx, TemplateResolver(mock_sources(MockWorld.load()).hevy))["exercises"][0][
+            "notes"
+        ]
+        assert note.endswith("Toes up, lower slowly. Video: https://www.youtube.com/watch?v=abc")
+    finally:
+        ex.description = ex.video_url = None
+
+
+def test_side_bridge_test_ignores_warmup_planks_and_reads_sides():
+    """The 20 s warm-up side planks are not test attempts; logged sides beat logged order."""
+    import types
+
+    from coach.coaching.skills.assess import extract_raw
+    from coach.config import load_config
+    from coach.models import SetRecord
+
+    cfg = load_config()
+    day = dt.date(2026, 11, 17)
+    sets = [
+        SetRecord(exercise_id="side_plank", exercise_name="x", set_type="warmup", duration_s=20, side="left"),
+        SetRecord(
+            exercise_id="side_plank", exercise_name="x", set_type="warmup", duration_s=20, side="right"
+        ),
+        SetRecord(exercise_id="side_plank", exercise_name="x", duration_s=62, side="right"),
+        SetRecord(exercise_id="side_plank", exercise_name="x", duration_s=70, side="left"),
+    ]
+    session = SessionRecord(
+        id="s",
+        date=day,
+        start=dt.datetime(2026, 11, 17, 9),
+        sport="strength",
+        title="t",
+        duration_min=60,
+        sets=sets,
+    )
+    ctx = types.SimpleNamespace(cfg=cfg, state=types.SimpleNamespace(sessions=lambda a, b: [session]))
+    tid = next(t for t, d in cfg.tests.tests.items() if d.scoring == "max_hold" and d.session.get("per_side"))
+    assert extract_raw(tid, day, ctx) == {"holds_s": [70, 62]}

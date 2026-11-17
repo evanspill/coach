@@ -9,6 +9,7 @@ from coach.engine.paces import PACE_FACTORS
 from coach.engine.validator import Violation, validate_session, validate_week
 from coach.integrations.base import Sources
 from coach.models import Session, WeekPlan
+from coach.models.library import SIDES
 
 RUN_TYPES = {"run_easy", "run_long", "run_quality", "race", "test"}
 
@@ -102,6 +103,7 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
     lib = ctx.cfg.library
     resolver = resolver or TemplateResolver()
     exercises: list[dict[str, Any]] = []
+    next_superset = 0
     for b in s.blocks:
         if b.metcon is not None:
             mc = b.metcon
@@ -132,6 +134,7 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             ex = lib.get(it.exercise_id)
             if ex is None or b.kind == "cooldown" and ex.id == "easy_cooldown":
                 continue
+            inches = ex.hevy_log == "inches"
             sets: list[dict[str, Any]] = [
                 {"type": "warmup", "weight_kg": r.load_kg, "reps": r.reps} for r in it.ramp
             ]
@@ -141,14 +144,14 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 }  # Hevy has no cooldown type
                 if it.load_kg is not None:
                     st["weight_kg"] = it.load_kg
-                if it.reps is not None:
+                if it.reps is not None and not inches:  # inch-logged: the reps box is the measurement
                     st["reps"] = it.reps
                 if it.duration_s is not None:
                     st["duration_seconds"] = it.duration_s
-                if it.distance_m is not None:
+                if it.distance_m is not None and not inches:
                     st["distance_meters"] = it.distance_m
                 sets.append(st)
-            title = ex.hevy_title or ex.name
+            title = ex.hevy_name()
             timed_generic = title.lower() in TIMED_GENERIC and it.duration_s is None
             test = ctx.cfg.tests.tests.get(b.test_id) if b.kind == "test" and b.test_id else None
             # block notes (e.g. the movement screen) on its first item; a test's procedure only when the plan
@@ -156,32 +159,45 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             procedure = test.protocol.get("procedure", "") if test and not it.notes else ""
             block_notes = "" if test and it.notes else b.notes
             protocol = (block_notes or procedure) if it is b.items[0] else ""
+            how_to = " ".join(
+                x for x in [ex.description or "", ex.video_url and f"Video: {ex.video_url}"] if x
+            )
             note = " | ".join(
                 x
                 for x in [
                     # the coach's exercise when Hevy's differs ("Trap bar deadlift (high handle)" in "Deadlift (Trap bar)")
-                    ex.name if _plain(ex.name) != _plain(title) else "",
+                    ex.name if _plain(ex.name) != _plain(ex.hevy_title or ex.name) and not inches else "",
+                    "Log the measurement in inches in the reps box" if inches else "",
                     f"{it.reps} reps"
                     if timed_generic and it.reps
                     else "",  # a timed Hevy exercise shows no reps
                     f"{it.rir:g} RIR" if it.rir is not None else "",
                     "" if (it.load_note or "").lower() == "bodyweight" else (it.load_note or ""),
                     it.tempo and f"tempo {it.tempo}",
-                    "per side" if it.per_side else "",
                     it.notes or "",
                     protocol,
+                    how_to,
                 ]
                 if x
             )
-            exercises.append(
-                {
-                    "exercise_template_id": ex.hevy_template_id
-                    or resolver.resolve(title, *_custom_spec(ex, it, ctx.cfg.tests.tests)),
-                    "rest_seconds": it.rest_s,
-                    "notes": note,
-                    "sets": sets,
-                }
-            )
+            spec = ("reps_only", *_custom_spec(ex, it, ctx.cfg.tests.tests)[1:]) if inches else None
+            sides: list[str | None] = list(SIDES) if it.per_side else [None]
+            superset = None
+            if it.per_side:  # left and right as two exercises in a superset (Hevy has no per-side sets)
+                superset = next_superset
+                next_superset += 1
+            for side in sides:
+                side_title = ex.hevy_name(side)
+                exercises.append(
+                    {
+                        "exercise_template_id": (ex.hevy_template_id if side is None else None)
+                        or resolver.resolve(side_title, *(spec or _custom_spec(ex, it, ctx.cfg.tests.tests))),
+                        "superset_id": superset,
+                        "rest_seconds": it.rest_s,
+                        "notes": note if side != "Right" else f"Right side. {it.notes or ''}".strip(),
+                        "sets": [dict(st) for st in sets],
+                    }
+                )
     if not exercises:
         return None
     return {

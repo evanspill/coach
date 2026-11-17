@@ -148,7 +148,7 @@ class SimAthlete:
                             "distance_meters": it.distance_m,
                         }
                     )
-                out.append({"title": ex.hevy_title or ex.name, "sets": sets})
+                out.append({"title": ex.hevy_name(), "sets": sets})
         return out
 
     def _test_sets(self, test_id: str, items, results: dict) -> list[dict]:
@@ -158,7 +158,7 @@ class SimAthlete:
             return []
         it = items[0]
         ex = lib.get(it.exercise_id)
-        title = (ex.hevy_title or ex.name) if ex else it.exercise_id
+        title = ex.hevy_name() if ex else it.exercise_id
         if test_id in {"hinge_rm", "squat_rm"}:
             factor = self.cfg.tests.tests[test_id].variants.get(it.exercise_id, 1.0)
             w = round(r["weight_kg"] / factor / 2.5) * 2.5
@@ -203,7 +203,10 @@ class SimAthlete:
                 {
                     "title": title,
                     "sets": [
-                        {"index": i, "type": "normal", "distance_meters": a / 100, "reps": 1}
+                        # inch-logged jumps carry the distance in the reps box
+                        {"index": i, "type": "normal", "reps": round(a / 2.54)}
+                        if ex is not None and ex.hevy_log == "inches"
+                        else {"index": i, "type": "normal", "distance_meters": a / 100, "reps": 1}
                         for i, a in enumerate(r["attempts"])
                     ],
                 }

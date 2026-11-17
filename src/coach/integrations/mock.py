@@ -108,7 +108,7 @@ class MockHevy(HevySource):
             from coach.config import load_config
 
             for ex in load_config().library.exercises.values():
-                title = ex.hevy_title or ex.name
+                title = ex.hevy_name()
                 self.w.templates[title.lower()] = f"mock-tpl-{len(self.w.templates) + 1}"
         return dict(self.w.templates)
 

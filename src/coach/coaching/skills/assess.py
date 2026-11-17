@@ -75,20 +75,23 @@ def extract_raw(
     if t.scoring == "max_reps" and ex_id:
         reps = [st.reps for s in sessions for st in s.sets if st.exercise_id == ex_id and st.reps]
         return {"reps": max(reps)} if reps else None
+    # test sets only: warm-up sets of the same exercise (a 20 s side plank in the warm-up) are not attempts
+    work = [st for s in sessions for st in s.sets if st.exercise_id == ex_id and st.set_type != "warmup"]
     if t.scoring == "max_hold" and ex_id:
-        holds = [
-            st.duration_s for s in sessions for st in s.sets if st.exercise_id == ex_id and st.duration_s
-        ]
+        holds = [st.duration_s for st in work if st.duration_s]
         if not holds:
             return None
-        return {"holds_s": holds[:2] if t.session.get("per_side") else [max(holds)]}
+        if not t.session.get("per_side"):
+            return {"holds_s": [max(holds)]}
+        by_side = {
+            side: max((st.duration_s for st in work if st.side == side and st.duration_s), default=None)
+            for side in ("left", "right")
+        }
+        if by_side["left"] and by_side["right"]:
+            return {"holds_s": [by_side["left"], by_side["right"]]}  # (left, right)
+        return {"holds_s": holds[:2]}  # older logs without sides: in logged order
     if t.scoring == "best_of" and ex_id:
-        att = [
-            round(st.distance_m * 100)
-            for s in sessions
-            for st in s.sets
-            if st.exercise_id == ex_id and st.distance_m
-        ]
+        att = [round(st.distance_m * 100) for st in work if st.distance_m]
         return {"attempts": att} if att else None
     if t.scoring in {"lthr_from_last20", "submax_estimate"}:
         runs = [s for s in sessions if s.sport == "run"]
