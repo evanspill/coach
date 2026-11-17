@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-16",
+  "joints": {
+    "back": 2
+  },
+  "sleep_quality": null,
+  "fatigue": null,
+  "stress": null,
+  "soreness": null,
+  "mood": null,
+  "motivation": null,
+  "session_rpe": null,
+  "session_minutes": null,
+  "enjoyment": null,
+  "bar_speed_mps": null,
+  "session_pain": {
+    "hinge": 0.0
+  },
+  "stiffness_up": [],
+  "sleep_note": null,
+  "notes": "Hinge test: no pain during or after; low back tight and fatigued after (athlete rated ~5/10 tightness, not pain). Wore a belt on the last (heaviest) set only.",
+  "source": "chat"
+}
