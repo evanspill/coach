@@ -96,10 +96,11 @@ class MockHevy(HevySource):
 
     def workouts(self, start, end):
         today = MockWorld.now_cutoff()
-        lib = load_config().library
+        cfg = load_config()
+        lib, pair_total = cfg.library, cfg.settings.pair_weight_logging == "total"
         return [
             s
-            for s in N.hevy_workouts(self.w.hevy["workouts"], lib)
+            for s in N.hevy_workouts(self.w.hevy["workouts"], lib, pair_total)
             if _in(s.date, start, end) and s.date < today
         ]
 

@@ -830,3 +830,89 @@ def test_side_bridge_test_ignores_warmup_planks_and_reads_sides():
     ctx = types.SimpleNamespace(cfg=cfg, state=types.SimpleNamespace(sessions=lambda a, b: [session]))
     tid = next(t for t, d in cfg.tests.tests.items() if d.scoring == "max_hold" and d.session.get("per_side"))
     assert extract_raw(tid, day, ctx) == {"holds_s": [70, 62]}
+
+
+def test_every_exercise_gets_a_rest_and_the_left_side_only_a_switch(b1):
+    from coach.coaching.fill import Filler
+    from coach.engine.prescribe import rest_for
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    rules = ctx.cfg.training.rules.model_copy(deep=True)
+    rules.rest_s = {"default": 60, "warmup": 15, "strength": 150}
+    rules.rest_primary_s = {"strength": 180}
+    rules.side_switch_s = 10
+    lib = ctx.cfg.library
+    primary = next(e for e in lib.exercises.values() if "primary" in e.tags and e.family == "hinge")
+    s = _one_block_session(
+        "strength",
+        [
+            Prescription(exercise_id=primary.id, sets=3, reps=5, rir=2),
+            Prescription(exercise_id="dead_hang", sets=2, duration_s=30, rest_s=45),
+            Prescription(exercise_id="side_plank", sets=1, duration_s=20, per_side=True),
+        ],
+    )
+    Filler(lib, ctx.cfg.equipment.loading, [], ctx.zones, ctx.today, rules).fill(s)
+    assert [it.rest_s for it in s.blocks[0].items] == [180, 45, 150]
+    assert rest_for("mobility", None, Prescription(exercise_id="x", sets=1), rules) == 60
+    old = ctx.cfg.training.rules
+    ctx.cfg.training.rules = rules
+    try:
+        ex = hevy_routine(s, ctx, TemplateResolver(mock_sources(MockWorld.load()).hevy))["exercises"]
+    finally:
+        ctx.cfg.training.rules = old
+    assert [e["rest_seconds"] for e in ex] == [180, 45, 10, 150]
+    assert "Rest 3:00" in ex[0]["notes"]
+
+
+def test_belt_only_on_heavy_spine_loaded_primary_sets():
+    from coach.config import load_config
+    from coach.engine.prescribe import belt_for
+    from coach.models.plans import Prescription
+    from coach.models.season import BeltRule, TrainingRules
+
+    lib = load_config().library
+    rules = TrainingRules(belt=BeltRule(tags_all=["primary", "spine_load"], test_sets=2))
+    hinge = next(e for e in lib.exercises.values() if {"primary", "spine_load"} <= set(e.tags))
+    heavy = Prescription(exercise_id=hinge.id, sets=4, reps=5, rir=2)
+    light = Prescription(exercise_id=hinge.id, sets=3, reps=10, rir=3)
+    assert belt_for("strength", hinge, heavy, rules).startswith("all work sets")
+    assert belt_for("strength", hinge, light, rules) is None
+    assert belt_for("test", hinge, light, rules) == "last 2 (heaviest) sets"
+    assert belt_for("warmup", hinge, heavy, rules) is None
+    assert belt_for("strength", lib.get("dead_hang"), heavy, rules) is None
+    assert belt_for("strength", hinge, heavy, TrainingRules()) is None  # no rule configured: never
+
+
+def test_dumbbell_pairs_are_logged_as_the_total_and_stored_per_hand(b1):
+    from coach.integrations.normalize import hevy_workouts
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    ex = lib.exercises["db_bench_press_neutral"]
+    old = (ex.implements, ctx.cfg.settings.pair_weight_logging)
+    ex.implements, ctx.cfg.settings.pair_weight_logging = 2, "total"
+    try:
+        it = Prescription(exercise_id=ex.id, sets=2, reps=5, rir=2, load_kg=36.3, load_lb=80)
+        s = _one_block_session("strength", [it])
+        r = hevy_routine(s, ctx, TemplateResolver(mock_sources(MockWorld.load()).hevy))["exercises"][0]
+        assert [st["weight_kg"] for st in r["sets"]] == [72.6, 72.6]
+        assert "log 160 lb total (2 x 80)" in r["notes"]
+        raw = [
+            {
+                "id": "w",
+                "title": "t",
+                "start_time": "2026-12-01T14:00:00Z",
+                "end_time": "2026-12-01T15:00:00Z",
+                "exercises": [
+                    {"title": ex.hevy_name(), "sets": [{"type": "normal", "weight_kg": 72.6, "reps": 5}]}
+                ],
+            }
+        ]
+        assert hevy_workouts(raw, lib, pair_total=True)[0].sets[0].weight_kg == 36.3
+        assert hevy_workouts(raw, lib)[0].sets[0].weight_kg == 72.6
+    finally:
+        ex.implements, ctx.cfg.settings.pair_weight_logging = old

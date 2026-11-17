@@ -6,6 +6,7 @@ from typing import Any
 
 from coach.coaching.context import Context
 from coach.engine.paces import PACE_FACTORS
+from coach.engine.prescribe import belt_for, rest_for
 from coach.engine.validator import Violation, validate_session, validate_week
 from coach.integrations.base import Sources
 from coach.models import Session, WeekPlan
@@ -104,6 +105,8 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
     resolver = resolver or TemplateResolver()
     exercises: list[dict[str, Any]] = []
     next_superset = 0
+    rules = ctx.cfg.training.rules
+    pair_total = ctx.cfg.settings.pair_weight_logging == "total"
     for b in s.blocks:
         if b.metcon is not None:
             mc = b.metcon
@@ -135,15 +138,17 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             if ex is None or b.kind == "cooldown" and ex.id == "easy_cooldown":
                 continue
             inches = ex.hevy_log == "inches"
+            # a pair of DBs/KBs is logged as the total of both when the athlete logs that way (Whoop style)
+            pair = ex.implements if pair_total else 1
             sets: list[dict[str, Any]] = [
-                {"type": "warmup", "weight_kg": r.load_kg, "reps": r.reps} for r in it.ramp
+                {"type": "warmup", "weight_kg": round(r.load_kg * pair, 2), "reps": r.reps} for r in it.ramp
             ]
             for _ in range(it.sets):
                 st: dict = {
                     "type": "warmup" if b.kind in {"warmup", "cooldown"} else "normal"
                 }  # Hevy has no cooldown type
                 if it.load_kg is not None:
-                    st["weight_kg"] = it.load_kg
+                    st["weight_kg"] = round(it.load_kg * pair, 2)
                 if it.reps is not None and not inches:  # inch-logged: the reps box is the measurement
                     st["reps"] = it.reps
                 if it.duration_s is not None:
@@ -159,6 +164,13 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             procedure = test.protocol.get("procedure", "") if test and not it.notes else ""
             block_notes = "" if test and it.notes else b.notes
             protocol = (block_notes or procedure) if it is b.items[0] else ""
+            belt = belt_for(b.kind, ex, it, rules)
+            rest = rest_for(b.kind, ex, it, rules)
+            total = (
+                f"log {it.load_lb * pair:g} lb total ({pair} x {it.load_lb:g})"
+                if pair > 1 and it.load_lb
+                else ""
+            )
             how_to = " ".join(
                 x for x in [ex.description or "", ex.video_url and f"Video: {ex.video_url}"] if x
             )
@@ -173,6 +185,9 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                     else "",  # a timed Hevy exercise shows no reps
                     f"{it.rir:g} RIR" if it.rir is not None else "",
                     "" if (it.load_note or "").lower() == "bodyweight" else (it.load_note or ""),
+                    total,
+                    f"Belt: {belt}" if belt else "",
+                    f"Rest {_mmss(rest)}",
                     it.tempo and f"tempo {it.tempo}",
                     it.notes or "",
                     protocol,
@@ -193,7 +208,8 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                         "exercise_template_id": (ex.hevy_template_id if side is None else None)
                         or resolver.resolve(side_title, *(spec or _custom_spec(ex, it, ctx.cfg.tests.tests))),
                         "superset_id": superset,
-                        "rest_seconds": it.rest_s,
+                        # left side: a short switch; the full rest comes after the right side
+                        "rest_seconds": rules.side_switch_s if side == "Left" else rest,
                         "notes": note if side != "Right" else f"Right side. {it.notes or ''}".strip(),
                         "sets": [dict(st) for st in sets],
                     }

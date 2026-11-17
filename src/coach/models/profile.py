@@ -268,3 +268,6 @@ class CoachSettings(Model):
     # Fill days the direct Whoop API missed from Intervals.icu wellness (its Whoop connection). Only turn on when
     # Intervals.icu's HRV / resting HR / sleep come from Whoop, not a watch worn part-time (DECISIONS 75).
     whoop_backup: Literal["none", "intervals"] = "none"
+    # How the athlete logs a pair of dumbbells/kettlebells in Hevy: one implement, or the total of both (Whoop style).
+    # The coach always plans per implement; push and sync convert.
+    pair_weight_logging: Literal["per_implement", "total"] = "per_implement"

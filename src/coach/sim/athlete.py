@@ -106,6 +106,11 @@ class SimAthlete:
         notes.append(f"[athlete] did {s.title} (RPE {session_rpe})")
         return notes
 
+    def _pair(self, ex) -> int:
+        """How many implements the athlete adds up when logging (a DB pair logged as the total)."""
+        total = self.cfg.settings.pair_weight_logging == "total"
+        return ex.implements if ex is not None and total else 1
+
     def _lifts(self, s: Session, day: dt.date, results: dict, rpe_add: float) -> list[dict]:
         lib = self.cfg.library
         out = []
@@ -141,7 +146,7 @@ class SimAthlete:
                         {
                             "index": i,
                             "type": "normal",
-                            "weight_kg": load,
+                            "weight_kg": load * self._pair(ex) if load else load,
                             "reps": reps,
                             "rpe": rpe,
                             "duration_seconds": it.duration_s,
@@ -189,7 +194,7 @@ class SimAthlete:
                         {
                             "index": 0,
                             "type": "normal",
-                            "weight_kg": r["weight_kg"],
+                            "weight_kg": r["weight_kg"] * self._pair(ex),
                             "reps": r["reps"],
                             "rpe": 10 - r["rir"],
                         }

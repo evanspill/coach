@@ -117,7 +117,8 @@ def whoop_workouts(raw: list[dict]) -> list[SessionRecord]:
 
 
 # ---------------- Hevy ----------------
-def hevy_workouts(raw: list[dict], library: ExerciseLibrary) -> list[SessionRecord]:
+def hevy_workouts(raw: list[dict], library: ExerciseLibrary, pair_total: bool = False) -> list[SessionRecord]:
+    """Hevy workouts -> sessions. `pair_total`: DB/KB pairs are logged as the total of both (stored per implement)."""
     out = []
     for w in raw:
         start = _local(_parse_ts(w["start_time"]))
@@ -137,6 +138,7 @@ def hevy_workouts(raw: list[dict], library: ExerciseLibrary) -> list[SessionReco
             by_title, side = library.parse_hevy_title(ex["title"])
             match = match or by_title
             inches = match is not None and match.hevy_log == "inches"
+            per = match.implements if match is not None and pair_total else 1
             for s in ex.get("sets", []):
                 st = s.get("type", "normal")
                 reps: int | None = s.get("reps")
@@ -148,7 +150,7 @@ def hevy_workouts(raw: list[dict], library: ExerciseLibrary) -> list[SessionReco
                         exercise_id=match.id if match else None,
                         exercise_name=ex["title"],
                         set_type=st if st in {"normal", "warmup", "failure", "dropset"} else "normal",
-                        weight_kg=s.get("weight_kg"),
+                        weight_kg=s["weight_kg"] / per if s.get("weight_kg") else s.get("weight_kg"),
                         reps=reps,
                         rpe=s.get("rpe"),
                         rir=rpe_to_rir(s.get("rpe")),

@@ -419,3 +419,15 @@ Each entry: **decision** - why - how to reverse.
       is what the routine pre-fills.
     - Reverse: revert the commit. Old logs still map (no suffix = no side); custom exercises already created in
       Hevy stay and can be archived in the app.
+95. **Rest on every exercise, belt guidance, DB/KB pairs logged as totals** (athlete request, 2026-11-16):
+    - Every set-based exercise gets a rest: the plan's `rest_s` wins; otherwise `training.yaml rules.rest_s` by block
+      kind (the stimulus) and `rest_primary_s` for primary lifts. `Filler` writes it into the plan and `coach push`
+      uses the same rule, so older plans without rests still push with them. Per-side supersets rest
+      `side_switch_s` after the left side and the full rest after the right.
+    - Belt (`rules.belt`, `engine/prescribe.belt_for`): only exercises with all of `tags_all` (primary + spine_load:
+      hinge and squat main lifts), in strength blocks on work sets at RIR <= 2 and <= 8 reps, and the heaviest
+      `test_sets` of a rep-max test. Never on warm-up or ramp sets. The routine note says which sets.
+    - `coach.yaml pair_weight_logging: total`: the athlete logs a pair of dumbbells/kettlebells as the total (as in
+      Whoop). Library exercises with `implements: 2` are pushed at 2x the per-implement load (the note names both),
+      and sync divides logged weights back, so e1RMs, rounding and the DB rack stay per implement.
+    - Reverse: revert the commits; `pair_weight_logging: per_implement` restores per-hand logging.

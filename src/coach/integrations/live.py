@@ -101,7 +101,8 @@ class LiveHevy(HevySource):
             if ws and dt.datetime.fromisoformat(ws[-1]["start_time"].replace("Z", "+00:00")).date() < start:
                 break
             page += 1
-        recs = N.hevy_workouts(out, load_config().library)
+        cfg = load_config()
+        recs = N.hevy_workouts(out, cfg.library, cfg.settings.pair_weight_logging == "total")
         return [r for r in recs if start <= r.date <= end]
 
     def template_ids(self):

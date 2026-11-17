@@ -49,6 +49,9 @@ class Exercise(Model):
     hevy_template_id: str | None = None
     # "inches": logged in Hevy as reps = inches. Hevy's API returns distances in whole metres, too coarse for jumps.
     hevy_log: HevyLog = "default"
+    implements: int = Field(
+        default=1, ge=1, le=2
+    )  # 2 = a pair of dumbbells/kettlebells (loads are per implement)
     description: str | None = (
         None  # short how-to, shown in the Hevy routine notes (the API can't set it on the exercise)
     )
