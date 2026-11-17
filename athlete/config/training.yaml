@@ -42,6 +42,14 @@ rules:
     moderate: [upper, sprint_upper, run_easy]
     low: [recovery, rest]
   intra_session_carb_types: []      # extra session types that always get intra-session carbs (besides > threshold minutes)
+  # Rest between sets (s) when a plan doesn't set one, by block kind = the stimulus. Heavy primary lifts get full
+  # recovery (strength holds up best with >= 2-3 min); hypertrophy 60-120 s; warm-up/mobility just a reset.
+  rest_s: {default: 60, warmup: 15, skill: 90, power: 120, strength: 150, hypertrophy: 90, conditioning: 60, test: 180, mobility: 15, cooldown: 15}
+  rest_primary_s: {power: 150, strength: 180, test: 180, hypertrophy: 120}
+  side_switch_s: 10                 # left -> right of a per-side exercise; the full rest follows the right side
+  # Belt: heavy spine-loaded primary lifts only (hinge/squat), on work sets at RIR <= 2 and <= 8 reps, and the
+  # heaviest sets of a rep-max test. Never on warm-up/ramp sets, so bracing without a belt keeps getting practice.
+  belt: {tags_all: [primary, spine_load], block_kinds: [strength, test], max_rir: 2, max_reps: 8, test_sets: 2}
 
 warmups:
   lower:

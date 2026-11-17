@@ -14,3 +14,6 @@ validator:
 # Fill days the direct Whoop API missed from Intervals.icu wellness (its Whoop connection): none | intervals.
 # Turn on only when Intervals.icu's HRV / resting HR / sleep come from Whoop, not a watch worn part-time.
 whoop_backup: intervals
+# How a pair of dumbbells/kettlebells is logged in Hevy: per_implement | total (athlete logs totals, as in Whoop;
+# the coach still plans per implement and converts on push and sync).
+pair_weight_logging: total
