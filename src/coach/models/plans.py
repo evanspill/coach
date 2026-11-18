@@ -64,6 +64,9 @@ class Prescription(Model):
     tempo: str | None = None
     rest_s: int | None = None
     per_side: bool = False
+    alternating: bool | None = (
+        None  # per-side work on a sides: either exercise: True alternates, else one side first
+    )
     notes: str | None = None
     ramp: list[RampSet] = Field(
         default_factory=list

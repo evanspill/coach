@@ -27,6 +27,10 @@ active joint flags from `coach readiness`.
 - Main lifts: 1-3 RIR (people misjudge RIR by about one rep, so 0 RIR is for tests only). `coach` adds
   warm-up sets to every strength exercise (full ramp for main lifts, fewer for later or isolation work; none for
   holds, jumps, core/prehab or metcon movements, which the warm-up block covers). Don't write warm-up sets yourself.
+- Per-side work: set `per_side: true`; the library's `sides` decides how it's logged (`split`: one side then the
+  other; `alternating`: alternate within the set). Only for `sides: either` exercises (lunges, step-ups) choose
+  `alternating: true` (metcon-style, walking) or leave it unset (one side at a time, for strength).
+- Item `notes` carry only what is specific to this session; the library how-to and video are added by `coach push`.
 - Prescribe sets, reps, RIR (strength) and zones (runs). **Leave `load_kg` and paces empty**: `coach` fills them.
 - Set `expected_minutes` to the session's purpose and the athlete's current capacity (shorter on Yellow/deload).
 

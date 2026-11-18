@@ -929,7 +929,7 @@ def test_several_per_side_items_get_their_own_supersets(b1):
         [
             Prescription(exercise_id="side_plank", sets=1, duration_s=20, per_side=True, notes="brace"),
             Prescription(exercise_id="dead_hang", sets=1, duration_s=30),
-            Prescription(exercise_id="bird_dog", sets=1, reps=6, per_side=True),
+            Prescription(exercise_id="couch_stretch", sets=1, duration_s=45, per_side=True),
         ],
     )
     ex = hevy_routine(s, ctx, TemplateResolver(mock_sources(MockWorld.load()).hevy))["exercises"]
@@ -1005,3 +1005,68 @@ def test_pair_totals_only_from_the_switch_date():
         assert before.sets[0].weight_kg == 72.6 and after.sets[0].weight_kg == 36.3
     finally:
         ex.implements = old
+
+
+def test_alternating_per_side_work_is_one_exercise_with_a_clear_cue(b1):
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    assert lib.get("hip_90_90").sides == "alternating" and lib.get("side_plank").sides == "split"
+    s = _one_block_session(
+        "warmup",
+        [
+            Prescription(exercise_id="hip_90_90", sets=1, reps=8, per_side=True),
+            Prescription(exercise_id="side_plank", sets=1, duration_s=20, per_side=True),
+        ],
+    )
+    ex = hevy_routine(s, ctx, TemplateResolver(mock_sources(MockWorld.load()).hevy))["exercises"]
+    assert len(ex) == 3 and "superset_id" not in ex[0]  # 90/90 is one entry; the side plank splits
+    assert "Alternate sides each rep: 8 reps per side" in ex[0]["notes"]
+    assert "Left side" not in ex[0]["notes"] and ex[1]["notes"].startswith("Left side.")
+    assert "One side at a time" in ex[1]["notes"]
+
+
+def test_either_sided_exercises_follow_the_prescription(b1):
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    ex_def = ctx.cfg.library.get("reverse_lunge_db")
+    assert ex_def.sides == "either"
+    assert ex_def.alternates(None) is False and ex_def.alternates(True) is True
+    res = TemplateResolver(mock_sources(MockWorld.load()).hevy)
+
+    def entries(alt):
+        s = _one_block_session(
+            "warmup",
+            [Prescription(exercise_id="reverse_lunge_db", sets=1, reps=6, per_side=True, alternating=alt)],
+        )
+        return hevy_routine(s, ctx, res)["exercises"]
+
+    assert len(entries(None)) == 2 and len(entries(True)) == 1
+
+
+def test_the_how_to_is_not_printed_twice(b1):
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    ex_def = ctx.cfg.library.get("hip_90_90")
+    old = ex_def.description, ex_def.video_url
+    ex_def.description, ex_def.video_url = "Library how-to for the switches.", "https://example.com/v"
+    try:
+        res = TemplateResolver(mock_sources(MockWorld.load()).hevy)
+        own = "REDO: careful. My own how-to. Video: https://example.com/v"
+        s = _one_block_session("warmup", [Prescription(exercise_id="hip_90_90", sets=1, reps=8, notes=own)])
+        note = hevy_routine(s, ctx, res)["exercises"][0]["notes"]
+        assert note.count("https://example.com/v") == 1 and "Library how-to" not in note
+        s = _one_block_session(
+            "warmup", [Prescription(exercise_id="hip_90_90", sets=1, reps=8, notes="slow")]
+        )
+        assert (
+            "Library how-to" in hevy_routine(s, ctx, res)["exercises"][0]["notes"]
+        )  # kept when not duplicated
+    finally:
+        ex_def.description, ex_def.video_url = old

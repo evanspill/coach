@@ -292,3 +292,21 @@ def test_run_increase_uses_the_configured_pct(P, monkeypatch):
     assert "RUN_INCREASE" not in codes(plan, ctx, trailing_miles=trailing)
     monkeypatch.setattr(th, "weekly_run_increase_pct", 2.0)
     assert "RUN_INCREASE" in codes(plan, ctx, trailing_miles=trailing)
+
+
+def test_alternating_must_match_the_library(P):
+    from coach.models import Prescription
+
+    ctx, plan = P
+    vctx = ctx.validation(plan)
+    s = plan.sessions[0].model_copy(deep=True)
+
+    def sides_codes(**kw):
+        s.blocks[0].items = [Prescription(sets=1, reps=6, **kw)]
+        return [v for v in validate_session(s, vctx, "training", plan) if v.code == "SIDES"]
+
+    assert not sides_codes(exercise_id="reverse_lunge_db", per_side=True, alternating=True)
+    assert not sides_codes(exercise_id="hip_90_90", per_side=True)
+    assert sides_codes(exercise_id="side_plank", per_side=True, alternating=True)  # split-only
+    assert sides_codes(exercise_id="hip_90_90", per_side=True, alternating=False)  # always alternates
+    assert sides_codes(exercise_id="reverse_lunge_db", alternating=True)  # not per-side work

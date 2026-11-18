@@ -54,7 +54,8 @@ class Filler:
     def warmups(self, s: Session) -> None:
         """Warm-up sets before every strength exercise, sized to what its prime mover has already done this session:
         the full ramp for primary lifts, two build-up sets for the first loaded compound of a muscle group, one
-        feeler set for isolation work or a prime mover already warm, and one easy set before bodyweight strength work
+        feeler set for a compound on a warm prime mover or isolation work on a fresh one (none for isolation
+        on a warm one), and one easy set before bodyweight strength work
         on fresh muscles. Unknown working weights get percentage warm-ups and a note."""
         warm: set[str] = set()
         for b in s.blocks:
@@ -80,10 +81,12 @@ class Filler:
                     continue
                 if "primary" in ex.tags and b.kind in {"strength", "test", "power"}:
                     tier = "full"
-                elif fresh and "isolation" not in ex.tags:
-                    tier = "build"
-                else:
+                elif "isolation" not in ex.tags:
+                    tier = "build" if fresh else "feeler"
+                elif fresh:
                     tier = "feeler"
+                else:
+                    continue  # isolation for a prime mover that already worked: the first work set warms it
                 reps = it.reps or 5
                 if it.load_kg:
                     it.ramp = [

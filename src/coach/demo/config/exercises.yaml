@@ -8,28 +8,28 @@ defaults: {implement: none, muscles: [], tags: [], regressions: [], load_mode: n
 exercises:
   # ---------- warm-up, prehab, mobility, cool-down ----------
   mcgill_curl_up: {name: McGill curl-up, equipment: [bodyweight], tags: [core, mcgill, warmup], load_mode: bodyweight}
-  side_plank: {name: Side plank, equipment: [bodyweight], tags: [core, mcgill, warmup, isometric], load_mode: bodyweight}
-  bird_dog: {name: Bird dog, equipment: [bodyweight], tags: [core, mcgill, warmup], load_mode: bodyweight}
+  side_plank: {name: Side plank, equipment: [bodyweight], tags: [core, mcgill, warmup, isometric], load_mode: bodyweight, sides: split}
+  bird_dog: {name: Bird dog, equipment: [bodyweight], tags: [core, mcgill, warmup], load_mode: bodyweight, sides: alternating}
   tib_raise: {name: Tibialis raise, equipment: [tib_raise], muscles: [calves], tags: [lower, warmup, prehab], load_mode: last_used, implement: machine, regressions: [tib_raise_wall]}
   tib_raise_wall: {name: Wall tibialis raise, equipment: [bodyweight], tags: [lower, warmup, prehab], load_mode: bodyweight}
   pogo_hops: {name: Pogo hops, equipment: [bodyweight], tags: [lower, warmup, plyo_low, achilles_load], load_mode: bodyweight, regressions: [ankle_rocker]}
-  ankle_rocker: {name: Ankle rocker, equipment: [bodyweight], tags: [lower, warmup, mobility], load_mode: bodyweight}
-  couch_stretch: {name: Couch stretch, equipment: [bodyweight], tags: [lower, warmup, mobility], load_mode: bodyweight}
+  ankle_rocker: {name: Ankle rocker, equipment: [bodyweight], tags: [lower, warmup, mobility], load_mode: bodyweight, sides: split}
+  couch_stretch: {name: Couch stretch, equipment: [bodyweight], tags: [lower, warmup, mobility], load_mode: bodyweight, sides: split}
   band_pull_apart: {name: Band pull-apart, equipment: [bands], tags: [upper, warmup, prehab], load_mode: none}
   scap_push_up: {name: Scapular push-up, equipment: [bodyweight], tags: [upper, warmup, prehab], load_mode: bodyweight}
-  thoracic_open_book: {name: Thoracic open book, equipment: [bodyweight], tags: [upper, warmup, mobility], load_mode: bodyweight}
-  bottoms_up_kb_press: {name: Bottoms-up KB press, equipment: [kettlebells], tags: [upper, warmup, prehab, overhead_light], implement: kettlebell, load_mode: kb}
+  thoracic_open_book: {name: Thoracic open book, equipment: [bodyweight], tags: [upper, warmup, mobility], load_mode: bodyweight, sides: split}
+  bottoms_up_kb_press: {name: Bottoms-up KB press, equipment: [kettlebells], tags: [upper, warmup, prehab, overhead_light], implement: kettlebell, load_mode: kb, sides: split}
   crossover_symmetry_activation: {name: Crossover Symmetry activation, equipment: [crossover_symmetry], tags: [upper, warmup, prehab], load_mode: none}
-  cable_external_rotation: {name: Cable external rotation, equipment: [cable_crossover], muscles: [shoulders], tags: [upper, prehab, isolation], implement: cable, load_mode: last_used}
+  cable_external_rotation: {name: Cable external rotation, equipment: [cable_crossover], muscles: [shoulders], tags: [upper, prehab, isolation], implement: cable, load_mode: last_used, sides: split}
   ytw_raise: {name: Prone Y-T-W raise, equipment: [dumbbells, incline_bench], tags: [upper, prehab], implement: dumbbell, load_mode: last_used}
   pvc_pass_through: {name: PVC pass-through, equipment: [pvc_pipe], tags: [upper, warmup, mobility], load_mode: none}
   hollow_hold: {name: Hollow hold, equipment: [bodyweight], muscles: [core], tags: [core, gymnastics_drill], load_mode: bodyweight}
   arch_hold: {name: Arch hold, equipment: [bodyweight], tags: [core, gymnastics_drill], load_mode: bodyweight}
-  world_greatest_stretch: {name: World's greatest stretch, equipment: [bodyweight], tags: [full, warmup, mobility], load_mode: bodyweight}
-  hip_90_90: {name: 90/90 hip switches, equipment: [bodyweight], tags: [lower, mobility], load_mode: bodyweight}
+  world_greatest_stretch: {name: World's greatest stretch, equipment: [bodyweight], tags: [full, warmup, mobility], load_mode: bodyweight, sides: either}
+  hip_90_90: {name: 90/90 hip switches, equipment: [bodyweight], tags: [lower, mobility], load_mode: bodyweight, sides: alternating}
   cat_cow: {name: Cat-cow, equipment: [bodyweight], tags: [core, mobility, warmup], load_mode: bodyweight}
-  copenhagen_plank: {name: Copenhagen plank, equipment: [flat_bench], muscles: [adductors], tags: [lower, core, isometric], load_mode: bodyweight, regressions: [copenhagen_plank_short]}
-  copenhagen_plank_short: {name: Short-lever Copenhagen plank, equipment: [flat_bench], muscles: [adductors], tags: [lower, core, isometric], load_mode: bodyweight}
+  copenhagen_plank: {name: Copenhagen plank, equipment: [flat_bench], muscles: [adductors], tags: [lower, core, isometric], load_mode: bodyweight, regressions: [copenhagen_plank_short], sides: split}
+  copenhagen_plank_short: {name: Short-lever Copenhagen plank, equipment: [flat_bench], muscles: [adductors], tags: [lower, core, isometric], load_mode: bodyweight, sides: split}
   foam_roll: {name: Foam roll, equipment: [bodyweight], tags: [mobility, recovery], load_mode: none}
   lacrosse_ball_release: {name: Lacrosse ball release, equipment: [bodyweight], tags: [mobility, recovery], load_mode: none}
   band_mobility: {name: Band mobility flow, equipment: [bands], tags: [mobility, recovery], load_mode: none}
@@ -53,7 +53,7 @@ exercises:
   conventional_deadlift: {name: Conventional deadlift, equipment: [barbell], implement: barbell, muscles: [glutes, hamstrings, back], tags: [lower, hinge, primary, spine_load], family: hinge, rung: 3, regressions: [block_pull], load_mode: e1rm, hevy_title: Deadlift (Barbell), estimate_from: {exercise: trap_bar_deadlift_high, factor: 0.9}}
   rdl_db: {name: Dumbbell Romanian deadlift, equipment: [dumbbells], implement: dumbbell, muscles: [hamstrings, glutes], tags: [lower, hinge, eccentric_heavy], regressions: [hip_thrust], deload_swap: hip_thrust, load_mode: e1rm, hevy_title: Romanian Deadlift (Dumbbell), estimate_from: {exercise: trap_bar_deadlift_high, factor: 0.24}}
   rdl_barbell: {name: Barbell Romanian deadlift, equipment: [barbell], implement: barbell, muscles: [hamstrings, glutes], tags: [lower, hinge, eccentric_heavy, spine_load], family: hinge, rung: 1, regressions: [rdl_db], deload_swap: hip_thrust, load_mode: e1rm, hevy_title: Romanian Deadlift (Barbell), estimate_from: {exercise: trap_bar_deadlift_high, factor: 0.6}}
-  single_leg_rdl_db: {name: Single-leg DB RDL, equipment: [dumbbells], implement: dumbbell, muscles: [hamstrings, glutes], tags: [lower, hinge, unilateral], regressions: [hip_thrust], load_mode: e1rm, estimate_from: {exercise: trap_bar_deadlift_high, factor: 0.16}}
+  single_leg_rdl_db: {name: Single-leg DB RDL, equipment: [dumbbells], implement: dumbbell, muscles: [hamstrings, glutes], tags: [lower, hinge, unilateral], regressions: [hip_thrust], load_mode: e1rm, estimate_from: {exercise: trap_bar_deadlift_high, factor: 0.16}, sides: split}
   hip_thrust: {name: Hip thrust (glute trainer), equipment: [glute_trainer], implement: machine, muscles: [glutes], tags: [lower, hinge], load_mode: last_used, hevy_title: Hip Thrust (Machine)}
   back_extension: {name: Back extension (45°), equipment: [back_extension], muscles: [glutes, hamstrings], tags: [lower, hinge], load_mode: bodyweight, hevy_title: Back Extension}
   sorensen_hold: {name: Biering-Sorensen hold, equipment: [back_extension], muscles: [back, core], tags: [core, isometric], load_mode: bodyweight, hevy_title: Back Extension Hold}
@@ -67,14 +67,14 @@ exercises:
   goblet_squat: {name: Goblet squat, equipment: [dumbbells], implement: dumbbell, muscles: [quads, glutes], tags: [lower, squat], regressions: [leg_press], load_mode: e1rm, estimate_from: {exercise: ssb_box_squat, factor: 0.3}}
   landmine_belt_squat: {name: Landmine belt squat, equipment: [landmine], implement: landmine, muscles: [quads, glutes], tags: [lower, squat], load_mode: last_used}
   leg_press: {name: Leg press, equipment: [leg_press], implement: machine, muscles: [quads, glutes], tags: [lower, squat], load_mode: last_used, hevy_title: Leg Press (Machine)}
-  bulgarian_split_squat: {name: DB Bulgarian split squat, equipment: [dumbbells, flat_bench], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral, eccentric_heavy, deep_lunge], regressions: [step_up_db], deload_swap: step_up_db, load_mode: e1rm, hevy_title: Bulgarian Split Squat, estimate_from: {exercise: ssb_box_squat, factor: 0.2}}
-  bodyweight_split_squat: {name: Bodyweight split squat, equipment: [bodyweight], muscles: [quads, glutes], tags: [lower, lunge, unilateral], load_mode: bodyweight}
+  bulgarian_split_squat: {name: DB Bulgarian split squat, equipment: [dumbbells, flat_bench], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral, eccentric_heavy, deep_lunge], regressions: [step_up_db], deload_swap: step_up_db, load_mode: e1rm, hevy_title: Bulgarian Split Squat, estimate_from: {exercise: ssb_box_squat, factor: 0.2}, sides: split}
+  bodyweight_split_squat: {name: Bodyweight split squat, equipment: [bodyweight], muscles: [quads, glutes], tags: [lower, lunge, unilateral], load_mode: bodyweight, sides: split}
   air_squat: {name: Air squat, equipment: [bodyweight], muscles: [quads, glutes], tags: [lower, squat, conditioning], load_mode: bodyweight}
-  single_leg_glute_bridge: {name: Single-leg glute bridge, equipment: [bodyweight], muscles: [glutes, hamstrings], tags: [lower, hinge], load_mode: bodyweight}
+  single_leg_glute_bridge: {name: Single-leg glute bridge, equipment: [bodyweight], muscles: [glutes, hamstrings], tags: [lower, hinge], load_mode: bodyweight, sides: split}
   band_row: {name: Band row, equipment: [bands], muscles: [back], tags: [upper, pull_h], load_mode: none}
-  reverse_lunge_db: {name: DB reverse lunge, equipment: [dumbbells], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral], regressions: [step_up_db], load_mode: e1rm, estimate_from: {exercise: ssb_box_squat, factor: 0.2}}
-  step_up_db: {name: DB step-up, equipment: [dumbbells, plyo_box], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral, concentric], load_mode: e1rm, estimate_from: {exercise: ssb_box_squat, factor: 0.17}}
-  smith_split_squat: {name: Smith machine split squat, equipment: [smith_machine], implement: smith_machine, muscles: [quads, glutes], tags: [lower, lunge, unilateral], regressions: [step_up_db], load_mode: last_used}
+  reverse_lunge_db: {name: DB reverse lunge, equipment: [dumbbells], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral], regressions: [step_up_db], load_mode: e1rm, estimate_from: {exercise: ssb_box_squat, factor: 0.2}, sides: either}
+  step_up_db: {name: DB step-up, equipment: [dumbbells, plyo_box], implement: dumbbell, muscles: [quads, glutes], tags: [lower, lunge, unilateral, concentric], load_mode: e1rm, estimate_from: {exercise: ssb_box_squat, factor: 0.17}, sides: either}
+  smith_split_squat: {name: Smith machine split squat, equipment: [smith_machine], implement: smith_machine, muscles: [quads, glutes], tags: [lower, lunge, unilateral], regressions: [step_up_db], load_mode: last_used, sides: split}
   leg_extension: {name: Leg extension, equipment: [leg_extension], implement: machine, muscles: [quads], tags: [lower, isolation], load_mode: last_used, hevy_title: Leg Extension (Machine)}
   hip_adduction: {name: Hip adduction machine, equipment: [hip_adductor_abductor], implement: machine, muscles: [adductors], tags: [lower, isolation], load_mode: last_used}
   hip_abduction: {name: Hip abduction machine, equipment: [hip_adductor_abductor], implement: machine, muscles: [glutes], tags: [lower, isolation], load_mode: last_used}
@@ -94,7 +94,7 @@ exercises:
   pec_fly_machine: {name: Pec fly machine, equipment: [rear_delt_pec_fly], implement: machine, muscles: [chest], tags: [upper, isolation], load_mode: last_used}
   dips: {name: Dips, equipment: [dip_station], muscles: [chest, triceps], tags: [upper, press_h, shoulder_extension_loaded], regressions: [push_up], load_mode: bodyweight}
   # ---------- overhead family ----------
-  half_kneeling_landmine_press: {name: Half-kneeling landmine press, equipment: [landmine], implement: landmine, muscles: [shoulders, chest], tags: [upper, press_v, overhead_light], family: overhead, rung: 0, regressions: [crossover_symmetry_activation], load_mode: e1rm, estimate_from: {exercise: db_bench_press_neutral, factor: 0.9}}
+  half_kneeling_landmine_press: {name: Half-kneeling landmine press, equipment: [landmine], implement: landmine, muscles: [shoulders, chest], tags: [upper, press_v, overhead_light], family: overhead, rung: 0, regressions: [crossover_symmetry_activation], load_mode: e1rm, estimate_from: {exercise: db_bench_press_neutral, factor: 0.9}, sides: split}
   seated_db_press_neutral: {name: Seated neutral-grip DB shoulder press, equipment: [dumbbells, adjustable_bench], implement: dumbbell, muscles: [shoulders, triceps], tags: [upper, press_v, overhead], family: overhead, rung: 1, regressions: [half_kneeling_landmine_press], load_mode: e1rm, estimate_from: {exercise: db_bench_press_neutral, factor: 0.7}}
   converging_shoulder_press: {name: Converging shoulder press, equipment: [converging_shoulder_press], implement: machine, muscles: [shoulders, triceps], tags: [upper, press_v, overhead], family: overhead, rung: 1, regressions: [half_kneeling_landmine_press], load_mode: last_used}
   standing_db_press: {name: Standing DB overhead press, equipment: [dumbbells], implement: dumbbell, muscles: [shoulders, triceps], tags: [upper, press_v, overhead], family: overhead, rung: 2, regressions: [seated_db_press_neutral], load_mode: e1rm, estimate_from: {exercise: db_bench_press_neutral, factor: 0.62}}
@@ -158,14 +158,14 @@ exercises:
   sled_push: {name: Sled push (Torque Tank), equipment: [sled], muscles: [quads, glutes], tags: [lower, conditioning, concentric], load_mode: none, hevy_title: Sled Push}
   sled_pull: {name: "Sled pull (rope, hand over hand)", equipment: [sled], muscles: [back], tags: [upper, conditioning, concentric], load_mode: none}
   farmers_carry: {name: Farmer's carry, equipment: [dumbbells], implement: dumbbell, muscles: [core], tags: [carry, conditioning, core], load_mode: last_used}
-  suitcase_carry: {name: Suitcase carry, equipment: [kettlebells], implement: kettlebell, muscles: [core], tags: [carry, core], load_mode: kb}
-  sandbag_lunge: {name: Sandbag walking lunge, equipment: [sandbag], muscles: [quads, glutes], tags: [lower, lunge, conditioning, eccentric_heavy, deep_lunge], regressions: [step_up_db], deload_swap: sled_push, load_mode: none}
+  suitcase_carry: {name: Suitcase carry, equipment: [kettlebells], implement: kettlebell, muscles: [core], tags: [carry, core], load_mode: kb, sides: split}
+  sandbag_lunge: {name: Sandbag walking lunge, equipment: [sandbag], muscles: [quads, glutes], tags: [lower, lunge, conditioning, eccentric_heavy, deep_lunge], regressions: [step_up_db], deload_swap: sled_push, load_mode: none, sides: alternating}
   wall_ball: {name: Wall ball, equipment: [wall_ball], muscles: [quads], tags: [full, conditioning, overhead_light], requires: {overhead: 1}, regressions: [med_ball_thruster_low], load_mode: none}
   med_ball_thruster_low: {name: Med ball squat to chest pass, equipment: [med_ball], tags: [full, conditioning], load_mode: none}
-  box_step_over: {name: Box step-over, equipment: [plyo_box], tags: [lower, conditioning], load_mode: bodyweight}
+  box_step_over: {name: Box step-over, equipment: [plyo_box], tags: [lower, conditioning], load_mode: bodyweight, sides: alternating}
   battle_ropes: {name: Battle ropes, equipment: [battle_ropes], tags: [upper, conditioning], load_mode: none}
   db_thruster: {name: DB thruster, equipment: [dumbbells], implement: dumbbell, muscles: [quads, shoulders], tags: [full, conditioning, overhead], requires: {overhead: 2}, regressions: [goblet_squat], load_mode: last_used}
-  kb_goblet_reverse_lunge: {name: KB goblet reverse lunge, equipment: [kettlebells], implement: kettlebell, muscles: [quads, glutes], tags: [lower, lunge, conditioning], regressions: [step_up_db], load_mode: kb}
+  kb_goblet_reverse_lunge: {name: KB goblet reverse lunge, equipment: [kettlebells], implement: kettlebell, muscles: [quads, glutes], tags: [lower, lunge, conditioning], regressions: [step_up_db], load_mode: kb, sides: either}
   abmat_sit_up: {name: AbMat sit-up, equipment: [abmat], muscles: [core], tags: [core, conditioning], load_mode: bodyweight}
   # ---------- arms / core accessories ----------
   db_curl: {name: DB curl, equipment: [dumbbells], implement: dumbbell, muscles: [biceps], tags: [upper, isolation], load_mode: last_used}
@@ -173,5 +173,5 @@ exercises:
   cable_triceps_pushdown: {name: Cable triceps pushdown, equipment: [cable_crossover], implement: cable, muscles: [triceps], tags: [upper, isolation], load_mode: last_used}
   cable_overhead_triceps: {name: Cable overhead triceps extension, equipment: [cable_crossover], implement: cable, muscles: [triceps], tags: [upper, isolation, overhead_light], regressions: [cable_triceps_pushdown], load_mode: last_used}
   ab_wheel: {name: Ab wheel rollout, equipment: [ab_wheel], muscles: [core], tags: [core], regressions: [dead_bug], load_mode: bodyweight}
-  dead_bug: {name: Dead bug, equipment: [bodyweight], muscles: [core], tags: [core], load_mode: bodyweight}
-  pallof_press: {name: Pallof press, equipment: [cable_crossover], implement: cable, muscles: [core], tags: [core, anti_rotation], load_mode: last_used}
+  dead_bug: {name: Dead bug, equipment: [bodyweight], muscles: [core], tags: [core], load_mode: bodyweight, sides: alternating}
+  pallof_press: {name: Pallof press, equipment: [cable_crossover], implement: cable, muscles: [core], tags: [core, anti_rotation], load_mode: last_used, sides: split}

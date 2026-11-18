@@ -137,7 +137,15 @@ def test_every_strength_exercise_gets_warmups_sized_to_the_session(b1):
     assert [r.pct for r in dl.ramp] == [0.5, 0.7, 0.85]  # no history: percentage ramp + note
     assert all(r.load_kg is None for r in dl.ramp) and "warm-up ~50% x4" in (dl.load_note or "")
     assert [(r.reps, r.load_kg) for r in by["strict_pull_up"].ramp] == [(2, None)]
-    assert len(by["seated_leg_curl"].ramp) == 1  # isolation: one feeler set
+    assert len(by["seated_leg_curl"].ramp) == 1  # isolation on a fresh prime mover: one feeler set
+    s2 = _warmup_session(
+        [
+            ("hypertrophy", {"exercise_id": "seated_leg_curl", "sets": 3, "reps": 10, "rir": 2}),
+            ("hypertrophy", {"exercise_id": "seated_leg_curl", "sets": 2, "reps": 12, "rir": 1}),
+        ]
+    )
+    f.fill(s2)
+    assert len(s2.blocks[0].items[0].ramp) == 1 and s2.blocks[1].items[0].ramp == []  # warm isolation: none
     assert by["side_plank"].ramp == []
     f.fill(s)  # refilling is idempotent
     assert by["trap_bar_deadlift_high"].load_note.count("warm-up") == 1
@@ -504,6 +512,7 @@ def test_family_movement_in_a_metcon_respects_skill_competence(home):
         calories=None,
         rest_s=None,
         per_side=False,
+        alternating=None,
         notes=None,
         tempo=None,
     )
