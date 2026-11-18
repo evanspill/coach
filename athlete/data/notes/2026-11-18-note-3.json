@@ -1,0 +1,7 @@
+{
+  "id": "2026-11-18-note-3",
+  "date": "2026-11-18",
+  "category": "response",
+  "text": "Drift run 2026-11-18 HR from the Intervals.icu stream: 0-10 min (5.0 mph) avg 134, rising to ~154 by min 10; 10-15 min (6.0 mph) avg 160, peak 166; locked 20-40 min at 4.5 mph avg 150 (first half 150, second half 150, so almost no drift). 150 is about 91% of the configured LTHR 165, so the locked segment was above Z2, not at it. The submax formula assumes the run is at ~80% LTHR and would give an implausible LTHR (~188), so do not use this run to set HR zones. Coach recommendation: repeat the drift run next week at a pace that keeps HR <= ~139 from the start; keep default zones until then. Pending the athlete decision. Watch was in outdoor Run mode (0.47 mi recorded): use the Treadmill activity and Calibrate & Save.",
+  "source": "coach"
+}
