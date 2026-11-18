@@ -1,0 +1,48 @@
+{
+  "id": "2026-11-18-config-change-1",
+  "kind": "config_change",
+  "created": "2026-11-18",
+  "created_by": "assess",
+  "title": "HR zones from Whoop (heart rate reserve: max 194, resting 52)",
+  "what": "athlete_context.json running.default_zones: hr_model lthr -> hrr, max_hr 194, resting_hr 52 (fallbacks; Whoop's synced max HR and resting-HR baseline take over). Easy (Z2) HR becomes about 138-152, was 124-139. Paces unchanged. Needs PR #16 merged first; approving before then leaves this pending (the config won't load).",
+  "why": "Athlete wants Whoop as the source of truth for HR zones. The 165 LTHR was a placeholder; Whoop history shows max HR about 190-194 and resting HR about 52, and the 2026-11-18 easy run at 150 bpm sits in Whoop Zone 2.",
+  "before": {
+    "lthr": 165,
+    "threshold_pace_s_per_mi": 480,
+    "note": "used until the first time trial"
+  },
+  "after": {
+    "lthr": 165,
+    "threshold_pace_s_per_mi": 480,
+    "note": "HR zones from Whoop heart rate reserve (max/resting synced from Whoop; these are fallbacks). Threshold pace used until the first time trial.",
+    "hr_model": "hrr",
+    "max_hr": 194,
+    "resting_hr": 52
+  },
+  "target": null,
+  "payload": {
+    "config_patch": {
+      "file": "athlete_context.json",
+      "path": [
+        "running",
+        "default_zones"
+      ],
+      "value": {
+        "lthr": 165,
+        "threshold_pace_s_per_mi": 480,
+        "note": "HR zones from Whoop heart rate reserve (max/resting synced from Whoop; these are fallbacks). Threshold pace used until the first time trial.",
+        "hr_model": "hrr",
+        "max_hr": 194,
+        "resting_hr": 52
+      }
+    }
+  },
+  "status": "pending",
+  "history": [
+    {
+      "at": "2026-11-18",
+      "status": "pending",
+      "note": "athlete asked for it in chat; waiting on PR #16"
+    }
+  ]
+}

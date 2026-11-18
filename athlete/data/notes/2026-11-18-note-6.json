@@ -1,0 +1,7 @@
+{
+  "id": "2026-11-18-note-6",
+  "date": "2026-11-18",
+  "category": "response",
+  "text": "Supersedes the 2026-11-18 redo recommendation: the drift run does NOT need repeating. By Whoop HRR zones (athlete-chosen source of truth) the locked 20 min at 4.5 mph (avg 150) was Zone 2. Score it at the end of the baseline week from the last 20 min (4.5 mph = 800 s/mi), pace only, low confidence, once PR #16 and proposal 2026-11-18-config-change-1 are in (otherwise the submax LTHR would be set to ~188). Athlete is updating Garmin zones to match Whoop.",
+  "source": "coach"
+}
