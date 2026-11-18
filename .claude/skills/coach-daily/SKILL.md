@@ -1,22 +1,27 @@
 ---
 name: coach-daily
-description: Coordinator for the scheduled daily run (8:25 AM ET + 9:05 catch-up). Works out what today needs and runs the other coaching skills in order, then commits state and ends with the push-notification summary. Makes no coaching decisions of its own.
+description: Coordinator for the scheduled daily run (8:25 AM ET), and for finishing a day that waited for Whoop recovery when the athlete says it's in. Works out what today needs and runs the other coaching skills in order, then commits state and ends with the push-notification summary. Makes no coaching decisions of its own.
 ---
 
 # coach-daily (coordinator)
 
 **When:** the scheduled task prompt "Run the coach-daily skill. Commit state to main and push. End with the athlete
-summary." (and the 9:05 catch-up variant). Never in chat unless the athlete asks to "run today's coaching".
+summary." In chat only when the athlete asks to "run today's coaching", or says recovery is in on a day that is
+`waiting_for_recovery` (finish mode, below). There is no scheduled catch-up run.
 
 **Context:** `coach status`, `coach sync`, `coach readiness`, `athlete/data/notes.md`.
 
 ## Steps
-1. `git checkout main && git pull --rebase`. **Catch-up run:** if today's day record (`coach record get day_records
-   --key <today>`) is missing or its `status` is not `waiting_for_recovery`, stop and end with "Nothing to finish."
+1. `git checkout main && git pull --rebase`. **Finish mode** (athlete: "recovery's in"): if today's day record
+   (`coach record get day_records --key <today>`) is missing or its `status` is not `waiting_for_recovery`, say
+   there is nothing to finish; otherwise continue from step 2 and complete the day (rehab's exposure logging is
+   idempotent, so re-running it is safe). If recovery is still missing, say so and keep waiting. If today's
+   session is already logged in Hevy (the athlete trained before recovery came in), record readiness, fuel and the
+   recovery prescription only: don't adjust or re-push a session that is done.
 2. `coach sync --jitter 90` (a random 0-90 s wait first, so scheduled requests never hit the APIs on the minute).
    If today's Whoop recovery is missing (`recovery_today: false`): finish everything that doesn't
-   depend on it, write today's day record with `status: waiting_for_recovery`, say so in the notification; the
-   catch-up completes the adjustment. Report stale sources; never guess missing data.
+   depend on it, write today's day record with `status: waiting_for_recovery`, say so in the notification (the
+   athlete trains the planned session and tells you when recovery is in; finish mode completes the adjustment). Report stale sources; never guess missing data.
    If `whoop_offline: true` (fetch failed or no recovery for 2+ days) don't wait: finalize today with readiness
    unscored (joint check-ins still apply, the plan runs as written) and lead the notification with
    "NO SCORE: Whoop offline".
@@ -50,7 +55,7 @@ Gear: <alerts>                        (when relevant)
 
 ## Safety net
 If you can't complete the run (tool failures, repeated validation failures), run `coach daily --fallback --jitter 90`
-(and `--catchup` for the catch-up run), commit, and say in the notification that the deterministic fallback was used.
+(and `--catchup` in finish mode: it only finishes a waiting day), commit, and say in the notification that the deterministic fallback was used.
 
 ## Never
 - Make coaching decisions here (they belong to the skills it calls).

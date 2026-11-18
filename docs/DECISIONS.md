@@ -467,3 +467,14 @@ Each entry: **decision** - why - how to reverse.
     - The library how-to is no longer appended when the plan's own note already carries it (same video link or
       description), which printed two descriptions on the 2026-11-17 screen redos.
     - Reverse: revert the commits; per-side work splits again everywhere.
+98. **One daily scheduled run; no 9:05 catch-up** (athlete request, 2026-11-18):
+    - The catch-up task fired every day but only had work when the 8:25 run left the day `waiting_for_recovery`
+      (none so far), so it was a near-empty session daily. The athlete deleted it.
+    - A late-recovery day still finishes everything else, stays `waiting_for_recovery` with the planned session in
+      Hevy, and the notification now says "tell me when recovery is in and I'll finalize today". The athlete says so
+      in chat and `coach-daily` runs in finish mode (same steps as the old catch-up; `coach daily --catchup` remains
+      the deterministic version). If the session was already trained by then, finish mode records readiness,
+      fuel and recovery only and doesn't re-push. Whoop offline (2+ days or a failed fetch) is unchanged: finalize unscored.
+    - The simulation still models a late-recovery day finished later the same morning (its "09:05" phase stands in
+      for the athlete's message).
+    - Reverse: recreate the ~9:05 scheduled task and restore the notification text.

@@ -70,11 +70,12 @@ tests/                     pytest (CI: ruff + pytest + config check + 120-day si
 | "How am I doing / progressing?", charts, weekly or block review | `review` (`coach report ...`) |
 | Goal changes, add/move a race, new block, "am I on track for Boston?" | `assess` / `plan-block` (after `coach macrocycle regenerate`); `coach goals` |
 | "Swap today's pressing" | `adjust-day` -> `design-session` -> validate -> show before/after -> apply after OK |
+| "Recovery's in" (on a day waiting for Whoop) | `coach-daily` in finish mode (completes today's adjustment + push) |
 | "Approve the plan / the block goal" | `coach approve week` / `coach approve block-goal` (then push) |
 | "Retest X" | `assess` |
 | Monthly science/calibration questions | `learn` |
 
-The scheduled daily run uses `coach-daily` (the coordinator), which calls the other skills.
+The scheduled daily run (one a day, 8:25 AM ET) uses `coach-daily` (the coordinator), which calls the other skills.
 
 ## Conventions
 
