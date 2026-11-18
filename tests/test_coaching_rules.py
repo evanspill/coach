@@ -758,3 +758,12 @@ def test_a_short_deload_week_is_topped_up_to_the_aerobic_minimum(home):
     assert host.blocks[-1].kind == "cooldown" and any(
         seg.modality == "bike" for b in host.blocks for seg in b.run
     )
+
+
+def test_waiting_for_recovery_asks_the_athlete_to_say_when_recovery_is_in():
+    from coach.coaching.notify import compose
+    from coach.models import DayRecord
+
+    rec = DayRecord(date=dt.date(2026, 11, 18), status="waiting_for_recovery")
+    text = compose(rec)
+    assert "tell me when recovery is in" in text and "9:05" not in text and "catch-up" not in text

@@ -10,7 +10,7 @@ flowchart TB
     S[Claude Code chat session]
   end
   subgraph Claude["Claude Code cloud"]
-    T[Daily scheduled task 8:25 AM ET + 9:05 catch-up]
+    T[Daily scheduled task 8:25 AM ET]
     E[Cloud environment: secrets + allowlist]
   end
   subgraph Repo["Private GitHub repo"]

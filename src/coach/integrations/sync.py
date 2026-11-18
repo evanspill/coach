@@ -303,7 +303,7 @@ def sync(
     for name in report["errors"]:
         report["stale"].append(f"{name}: fetch failed")
     report["recovery_today"] = latest["whoop"] == today
-    # Offline (not just late): the source failed, or nothing for 2+ days. The 9:05 catch-up can't fix that, so
+    # Offline (not just late): the source failed, or nothing for 2+ days. Finishing later can't fix that, so
     # the daily run finalizes without a readiness score instead of waiting (never guesses one).
     report["whoop_offline"] = latest["whoop"] != today and (
         "whoop" in report["errors"] or latest["whoop"] is None or (today - latest["whoop"]).days >= 2

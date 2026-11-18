@@ -54,7 +54,8 @@ def compose(rec: DayRecord, extras: dict | None = None, detail: str = "normal") 
         lines.append(f"{STATE_WORD[r.state]}: {top}.")
     if rec.status == "waiting_for_recovery":
         lines.append(
-            "Whoop hasn't processed last night yet: train the planned session; I'll finalize at the 9:05 catch-up."
+            "Whoop hasn't processed last night yet: train the planned session; tell me when recovery is in "
+            "and I'll finalize today."
         )
     lines.append("Today: " + _headline(rec))
     if rec.weather and rec.session and any(seg.modality == "run" for seg in rec.session.run_segments()):

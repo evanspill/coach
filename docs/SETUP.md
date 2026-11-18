@@ -68,12 +68,12 @@ broker needed) and enable "upload planned workouts" on its Garmin connection.
 - [ ] `python -m coach init` (macrocycle, starting rungs, config lock, notes, intake template). Already run once in
       Phase 1 with today's date; re-run is idempotent.
 - [ ] `python -m coach sync --pretty` and `python -m coach status --pretty`.
-- [ ] Create the two scheduled tasks (push notifications on):
+- [ ] Create the daily scheduled task (push notifications on):
   Start times are deliberately off-round (never :00 / :30), and every scheduled sync waits a random 0-90 s first
   (`--jitter 90`), as Hevy's API docs ask; it applies to every integration.
   - ~8:25 AM ET daily: *"Run the coach-daily skill. Commit state to main and push. End with the athlete summary."*
-  - ~9:05 AM ET daily (catch-up): *"Run the coach-daily skill in catch-up mode: only continue if today's day record
-    is waiting_for_recovery. Commit state to main and push. End with the athlete summary."*
+  - No catch-up task (removed 2026-11-18, decision 98): on a late-recovery day the athlete says "recovery's in" in
+    chat and the coach finishes the day.
 - [x] Shadow mode ended early (2026-11-14, after the supervised push test): `push.enabled: true`; weekly plans stay
       manual-approve. Run the baseline week, then approve the Block 1 goal.
 
