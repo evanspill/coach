@@ -152,9 +152,11 @@ def _transition(
     log.append(f"assess: scored {len(ts.results)} tests ({', '.join(r.test_id for r in ts.results)})")
     z = assess.update_zones_from(ctx, ts)
     if z:
-        from coach.engine.paces import Zones
+        import dataclasses
 
-        ctx.zones = Zones(lthr=z.lthr, threshold_pace_s_per_mi=z.threshold_pace_s_per_mi)
+        ctx.zones = dataclasses.replace(
+            ctx.zones, lthr=z.lthr, threshold_pace_s_per_mi=z.threshold_pace_s_per_mi
+        )
         log.append(f"zones updated: LTHR {z.lthr}, threshold {z.threshold_pace_s_per_mi} s/mi")
     entry = ts.model_copy(deep=True)
     entry.block_id, entry.phase = new_block.id, "start"

@@ -167,6 +167,11 @@ def sync(
 
     whoop_daily = run("whoop", lambda: sources.whoop.daily(wstart, today))
     report["counts"]["whoop_daily"] = len(whoop_daily or [])
+    # max HR for heart-rate-reserve zones (cache only, like all Whoop data); its own error key so a broker without
+    # the body endpoint never reads as Whoop being offline
+    body = run("whoop_body", sources.whoop.body) if whoop_daily is not None else None
+    if body and body.get("max_heart_rate"):
+        state.set_whoop_body({"max_heart_rate": int(body["max_heart_rate"]), "synced": today.isoformat()})
     if whoop_daily is not None:
         state.upsert_metrics(
             [

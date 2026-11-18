@@ -89,6 +89,9 @@ class MockWhoop(WhoopSource):
             if _in(s.date, start, end) and s.date < today
         ]
 
+    def body(self):
+        return self.w.whoop.get("body")
+
 
 class MockHevy(HevySource):
     def __init__(self, world: MockWorld):

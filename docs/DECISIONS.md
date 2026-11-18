@@ -478,3 +478,19 @@ Each entry: **decision** - why - how to reverse.
     - The simulation still models a late-recovery day finished later the same morning (its "09:05" phase stands in
       for the athlete's message).
     - Reverse: recreate the ~9:05 scheduled task and restore the notification text.
+99. **HR zones from Whoop's heart rate reserve** (athlete request, 2026-11-18):
+    - The athlete wants Whoop as the source of truth for HR zones. Whoop uses heart rate reserve (resting +
+      fraction x (max - resting)) with its own max HR and resting-HR baseline; the coach had only LTHR-based zones from
+      a placeholder LTHR of 165 (Z2 124-139), which put an easy run at 150 bpm (inside Whoop's Z2, 138-152) above Z2.
+    - `running.default_zones.hr_model: hrr` (+ `max_hr`, `resting_hr` fallbacks) switches HR zones to HRR. Z1-Z5 are
+      Whoop's zones 1-5 (40/60/70/80/90/100%), MP 72-80%, T 80-90%; bounds round up, so Z2 matches Whoop exactly
+      and the rest are within 1 bpm. Paces still come from threshold pace; `lthr` stays as the LTHR model's value.
+    - Values: max HR from Whoop's body measurement (new broker route `/v2/user/measurement/body`, cached like all
+      Whoop data, never committed, decision 73), resting HR = median Whoop RHR over `rhr_baseline_days` once there is
+      a week of nights; otherwise the configured fallbacks. A failed body fetch reports `whoop_body`, never Whoop offline.
+    - Under `hrr` a submax drift run sets only threshold pace: its LTHR (avg HR / 0.80) assumes the run was at 80% of
+      LTHR, which an easy run by HRR zones need not be (on 2026-11-18 it would have given ~188). A 30-min TT's LTHR is
+      still stored. Threshold work may move to a TT-based model once there is a running base.
+    - Switching the athlete's config is a threshold change: proposal, then `coach approve`. The broker must be
+      redeployed for the max HR to sync (until then the configured max_hr is used).
+    - Reverse: set `hr_model: lthr` (the default) or revert the commits.

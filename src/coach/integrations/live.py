@@ -82,6 +82,11 @@ class LiveWhoop(WhoopSource):
     def workouts(self, start, end):
         return N.whoop_workouts(self._get("/v2/activity/workout", start, end))
 
+    def body(self):
+        if not self.base:
+            raise RuntimeError("WHOOP_BROKER_URL not configured (Phase 2: deploy the token broker)")
+        return _request("GET", f"{self.base}/v2/user/measurement/body", self.headers)
+
 
 class LiveHevy(HevySource):
     BASE = "https://api.hevyapp.com/v1"

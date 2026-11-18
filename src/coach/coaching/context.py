@@ -1,6 +1,7 @@
 """Everything a skill needs to know about 'now', assembled from state + config (read-only)."""
 
 import datetime as dt
+import statistics
 from dataclasses import dataclass, field
 
 from coach import clock
@@ -183,6 +184,28 @@ class Context:
         return self.state.outline(b.id) if b else None
 
 
+def build_zones(cfg: Config, state: Store, today: dt.date) -> Zones:
+    """Threshold pace (and LTHR) from the latest test, else the defaults. With hr_model "hrr" the HR zones come from
+    heart rate reserve: Whoop's max HR (from sync) and the median Whoop resting HR over the readiness baseline window,
+    falling back to the configured max_hr / resting_hr."""
+    dz = cfg.profile.running.default_zones
+    z = state.zones()
+    lthr, pace = (z.lthr, z.threshold_pace_s_per_mi) if z else (dz.lthr, dz.threshold_pace_s_per_mi)
+    if dz.hr_model != "hrr":
+        return Zones(lthr=lthr, threshold_pace_s_per_mi=pace)
+    max_hr, resting = dz.max_hr, dz.resting_hr
+    body = state.whoop_body()
+    if body and body.get("max_heart_rate"):
+        max_hr = int(body["max_heart_rate"])
+    since = today - dt.timedelta(days=cfg.profile.thresholds.rhr_baseline_days - 1)
+    rhr = [m.rhr_bpm for m in state.metric_records_daily_cached() if m.rhr_bpm and since <= m.date <= today]
+    if len(rhr) >= 7:  # a week of nights before the measured baseline replaces the configured one
+        resting = round(statistics.median(rhr))
+    if max_hr is None or resting is None or not resting < max_hr:
+        return Zones(lthr=lthr, threshold_pace_s_per_mi=pace)
+    return Zones(lthr=lthr, threshold_pace_s_per_mi=pace, hr_model="hrr", max_hr=max_hr, resting_hr=resting)
+
+
 def build(state: Store | None = None, cfg: Config | None = None, today: dt.date | None = None) -> Context:
     state = state or Store()
     cfg = cfg or load_config()
@@ -194,13 +217,7 @@ def build(state: Store | None = None, cfg: Config | None = None, today: dt.date 
     week_index = ((clock.monday_of(today) - block.start).days // 7 + 1) if block else 0
     target = outline.week(week_index) if outline else None
     movement = state.movement_readiness() or mv.initial_state(cfg.progressions, today)
-    dz = cfg.profile.running.default_zones
-    z = state.zones()
-    zones = (
-        Zones(lthr=z.lthr, threshold_pace_s_per_mi=z.threshold_pace_s_per_mi)
-        if z
-        else Zones(lthr=dz.lthr, threshold_pace_s_per_mi=dz.threshold_pace_s_per_mi)
-    )
+    zones = build_zones(cfg, state, today)
     return Context(
         cfg=cfg,
         state=state,

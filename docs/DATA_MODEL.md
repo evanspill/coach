@@ -74,7 +74,7 @@ erDiagram
 | `day_records` | doc | `DayRecord` | `athlete/data/days/{key}.json` | daily readiness, adjustments, notification |
 | `proposals` | doc | `Proposal` | `athlete/data/proposals/{key}.json` | everything awaiting approval |
 | `movement_readiness` | singleton | `MovementReadiness` | `athlete/data/movement_readiness.json` | rungs; per family `last_exposure_date`/`last_exposure_clean` make exposure logging idempotent (a later pain report can overturn a clean one) |
-| `zones` | singleton | `ThresholdZones` | `athlete/data/zones.json` | LTHR + threshold pace |
+| `zones` | singleton | `ThresholdZones` | `athlete/data/zones.json` | LTHR + threshold pace (HR zones come from heart rate reserve instead when `default_zones.hr_model` is `hrr`; decision 99) |
 | `notes` | doc | `Note` | `athlete/data/notes/{key}.json` | durable facts (rendered to notes.md) |
 | `config_lock` | singleton | `ConfigLock` | `athlete/data/config_lock.json` | approved-thresholds fingerprint |
 | **reports (markdown)** | | | | |

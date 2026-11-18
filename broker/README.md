@@ -7,6 +7,7 @@ never Whoop data; the coach doesn't commit Whoop data either (`docs/DECISIONS.md
 | Endpoint | Upstream |
 |---|---|
 | `GET /v2/recovery`, `/v2/activity/sleep`, `/v2/cycle`, `/v2/activity/workout` | Whoop API v2 (`start`, `end`, `nextToken` passed through, `limit=25`) |
+| `GET /v2/user/measurement/body` | Whoop API v2 body measurement (max HR for the coach's HR zones; no params) |
 | `GET /health` | whether Whoop is connected (never token values) |
 | `GET /privacy` | public privacy page for the app registration |
 | `GET /auth/whoop/start?key=<BROKER_KEY>` | one-time browser sign-in (OAuth), stores the tokens |
