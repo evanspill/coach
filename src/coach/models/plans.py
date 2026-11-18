@@ -44,8 +44,9 @@ Pillar = Literal["neural", "force", "glycolytic", "aerobic"]
 
 class RampSet(Model):
     reps: int
-    load_kg: float
+    load_kg: float | None = None  # None: bodyweight, or a working weight the athlete picks (see pct)
     load_lb: float | None = None
+    pct: float | None = Field(default=None, gt=0, le=1)  # fraction of the working weight when self-selected
 
 
 class Prescription(Model):
@@ -63,6 +64,9 @@ class Prescription(Model):
     tempo: str | None = None
     rest_s: int | None = None
     per_side: bool = False
+    alternating: bool | None = (
+        None  # per-side work on a sides: either exercise: True alternates, else one side first
+    )
     notes: str | None = None
     ramp: list[RampSet] = Field(
         default_factory=list

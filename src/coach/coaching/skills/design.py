@@ -108,6 +108,7 @@ def _from_spec(
         calories=spec.calories,
         rest_s=spec.rest_s,
         per_side=spec.per_side,
+        alternating=spec.alternating,
         notes=spec.notes,
         tempo=spec.tempo,
     )

@@ -179,6 +179,20 @@ def validate_session(
                     Violation("EXERCISE_UNKNOWN", f"'{it.exercise_id}' is not in config/exercises.yaml", s.id)
                 )
                 continue
+            if it.alternating is not None and (
+                not it.per_side
+                or (ex.sides == "split" and it.alternating)
+                or (ex.sides == "alternating" and not it.alternating)
+                or ex.sides == "none"
+            ):
+                v.append(
+                    Violation(
+                        "SIDES",
+                        f"{it.exercise_id}: 'alternating' only applies to per-side work and must match the "
+                        f"library (sides: {ex.sides})",
+                        s.id,
+                    )
+                )
             ok, why = mv.allowed(ex, ctx.movement)
             if not ok:
                 v.append(Violation("RUNG_ABOVE", why, s.id))

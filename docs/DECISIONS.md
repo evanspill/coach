@@ -437,3 +437,33 @@ Each entry: **decision** - why - how to reverse.
       hold with only one side logged is not scored; `max_reps` also ignores warm-up sets; a library title that
       itself ends in "(Left)" maps as is; the belt needs an explicit rep count.
     - Reverse: revert the commits; `pair_weight_logging: per_implement` restores per-hand logging.
+96. **Warm-up sets on every strength exercise** (athlete request, 2026-11-17; extends 48):
+    - `Filler.warmups` sizes warm-ups to what the exercise's prime mover (its first listed muscle) has already done
+      in the session (strength, hypertrophy, test and power blocks): primary lifts keep the full ramp (~50% x5,
+      70% x3, 85% x1); the first loaded compound for a prime mover gets two build-up sets (~50% x5, 75% x3);
+      isolation work or a prime mover already warm gets one feeler set (~60% x5); bodyweight strength work on a
+      fresh prime mover gets one easy set of about a third of the target (2 reps before a max-reps test).
+      Warm-up reps never exceed the work reps.
+    - Prime mover, not every listed muscle: a deadlift's secondary back work doesn't warm the lats for pull-ups.
+      Common coaching practice: the first exercise for a muscle needs a ramp, later ones a feeler at most; extra
+      warm-up volume beyond that only costs work-set performance.
+    - No warm-up sets for timed holds, carries, jumps/plyos, core/prehab/mobility drills and conditioning
+      movements: the session's warm-up block primes those, and extra holds or jumps before a test add fatigue.
+    - Machine/cable warm-ups round to 5 lb stack steps. Unknown working weights (no e1RM or history yet) get
+      percentage warm-ups (`RampSet.pct`) and a load note ("warm-up ~50% x5, ~75% x3 of your working weight");
+      they and bodyweight warm-ups are pushed to Hevy as warm-up sets without a weight.
+    - Reverse: revert the commit (only primary lifts with a known load get a ramp again).
+    - Refined after the athlete's review (2026-11-18): isolation work for a prime mover that already worked in the
+      session gets no warm-up set (the first work set does that job; extra sets only add fatigue). A compound on a
+      warm prime mover keeps one feeler set to check the load jump.
+97. **Per-side work: split vs alternating** (athlete request, 2026-11-18):
+    - Library `sides`: `split` (all reps on one side, then the other: Left/Right Hevy exercises in a superset, as
+      in 94), `alternating` (sides alternate within the set: one Hevy exercise, reps logged per side), `either`
+      (e.g. DB reverse lunges, step-ups: the prescription's `alternating: true` alternates, default split) and
+      `none`. Every per-side exercise in the library is classified; an unclassified one still splits.
+    - Every per-side note states it in plain words ("One side at a time: finish all of this side, then switch" /
+      "Alternate sides each rep: 8 reps per side"). The validator (`SIDES`) rejects `alternating` on non-per-side work or against the
+      library.
+    - The library how-to is no longer appended when the plan's own note already carries it (same video link or
+      description), which printed two descriptions on the 2026-11-17 screen redos.
+    - Reverse: revert the commits; per-side work splits again everywhere.

@@ -1,6 +1,7 @@
 """Fill in the numbers Claude must not invent: loads (from e1RM, rounded to real plates/DBs/KBs) and paces/HR."""
 
 import datetime as dt
+import re
 
 from coach.engine import loads as L
 from coach.engine.paces import Zones
@@ -9,6 +10,16 @@ from coach.models import Session, SessionRecord
 from coach.models.library import ExerciseLibrary
 from coach.models.plans import RampSet
 from coach.models.season import TrainingRules
+
+# Blocks whose exercises get warm-up sets; the warm-up block itself primes everything else (holds, jumps, metcons).
+WARMUP_BLOCKS = {"strength", "hypertrophy", "test", "power"}
+# Exercises that never get their own warm-up sets: light prep/core/mobility work, timed holds, carries and jumps
+# (extra holds or jumps before a test only add fatigue), and conditioning movements.
+NO_WARMUP_TAGS = {
+    "core", "prehab", "mobility", "warmup", "screen", "mcgill", "recovery", "cooldown", "isometric", "carry",
+    "plyo", "plyo_low", "conditioning", "erg", "decompression", "gymnastics_drill", "skill_drill", "sprint",
+}  # fmt: skip
+LOADED_MODES = {"e1rm", "last_used", "kb"}
 
 
 class Filler:
@@ -39,6 +50,57 @@ class Filler:
                 v = base * est.factor if base else None
             self._e1rm_cache[ex_id] = v
         return self._e1rm_cache[ex_id]
+
+    def warmups(self, s: Session) -> None:
+        """Warm-up sets before every strength exercise, sized to what its prime mover has already done this session:
+        the full ramp for primary lifts, two build-up sets for the first loaded compound of a muscle group, one
+        feeler set for a compound on a warm prime mover or isolation work on a fresh one (none for isolation
+        on a warm one), and one easy set before bodyweight strength work
+        on fresh muscles. Unknown working weights get percentage warm-ups and a note."""
+        warm: set[str] = set()
+        for b in s.blocks:
+            if b.kind not in WARMUP_BLOCKS:
+                continue
+            for it in b.items:
+                ex = self.lib.get(it.exercise_id)
+                if ex is None or ex.has_tag(*NO_WARMUP_TAGS):
+                    continue
+                if it.reps is None and (it.duration_s or it.distance_m or it.calories):
+                    continue  # timed/distance work
+                loaded = ex.load_mode in LOADED_MODES
+                if not loaded and (ex.load_mode != "bodyweight" or b.kind == "power"):
+                    continue
+                # warm = this exercise's prime mover (its first listed muscle) already led an earlier exercise;
+                # secondary muscles don't count (a deadlift's back work doesn't warm the lats for pull-ups)
+                prime = ex.muscles[0] if ex.muscles else ex.id
+                fresh = prime not in warm
+                warm.add(prime)
+                if not loaded:
+                    if fresh:
+                        it.ramp = [RampSet(reps=L.bodyweight_warmup_reps(it.reps))]
+                    continue
+                if "primary" in ex.tags and b.kind in {"strength", "test", "power"}:
+                    tier = "full"
+                elif "isolation" not in ex.tags:
+                    tier = "build" if fresh else "feeler"
+                elif fresh:
+                    tier = "feeler"
+                else:
+                    continue  # isolation for a prime mover that already worked: the first work set warms it
+                reps = it.reps or 5
+                if it.load_kg:
+                    it.ramp = [
+                        RampSet(reps=n, load_kg=kg, load_lb=lb)
+                        for n, kg, lb in L.ramp_sets(it.load_kg, ex.implement, self.loading, reps, tier)
+                    ]
+                    continue
+                steps = L.WARMUP_STEPS[tier]
+                it.ramp = [RampSet(reps=min(r, reps), pct=p) for p, r in steps]
+                plan = ", ".join(f"~{p:.0%} x{min(r, reps)}" for p, r in steps)
+                base = re.sub(
+                    r"(^|; )warm-up .*$", "", it.load_note or ""
+                )  # never stack the plan on a refill
+                it.load_note = f"{base}; warm-up {plan} of your working weight".lstrip("; ")
 
     def fill(
         self,
@@ -83,11 +145,6 @@ class Filler:
                         target = min(target, load_cap[ex.id])
                     r = L.round_load(target, ex.implement, self.loading)
                     it.load_kg, it.load_lb, it.load_note = r.load_kg, r.load_lb, r.note
-                    if b.kind in {"strength", "test"} and "primary" in ex.tags and r.load_kg:
-                        it.ramp = [
-                            RampSet(reps=n, load_kg=kg, load_lb=lb)
-                            for n, kg, lb in L.ramp_sets(r.load_kg, ex.implement, self.loading, it.reps or 5)
-                        ]
                 elif ex.load_mode == "last_used":
                     last = L.last_used(self.history, ex.id, self.today)
                     if last:
@@ -109,6 +166,7 @@ class Filler:
                     it.load_kg, it.load_lb, it.load_note = r.load_kg, r.load_lb, r.note
                 elif ex.load_mode == "bodyweight":
                     it.load_note = "bodyweight"
+        self.warmups(s)
         for seg in s.run_segments():
             if seg.zone == "strides":
                 seg.pace_s_per_mi = self.zones.pace("strides")

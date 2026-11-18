@@ -141,7 +141,9 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             # a pair of DBs/KBs is logged as the total of both when the athlete logs that way (Whoop style)
             pair = ex.implements if pair_total else 1
             sets: list[dict[str, Any]] = [
-                {"type": "warmup", "weight_kg": round(r.load_kg * pair, 2), "reps": r.reps} for r in it.ramp
+                {"type": "warmup", "reps": r.reps}
+                | ({"weight_kg": round(r.load_kg * pair, 2)} if r.load_kg is not None else {})
+                for r in it.ramp
             ]
             for _ in range(it.sets):
                 st: dict = {
@@ -174,6 +176,24 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             how_to = " ".join(
                 x for x in [ex.description or "", ex.video_url and f"Video: {ex.video_url}"] if x
             )
+            if it.notes and (
+                (ex.video_url and ex.video_url in it.notes)
+                or (ex.description and ex.description[:40] in it.notes)
+            ):
+                how_to = ""  # the plan's own note already carries the how-to: never print it twice
+            alternating = it.per_side and ex.alternates(it.alternating)
+            count = (
+                f"{it.reps} reps"
+                if it.reps
+                else (
+                    _mmss(it.duration_s)
+                    if it.duration_s
+                    else f"{it.distance_m} m"
+                    if it.distance_m
+                    else "reps"
+                )
+            )
+            sides_cue = ex.sides_cue(alternating, count) if it.per_side else ""
             note = " | ".join(
                 x
                 for x in [
@@ -189,6 +209,7 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                     f"Belt: {belt}" if belt else "",
                     f"Rest {_mmss(rest)}",
                     it.tempo and f"tempo {it.tempo}",
+                    sides_cue,
                     it.notes or "",
                     protocol,
                     how_to,
@@ -196,9 +217,10 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 if x
             )
             spec = ("reps_only", *_custom_spec(ex, it, ctx.cfg.tests.tests)[1:]) if inches else None
-            sides: list[str | None] = list(SIDES) if it.per_side else [None]
+            split = it.per_side and not alternating
+            sides: list[str | None] = list(SIDES) if split else [None]
             superset = None
-            if it.per_side:  # left and right as two exercises in a superset (Hevy has no per-side sets)
+            if split:  # left and right as two exercises in a superset (Hevy has no per-side sets)
                 superset = next_superset
                 next_superset += 1
             for side in sides:

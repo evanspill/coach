@@ -103,19 +103,43 @@ def current_e1rm(
     return best * layoff_factor, f"best of 8 weeks x {layoff_factor:g} (no exposure in {recent_days} days)"
 
 
+# Warm-up sets by tier: (fraction of the working weight, reps). "full" is the primary-lift ramp; "build" is for the
+# first loaded compound of a muscle group; "feeler" is one lighter set for isolation work or muscles already warm.
+WARMUP_STEPS: dict[str, tuple[tuple[float, int], ...]] = {
+    "full": ((0.5, 5), (0.7, 3), (0.85, 1)),
+    "build": ((0.5, 5), (0.75, 3)),
+    "feeler": ((0.6, 5),),
+}
+STACK_IMPLEMENTS = {"machine", "cable"}  # pin-loaded stacks: warm-ups rounded to 5 lb
+
+
+def round_warmup(target_kg: float, implement: str, loading: dict) -> tuple[float | None, float | None]:
+    """A warm-up load in real increments (machine/cable stacks in 5 lb steps; everything else as round_load)."""
+    if implement in STACK_IMPLEMENTS:
+        lb = round(kg_to_lb(target_kg) / 5) * 5
+        return (round(lb_to_kg(lb), 1), float(lb)) if lb >= 5 else (None, None)
+    r = round_load(target_kg, implement, loading)
+    return r.load_kg, r.load_lb
+
+
 def ramp_sets(
-    work_kg: float, implement: str, loading: dict, reps: int
+    work_kg: float, implement: str, loading: dict, reps: int, tier: str = "full"
 ) -> list[tuple[int, float, float | None]]:
     """Warm-up ramp to a working weight: (reps, load_kg, load_lb). Empty for light loads or unloadable implements."""
     out: list[tuple[int, float, float | None]] = []
-    for pct, r in ((0.5, 5), (0.7, 3), (0.85, 1)):
-        rr = round_load(work_kg * pct, implement, loading)
-        if rr.load_kg is None or rr.load_kg >= work_kg:
+    for pct, r in WARMUP_STEPS[tier]:
+        kg, lb = round_warmup(work_kg * pct, implement, loading)
+        if kg is None or kg >= work_kg:
             continue
-        if out and rr.load_kg <= out[-1][1]:
+        if out and kg <= out[-1][1]:
             continue
-        out.append((min(r, reps), rr.load_kg, rr.load_lb))
+        out.append((min(r, reps), kg, lb))
     return out
+
+
+def bodyweight_warmup_reps(reps: int | None) -> int:
+    """One easy set before bodyweight strength work: about a third of the target (2 before a max-reps set)."""
+    return 2 if reps is None else max(1, min(3, round(reps / 3)))
 
 
 def last_used(history: list[SessionRecord], exercise_id: str, today: dt.date) -> float | None:

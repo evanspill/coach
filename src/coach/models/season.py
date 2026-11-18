@@ -124,6 +124,7 @@ class ItemSpec(Model):
     calories: int | None = None
     rest_s: int | None = None
     per_side: bool = False
+    alternating: bool | None = None
     notes: str | None = None
     tempo: str | None = None
     deload_exercise: str | None = None

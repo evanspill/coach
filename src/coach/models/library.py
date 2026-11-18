@@ -21,6 +21,10 @@ Implement = Literal[
 ]
 LoadMode = Literal["e1rm", "last_used", "bodyweight", "kb", "none"]
 HevyLog = Literal["default", "inches"]
+# How a one-side-at-a-time exercise is done: "split" = all reps on one side, then the other (logged as Left/Right
+# exercises); "alternating" = sides alternate within the set (one entry); "either" = both are fine, the
+# prescription's `alternating` picks (default split); "none" = bilateral / not per side.
+Sides = Literal["none", "split", "alternating", "either"]
 SIDES = ("Left", "Right")
 INCHES_SUFFIX = " (in)"
 M_PER_IN = 0.0254
@@ -49,6 +53,7 @@ class Exercise(Model):
     hevy_template_id: str | None = None
     # "inches": logged in Hevy as reps = inches. Hevy's API returns distances in whole metres, too coarse for jumps.
     hevy_log: HevyLog = "default"
+    sides: Sides = "none"
     implements: int = Field(
         default=1, ge=1, le=2
     )  # 2 = a pair of dumbbells/kettlebells (loads are per implement)
@@ -57,6 +62,18 @@ class Exercise(Model):
     )
     video_url: str | None = None  # demo video, shown next to the how-to
     estimate_from: "EstimateFrom | None" = None
+
+    def alternates(self, prescribed: bool | None = None) -> bool:
+        """True when per-side work alternates within the set (logged as one exercise, reps per side)."""
+        if self.sides == "either":
+            return bool(prescribed)
+        return self.sides == "alternating"
+
+    def sides_cue(self, alternating: bool, per_side_count: str) -> str:
+        """The plain-language instruction for per-side work, shown in the Hevy note."""
+        if alternating:
+            return f"Alternate sides each rep: {per_side_count} per side (log the per-side count)"
+        return "One side at a time: finish all of this side, then switch"
 
     def has_tag(self, *tags: str) -> bool:
         return any(t in self.tags for t in tags)
