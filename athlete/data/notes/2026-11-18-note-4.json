@@ -1,0 +1,7 @@
+{
+  "id": "2026-11-18-note-4",
+  "date": "2026-11-18",
+  "category": "response",
+  "text": "Whoop HR history (2025-01 to 2026-11, 433 workouts): highest readings 188-191 bpm across several 2026 sessions (one 196 in Apr 2025 looks like an artifact), so observed max HR is about 190. Resting HR about 52 (Oct-Nov 2026). Whoop and Garmin agreed on the 2026-11-18 drift run (avg 140 vs 143, max 165 vs 166), so the Garmin HR sensor is fine. The coach HR zones come from the placeholder LTHR 165 in athlete_context default_zones, not from Garmin; with max ~190, the 150 bpm locked segment was ~79% of max (moderate, top of easy). LTHR is still unmeasured: any change goes through a proposal.",
+  "source": "coach"
+}
