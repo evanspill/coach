@@ -1,11 +1,11 @@
 {
   "date": "2026-11-18",
-  "status": "waiting_for_recovery",
+  "status": "complete",
   "readiness": {
     "date": "2026-11-18",
-    "state": "unknown",
+    "state": "green",
     "reasons": [
-      "today's Whoop recovery not available yet"
+      "recovery >= 67"
     ],
     "recovery_score": null,
     "hrv": {
@@ -21,9 +21,7 @@
     },
     "joint_flags": [],
     "sustained_red": false,
-    "data_missing": [
-      "whoop_recovery"
-    ]
+    "data_missing": []
   },
   "weather": null,
   "planned_session_id": "2026-11-18-test",
@@ -298,9 +296,7 @@
   "pushed": null,
   "handoffs": [],
   "approvals_pending": [],
-  "stale_sources": [
-    "whoop: today's recovery not available yet"
-  ],
+  "stale_sources": [],
   "generated_by": "claude",
   "notification": ""
 }

@@ -1,0 +1,7 @@
+{
+  "id": "2026-11-18-note-1",
+  "date": "2026-11-18",
+  "category": "response",
+  "text": "Baseline trunk/grip tests 2026-11-17 confirmed by the athlete as real (not placeholders): Sorensen hold 60 s, side bridge 60 s left / 60 s right, dead hang 60 s, strict pull-ups 10. Use these when scoring the baseline week (coach test score --result sorensen_hold=60 side_bridge=60,60 ...).",
+  "source": "coach"
+}
