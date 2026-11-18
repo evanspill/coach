@@ -15,7 +15,9 @@ summary." In chat only when the athlete asks to "run today's coaching", or says 
 1. `git checkout main && git pull --rebase`. **Finish mode** (athlete: "recovery's in"): if today's day record
    (`coach record get day_records --key <today>`) is missing or its `status` is not `waiting_for_recovery`, say
    there is nothing to finish; otherwise continue from step 2 and complete the day (rehab's exposure logging is
-   idempotent, so re-running it is safe). If recovery is still missing, say so and keep waiting.
+   idempotent, so re-running it is safe). If recovery is still missing, say so and keep waiting. If today's
+   session is already logged in Hevy (the athlete trained before recovery came in), record readiness, fuel and the
+   recovery prescription only: don't adjust or re-push a session that is done.
 2. `coach sync --jitter 90` (a random 0-90 s wait first, so scheduled requests never hit the APIs on the minute).
    If today's Whoop recovery is missing (`recovery_today: false`): finish everything that doesn't
    depend on it, write today's day record with `status: waiting_for_recovery`, say so in the notification (the

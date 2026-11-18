@@ -473,7 +473,8 @@ Each entry: **decision** - why - how to reverse.
     - A late-recovery day still finishes everything else, stays `waiting_for_recovery` with the planned session in
       Hevy, and the notification now says "tell me when recovery is in and I'll finalize today". The athlete says so
       in chat and `coach-daily` runs in finish mode (same steps as the old catch-up; `coach daily --catchup` remains
-      the deterministic version). Whoop offline (2+ days or a failed fetch) is unchanged: finalize unscored.
+      the deterministic version). If the session was already trained by then, finish mode records readiness,
+      fuel and recovery only and doesn't re-push. Whoop offline (2+ days or a failed fetch) is unchanged: finalize unscored.
     - The simulation still models a late-recovery day finished later the same morning (its "09:05" phase stands in
       for the athlete's message).
     - Reverse: recreate the ~9:05 scheduled task and restore the notification text.

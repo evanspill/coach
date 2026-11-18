@@ -1,3 +1,6 @@
+> **Historical:** the original Phase 1 build brief, kept as written. Where it differs from the current system
+> (e.g. the 9:05 catch-up run, removed in decision 98), `docs/DECISIONS.md` and `CLAUDE.md` win.
+
 We are building **Omni-Hybrid Coach**: an automated AI coach that replaces my paid human coach. It reads my training, recovery, and nutrition data, plans my training year by year, block by block, week by week, and day by day, runs testing at the start and end of every block, and updates my workouts in Hevy and on my Garmin (via Intervals.icu) automatically.
 
 **There's no website, server, or database.** The coach lives in this private GitHub repo and runs as a **Claude Code scheduled task** every morning. Git is the database. I talk to it by opening a Claude Code session on this repo from my iPad or iPhone. I get its daily summary as a push notification.
