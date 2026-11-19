@@ -185,6 +185,16 @@ item_sets:
     title: "Alactic sprints: 6 x 10 s, full recovery"
     items:
       - {exercise: curve_sprint, sets: 6, duration_s: 10, rest_s: 120, notes: "first 3 weeks of a block or after a layoff: smooth build-ups to ~90%, not all-out"}
+  evening_mobility:
+    title: Evening mobility
+    items:
+      - {exercise: hip_90_90, sets: 1, reps: 8, per_side: true, notes: "easy switches to warm up the hips"}
+      - {exercise: hip_90_90_lean, sets: 2, duration_s: 45, rest_s: 10, per_side: true, notes: "LEFT first. Left external rotation is your tightest: add a 3rd 45 s set on the left. Aim for 60 s holds as it gets easier."}
+      - {exercise: hip_90_90_liftoff, sets: 1, reps: 5, per_side: true, notes: "2 s hold at the top"}
+      - {exercise: cross_body_stretch, sets: 2, duration_s: 30, rest_s: 10, per_side: true, notes: "left first (left internal rotation is tighter); mild stretch only"}
+      - {exercise: couch_prayer_stretch, sets: 2, duration_s: 45, rest_s: 10}
+      - {exercise: w_wall_slide, sets: 1, reps: 10, notes: "PT: chin tucked, everything on the wall"}
+      - {exercise: thoracic_open_book, sets: 1, reps: 6, per_side: true}
   recovery_mobility:
     title: "Mobility + PT routine (back, neck, shoulders)"
     items:

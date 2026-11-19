@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-19-config-change-2",
+  "kind": "config_change",
+  "created": "2026-11-19",
+  "created_by": "rehab",
+  "title": "Evening mobility routine (Hevy) + PVC overhead squat screen",
+  "what": "training.yaml item set evening_mobility (~10 min: 90/90 switches, 90/90 front-leg lean 2-3 x 45 s left first, back-knee lift-offs, cross-body shoulder stretch, couch prayer stretch, W wall slides, open books). exercises.yaml: hip_90_90_lean, hip_90_90_liftoff, cross_body_stretch, couch_prayer_stretch, ohs_pvc_screen. athlete_context recovery.nightly names the routine (4-5 nights a week). Pushed to Hevy as a standing routine with coach push --routine evening_mobility once PR #16 merges.",
+  "why": "Athlete chose a coach-built evening routine over resubscribing to GOWOD. GOWOD 2026-01 and the 2026-11-16 screen show hip rotation (left ER worst), shoulder IR (left worse) and overhead reach as the limiters; regular stretching over weeks is what changes range. The PVC overhead squat covers the one GOWOD check our screen lacked.",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-19",
+      "status": "pending",
+      "note": "athlete asked for it in chat"
+    },
+    {
+      "at": "2026-11-19",
+      "status": "approved",
+      "note": "approved by the athlete in chat"
+    }
+  ]
+}

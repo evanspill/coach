@@ -370,7 +370,7 @@
   "recovery": {
     "after_hard_session": "Normatec boots 20-30 min at the gym after the session",
     "evening_mobility": "evening 10-15 min soft tissue + mobility ({area}): foam roller, lacrosse ball, bands, Theragun",
-    "nightly": "magnesium bisglycinate at night",
+    "nightly": "'Evening mobility (coach)' routine in Hevy (~10 min, 4-5 nights a week; Hyperice heat first if the back or shoulder is tight) + magnesium bisglycinate at night",
     "areas": {
       "lower": "hips/hamstrings/calves",
       "upper": "T-spine/shoulders/hips"
