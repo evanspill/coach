@@ -494,3 +494,11 @@ Each entry: **decision** - why - how to reverse.
     - Switching the athlete's config is a threshold change: proposal, then `coach approve`. The broker must be
       redeployed for the max HR to sync (until then the configured max_hr is used).
     - Reverse: set `hr_model: lthr` (the default) or revert the commits.
+100. **Standing Hevy routines** (athlete request, 2026-11-19):
+    - The athlete wants the evening mobility routine in Hevy to follow along. It's the same every evening, so it is a
+      standing routine, not a dated session: `coach push --routine <item_set>` builds it from a `training.yaml` item
+      set (picker at location `home`), refuses anything not in the library or needing equipment the athlete doesn't
+      have at home, and creates or updates one Hevy routine (id kept in `push_ids` as `hevy:routine-<name>`), titled
+      "<title> (coach)". Dry-run unless `push.enabled`, like every push.
+    - Changing the item set (an approved config change) and re-running the push updates the routine in place.
+    - Reverse: revert the commit; delete the routine in Hevy.

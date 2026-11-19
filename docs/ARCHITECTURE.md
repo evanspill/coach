@@ -161,7 +161,7 @@ src/coach/
 | `coach/models/` | Row schemas for every collection; Claude-written JSON must parse into them |
 | `coach/store/` | `Store`: typed access by collection (`get/put/query/keys/report`), metrics series, rendered views |
 | `coach/integrations/sync.py` | Incremental, idempotent sync; merges Whoop + Hevy + Intervals into one session record |
-| `coach/integrations/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled` |
+| `coach/integrations/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled`; `--routine` keeps one standing Hevy routine per item set (decision 100) |
 | `coach/engine/validator.py` | Every guardrail, with stable rule codes |
 | `coach/engine/goals.py` | Long-term goal feasibility (age-graded standard, Riegel threshold <-> marathon, trend projection) |
 | `coach/coaching/fill.py` | Fills loads (current e1RM -> rounded implement, + warm-up sets sized to the session, decision 96) and paces/HR (zones: LTHR or heart rate reserve, decision 99) into plans |

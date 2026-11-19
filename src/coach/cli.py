@@ -310,12 +310,17 @@ def cmd_validate(args):
 
 
 def cmd_push(args):
-    from coach.integrations.push import PushRefused, push_day, push_week
+    from coach.integrations.push import PushRefused, push_day, push_routine, push_week
 
     today = _today(args)
     ctx = build(today=today)
     sources = _sources()  # a dry run still reads (the Hevy exercise catalog) but writes nothing
     try:
+        if args.routine:
+            try:
+                return push_routine(args.routine, ctx, sources, dry_run=True if args.dry_run else None)
+            except KeyError as e:
+                return {"error": str(e).strip("'\"")}
         if args.week:
             start = clock.monday_of(today) + (
                 dt.timedelta(days=7) if args.next or today.weekday() == 6 else dt.timedelta()
@@ -724,6 +729,9 @@ def build_parser() -> argparse.ArgumentParser:
     g = pu.add_mutually_exclusive_group(required=True)
     g.add_argument("--day", action="store_true")
     g.add_argument("--week", action="store_true")
+    g.add_argument(
+        "--routine", metavar="ITEM_SET", help="a standing Hevy routine from a training.yaml item set"
+    )
     pu.add_argument("--next", action="store_true", help="with --week: next week's plan")
     pu.add_argument("--dry-run", action="store_true")
     a = sub.add_parser("approve", help="approve a proposal id, or 'week' / 'block-goal' / 'initial-config'")
