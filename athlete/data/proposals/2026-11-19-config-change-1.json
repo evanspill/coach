@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-19-config-change-1",
+  "kind": "config_change",
+  "created": "2026-11-19",
+  "created_by": "design-session",
+  "title": "Tailored training warm-ups (RAMP; test-day warm-ups unchanged)",
+  "what": "training.yaml: new warm-ups lift_hinge, lift_squat, upper_lift, run_easy, run_quality, sprint_prep, conditioning; all 25 training templates point at the one matching their main work (z2_bike -> easy). Test-day warm-ups (lower, run, upper, full) unchanged so retests stay comparable. exercises.yaml: glute_bridge, lateral_band_walk, lateral_lunge_bw, high_knee_skip, bodyweight_squat, scap_pull_up (all stock Hevy exercises).",
+  "why": "Athlete wants warm-ups tailored to the session and to them (disc history, low hip rotation, left groin history, shoulder history), based on good coaching practice and evidence, not variety: raise -> McGill spine prep -> session-specific mobilise/activate -> the lift's own ramp sets or a primer; short static holds only.",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-19",
+      "status": "pending",
+      "note": "designed in chat; validated + 120-day simulation on the active config"
+    },
+    {
+      "at": "2026-11-19",
+      "status": "approved",
+      "note": ""
+    }
+  ]
+}

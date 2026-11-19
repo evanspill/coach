@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-19-config-change-3",
+  "kind": "config_change",
+  "created": "2026-11-19",
+  "created_by": "design-session",
+  "title": "Session-specific cooldowns (tests unchanged)",
+  "what": "training.yaml cooldowns cool_lower (3 min easy + breathing + dead hangs), cool_upper (3 min easy + child's pose breathing, no hangs), cool_hard (5-8 min easy to HR < ~110 + breathing; metcon/Hyrox/quality runs/threshold), cool_easy (3-5 min walk; easy runs, long run, bike). Templates point at the matching one; test days keep standard.",
+  "why": "Athlete asked for cooldowns tailored like the warm-ups. Cooldowns don't speed recovery, so they stay short: gradual HR drop after hard work, a brief down-regulation, no hangs after pulling (front-of-shoulder watch); mobility lives in the evening routine.",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "pending",
+  "history": [
+    {
+      "at": "2026-11-19",
+      "status": "pending",
+      "note": "athlete said yes in chat; awaiting coach approve by the athlete"
+    }
+  ]
+}
