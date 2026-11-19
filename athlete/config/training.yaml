@@ -170,6 +170,27 @@ cooldowns:
     items:
       - {exercise: easy_cooldown, sets: 1, duration_s: 180}
       - {exercise: dead_hang, sets: 2, duration_s: 30}
+  # training cooldowns (athlete-approved 2026-11-19): short and specific. They don't speed recovery; they bring HR
+  # down gradually after hard work and switch you off. Mobility lives in the evening routine. Tests keep `standard`.
+  cool_lower:
+    title: "~3 min easy + slow breathing to HR < 110, then hangs (decompress after hinge/squat)"
+    items:
+      - {exercise: easy_cooldown, sets: 1, duration_s: 180}
+      - {exercise: dead_hang, sets: 2, duration_s: 30}
+  cool_upper:
+    title: "~3 min easy + child's pose breathing (no hangs after pulling)"
+    items:
+      - {exercise: easy_cooldown, sets: 1, duration_s: 180}
+      - {exercise: child_pose_breathing, sets: 2, duration_s: 30}
+  cool_hard:
+    title: "5-8 min easy walk/jog/bike to HR < ~110, then slow breathing"
+    items:
+      - {exercise: easy_cooldown, sets: 1, duration_s: 360, notes: "keep moving easily until HR is under ~110 (5-8 min), don't sit or lie down straight away"}
+      - {exercise: child_pose_breathing, sets: 1, duration_s: 60, notes: "slow nasal breathing, long exhales"}
+  cool_easy:
+    title: "3-5 min walk"
+    items:
+      - {exercise: easy_cooldown, sets: 1, duration_s: 240, notes: "easy walk"}
 
 item_sets:
   primer_lower:
@@ -275,7 +296,7 @@ tests_day:
 sessions:
   # ---------- lifting ----------
   lower_force:
-    {type: lower, title: Lower force, intent: "Heavy hinge 3-5 reps @ 2 RIR + single-leg + hamstrings", key: true, warmup: lift_hinge,
+    {type: lower, title: Lower force, intent: "Heavy hinge 3-5 reps @ 2 RIR + single-leg + hamstrings", key: true, warmup: lift_hinge, cooldown: cool_lower,
      blocks: [{kind: power, use: primer_lower},
               {kind: strength, title: Main lift, items: [{family: hinge, sets: 4, reps: 4, rir: 2, rest_s: 180},
                                                          {exercise: bulgarian_split_squat, sets: 3, reps: 8, rir: 2, per_side: true}]},
@@ -283,121 +304,121 @@ sessions:
                                                               {exercise: calf_raise, sets: 3, reps: 12, rir: 2},
                                                               {exercise: copenhagen_plank, sets: 2, duration_s: 20, per_side: true}]}]}
   lower_hyp:
-    {type: lower, title: Lower hypertrophy, intent: Squat pattern 6-8 reps + leg volume, key: true, warmup: lift_squat,
+    {type: lower, title: Lower hypertrophy, intent: Squat pattern 6-8 reps + leg volume, key: true, warmup: lift_squat, cooldown: cool_lower,
      blocks: [{kind: power, use: primer_lower},
               {kind: strength, items: [{family: squat, sets: 4, reps: 7, rir: 2, rest_s: 150}]},
               {kind: hypertrophy, items: [{exercise: rdl_db, sets: 3, reps: 10, rir: 2}, {exercise: leg_press, sets: 3, reps: 12, rir: 2},
                                           {exercise: seated_leg_curl, sets: 3, reps: 12, rir: 2}, {exercise: hip_thrust, sets: 3, reps: 12, rir: 2},
                                           {exercise: calf_raise, sets: 3, reps: 15, rir: 2}]}]}
   lower_threshold:
-    {type: lower, title: Lower + threshold run, intent: "Hinge volume, then threshold intervals", key: true, warmup: lift_hinge, run_share: 0.22,
+    {type: lower, title: Lower + threshold run, intent: "Hinge volume, then threshold intervals", key: true, warmup: lift_hinge, cooldown: cool_hard, run_share: 0.22,
      blocks: [{kind: strength, items: [{family: hinge, sets: 3, reps: 7, rir: 2, rest_s: 150}]},
               {kind: hypertrophy, items: [{exercise: bulgarian_split_squat, sets: 3, reps: 10, rir: 2, per_side: true},
                                           {exercise: leg_extension, sets: 3, reps: 12, rir: 2}]},
               {kind: run, generate: threshold, rep_min: 5, recovery_min: 1.5, share_of_miles: 0.55, location: gym}]}
   squat_hyrox:
-    {type: full_body, title: Squat + Hyrox threshold, intent: "Explosive primer, heavy squat, threshold Hyrox intervals", key: true, warmup: lift_squat,
+    {type: full_body, title: Squat + Hyrox threshold, intent: "Explosive primer, heavy squat, threshold Hyrox intervals", key: true, warmup: lift_squat, cooldown: cool_hard,
      blocks: [{kind: power, use: primer_lower},
               {kind: strength, items: [{family: squat, sets: 4, reps: 5, rir: 2, rest_s: 180}]},
               {kind: hypertrophy, items: [{exercise: hip_thrust, sets: 3, reps: 10, rir: 2}]},
               {kind: conditioning, generate: metcon, pool: hyrox, minutes: 20}]}
   upper_skill_metcon:
-    {type: upper, title: Upper strength + skill + metcon, intent: "Skill fresh, press + pull heavy, short metcon", key: true, warmup: upper_lift,
+    {type: upper, title: Upper strength + skill + metcon, intent: "Skill fresh, press + pull heavy, short metcon", key: true, warmup: upper_lift, cooldown: cool_upper,
      blocks: [{kind: skill, generate: skill_practice},
               {kind: strength, items: [{family: press, sets: 4, reps: 5, rir: 2, rest_s: 150}, {exercise: strict_pull_up, sets: 4, reps: 5, rir: 2}]},
               {kind: hypertrophy, items: [{exercise: chest_supported_db_row, sets: 3, reps: 10, rir: 2}, {exercise: lateral_raise_db, sets: 3, reps: 15, rir: 2},
                                           {exercise: face_pull, sets: 2, reps: 15, rir: 2}]},
               {kind: conditioning, generate: metcon, pool: short, minutes: 10}]}
   upper_hyp_metcon:
-    {type: upper, title: Upper hypertrophy + metcon, intent: "Press/pull volume, short metcon", key: true, warmup: upper_lift,
+    {type: upper, title: Upper hypertrophy + metcon, intent: "Press/pull volume, short metcon", key: true, warmup: upper_lift, cooldown: cool_upper,
      blocks: [{kind: skill, generate: skill_practice},
               {kind: strength, items: [{family: press, sets: 4, reps: 8, rir: 2}, {exercise: strict_pull_up, sets: 4, reps: 6, rir: 2}]},
               {kind: hypertrophy, items: [{exercise: chest_supported_db_row, sets: 4, reps: 10, rir: 2}, {exercise: incline_db_press, sets: 3, reps: 10, rir: 2},
                                           {exercise: lateral_raise_db, sets: 4, reps: 15, rir: 2}, {exercise: face_pull, sets: 3, reps: 15, rir: 2}]},
               {kind: conditioning, generate: metcon, pool: short, minutes: 10}]}
   sprint_upper:
-    {type: sprint_upper, title: Sprints + upper aesthetics + easy run, intent: "Alactic sprints, upper hypertrophy, easy miles", warmup: sprint_prep, run_share: 0.25,
+    {type: sprint_upper, title: Sprints + upper aesthetics + easy run, intent: "Alactic sprints, upper hypertrophy, easy miles", warmup: sprint_prep, cooldown: cool_upper, run_share: 0.25,
      blocks: [{kind: power, use: sprints},
               {kind: hypertrophy, items: [{exercise: incline_db_press, sets: 3, reps: 10, rir: 2}, {exercise: lat_pulldown, sets: 3, reps: 10, rir: 2},
                                           {exercise: cable_fly, sets: 2, reps: 12, rir: 2}, {exercise: rear_delt_fly_machine, sets: 2, reps: 15, rir: 2},
                                           {exercise: db_curl, sets: 2, reps: 12, rir: 2}, {exercise: cable_triceps_pushdown, sets: 2, reps: 12, rir: 2}]},
               {kind: run, generate: easy, label: Easy treadmill run, zone: Z2, min_miles: 1, location: gym}]}
   upper_hyp_easy:
-    {type: upper, title: Upper hypertrophy + easy run, intent: "Upper volume, then easy miles", warmup: upper_lift, run_share: 0.15,
+    {type: upper, title: Upper hypertrophy + easy run, intent: "Upper volume, then easy miles", warmup: upper_lift, cooldown: cool_upper, run_share: 0.15,
      blocks: [{kind: power, use: primer_upper},
               {kind: hypertrophy, items: [{exercise: iso_lateral_row, sets: 4, reps: 10, rir: 2}, {exercise: lat_pulldown, sets: 3, reps: 12, rir: 2},
                                           {exercise: cable_fly, sets: 3, reps: 12, rir: 2}, {exercise: lateral_raise_db, sets: 3, reps: 15, rir: 2},
                                           {exercise: db_curl, sets: 3, reps: 12, rir: 2}, {exercise: cable_triceps_pushdown, sets: 3, reps: 12, rir: 2}]},
               {kind: run, generate: easy, label: Easy run, zone: Z2, min_miles: 1, location: gym}]}
   lower_med_easy:
-    {type: lower, title: Lower (MED) + easy run, intent: "Maintain strength: trap bar + sled, easy miles after", key: true, warmup: lift_hinge, run_share: 0.12,
+    {type: lower, title: Lower (MED) + easy run, intent: "Maintain strength: trap bar + sled, easy miles after", key: true, warmup: lift_hinge, cooldown: cool_lower, run_share: 0.12,
      blocks: [{kind: strength, items: [{family: hinge, sets: 3, reps: 5, rir: 2}, {exercise: sled_push, sets: 3, distance_m: 25}]},
               {kind: hypertrophy, items: [{exercise: seated_leg_curl, sets: 2, reps: 10, rir: 2}]},
               {kind: run, generate: easy, label: Easy run, zone: Z2, location: gym}]}
   z2_upper_med:
-    {type: upper, title: Upper (MED) + Z2 run, intent: "Maintain upper strength; aerobic volume", warmup: upper_lift, run_share: 0.18,
+    {type: upper, title: Upper (MED) + Z2 run, intent: "Maintain upper strength; aerobic volume", warmup: upper_lift, cooldown: cool_upper, run_share: 0.18,
      blocks: [{kind: strength, items: [{family: press, sets: 3, reps: 5, rir: 2}, {exercise: strict_pull_up, sets: 3, reps: 5, rir: 2}]},
               {kind: hypertrophy, items: [{exercise: chest_supported_db_row, sets: 2, reps: 10, rir: 2}, {exercise: lateral_raise_db, sets: 2, reps: 12, rir: 2}]},
               {kind: run, generate: easy, label: Zone 2 run, zone: Z2, location: gym}]}
   lower_flush:
-    {type: lower, title: Lower flush, intent: Light strength to keep the pattern, warmup: lift_hinge, scale: false,
+    {type: lower, title: Lower flush, intent: Light strength to keep the pattern, warmup: lift_hinge, cooldown: cool_lower, scale: false,
      blocks: [{kind: strength, items: [{family: hinge, sets: 2, reps: 3, rir: 3}]}]}
   full_light:
-    {type: full_body, title: Full body (light), intent: "Low-volume full body; keep moving, no fatigue", warmup: full, scale: false,
+    {type: full_body, title: Full body (light), intent: "Low-volume full body; keep moving, no fatigue", warmup: full, cooldown: cool_lower, scale: false,
      blocks: [{kind: hypertrophy, items: [{exercise: goblet_squat, sets: 2, reps: 8, rir: 3}, {exercise: hip_thrust, sets: 2, reps: 10, rir: 3},
                                           {exercise: db_bench_press_neutral, sets: 2, reps: 8, rir: 3}, {exercise: chest_supported_db_row, sets: 2, reps: 10, rir: 3}]}]}
   lower_moderate:
-    {type: lower, title: Lower (competition week), intent: "Keep strength, low volume", key: true, warmup: lift_hinge, scale: false,
+    {type: lower, title: Lower (competition week), intent: "Keep strength, low volume", key: true, warmup: lift_hinge, cooldown: cool_lower, scale: false,
      blocks: [{kind: power, use: primer_lower},
               {kind: strength, items: [{family: hinge, sets: 3, reps: 3, rir: 2, rest_s: 180}]},
               {kind: hypertrophy, items: [{exercise: seated_leg_curl, sets: 2, reps: 10, rir: 2}]}]}
   upper_skill_light:
-    {type: upper, title: Upper + skill (competition week), intent: "Sharp, low volume", warmup: upper_lift, scale: false,
+    {type: upper, title: Upper + skill (competition week), intent: "Sharp, low volume", warmup: upper_lift, cooldown: cool_upper, scale: false,
      blocks: [{kind: skill, generate: skill_practice},
               {kind: strength, items: [{family: press, sets: 3, reps: 5, rir: 2}, {exercise: strict_pull_up, sets: 3, reps: 4, rir: 3}]}]}
   # ---------- conditioning ----------
   hyrox_compromised:
-    {type: hyrox, title: Hyrox compromised running, intent: Run between stations at race effort, key: true, warmup: conditioning, run_share: 0.05,
+    {type: hyrox, title: Hyrox compromised running, intent: Run between stations at race effort, key: true, warmup: conditioning, cooldown: cool_hard, run_share: 0.05,
      blocks: [{kind: conditioning, generate: metcon, pool: hyrox, minutes: 30, name: Hyrox compromised running}]}
   hyrox_short:
-    {type: hyrox, title: Hyrox sharpening, intent: Short race-pace stations, warmup: conditioning, run_share: 0.05,
+    {type: hyrox, title: Hyrox sharpening, intent: Short race-pace stations, warmup: conditioning, cooldown: cool_hard, run_share: 0.05,
      blocks: [{kind: conditioning, generate: metcon, pool: hyrox, minutes: 16, name: Hyrox sharpening}]}
   open_attempt:
-    {type: competition, title: Open attempt, intent: "First attempt; re-attempt decision Monday", key: true, warmup: conditioning,
+    {type: competition, title: Open attempt, intent: "First attempt; re-attempt decision Monday", key: true, warmup: conditioning, cooldown: cool_hard,
      blocks: [{kind: conditioning, title: Open workout, generate: placeholder_metcon, name: "CrossFit Open workout (released Thursday)", format: for_time,
                minutes: 15, stimulus: "Compete: pacing plan from the compete skill once the workout is released",
                scaling: "Rx only where every movement is at/below current rungs and competent skills; else scaled division"}]}
   # ---------- runs ----------
   z2_run:
     {type: run_easy, title: Zone 2 run, intent: "Aerobic base at conversational effort (cadence 170-180)", location: outdoor,
-     route: {rotate: [farmington_river_trail, west_hartford_reservoir]}, warmup: run_easy, run_share: 0.35,
+     route: {rotate: [farmington_river_trail, west_hartford_reservoir]}, warmup: run_easy, cooldown: cool_easy, run_share: 0.35,
      blocks: [{kind: run, generate: easy, label: Zone 2 run, zone: Z2}, {kind: mobility, use: run_mobility}]}
   easy_run:
-    {type: run_easy, title: Easy run, intent: Easy aerobic miles, location: outdoor, route: farmington_river_trail, warmup: run_easy, run_share: 0.35,
+    {type: run_easy, title: Easy run, intent: Easy aerobic miles, location: outdoor, route: farmington_river_trail, warmup: run_easy, cooldown: cool_easy, run_share: 0.35,
      blocks: [{kind: run, generate: easy, label: Easy run, zone: Z2}]}
   easy_strides:
-    {type: run_easy, title: Easy run + strides, intent: "Easy miles, 6 relaxed strides", location: outdoor, route: farmington_river_trail, warmup: run_easy, run_share: 0.15,
+    {type: run_easy, title: Easy run + strides, intent: "Easy miles, 6 relaxed strides", location: outdoor, route: farmington_river_trail, warmup: run_easy, cooldown: cool_easy, run_share: 0.15,
      blocks: [{kind: run, generate: easy, label: Easy run, zone: Z2, strides: 6}]}
   shakeout:
-    {type: run_easy, title: Shakeout, intent: 20 min easy + 4 strides, location: outdoor, route: farmington_river_trail, warmup: run_easy, run_share: 0.1,
+    {type: run_easy, title: Shakeout, intent: 20 min easy + 4 strides, location: outdoor, route: farmington_river_trail, warmup: run_easy, cooldown: cool_easy, run_share: 0.1,
      blocks: [{kind: run, generate: easy, label: Shakeout, zone: Z2, strides: 4, min_miles: 1.5}]}
   z2_bike:
-    {type: run_easy, title: Zone 2 bike, intent: Zero-impact aerobic, warmup: easy,
+    {type: run_easy, title: Zone 2 bike, intent: Zero-impact aerobic, warmup: easy, cooldown: cool_easy,
      blocks: [{kind: run, title: Zone 2 bike, generate: fixed, segments: [{label: BikeErg Z2, zone: Z2, duration_min: 45, modality: bike}]}]}
   quality_run:
     {type: run_quality, title: Threshold run, intent: "Threshold reps at T pace (track, daylight)", location: track, route: canton_hs_track, key: true,
-     warmup: run_quality, run_share: 0.18,
+     warmup: run_quality, cooldown: cool_hard, run_share: 0.18,
      blocks: [{kind: run, title: Threshold session, generate: track_intervals, rep_min: 6, recovery_min: 2}]}
   quality_short:
     {type: run_quality, title: Threshold run (short), intent: "Short threshold reps, race week", location: track, route: canton_hs_track, key: true,
-     warmup: run_quality, run_share: 0.2,
+     warmup: run_quality, cooldown: cool_hard, run_share: 0.2,
      blocks: [{kind: run, title: Threshold session, generate: track_intervals, rep_min: 4, recovery_min: 2}]}
   long_run:
     {type: run_long, title: Long run, intent: "Progressive long run (Z2, marathon-pace finish when ready)", location: outdoor,
-     route: farmington_river_trail, key: true, warmup: run_easy, run_share: 0.40,
+     route: farmington_river_trail, key: true, warmup: run_easy, cooldown: cool_easy, run_share: 0.40,
      blocks: [{kind: run, generate: long}]}
   race:
-    {type: race, title: Race day, intent: Execute the race plan (state/events), location: outdoor, key: true, warmup: run_quality,
+    {type: race, title: Race day, intent: Execute the race plan (state/events), location: outdoor, key: true, warmup: run_quality, cooldown: cool_hard,
      blocks: [{kind: run, generate: fixed, segments: [{label: Marathon, zone: MP, distance_mi: 26.2}]}]}
   # ---------- recovery / special ----------
   recovery:
