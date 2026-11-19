@@ -7,7 +7,7 @@ from coach import clock
 from coach.config import Config, load_config
 from coach.engine import bodycomp as BC
 from coach.engine import movement as mv
-from coach.engine.paces import Zones
+from coach.engine.paces import Zones, build_zones
 from coach.engine.readiness import compute_readiness
 from coach.engine.validator import ValidationContext
 from coach.models import (
@@ -194,13 +194,7 @@ def build(state: Store | None = None, cfg: Config | None = None, today: dt.date 
     week_index = ((clock.monday_of(today) - block.start).days // 7 + 1) if block else 0
     target = outline.week(week_index) if outline else None
     movement = state.movement_readiness() or mv.initial_state(cfg.progressions, today)
-    dz = cfg.profile.running.default_zones
-    z = state.zones()
-    zones = (
-        Zones(lthr=z.lthr, threshold_pace_s_per_mi=z.threshold_pace_s_per_mi)
-        if z
-        else Zones(lthr=dz.lthr, threshold_pace_s_per_mi=dz.threshold_pace_s_per_mi)
-    )
+    zones = build_zones(cfg, state, today)
     return Context(
         cfg=cfg,
         state=state,

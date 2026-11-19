@@ -1,6 +1,14 @@
-"""Run zones from LTHR and threshold pace (from the 30-min time trial)."""
+"""Run zones: HR from LTHR (default) or from heart rate reserve (Whoop's model); pace from threshold pace."""
 
+import datetime as dt
+import math
+import statistics
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from coach.config import Config
+    from coach.store import Store
 
 # HR as a fraction of LTHR; pace as a multiple of threshold pace (s/mi), i.e. >1 is slower.
 HR_ZONES = {
@@ -10,6 +18,19 @@ HR_ZONES = {
     "MP": (0.86, 0.91),
     "T": (0.95, 1.00),
     "Z5": (1.00, 1.06),
+    "strides": (0.0, 0.0),
+}
+# HR as a fraction of heart rate reserve (resting + f * (max - resting)), the model Whoop uses for its zones.
+# Z1-Z5 are Whoop's zones 1-5 (its zone 1 starts at 40% on the athlete's settings screen); MP sits in Whoop zone 3
+# and T is Whoop zone 4. Rounded up to whole bpm, Z2 matches Whoop's displayed zone 2 exactly and the other
+# boundaries are within 1 bpm (Whoop starts each zone 1 bpm above the one below).
+HRR_ZONES = {
+    "Z1": (0.40, 0.60),
+    "Z2": (0.60, 0.70),
+    "Z3": (0.70, 0.80),
+    "MP": (0.72, 0.80),
+    "T": (0.80, 0.90),
+    "Z5": (0.90, 1.00),
     "strides": (0.0, 0.0),
 }
 PACE_FACTORS = {
@@ -23,12 +44,30 @@ PACE_FACTORS = {
 }
 
 
+def _up(bpm: float) -> int:
+    return math.ceil(bpm - 1e-9)  # round up, ignoring float noise (52 + 0.5 * 142 is 123, not 124)
+
+
 @dataclass
 class Zones:
     lthr: int
     threshold_pace_s_per_mi: int
+    hr_model: str = "lthr"  # "lthr" | "hrr"
+    max_hr: int | None = None
+    resting_hr: int | None = None
+
+    @property
+    def uses_hrr(self) -> bool:
+        return self.hr_model == "hrr" and self.max_hr is not None and self.resting_hr is not None
 
     def hr(self, zone: str) -> tuple[int, int]:
+        if self.uses_hrr:
+            assert self.max_hr is not None and self.resting_hr is not None
+            lo, hi = HRR_ZONES[zone]
+            if (lo, hi) == (0.0, 0.0):
+                return (0, 0)
+            reserve = self.max_hr - self.resting_hr
+            return (_up(self.resting_hr + lo * reserve), _up(self.resting_hr + hi * reserve))
         lo, hi = HR_ZONES[zone]
         return (round(self.lthr * lo), round(self.lthr * hi))
 
@@ -42,6 +81,9 @@ class Zones:
 
     def as_dict(self) -> dict:
         return {
+            "hr_model": "hrr" if self.uses_hrr else "lthr",
+            "max_hr": self.max_hr,
+            "resting_hr": self.resting_hr,
             "lthr": self.lthr,
             "threshold_pace_s_per_mi": self.threshold_pace_s_per_mi,
             "hr": {z: self.hr(z) for z in HR_ZONES if z != "strides"},
@@ -49,10 +91,17 @@ class Zones:
         }
 
 
-def zone_minutes_from_hr(avg_hr: float, duration_min: float, lthr: int) -> list[float]:
-    """Crude single-average allocation when only average HR is available (noted as approximate)."""
-    frac = avg_hr / lthr
+def zone_minutes_from_hr(
+    avg_hr: float, duration_min: float, lthr: int, zones: Zones | None = None
+) -> list[float]:
+    """Crude single-average allocation when only average HR is available (noted as approximate). With HRR zones the
+    five bins are the athlete's Z1-Z5 (Whoop's zones); otherwise fractions of LTHR."""
     out = [0.0] * 5
+    if zones is not None and zones.uses_hrr:
+        idx = sum(1 for z in ("Z2", "Z3", "T", "Z5") if avg_hr >= zones.hr(z)[0])
+        out[idx] = round(duration_min, 1)
+        return out
+    frac = avg_hr / lthr
     bounds = [0.75, 0.85, 0.95, 1.0]
     idx = sum(1 for b in bounds if frac >= b)
     out[idx] = round(duration_min, 1)
@@ -74,3 +123,25 @@ def miles_for_segment(
     if duration_min is None:
         return 0.0
     return duration_min * 60 / pace_s * reps
+
+
+def build_zones(cfg: "Config", state: "Store", today: dt.date) -> Zones:
+    """Threshold pace (and LTHR) from the latest test, else the defaults. With hr_model "hrr" the HR zones come from
+    heart rate reserve: Whoop's max HR (from sync) and the median Whoop resting HR over the readiness baseline window,
+    falling back to the configured max_hr / resting_hr."""
+    dz = cfg.profile.running.default_zones
+    z = state.zones()
+    lthr, pace = (z.lthr, z.threshold_pace_s_per_mi) if z else (dz.lthr, dz.threshold_pace_s_per_mi)
+    if dz.hr_model != "hrr":
+        return Zones(lthr=lthr, threshold_pace_s_per_mi=pace)
+    max_hr, resting = dz.max_hr, dz.resting_hr
+    body = state.whoop_body()
+    if body and body.get("max_heart_rate"):
+        max_hr = int(body["max_heart_rate"])
+    since = today - dt.timedelta(days=cfg.profile.thresholds.rhr_baseline_days - 1)
+    rhr = [m.rhr_bpm for m in state.metric_records_daily_cached() if m.rhr_bpm and since <= m.date <= today]
+    if len(rhr) >= 7:  # a week of nights before the measured baseline replaces the configured one
+        resting = round(statistics.median(rhr))
+    if max_hr is None or resting is None or not resting < max_hr:
+        return Zones(lthr=lthr, threshold_pace_s_per_mi=pace)
+    return Zones(lthr=lthr, threshold_pace_s_per_mi=pace, hr_model="hrr", max_hr=max_hr, resting_hr=resting)

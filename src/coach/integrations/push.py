@@ -360,3 +360,77 @@ def push_day(
 
 def current_week_only(plan: WeekPlan, today: dt.date) -> bool:
     return plan.start <= today <= plan.end or plan.start == today + dt.timedelta(days=1)
+
+
+STANDING_PREFIX = "routine-"
+
+
+def standing_routine(name: str, ctx: Context) -> Session:
+    """An item set from training.yaml as an undated session (a standing routine reused, e.g. every evening)."""
+    from coach.coaching.skills import design as D
+
+    if name not in ctx.cfg.training.item_sets:
+        raise KeyError(f"no item set '{name}' in training.yaml")
+    ws = ctx.cfg.training.item_set(name)
+    P = D.Picker(ctx, "training", "home")
+    block = D.items_block("mobility", ws.items, P, ws.title)
+    s = Session(
+        id=f"{STANDING_PREFIX}{name}",
+        date=ctx.today,
+        type="recovery",
+        title=ws.title,
+        intent="Standing routine: reuse it from Hevy whenever it is prescribed",
+        location="home",
+        expected_minutes=0,
+        blocks=[block],
+    )
+    s.expected_minutes = D.estimate_minutes(s, ctx.zones.threshold_pace_s_per_mi)
+    return s
+
+
+def push_routine(name: str, ctx: Context, sources: Sources | None, dry_run: bool | None = None) -> dict:
+    """Create or update one standing Hevy routine from an item set (same routine id every time). Runs the session
+    validator (health gates: a red flag or illness refuses it) plus the library/equipment checks that the validator
+    skips for recovery-type sessions."""
+    s = standing_routine(name, ctx)
+    lib, available = ctx.cfg.library, ctx.cfg.equipment.available("home", ctx.cfg.profile.travel_equipment)
+    violations = validate_session(s, ctx.validation(None))
+    specs = ctx.cfg.training.item_set(name).items
+    if len(s.all_items()) < len(
+        specs
+    ):  # the picker drops items with no home-doable version: say so, never silently
+        kept = {it.exercise_id for it in s.all_items()}
+        lost = [sp.exercise or sp.family for sp in specs if (sp.exercise or sp.family) not in kept]
+        violations.append(
+            Violation("EQUIPMENT", f"not doable at home, would be dropped: {', '.join(map(str, lost))}", s.id)
+        )
+    for it in s.all_items():
+        ex = lib.get(it.exercise_id)
+        if ex is None:
+            violations.append(Violation("LIBRARY", f"{it.exercise_id} is not in the exercise library", s.id))
+        elif missing := [e for e in ex.equipment if e not in available]:
+            violations.append(
+                Violation("EQUIPMENT", f"{ex.name} needs {missing}, not available at home", s.id)
+            )
+    if violations:
+        raise PushRefused(violations)
+    dry = (not ctx.cfg.settings.push.enabled) if dry_run is None else dry_run
+    ids = ctx.state.get("push_ids") or {}
+    resolver = TemplateResolver(sources.hevy if sources else None, read_only=dry)
+    r = hevy_routine(s, ctx, resolver)
+    if r is None:
+        return {"error": f"item set '{name}' has no exercises"}
+    r["title"] = f"{s.title} (coach)"
+    r["notes"] = (
+        f"Standing routine (~{s.expected_minutes} min): reuse it whenever it is prescribed. The coach updates it in place."
+    )
+    key = f"hevy:{s.id}"
+    out: dict = {"dry_run": dry, "routine": r["title"], "exercises": len(r["exercises"])}
+    if not dry and sources is not None:
+        out["routine_id"] = ids[key] = sources.hevy.upsert_routine(r, ids.get(key))
+        ctx.state.put("push_ids", ids)
+    if resolver.would_create:
+        out["hevy_custom_exercises_needed"] = resolver.would_create
+    if resolver.created:
+        out["hevy_custom_exercises_created"] = resolver.created
+    return out

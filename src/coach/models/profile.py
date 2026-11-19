@@ -3,7 +3,7 @@
 import datetime as dt
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 
 from coach.models.common import LooseModel, Model
 
@@ -181,9 +181,24 @@ class RecoveryConfig(Model):
 
 
 class DefaultZones(Model):
+    """Run zones until a test sets them. hr_model "hrr" takes HR zones from heart rate reserve (Whoop's model): max_hr
+    and resting_hr are the fallbacks, and sync replaces them with Whoop's max HR and the recent resting-HR baseline."""
+
     lthr: int
     threshold_pace_s_per_mi: int
+    hr_model: Literal["lthr", "hrr"] = "lthr"
+    max_hr: int | None = None
+    resting_hr: int | None = None
     note: str = ""
+
+    @model_validator(mode="after")
+    def _hrr_needs_bounds(self) -> "DefaultZones":
+        if self.hr_model == "hrr":
+            if self.max_hr is None or self.resting_hr is None:
+                raise ValueError("hr_model 'hrr' needs max_hr and resting_hr")
+            if not 30 <= self.resting_hr < self.max_hr <= 230:
+                raise ValueError("need 30 <= resting_hr < max_hr <= 230")
+        return self
 
 
 class MarathonPrediction(Model):

@@ -41,7 +41,7 @@ tests/                     pytest (CI: ruff + pytest + config check + 120-day si
 - Install: `pip install -e ".[dev]"`. Mock mode: `COACH_MOCK=1` (no API keys needed).
 - Every command prints JSON; add `--pretty` for humans. `--date YYYY-MM-DD` pretends today is that date.
 - Key commands: `coach status`, `coach sync`, `coach readiness`, `coach context --week|--block`,
-  `coach validate <file>|config`, `coach push --day|--week [--dry-run]`, `coach approve <id|week|block-goal>`,
+  `coach validate <file>|config`, `coach push --day|--week|--routine <item_set> [--dry-run]`, `coach approve <id|week|block-goal>`,
   `coach reject <id> --reason ...`, `coach proposals`, `coach report <metric> --weeks N`,
   `coach macrocycle regenerate`, `coach test schedule|score`, `coach log "<message>"`,
   `coach simulate --days 120 --from 2026-11-16`, `coach form-check <family> --by coach|physio`,

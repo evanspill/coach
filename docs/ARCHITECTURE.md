@@ -161,10 +161,10 @@ src/coach/
 | `coach/models/` | Row schemas for every collection; Claude-written JSON must parse into them |
 | `coach/store/` | `Store`: typed access by collection (`get/put/query/keys/report`), metrics series, rendered views |
 | `coach/integrations/sync.py` | Incremental, idempotent sync; merges Whoop + Hevy + Intervals into one session record |
-| `coach/integrations/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled` |
+| `coach/integrations/push.py` | Hevy routines + Intervals events; always re-validates; dry-run unless `push.enabled`; `--routine` keeps one standing Hevy routine per item set (decision 100) |
 | `coach/engine/validator.py` | Every guardrail, with stable rule codes |
 | `coach/engine/goals.py` | Long-term goal feasibility (age-graded standard, Riegel threshold <-> marathon, trend projection) |
-| `coach/coaching/fill.py` | Fills loads (current e1RM -> rounded implement, + warm-up sets sized to the session, decision 96) and paces/HR (zones) into plans |
+| `coach/coaching/fill.py` | Fills loads (current e1RM -> rounded implement, + warm-up sets sized to the session, decision 96) and paces/HR (zones: LTHR or heart rate reserve, decision 99) into plans |
 | `coach/coaching/records.py` | The one submit path for records Claude writes: fill -> validate -> save -> summary/proposal (`coach record add --file`) |
 | `coach/coaching/proposals.py` | Proposals (targets are `collection/key` refs), approve/reject, config lock + changelog |
 | `coach/coaching/skills/` | Deterministic stand-in for each skill (used after 3 failed validations and in simulation) |
@@ -180,7 +180,8 @@ resolve to the current rung; generators size runs, pick metcons and skill drills
 
 ### Data sources
 - **Whoop (direct API via a token broker)**: recovery, HRV, RHR, sleep, day strain, and HR/strain for *every*
-  session (it's worn 24/7; the Garmin only on runs).
+  session (it's worn 24/7; the Garmin only on runs). With `default_zones.hr_model: hrr` its max HR (body
+  measurement) and resting-HR baseline also set the HR zones (decision 99).
 - **Intervals.icu**: run detail from the Garmin (pace, Running Dynamics), training load, shoe mileage, custom
   check-in fields, and the route for planned run workouts onto the watch.
 - **Hevy**: lifting sets and routines. **Scale** (Apple Health -> HealthFit -> Intervals.icu wellness): weight and body fat. **Open-Meteo**: weather.

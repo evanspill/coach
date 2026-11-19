@@ -81,6 +81,16 @@ test("fresh access token is reused; no refresh", async () => {
   assert.ok(!calls.some((c) => c.url.includes("oauth2/token")));
 });
 
+test("body measurement passes through with no query params", async () => {
+  await kv.put("token:whoop", JSON.stringify({ access_token: "live", refresh_token: "r0", expires_at: Date.now() / 1000 + 3000 }));
+  const r = await get("/v2/user/measurement/body?start=x&limit=5");
+  assert.equal(r.status, 200);
+  const up = calls.find((c) => c.url.includes("/developer/v2/user/measurement/body"));
+  assert.ok(up && !up.url.includes("?"));
+  assert.equal(up.auth, "Bearer live");
+  assert.equal((await get("/v2/user/measurement")).status, 404);
+});
+
 test("expired token refreshes once, stores the rotated refresh token, releases the lock", async () => {
   await kv.put("token:whoop", JSON.stringify({ access_token: "old", refresh_token: "r0", expires_at: 0 }));
   assert.equal((await get("/v2/cycle")).status, 200);

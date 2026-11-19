@@ -173,8 +173,13 @@ def update_zones_from(ctx: Context, ts: TestSet) -> ThresholdZones | None:
     if not found:
         return None
     r = found[0]
+    lthr = int(r.details["lthr"])
+    if ctx.zones.uses_hrr and tests[r.test_id].scoring == "submax_estimate":
+        # HR zones come from heart rate reserve; the submax LTHR (avg HR / 0.80) assumes the run was at 80% of LTHR,
+        # which an easy run by HRR zones need not be, so only the pace estimate is taken
+        lthr = ctx.zones.lthr
     z = ThresholdZones(
-        lthr=int(r.details["lthr"]),
+        lthr=lthr,
         threshold_pace_s_per_mi=int(r.details["threshold_pace_s_per_mi"]),
         source=f"{r.test_id} {r.date}",
         confidence=r.details.get("confidence", "normal"),

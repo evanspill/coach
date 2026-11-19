@@ -2,6 +2,7 @@
 //
 // Holds the rotating OAuth refresh token and exposes read-only GET endpoints for `coach sync`:
 //   /v2/recovery  /v2/activity/sleep  /v2/cycle  /v2/activity/workout   -> Whoop API v2, response passed through
+//   /v2/user/measurement/body                                          -> Whoop max HR (for HR zones), no params
 //   /health                                                            -> whether Whoop is connected (no tokens)
 //   /privacy                                                           -> public privacy page for the app registration
 // Every data call needs the static key in the `X-Broker-Key` header (the coach's cloud environment injects it as
@@ -22,6 +23,7 @@ const WHOOP = {
 };
 const WHOOP_PATHS = new Set(["/v2/recovery", "/v2/activity/sleep", "/v2/cycle", "/v2/activity/workout"]);
 const WHOOP_PARAMS = ["start", "end", "nextToken", "limit"];
+const WHOOP_BODY_PATH = "/v2/user/measurement/body"; // a single record: no paging or date params
 const TOKEN_KEY = "token:whoop";
 const LOCK_KEY = "lock:whoop";
 const PRIVACY = `Privacy policy - personal coaching token broker
@@ -168,12 +170,16 @@ async function route(request, env) {
         : { connected: false },
     });
   }
-  if (WHOOP_PATHS.has(path)) {
+  if (WHOOP_PATHS.has(path) || path === WHOOP_BODY_PATH) {
     const token = await accessToken(env);
-    const q = new URLSearchParams();
-    for (const k of WHOOP_PARAMS) if (url.searchParams.has(k)) q.set(k, url.searchParams.get(k));
-    if (!q.has("limit")) q.set("limit", "25");
-    const res = await fetch(`${WHOOP.api}${path}?${q}`, { headers: { authorization: `Bearer ${token}` } });
+    let upstream = `${WHOOP.api}${path}`;
+    if (path !== WHOOP_BODY_PATH) {
+      const q = new URLSearchParams();
+      for (const k of WHOOP_PARAMS) if (url.searchParams.has(k)) q.set(k, url.searchParams.get(k));
+      if (!q.has("limit")) q.set("limit", "25");
+      upstream += `?${q}`;
+    }
+    const res = await fetch(upstream, { headers: { authorization: `Bearer ${token}` } });
     const text = await res.text();
     if (!res.ok) throw new BrokerError(502, `whoop: upstream HTTP ${res.status}`);
     return new Response(text, { headers: { "content-type": "application/json", "cache-control": "no-store" } });

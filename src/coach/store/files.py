@@ -360,6 +360,16 @@ class Store:
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(json.dumps({"since": since.isoformat(), "through": through.isoformat()}) + "\n")
 
+    def whoop_body(self) -> dict | None:
+        """Whoop's body measurement (max_heart_rate, ...) from the last sync; cache only, never committed."""
+        p = self._path(f"{CACHE_DIR}/body.json")
+        return json.loads(p.read_text()) if p.exists() else None
+
+    def set_whoop_body(self, body: dict) -> None:
+        p = self._path(f"{CACHE_DIR}/body.json")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(body) + "\n")
+
     def prune_whoop_cache(self, before: dt.date) -> None:
         """Drop cached months entirely before `before` and records older than it in the boundary month."""
         mdir = self._metrics_dir(cache=True)

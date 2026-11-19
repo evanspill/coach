@@ -18,6 +18,10 @@ class WhoopSource(ABC):
     @abstractmethod
     def workouts(self, start: dt.date, end: dt.date) -> list[SessionRecord]: ...
 
+    def body(self) -> dict | None:
+        """Body measurement (max_heart_rate, height_meter, weight_kilogram); None when the source has none."""
+        return None
+
 
 class HevySource(ABC):
     """Lifting log (sets, reps, load, RPE) and routine writes."""
