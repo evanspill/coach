@@ -1,7 +1,14 @@
 """Run zones: HR from LTHR (default) or from heart rate reserve (Whoop's model); pace from threshold pace."""
 
+import datetime as dt
 import math
+import statistics
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from coach.config import Config
+    from coach.store import Store
 
 # HR as a fraction of LTHR; pace as a multiple of threshold pace (s/mi), i.e. >1 is slower.
 HR_ZONES = {
@@ -116,3 +123,25 @@ def miles_for_segment(
     if duration_min is None:
         return 0.0
     return duration_min * 60 / pace_s * reps
+
+
+def build_zones(cfg: "Config", state: "Store", today: dt.date) -> Zones:
+    """Threshold pace (and LTHR) from the latest test, else the defaults. With hr_model "hrr" the HR zones come from
+    heart rate reserve: Whoop's max HR (from sync) and the median Whoop resting HR over the readiness baseline window,
+    falling back to the configured max_hr / resting_hr."""
+    dz = cfg.profile.running.default_zones
+    z = state.zones()
+    lthr, pace = (z.lthr, z.threshold_pace_s_per_mi) if z else (dz.lthr, dz.threshold_pace_s_per_mi)
+    if dz.hr_model != "hrr":
+        return Zones(lthr=lthr, threshold_pace_s_per_mi=pace)
+    max_hr, resting = dz.max_hr, dz.resting_hr
+    body = state.whoop_body()
+    if body and body.get("max_heart_rate"):
+        max_hr = int(body["max_heart_rate"])
+    since = today - dt.timedelta(days=cfg.profile.thresholds.rhr_baseline_days - 1)
+    rhr = [m.rhr_bpm for m in state.metric_records_daily_cached() if m.rhr_bpm and since <= m.date <= today]
+    if len(rhr) >= 7:  # a week of nights before the measured baseline replaces the configured one
+        resting = round(statistics.median(rhr))
+    if max_hr is None or resting is None or not resting < max_hr:
+        return Zones(lthr=lthr, threshold_pace_s_per_mi=pace)
+    return Zones(lthr=lthr, threshold_pace_s_per_mi=pace, hr_model="hrr", max_hr=max_hr, resting_hr=resting)

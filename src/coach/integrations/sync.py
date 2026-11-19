@@ -4,7 +4,7 @@ import datetime as dt
 
 from coach import clock
 from coach.config import Config, load_config
-from coach.engine.paces import Zones, zone_minutes_from_hr
+from coach.engine.paces import Zones, build_zones, zone_minutes_from_hr
 from coach.engine.parsing import parse_checkin_tag
 from coach.integrations.base import Sources
 from coach.models import Checkin, DailyMetrics, SessionRecord
@@ -220,9 +220,7 @@ def sync(
     # starting within MATCH_MINUTES of a committed session is skipped (it may be the stored half of a twin).
     # last_sync is held, so the next sync where both answer replaces the window and tidies any twin.
     sessions_ok = hevy_w is not None and acts is not None
-    from coach.coaching.context import build_zones  # HRR zones read the Whoop cache filled above
-
-    zones = build_zones(cfg, state, today)
+    zones = build_zones(cfg, state, today)  # HRR zones read the Whoop cache filled above
     lthr = zones.lthr  # the last test's LTHR, else the default
     plans: dict = {}
     detail = merge_sessions([], [*(hevy_w or []), *(acts or [])], lthr, zones)  # committed: no Whoop fields
