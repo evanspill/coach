@@ -1,0 +1,322 @@
+{
+  "date": "2026-11-19",
+  "status": "waiting_for_recovery",
+  "readiness": {
+    "date": "2026-11-19",
+    "state": "unknown",
+    "reasons": [
+      "today's Whoop recovery not available yet"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {
+      "back": 2
+    },
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": [
+      "whoop_recovery"
+    ]
+  },
+  "weather": null,
+  "planned_session_id": "2026-11-19-test",
+  "session": {
+    "id": "2026-11-19-test",
+    "date": "2026-11-19",
+    "start_time": "09:30",
+    "type": "test",
+    "title": "Test day: Squat 5RM (current squat rung)",
+    "intent": "Squat baseline at the current rung, 72 h after the hinge test (no back-to-back heavy lower days).",
+    "location": "gym",
+    "route": null,
+    "expected_minutes": 55,
+    "key": true,
+    "carb_tier": "high",
+    "blocks": [
+      {
+        "kind": "warmup",
+        "title": "Lower prep: McGill Big 3, tibs, pogos, couch stretch",
+        "items": [
+          {
+            "exercise_id": "mcgill_curl_up",
+            "sets": 1,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "10 s holds",
+            "ramp": []
+          },
+          {
+            "exercise_id": "side_plank",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 20,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "bird_dog",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "tib_raise",
+            "sets": 1,
+            "reps": 15,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "by feel",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "pogo_hops",
+            "sets": 2,
+            "reps": 20,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "couch_stretch",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 45,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "test",
+        "title": "Squat 5RM (current squat rung)",
+        "items": [
+          {
+            "exercise_id": "ssb_box_squat",
+            "sets": 5,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 1.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "pick a load you can do for 5 @ 1 RIR; warm-up ~50% x5, ~70% x3, ~85% x1 of your working weight",
+            "tempo": null,
+            "rest_s": 180,
+            "per_side": false,
+            "alternating": null,
+            "notes": "work up to a 5RM at RPE 9",
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": null,
+                "load_lb": null,
+                "pct": 0.5
+              },
+              {
+                "reps": 3,
+                "load_kg": null,
+                "load_lb": null,
+                "pct": 0.7
+              },
+              {
+                "reps": 1,
+                "load_kg": null,
+                "load_lb": null,
+                "pct": 0.85
+              }
+            ]
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": "squat_rm",
+        "notes": "Work up to a 5RM at RPE 9 on the current squat rung (box height recorded)."
+      },
+      {
+        "kind": "mobility",
+        "title": "Hip mobility",
+        "items": [
+          {
+            "exercise_id": "hip_90_90",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "cooldown",
+        "title": "~3 min easy + slow breathing to HR < 110, then hangs",
+        "items": [
+          {
+            "exercise_id": "easy_cooldown",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 180,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "dead_hang",
+            "sets": 2,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 30,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [
+      "squat_rm"
+    ],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "changes": [],
+  "recovery_prescription": [
+    "10 min evening mobility: hips/adductors (90/90, couch stretch), quads, T-spine",
+    "Golf tonight counts as rotation load: easy trunk rotations and cat-camel before you swing",
+    "Bed 10-10:30 pm"
+  ],
+  "nutrition": null,
+  "fueling_cue": "High-carb day: carb-rich meal 2-3 h before the test; protein + carbs within 2 h after.",
+  "gear_alerts": [
+    "Check the safety-squat bar's weight (still unconfirmed) and tell me with your 5RM"
+  ],
+  "pushed": null,
+  "handoffs": [],
+  "approvals_pending": [
+    "2026-11-18-config-change-1",
+    "2026-11-19-config-change-3"
+  ],
+  "stale_sources": [
+    "whoop: today's recovery not available yet",
+    "whoop_body: fetch failed"
+  ],
+  "generated_by": "claude",
+  "notification": ""
+}

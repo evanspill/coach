@@ -1,21 +1,26 @@
 {
-  "last_sync": "2026-11-18",
+  "last_sync": "2026-11-19",
   "last_report": {
     "window": [
       "2026-11-15",
-      "2026-11-18"
+      "2026-11-19"
     ],
     "counts": {
-      "whoop_daily": 4,
+      "whoop_daily": 74,
       "nutrition_daily": 2,
-      "whoop_backup_days": 0,
+      "whoop_backup_days": 7,
       "weigh_ins": 2,
-      "sessions": 4
+      "sessions": 5
     },
-    "stale": [],
-    "errors": {},
+    "stale": [
+      "whoop: today's recovery not available yet",
+      "whoop_body: fetch failed"
+    ],
+    "errors": {
+      "whoop_body": "HTTPError: HTTP Error 404: Not Found"
+    },
     "changed_files": 1,
-    "recovery_today": true,
+    "recovery_today": false,
     "whoop_offline": false
   }
 }
