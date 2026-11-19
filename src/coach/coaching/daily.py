@@ -5,6 +5,7 @@ Live, Claude runs `.claude/skills/coach-daily/SKILL.md` and makes the coaching d
 `coach simulate` and `coach daily --fallback` (a safety net if Claude is unavailable). Steps that would normally be
 Claude are marked in the DayRecord (generated_by="fallback")."""
 
+import dataclasses
 import datetime as dt
 from dataclasses import dataclass, field
 
@@ -152,8 +153,6 @@ def _transition(
     log.append(f"assess: scored {len(ts.results)} tests ({', '.join(r.test_id for r in ts.results)})")
     z = assess.update_zones_from(ctx, ts)
     if z:
-        import dataclasses
-
         ctx.zones = dataclasses.replace(
             ctx.zones, lthr=z.lthr, threshold_pace_s_per_mi=z.threshold_pace_s_per_mi
         )

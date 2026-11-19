@@ -4,7 +4,7 @@ import datetime as dt
 
 from coach import clock
 from coach.config import Config, load_config
-from coach.engine.paces import zone_minutes_from_hr
+from coach.engine.paces import Zones, zone_minutes_from_hr
 from coach.engine.parsing import parse_checkin_tag
 from coach.integrations.base import Sources
 from coach.models import Checkin, DailyMetrics, SessionRecord
@@ -54,7 +54,7 @@ COMPATIBLE = {
 
 
 def merge_sessions(
-    whoop: list[SessionRecord], detail: list[SessionRecord], lthr: int | None
+    whoop: list[SessionRecord], detail: list[SessionRecord], lthr: int | None, zones: Zones | None = None
 ) -> list[SessionRecord]:
     """One Session per real workout: HR/strain from Whoop, sets from Hevy, pace/dynamics from Intervals.
     Matched by start time (+/- 15 min) and compatible activity type; nothing is double counted."""
@@ -109,7 +109,7 @@ def merge_sessions(
             final.append(w.model_copy(deep=True))  # HR-only session (e.g. a walk recorded only on Whoop)
     for rec in final:
         if lthr and rec.avg_hr and rec.zone_minutes is None:
-            rec.zone_minutes = zone_minutes_from_hr(rec.avg_hr, rec.duration_min, lthr)
+            rec.zone_minutes = zone_minutes_from_hr(rec.avg_hr, rec.duration_min, lthr, zones)
     return sorted(final, key=lambda s: s.start)
 
 
@@ -220,10 +220,12 @@ def sync(
     # starting within MATCH_MINUTES of a committed session is skipped (it may be the stored half of a twin).
     # last_sync is held, so the next sync where both answer replaces the window and tidies any twin.
     sessions_ok = hevy_w is not None and acts is not None
-    zones = state.zones()
-    lthr = zones.lthr if zones else cfg.profile.running.default_zones.lthr  # default until the first TT
+    from coach.coaching.context import build_zones  # HRR zones read the Whoop cache filled above
+
+    zones = build_zones(cfg, state, today)
+    lthr = zones.lthr  # the last test's LTHR, else the default
     plans: dict = {}
-    detail = merge_sessions([], [*(hevy_w or []), *(acts or [])], lthr)  # committed: no Whoop fields
+    detail = merge_sessions([], [*(hevy_w or []), *(acts or [])], lthr, zones)  # committed: no Whoop fields
     if not sessions_ok and detail:
         stored = [
             SessionRecord.model_validate(r["data"]).start
@@ -264,7 +266,7 @@ def sync(
         committed = [
             SessionRecord.model_validate(r["data"]) for r in state.metric_records("session", wstart, today)
         ]
-        overlay = [s for s in merge_sessions(whoop_w, committed, lthr) if "whoop" in s.sources]
+        overlay = [s for s in merge_sessions(whoop_w, committed, lthr, zones) if "whoop" in s.sources]
         for s in overlay:
             s.planned_session_id = s.planned_session_id or _plan_link(state, s, plans)
         state.upsert_metrics(

@@ -46,27 +46,47 @@ def test_push_routine_unknown_set(home):
         push_routine("nope", _ctx(), None, dry_run=True)
 
 
-def test_push_routine_only_home_equipment(home):
-    """The picker swaps gym-only work for what's available at home (or the push refuses it)."""
+def test_push_routine_refuses_work_it_would_drop(home):
+    """A gym-only exercise has no home version: the push refuses rather than silently dropping it."""
     import copy
 
-    from coach.integrations.push import PushRefused, push_routine, standing_routine
+    from coach.integrations.push import PushRefused, push_routine
     from coach.models.season import ItemSet, ItemSpec
 
     ctx = _ctx()
     ctx.cfg = copy.deepcopy(ctx.cfg)
-    ctx.cfg.training.item_sets["gym_only"] = ItemSet(
-        title="x", items=[ItemSpec(exercise="leg_press", sets=1, reps=5)]
+    ctx.cfg.training.item_sets["mixed"] = ItemSet(
+        title="x",
+        items=[ItemSpec(exercise="leg_press", sets=1, reps=5), ItemSpec(exercise="cat_cow", sets=1, reps=6)],
     )
-    available = ctx.cfg.equipment.available("home", ctx.cfg.profile.travel_equipment)
-    try:
-        s = standing_routine("gym_only", ctx)
-        push_routine("gym_only", ctx, None, dry_run=True)
-    except PushRefused as e:
-        assert "EQUIPMENT" in str(e.violations[0])
-    else:
-        for it in s.all_items():
-            assert all(eq in available for eq in ctx.cfg.library.get(it.exercise_id).equipment)
+    with pytest.raises(PushRefused) as e:
+        push_routine("mixed", ctx, None, dry_run=True)
+    assert "EQUIPMENT" in str(e.value.violations[0]) and "leg_press" in str(e.value.violations[0])
+
+
+def test_push_routine_empty_set(home):
+    import copy
+
+    from coach.integrations.push import push_routine
+    from coach.models.season import ItemSet
+
+    ctx = _ctx()
+    ctx.cfg = copy.deepcopy(ctx.cfg)
+    ctx.cfg.training.item_sets["empty"] = ItemSet(title="e", items=[])
+    assert "no exercises" in push_routine("empty", ctx, None, dry_run=True)["error"]
+
+
+def test_push_routine_refused_when_ill(home):
+    from coach.integrations.push import PushRefused, push_routine
+    from coach.models.journal import HealthEvent
+    from coach.store import Store
+
+    Store().put(
+        "health_events",
+        HealthEvent(id="2026-11-19-ill", kind="illness", start=TODAY, symptoms="below_neck"),
+    )
+    with pytest.raises(PushRefused):
+        push_routine("recovery_mobility", _ctx(), None, dry_run=True)
 
 
 def test_cli_push_routine_unknown(home, capsys):
@@ -77,3 +97,7 @@ def test_cli_push_routine_unknown(home, capsys):
     sys.argv = ["coach", "push", "--routine", "nope", "--dry-run"]
     main()
     assert "no item set" in capsys.readouterr().out
+    sys.argv = ["coach", "push", "--routine", "recovery_mobility", "--dry-run"]
+    main()
+    out = capsys.readouterr().out
+    assert '"dry_run": true' in out and "(coach)" in out

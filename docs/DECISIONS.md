@@ -491,14 +491,21 @@ Each entry: **decision** - why - how to reverse.
     - Under `hrr` a submax drift run sets only threshold pace: its LTHR (avg HR / 0.80) assumes the run was at 80% of
       LTHR, which an easy run by HRR zones need not be (on 2026-11-18 it would have given ~188). A 30-min TT's LTHR is
       still stored. Threshold work may move to a TT-based model once there is a running base.
-    - Switching the athlete's config is a threshold change: proposal, then `coach approve`. The broker must be
-      redeployed for the max HR to sync (until then the configured max_hr is used).
+    - Switching the athlete's config is a threshold change: proposal, then `coach approve`. The threshold fingerprint
+      covers `hr_model`, `max_hr` and `resting_hr` whenever `hr_model` isn't `lthr` (LTHR configs keep their old
+      fingerprint, so existing locks stay valid). The broker must be redeployed for the max HR to sync (until then the
+      configured max_hr is used).
+    - The synced values move the zones without a proposal, by design: the athlete chose Whoop's auto-adjusting zones
+      as the source of truth. The movement is small and slow (max HR changes only when Whoop's does; resting HR is a
+      60-day median), and the daily push refreshes today's targets. The fallbacks themselves are locked.
+    - Zone minutes estimated from a session's average HR (when no zone breakdown exists) use the same HRR zones.
     - Reverse: set `hr_model: lthr` (the default) or revert the commits.
 100. **Standing Hevy routines** (athlete request, 2026-11-19):
     - The athlete wants the evening mobility routine in Hevy to follow along. It's the same every evening, so it is a
       standing routine, not a dated session: `coach push --routine <item_set>` builds it from a `training.yaml` item
       set (picker at location `home`), refuses anything not in the library or needing equipment the athlete doesn't
       have at home, and creates or updates one Hevy routine (id kept in `push_ids` as `hevy:routine-<name>`), titled
-      "<title> (coach)". Dry-run unless `push.enabled`, like every push.
+      "<title> (coach)". Dry-run unless `push.enabled`, like every push. It runs the session validator (the health
+      gates apply; recovery-type sessions skip the structure rules) plus a library and home-equipment check.
     - Changing the item set (an approved config change) and re-running the push updates the routine in place.
     - Reverse: revert the commit; delete the routine in Hevy.

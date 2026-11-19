@@ -317,10 +317,9 @@ def cmd_push(args):
     sources = _sources()  # a dry run still reads (the Hevy exercise catalog) but writes nothing
     try:
         if args.routine:
-            try:
-                return push_routine(args.routine, ctx, sources, dry_run=True if args.dry_run else None)
-            except KeyError as e:
-                return {"error": str(e).strip("'\"")}
+            if args.routine not in ctx.cfg.training.item_sets:
+                return {"error": f"no item set '{args.routine}' in training.yaml"}
+            return push_routine(args.routine, ctx, sources, dry_run=True if args.dry_run else None)
         if args.week:
             start = clock.monday_of(today) + (
                 dt.timedelta(days=7) if args.next or today.weekday() == 6 else dt.timedelta()

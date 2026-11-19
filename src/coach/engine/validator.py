@@ -493,6 +493,9 @@ def thresholds_fingerprint(cfg: Config) -> str:
         "long_term_goals": [g.model_dump(mode="json") for g in p.goals.long_term],
         "marathon_prediction": p.running.marathon_prediction.model_dump(mode="json"),
     }
+    dz = p.running.default_zones
+    if dz.hr_model != "lthr":  # only then, so locks recorded before decision 99 stay valid for LTHR configs
+        payload["hr_zones"] = {"hr_model": dz.hr_model, "max_hr": dz.max_hr, "resting_hr": dz.resting_hr}
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:16]
 
 

@@ -389,10 +389,21 @@ def standing_routine(name: str, ctx: Context) -> Session:
 
 
 def push_routine(name: str, ctx: Context, sources: Sources | None, dry_run: bool | None = None) -> dict:
-    """Create or update one standing Hevy routine from an item set (same routine id every time)."""
+    """Create or update one standing Hevy routine from an item set (same routine id every time). Runs the session
+    validator (health gates: a red flag or illness refuses it) plus the library/equipment checks that the validator
+    skips for recovery-type sessions."""
     s = standing_routine(name, ctx)
     lib, available = ctx.cfg.library, ctx.cfg.equipment.available("home", ctx.cfg.profile.travel_equipment)
-    violations = []
+    violations = validate_session(s, ctx.validation(None))
+    specs = ctx.cfg.training.item_set(name).items
+    if len(s.all_items()) < len(
+        specs
+    ):  # the picker drops items with no home-doable version: say so, never silently
+        kept = {it.exercise_id for it in s.all_items()}
+        lost = [sp.exercise or sp.family for sp in specs if (sp.exercise or sp.family) not in kept]
+        violations.append(
+            Violation("EQUIPMENT", f"not doable at home, would be dropped: {', '.join(map(str, lost))}", s.id)
+        )
     for it in s.all_items():
         ex = lib.get(it.exercise_id)
         if ex is None:

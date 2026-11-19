@@ -84,10 +84,17 @@ class Zones:
         }
 
 
-def zone_minutes_from_hr(avg_hr: float, duration_min: float, lthr: int) -> list[float]:
-    """Crude single-average allocation when only average HR is available (noted as approximate)."""
-    frac = avg_hr / lthr
+def zone_minutes_from_hr(
+    avg_hr: float, duration_min: float, lthr: int, zones: Zones | None = None
+) -> list[float]:
+    """Crude single-average allocation when only average HR is available (noted as approximate). With HRR zones the
+    five bins are the athlete's Z1-Z5 (Whoop's zones); otherwise fractions of LTHR."""
     out = [0.0] * 5
+    if zones is not None and zones.uses_hrr:
+        idx = sum(1 for z in ("Z2", "Z3", "T", "Z5") if avg_hr >= zones.hr(z)[0])
+        out[idx] = round(duration_min, 1)
+        return out
+    frac = avg_hr / lthr
     bounds = [0.75, 0.85, 0.95, 1.0]
     idx = sum(1 for b in bounds if frac >= b)
     out[idx] = round(duration_min, 1)

@@ -120,3 +120,74 @@ def test_sync_caches_whoop_max_hr(home):
     assert "whoop_body" not in report["errors"]
     assert Store().whoop_body()["max_heart_rate"] == 192
     assert "height_meter" not in Store().whoop_body()
+
+
+def test_resting_at_or_above_max_falls_back_to_lthr(home):
+    from coach.coaching.context import build
+    from coach.store import Store
+
+    Store().set_whoop_body({"max_heart_rate": 50})  # implausible: below the resting HR
+    assert not build(cfg=_hrr_cfg(), today=TODAY).zones.uses_hrr
+
+
+def test_live_whoop_body_calls_the_broker(monkeypatch):
+    from coach.integrations import live
+
+    calls = []
+    monkeypatch.setenv("WHOOP_BROKER_URL", "https://broker.example/")
+    monkeypatch.setattr(
+        live, "_request", lambda m, url, h=None, **k: calls.append((m, url)) or {"max_heart_rate": 194}
+    )
+    assert live.LiveWhoop().body() == {"max_heart_rate": 194}
+    assert calls == [("GET", "https://broker.example/v2/user/measurement/body")]
+    monkeypatch.delenv("WHOOP_BROKER_URL")
+    with pytest.raises(RuntimeError):
+        live.LiveWhoop().body()
+
+
+@pytest.mark.parametrize("body", ["fail", {"height_meter": 1.8}, None])
+def test_sync_body_failure_or_missing_max_is_not_whoop_offline(home, body):
+    from coach.integrations import mock
+    from coach.integrations.sync import sync
+    from coach.store import Store
+
+    world = mock.MockWorld.load()
+    src = mock.mock_sources(world)
+    if body == "fail":
+
+        def boom():
+            raise RuntimeError("broker 404")
+
+        src.whoop.body = boom
+    else:
+        world.whoop["body"] = body
+    report = sync(src, Store(), TODAY)
+    assert ("whoop_body" in report["errors"]) == (body == "fail")
+    assert "whoop" not in report["errors"] and not report["whoop_offline"]
+    assert Store().whoop_body() is None
+
+
+def test_fingerprint_locks_hrr_settings_only_when_used():
+    from coach.config import load_config
+    from coach.engine.validator import thresholds_fingerprint
+    from coach.models.profile import DefaultZones
+
+    base = copy.deepcopy(load_config())
+    fp_lthr = thresholds_fingerprint(base)
+    base.profile.running.default_zones = DefaultZones(lthr=165, threshold_pace_s_per_mi=480, max_hr=194)
+    assert thresholds_fingerprint(base) == fp_lthr  # LTHR model: existing locks stay valid
+    hrr = _hrr_cfg()
+    fp_hrr = thresholds_fingerprint(hrr)
+    assert fp_hrr != fp_lthr
+    hrr.profile.running.default_zones = DefaultZones(
+        lthr=165, threshold_pace_s_per_mi=480, hr_model="hrr", max_hr=190, resting_hr=52
+    )
+    assert thresholds_fingerprint(hrr) != fp_hrr  # changing a fallback needs approval
+
+
+def test_zone_minutes_use_hrr_bins():
+    from coach.engine.paces import zone_minutes_from_hr
+
+    z = Zones(lthr=165, threshold_pace_s_per_mi=480, hr_model="hrr", max_hr=194, resting_hr=52)
+    assert zone_minutes_from_hr(150, 20, 165, z) == [0.0, 20.0, 0.0, 0.0, 0.0]  # Whoop Z2
+    assert zone_minutes_from_hr(150, 20, 165) == [0.0, 0.0, 20.0, 0.0, 0.0]  # LTHR model: 91% of LTHR
