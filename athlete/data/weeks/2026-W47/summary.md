@@ -4,8 +4,8 @@ Baseline week, reviewed against testing standards: power before strength; hinge 
 
 - **Mon** Test day: Standing broad jump, Hinge 3-5RM (current hinge rung), Neutral-grip DB press 5RM (85 min, gym, key; carbs high)
   - broad_jump: 3x1 @ bodyweight
-  - trap_bar_deadlift_high: 5x5 @2 RIR @ pick a load you can do for 5 @ 2 RIR
-  - db_bench_press_neutral: 5x5 @1 RIR @ pick a load you can do for 5 @ 1 RIR
+  - trap_bar_deadlift_high: 5x5 @2 RIR @ 227.5 lb
+  - db_bench_press_neutral: 5x5 @1 RIR @ 80 lb DBs
 - **Tue** Test day: pull-ups, trunk endurance, dead hang (65 min, gym, key; carbs high)
   - strict_pull_up: 1x @ bodyweight
   - sorensen_hold: 1x @ bodyweight
@@ -15,10 +15,8 @@ Baseline week, reviewed against testing standards: power before strength; hinge 
   - Easy: 10 min Z1
   - Locked-pace drift run: 30 min Z2
   - Cool-down walk: 10 min Z1
-- **Thu** Test day: Squat 5RM (current squat rung) (55 min, gym, key; carbs high)
-  - ssb_box_squat: 5x5 @1 RIR @ pick a load you can do for 5 @ 1 RIR
-- **Fri** Zone 2 bike + mobility (50 min, gym; carbs low)
-  - Zone 2 bike: 35 min Z2
+- **Fri** Test day: Squat 5RM (current squat rung) (70 min, gym, key; carbs high)
+  - ssb_box_squat: 5x5 @1 RIR @ pick a load you can do for 5 @ 1 RIR; warm-up ~50% x5, ~70% x3, ~85% x1 of your working weight
 - **Sat** Test day: Echo bike 10-minute max calories (30 min, gym, key; carbs high)
   - echo_bike: 1x
 - **Sun** Recovery: Z1 walk + mobility (50 min, home; carbs low)
@@ -29,3 +27,4 @@ Baseline week, reviewed against testing standards: power before strength; hinge 
 - Z2 run: Zone 2 run (3 mi) -> Zone 2 bike 35 min (Friday) + Copenhagen planks (Tuesday) (No running in the last 4 weeks and a past left groin/hip injury: the only run this week is the submax test.)
 - run test cool-down: 10 min cool-down jog -> 10 min walk (Keeps the week's running to the 40-min test while returning from zero.)
 - hinge_rm target: RPE 9 (1 in reserve) -> RPE 8 (2 in reserve) (Rebuilding deadlift confidence after two back episodes (latest 2026-06-03); a conservative first estimate.)
+- Thu/Fri: Thu squat 5RM; Fri Zone 2 bike + mobility -> Thu missed; Fri squat 5RM (+ screen redos after it); Zone 2 bike dropped (Missed Thursday (athlete, 2026-11-20). Keep the key test, drop the non-key easy session, no doubling; the bike test stays Saturday on a separate day; athlete OK 2026-11-20.)

@@ -35,8 +35,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": "10 s holds",
               "ramp": []
             },
@@ -53,8 +54,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -71,8 +73,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -89,8 +92,9 @@
               "load_lb": null,
               "load_note": "by feel",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -107,8 +111,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -125,8 +130,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -143,8 +149,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -161,8 +168,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -191,6 +199,7 @@
               "tempo": null,
               "rest_s": 90,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -213,14 +222,34 @@
               "distance_m": null,
               "calories": null,
               "rir": 2.0,
-              "load_kg": null,
-              "load_lb": null,
-              "load_note": "pick a load you can do for 5 @ 2 RIR",
+              "load_kg": 103.2,
+              "load_lb": 227.5,
+              "load_note": "227.5 lb",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 180,
               "per_side": false,
+              "alternating": null,
               "notes": "Baseline: work up to a 3-5RM at RPE 8 (2 in reserve), not 9. Stop at the first technique break or back discomfort > 2/10; a conservative number is the goal.",
-              "ramp": []
+              "ramp": [
+                {
+                  "reps": 5,
+                  "load_kg": 52.2,
+                  "load_lb": 115.0,
+                  "pct": null
+                },
+                {
+                  "reps": 3,
+                  "load_kg": 72.6,
+                  "load_lb": 160.0,
+                  "pct": null
+                },
+                {
+                  "reps": 1,
+                  "load_kg": 87.3,
+                  "load_lb": 192.5,
+                  "pct": null
+                }
+              ]
             }
           ],
           "run": [],
@@ -241,14 +270,34 @@
               "distance_m": null,
               "calories": null,
               "rir": 1.0,
-              "load_kg": null,
-              "load_lb": null,
-              "load_note": "pick a load you can do for 5 @ 1 RIR",
+              "load_kg": 36.3,
+              "load_lb": 80.0,
+              "load_note": "80 lb DBs",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 180,
               "per_side": false,
+              "alternating": null,
               "notes": "work up to a 5RM at RPE 9",
-              "ramp": []
+              "ramp": [
+                {
+                  "reps": 5,
+                  "load_kg": 18.1,
+                  "load_lb": 40.0,
+                  "pct": null
+                },
+                {
+                  "reps": 3,
+                  "load_kg": 24.9,
+                  "load_lb": 55.0,
+                  "pct": null
+                },
+                {
+                  "reps": 1,
+                  "load_kg": 31.8,
+                  "load_lb": 70.0,
+                  "pct": null
+                }
+              ]
             }
           ],
           "run": [],
@@ -273,8 +322,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -291,8 +341,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -341,8 +392,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": "10 s holds",
               "ramp": []
             },
@@ -359,8 +411,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -377,8 +430,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -395,8 +449,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -413,8 +468,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -431,8 +487,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -449,8 +506,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -477,10 +535,18 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 180,
               "per_side": false,
+              "alternating": null,
               "notes": "max strict reps",
-              "ramp": []
+              "ramp": [
+                {
+                  "reps": 2,
+                  "load_kg": null,
+                  "load_lb": null,
+                  "pct": null
+                }
+              ]
             }
           ],
           "run": [],
@@ -505,8 +571,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 180,
               "per_side": false,
+              "alternating": null,
               "notes": "Max hold, stop at 240 s; stop on back pain > 2/10 or any leg symptoms",
               "ramp": []
             }
@@ -533,8 +600,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 180,
               "per_side": true,
+              "alternating": null,
               "notes": "One max hold per side, left first, 2 min between; log each side's time",
               "ramp": []
             }
@@ -561,8 +629,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 180,
               "per_side": false,
+              "alternating": null,
               "notes": "Rest 5 min after the side planks; passive hang, overhand shoulder-width grip; max time (same order every retest)",
               "ramp": []
             }
@@ -589,8 +658,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": "Short lever; stop if the left groin complains",
               "ramp": []
             },
@@ -607,8 +677,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -635,8 +706,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -653,8 +725,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -704,8 +777,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": "10 s holds",
               "ramp": []
             },
@@ -722,8 +796,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -740,8 +815,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -758,8 +834,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -776,8 +853,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -794,8 +872,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -824,8 +903,8 @@
                 744
               ],
               "hr_bpm": [
-                107,
-                124
+                109,
+                137
               ]
             },
             {
@@ -842,8 +921,8 @@
                 648
               ],
               "hr_bpm": [
-                124,
-                139
+                137,
+                152
               ]
             }
           ],
@@ -868,8 +947,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -886,8 +966,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -907,8 +988,8 @@
                 744
               ],
               "hr_bpm": [
-                107,
-                124
+                109,
+                137
               ]
             }
           ],
@@ -924,15 +1005,15 @@
       "shoe": null
     },
     {
-      "id": "2026-11-19-test",
-      "date": "2026-11-19",
+      "id": "2026-11-20-test",
+      "date": "2026-11-20",
       "start_time": "09:30",
       "type": "test",
       "title": "Test day: Squat 5RM (current squat rung)",
-      "intent": "Squat baseline at the current rung, 72 h after the hinge test (no back-to-back heavy lower days).",
+      "intent": "Squat baseline at the current squat rung, moved from Thu (missed); 96 h after the hinge test.",
       "location": "gym",
       "route": null,
-      "expected_minutes": 55,
+      "expected_minutes": 70,
       "key": true,
       "carb_tier": "high",
       "blocks": [
@@ -953,8 +1034,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": "10 s holds",
               "ramp": []
             },
@@ -971,8 +1053,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -989,8 +1072,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1007,8 +1091,9 @@
               "load_lb": null,
               "load_note": "by feel",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1025,8 +1110,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1043,8 +1129,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -1069,18 +1156,124 @@
               "rir": 1.0,
               "load_kg": null,
               "load_lb": null,
-              "load_note": "pick a load you can do for 5 @ 1 RIR",
+              "load_note": "pick a load you can do for 5 @ 1 RIR; warm-up ~50% x5, ~70% x3, ~85% x1 of your working weight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 180,
               "per_side": false,
+              "alternating": null,
               "notes": "work up to a 5RM at RPE 9",
-              "ramp": []
+              "ramp": [
+                {
+                  "reps": 5,
+                  "load_kg": null,
+                  "load_lb": null,
+                  "pct": 0.5
+                },
+                {
+                  "reps": 3,
+                  "load_kg": null,
+                  "load_lb": null,
+                  "pct": 0.7
+                },
+                {
+                  "reps": 1,
+                  "load_kg": null,
+                  "load_lb": null,
+                  "pct": 0.85
+                }
+              ]
             }
           ],
           "run": [],
           "metcon": null,
           "test_id": "squat_rm",
           "notes": "Work up to a 5RM at RPE 9 on the current squat rung (box height recorded)."
+        },
+        {
+          "kind": "mobility",
+          "title": "Screen redos (after the squat): measure or film each",
+          "items": [
+            {
+              "exercise_id": "knee_to_wall_test",
+              "sets": 1,
+              "reps": 1,
+              "reps_max": null,
+              "duration_s": null,
+              "distance_m": null,
+              "calories": null,
+              "rir": null,
+              "load_kg": null,
+              "load_lb": null,
+              "load_note": "bodyweight",
+              "tempo": null,
+              "rest_s": 15,
+              "per_side": true,
+              "alternating": null,
+              "notes": "Tape measure, toe-to-wall in cm each side",
+              "ramp": []
+            },
+            {
+              "exercise_id": "overhead_reach_wall_test",
+              "sets": 1,
+              "reps": 1,
+              "reps_max": null,
+              "duration_s": null,
+              "distance_m": null,
+              "calories": null,
+              "rir": null,
+              "load_kg": null,
+              "load_lb": null,
+              "load_note": "bodyweight",
+              "tempo": null,
+              "rest_s": 15,
+              "per_side": false,
+              "alternating": null,
+              "notes": "Heels ~15 cm from the wall, stand tall, low back visible in the photo",
+              "ramp": []
+            },
+            {
+              "exercise_id": "aslr_test",
+              "sets": 1,
+              "reps": 1,
+              "reps_max": null,
+              "duration_s": null,
+              "distance_m": null,
+              "calories": null,
+              "rir": null,
+              "load_kg": null,
+              "load_lb": null,
+              "load_note": "bodyweight",
+              "tempo": null,
+              "rest_s": 15,
+              "per_side": true,
+              "alternating": null,
+              "notes": "Down leg straight and flat on the floor; side photo",
+              "ramp": []
+            },
+            {
+              "exercise_id": "ohs_pvc_screen",
+              "sets": 1,
+              "reps": 3,
+              "reps_max": null,
+              "duration_s": null,
+              "distance_m": null,
+              "calories": null,
+              "rir": null,
+              "load_kg": null,
+              "load_lb": null,
+              "load_note": "bodyweight",
+              "tempo": null,
+              "rest_s": 30,
+              "per_side": false,
+              "alternating": null,
+              "notes": "Side + front video",
+              "ramp": []
+            }
+          ],
+          "run": [],
+          "metcon": null,
+          "test_id": null,
+          "notes": "Screens, not training: one honest attempt each."
         },
         {
           "kind": "mobility",
@@ -1099,8 +1292,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -1127,8 +1321,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1145,8 +1340,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -1160,131 +1356,6 @@
       "tests": [
         "squat_rm"
       ],
-      "recovery_note": "",
-      "shoe": null
-    },
-    {
-      "id": "2026-11-20-z2-bike",
-      "date": "2026-11-20",
-      "start_time": "09:30",
-      "type": "recovery",
-      "title": "Zone 2 bike + mobility",
-      "intent": "Easy aerobic base without impact, the day after the squat test and before Saturday's bike test.",
-      "location": "gym",
-      "route": null,
-      "expected_minutes": 50,
-      "key": false,
-      "carb_tier": "low",
-      "blocks": [
-        {
-          "kind": "run",
-          "title": "Zone 2 bike",
-          "items": [],
-          "run": [
-            {
-              "label": "Zone 2 bike",
-              "zone": "Z2",
-              "duration_min": 35.0,
-              "distance_mi": null,
-              "reps": 1,
-              "recovery_min": null,
-              "modality": "bike",
-              "terrain": "flat",
-              "pace_s_per_mi": null,
-              "hr_bpm": [
-                124,
-                139
-              ]
-            }
-          ],
-          "metcon": null,
-          "test_id": null,
-          "notes": ""
-        },
-        {
-          "kind": "mobility",
-          "title": "Mobility: foam roller, bands, lacrosse ball",
-          "items": [
-            {
-              "exercise_id": "foam_roll",
-              "sets": 1,
-              "reps": null,
-              "reps_max": null,
-              "duration_s": 300,
-              "distance_m": null,
-              "calories": null,
-              "rir": null,
-              "load_kg": null,
-              "load_lb": null,
-              "load_note": null,
-              "tempo": null,
-              "rest_s": null,
-              "per_side": false,
-              "notes": null,
-              "ramp": []
-            },
-            {
-              "exercise_id": "hip_90_90",
-              "sets": 1,
-              "reps": 8,
-              "reps_max": null,
-              "duration_s": null,
-              "distance_m": null,
-              "calories": null,
-              "rir": null,
-              "load_kg": null,
-              "load_lb": null,
-              "load_note": "bodyweight",
-              "tempo": null,
-              "rest_s": null,
-              "per_side": true,
-              "notes": null,
-              "ramp": []
-            },
-            {
-              "exercise_id": "band_mobility",
-              "sets": 1,
-              "reps": null,
-              "reps_max": null,
-              "duration_s": 300,
-              "distance_m": null,
-              "calories": null,
-              "rir": null,
-              "load_kg": null,
-              "load_lb": null,
-              "load_note": null,
-              "tempo": null,
-              "rest_s": null,
-              "per_side": false,
-              "notes": null,
-              "ramp": []
-            },
-            {
-              "exercise_id": "thoracic_open_book",
-              "sets": 1,
-              "reps": 8,
-              "reps_max": null,
-              "duration_s": null,
-              "distance_m": null,
-              "calories": null,
-              "rir": null,
-              "load_kg": null,
-              "load_lb": null,
-              "load_note": "bodyweight",
-              "tempo": null,
-              "rest_s": null,
-              "per_side": true,
-              "notes": null,
-              "ramp": []
-            }
-          ],
-          "run": [],
-          "metcon": null,
-          "test_id": null,
-          "notes": ""
-        }
-      ],
-      "tests": [],
       "recovery_note": "",
       "shoe": null
     },
@@ -1318,8 +1389,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": "10 s holds",
               "ramp": []
             },
@@ -1336,8 +1408,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1354,8 +1427,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1372,8 +1446,9 @@
               "load_lb": null,
               "load_note": "by feel",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1390,8 +1465,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1408,8 +1484,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1426,8 +1503,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1444,8 +1522,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -1472,8 +1551,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 180,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -1500,8 +1580,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1518,8 +1599,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -1568,8 +1650,8 @@
                 744
               ],
               "hr_bpm": [
-                107,
-                124
+                109,
+                137
               ]
             }
           ],
@@ -1594,8 +1676,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1612,8 +1695,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1630,8 +1714,9 @@
               "load_lb": null,
               "load_note": null,
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": false,
+              "alternating": null,
               "notes": null,
               "ramp": []
             },
@@ -1648,8 +1733,9 @@
               "load_lb": null,
               "load_note": "bodyweight",
               "tempo": null,
-              "rest_s": null,
+              "rest_s": 15,
               "per_side": true,
+              "alternating": null,
               "notes": null,
               "ramp": []
             }
@@ -1689,6 +1775,12 @@
       "planned": "RPE 9 (1 in reserve)",
       "actual": "RPE 8 (2 in reserve)",
       "reason": "Rebuilding deadlift confidence after two back episodes (latest 2026-06-03); a conservative first estimate."
+    },
+    {
+      "field": "Thu/Fri",
+      "planned": "Thu squat 5RM; Fri Zone 2 bike + mobility",
+      "actual": "Thu missed; Fri squat 5RM (+ screen redos after it); Zone 2 bike dropped",
+      "reason": "Missed Thursday (athlete, 2026-11-20). Keep the key test, drop the non-key easy session, no doubling; the bike test stays Saturday on a separate day; athlete OK 2026-11-20."
     }
   ],
   "generated_by": "claude",
