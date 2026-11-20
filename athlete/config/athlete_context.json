@@ -162,7 +162,10 @@
     "default_zones": {
       "lthr": 165,
       "threshold_pace_s_per_mi": 480,
-      "note": "used until the first time trial"
+      "note": "HR zones from Whoop heart rate reserve (max/resting synced from Whoop; these are fallbacks). Threshold pace used until the first time trial.",
+      "hr_model": "hrr",
+      "max_hr": 194,
+      "resting_hr": 52
     },
     "marathon_prediction": {
       "riegel_exponent": 1.06,

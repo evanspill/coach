@@ -37,12 +37,17 @@
       }
     }
   },
-  "status": "pending",
+  "status": "approved",
   "history": [
     {
       "at": "2026-11-18",
       "status": "pending",
       "note": "athlete asked for it in chat; waiting on PR #16"
+    },
+    {
+      "at": "2026-11-20",
+      "status": "approved",
+      "note": ""
     }
   ]
 }
