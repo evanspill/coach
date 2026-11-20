@@ -1,0 +1,273 @@
+{
+  "date": "2026-11-20",
+  "status": "waiting_for_recovery",
+  "readiness": {
+    "date": "2026-11-20",
+    "state": "unknown",
+    "reasons": [
+      "today's Whoop recovery not available yet"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {
+      "back": 2
+    },
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": [
+      "whoop_recovery"
+    ]
+  },
+  "weather": null,
+  "planned_session_id": "2026-11-20-z2-bike",
+  "session": {
+    "id": "2026-11-20-z2-bike",
+    "date": "2026-11-20",
+    "start_time": "09:30",
+    "type": "recovery",
+    "title": "Zone 2 bike + mobility",
+    "intent": "Easy aerobic base without impact, the day after the squat test and before Saturday's bike test.",
+    "location": "gym",
+    "route": null,
+    "expected_minutes": 65,
+    "key": false,
+    "carb_tier": "low",
+    "blocks": [
+      {
+        "kind": "run",
+        "title": "Zone 2 bike",
+        "items": [],
+        "run": [
+          {
+            "label": "Zone 2 bike",
+            "zone": "Z2",
+            "duration_min": 35.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "bike",
+            "terrain": "flat",
+            "pace_s_per_mi": null,
+            "hr_bpm": [
+              124,
+              139
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "mobility",
+        "title": "Screen redos (after the bike, warm): film or measure each",
+        "items": [
+          {
+            "exercise_id": "knee_to_wall_test",
+            "sets": 1,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": "Tape measure, toe-to-wall in cm each side",
+            "ramp": []
+          },
+          {
+            "exercise_id": "overhead_reach_wall_test",
+            "sets": 1,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "Heels ~15 cm from the wall, stand tall, low back visible in the photo",
+            "ramp": []
+          },
+          {
+            "exercise_id": "aslr_test",
+            "sets": 1,
+            "reps": 1,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": "Down leg straight and flat on the floor; side photo",
+            "ramp": []
+          },
+          {
+            "exercise_id": "ohs_pvc_screen",
+            "sets": 1,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 30,
+            "per_side": false,
+            "alternating": null,
+            "notes": "Side + front video",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": "Screens, not training: one honest attempt each."
+      },
+      {
+        "kind": "mobility",
+        "title": "Mobility: foam roller, bands, lacrosse ball",
+        "items": [
+          {
+            "exercise_id": "foam_roll",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 300,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "hip_90_90",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "band_mobility",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 300,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "thoracic_open_book",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "changes": [
+    {
+      "what": "Added mobility screen redos (knee-to-wall, overhead reach, ASLR, PVC overhead squat) after the bike",
+      "why": "Redos planned for this week's lightest day",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "10 min evening mobility (Evening mobility routine in Hevy): hips/adductors, T-spine",
+    "Bed 10-10:30 pm: bike test tomorrow"
+  ],
+  "nutrition": null,
+  "fueling_cue": "Low-carb day: normal meals; carb-rich dinner tonight for tomorrow's bike test.",
+  "gear_alerts": [
+    "Squat 5RM test (Thu) isn't in Hevy yet: log it with the safety-squat bar's weight"
+  ],
+  "pushed": null,
+  "handoffs": [],
+  "approvals_pending": [
+    "2026-11-18-config-change-1",
+    "2026-11-19-config-change-3"
+  ],
+  "stale_sources": [
+    "whoop: today's recovery not available yet",
+    "whoop_body: fetch failed"
+  ],
+  "generated_by": "claude",
+  "notification": ""
+}
