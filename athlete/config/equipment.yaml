@@ -35,7 +35,7 @@ loading:
     bar_lb: 65
     smallest_step_lb_per_side: 1.25
   safety_squat_bar:
-    bar_lb: 65
+    bar_lb: 58
     smallest_step_lb_per_side: 1.25
   landmine:
     bar_lb: 0          # loaded end only; prescribe plates on the sleeve

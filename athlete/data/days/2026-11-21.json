@@ -1,7 +1,27 @@
 {
   "date": "2026-11-21",
-  "status": "waiting_for_recovery",
-  "readiness": null,
+  "status": "complete",
+  "readiness": {
+    "date": "2026-11-21",
+    "state": "yellow",
+    "reasons": [
+      "recovery under 67 with HRV trend below band",
+      "HRV trend below band 2 days"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {},
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": []
+  },
   "weather": null,
   "planned_session_id": "2026-11-21-test",
   "session": {
@@ -344,6 +364,11 @@
       "what": "Screen redos (knee-to-wall, overhead reach, ASLR, PVC overhead squat) added after the warm-up",
       "why": "Not done Fri; non-fatiguing, finishes the baseline screen this week",
       "kind": "small"
+    },
+    {
+      "what": "Bike test kept as planned on Yellow; pace evenly, no all-out first minute",
+      "why": "Tests run on Green or Yellow",
+      "kind": "small"
     }
   ],
   "recovery_prescription": [
@@ -352,15 +377,11 @@
   ],
   "nutrition": null,
   "fueling_cue": "Carb-rich meal 2-3 h before the bike test; water + a pinch of salt; protein + carbs within 2 h after.",
-  "gear_alerts": [
-    "Safety-squat bar weight still unconfirmed: tell me so the 5RM can be scored"
-  ],
+  "gear_alerts": [],
   "pushed": null,
   "handoffs": [],
   "approvals_pending": [],
-  "stale_sources": [
-    "whoop: today's recovery not available yet"
-  ],
+  "stale_sources": [],
   "generated_by": "claude",
   "notification": ""
 }
