@@ -1,0 +1,7 @@
+{
+  "id": "2026-11-21-conditioning-ramps",
+  "date": "2026-11-21",
+  "category": "preference",
+  "text": "Athlete wants conditioning to get a proper warm-up like the heavy lifts. Finisher metcons in lifting sessions start with item set metcon_ramp (templates updated). Engine test days (bike/row/ski) add item set engine_test_ramp at the end of the warm-up, identical at every retest: the code-generated test-day template does not add it yet, so add it when designing test days. Proposal 2026-11-21-config-change-1.",
+  "source": "athlete"
+}

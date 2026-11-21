@@ -202,6 +202,19 @@ item_sets:
     title: Upper primer
     items:
       - {exercise: med_ball_chest_pass, sets: 3, reps: 5}
+  # conditioning ramps (athlete request 2026-11-21): a metcon/test that follows lifting or starts cold gets its own short,
+  # specific ramp so heart rate and the movements are primed before the clock starts. Standalone Hyrox/Open days
+  # already ramp in the `conditioning` warm-up; threshold runs ramp in their warm-up miles.
+  metcon_ramp:
+    title: "Metcon ramp: easy erg building to workout pace, then one light practice round"
+    items:
+      - {exercise: bike_erg, sets: 1, duration_s: 150, rest_s: 60, notes: "2 min easy, last 30 s at the pace you'll hold in the workout. Any erg. Then one easy practice round of the workout's movements at light load, rest ~1 min and start."}
+  engine_test_ramp:
+    title: "Engine-test ramp: 5 min easy, 3 x 10 s at test pace, 2 min easy (same at every retest)"
+    items:
+      - {exercise: bike_erg, sets: 1, duration_s: 300, rest_s: 0, notes: "on the test erg: easy, conversational; last minute a little quicker"}
+      - {exercise: bike_erg, sets: 3, duration_s: 10, rest_s: 50, notes: "pickups at planned test pace, not a sprint; 50 s easy between"}
+      - {exercise: bike_erg, sets: 1, duration_s: 120, rest_s: 180, notes: "very easy, then set up and start the test within 3 min"}
   sprints:
     title: "Alactic sprints: 6 x 10 s, full recovery"
     items:
@@ -321,6 +334,7 @@ sessions:
      blocks: [{kind: power, use: primer_lower},
               {kind: strength, items: [{family: squat, sets: 4, reps: 5, rir: 2, rest_s: 180}]},
               {kind: hypertrophy, items: [{exercise: hip_thrust, sets: 3, reps: 10, rir: 2}]},
+              {kind: conditioning, use: metcon_ramp},
               {kind: conditioning, generate: metcon, pool: hyrox, minutes: 20}]}
   upper_skill_metcon:
     {type: upper, title: Upper strength + skill + metcon, intent: "Skill fresh, press + pull heavy, short metcon", key: true, warmup: upper_lift, cooldown: cool_upper,
@@ -328,6 +342,7 @@ sessions:
               {kind: strength, items: [{family: press, sets: 4, reps: 5, rir: 2, rest_s: 150}, {exercise: strict_pull_up, sets: 4, reps: 5, rir: 2}]},
               {kind: hypertrophy, items: [{exercise: chest_supported_db_row, sets: 3, reps: 10, rir: 2}, {exercise: lateral_raise_db, sets: 3, reps: 15, rir: 2},
                                           {exercise: face_pull, sets: 2, reps: 15, rir: 2}]},
+              {kind: conditioning, use: metcon_ramp},
               {kind: conditioning, generate: metcon, pool: short, minutes: 10}]}
   upper_hyp_metcon:
     {type: upper, title: Upper hypertrophy + metcon, intent: "Press/pull volume, short metcon", key: true, warmup: upper_lift, cooldown: cool_upper,
@@ -335,6 +350,7 @@ sessions:
               {kind: strength, items: [{family: press, sets: 4, reps: 8, rir: 2}, {exercise: strict_pull_up, sets: 4, reps: 6, rir: 2}]},
               {kind: hypertrophy, items: [{exercise: chest_supported_db_row, sets: 4, reps: 10, rir: 2}, {exercise: incline_db_press, sets: 3, reps: 10, rir: 2},
                                           {exercise: lateral_raise_db, sets: 4, reps: 15, rir: 2}, {exercise: face_pull, sets: 3, reps: 15, rir: 2}]},
+              {kind: conditioning, use: metcon_ramp},
               {kind: conditioning, generate: metcon, pool: short, minutes: 10}]}
   sprint_upper:
     {type: sprint_upper, title: Sprints + upper aesthetics + easy run, intent: "Alactic sprints, upper hypertrophy, easy miles", warmup: sprint_prep, cooldown: cool_upper, run_share: 0.25,

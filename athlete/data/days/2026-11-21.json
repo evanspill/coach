@@ -39,7 +39,7 @@
     "blocks": [
       {
         "kind": "warmup",
-        "title": "Full-body prep + screen redos (carried from Fri: measure or film each)",
+        "title": "Full-body prep + screen redos + bike ramp (same ramp at every retest)",
         "items": [
           {
             "exercise_id": "mcgill_curl_up",
@@ -268,6 +268,63 @@
             "alternating": null,
             "notes": "Side + front video",
             "ramp": []
+          },
+          {
+            "exercise_id": "echo_bike",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 300,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "easy",
+            "tempo": null,
+            "rest_s": 0,
+            "per_side": false,
+            "alternating": null,
+            "notes": "Bike ramp: 5 min easy, conversational; last minute a little quicker",
+            "ramp": []
+          },
+          {
+            "exercise_id": "echo_bike",
+            "sets": 3,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 10,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "test pace",
+            "tempo": null,
+            "rest_s": 50,
+            "per_side": false,
+            "alternating": null,
+            "notes": "Pickups at the pace you plan to hold for the test (not a sprint); 50 s easy spin between",
+            "ramp": []
+          },
+          {
+            "exercise_id": "echo_bike",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 120,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "very easy",
+            "tempo": null,
+            "rest_s": 180,
+            "per_side": false,
+            "alternating": null,
+            "notes": "Very easy spin, then off the bike: drink, set the monitor, start the test within 3 min",
+            "ramp": []
           }
         ],
         "run": [],
@@ -368,6 +425,11 @@
     {
       "what": "Bike test kept as planned on Yellow; pace evenly, no all-out first minute",
       "why": "Tests run on Green or Yellow",
+      "kind": "small"
+    },
+    {
+      "what": "10-min Echo bike ramp added at the end of the warm-up (5 min easy, 3 x 10 s at test pace, 2 min easy)",
+      "why": "Athlete asked; a short specific ramp improves a 10-min max effort and makes retests comparable",
       "kind": "small"
     }
   ],

@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-21-config-change-1",
+  "kind": "config_change",
+  "created": "2026-11-21",
+  "created_by": "design-session",
+  "title": "Conditioning ramps: metcon ramp before finisher metcons + engine-test ramp",
+  "what": "training.yaml item_sets metcon_ramp (2 min easy erg building to workout pace for the last 30 s, then one light practice round, ~1 min rest) inserted before the metcon in squat_hyrox, upper_skill_metcon and upper_hyp_metcon; engine_test_ramp (5 min easy, 3 x 10 s at test pace, 2 min easy, start within 3 min) for engine test days (bike/row/ski), same at every retest. Standalone Hyrox/Open days keep the conditioning warm-up (already progressive); threshold runs keep their warm-up miles; travel bodyweight metcon unchanged.",
+  "why": "Athlete asked that conditioning gets a proper warm-up like the heavy lifts. A finisher metcon after lifting starts from low HR and different movements, and short max efforts go better after a brief specific ramp; it costs ~3-4 min. A fixed engine-test ramp keeps retests comparable. Confidence: moderate.",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "pending",
+  "history": [
+    {
+      "at": "2026-11-21",
+      "status": "pending",
+      "note": "athlete asked in chat; config applied; awaiting coach approve by the athlete"
+    }
+  ]
+}
