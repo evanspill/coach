@@ -10,12 +10,17 @@
   "after": null,
   "target": null,
   "payload": null,
-  "status": "pending",
+  "status": "approved",
   "history": [
     {
       "at": "2026-11-21",
       "status": "pending",
       "note": "athlete asked in chat; config applied; awaiting coach approve by the athlete"
+    },
+    {
+      "at": "2026-11-21",
+      "status": "approved",
+      "note": ""
     }
   ]
 }
