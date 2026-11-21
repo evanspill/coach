@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-17",
+  "updated": "2026-11-21",
   "families": {
     "hinge": {
       "family": "hinge",
@@ -24,14 +24,22 @@
     "squat": {
       "family": "squat",
       "rung": 0,
-      "exposures": [],
+      "exposures": [
+        {
+          "date": "2026-11-20",
+          "rung": 0,
+          "session_pain": 0.0,
+          "stiffness_up": false,
+          "clean": true
+        }
+      ],
       "history": [],
       "hold_until": null,
       "eccentric_tempo_until": null,
       "form_check_cleared": null,
       "pending_form_check": null,
-      "last_exposure_date": null,
-      "last_exposure_clean": null
+      "last_exposure_date": "2026-11-20",
+      "last_exposure_clean": true
     },
     "press": {
       "family": "press",

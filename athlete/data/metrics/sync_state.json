@@ -1,21 +1,23 @@
 {
-  "last_sync": "2026-11-20",
+  "last_sync": "2026-11-21",
   "last_report": {
     "window": [
       "2026-11-17",
-      "2026-11-20"
+      "2026-11-21"
     ],
     "counts": {
-      "whoop_daily": 4,
+      "whoop_daily": 74,
       "nutrition_daily": 1,
-      "whoop_backup_days": 0,
+      "whoop_backup_days": 7,
       "weigh_ins": 2,
-      "sessions": 4
+      "sessions": 5
     },
-    "stale": [],
+    "stale": [
+      "whoop: today's recovery not available yet"
+    ],
     "errors": {},
     "changed_files": 1,
-    "recovery_today": true,
+    "recovery_today": false,
     "whoop_offline": false
   }
 }
