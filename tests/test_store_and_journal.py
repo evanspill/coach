@@ -409,3 +409,9 @@ def test_week_submit_reports_a_kept_red_flag_stop(b1):
     res = records.submit(ctx.state, ctx.cfg, "week_plans", plan.model_dump(mode="json"), day)
     assert any("kept the red-flag stop" in a for a in res["actions"])
     assert ctx.state.day_record(day).session.type == "rest"
+    # a week leaving the stopped day out is not refused by the store either: the stop is kept as it is
+    week = ctx.state.week_plan(plan.week_id)
+    week.sessions = [s for s in week.sessions if s.date != day]
+    ctx.state.put("week_plans", week)
+    assert ctx.state.day_record(day).session.type == "rest"
+    assert ctx.state.week_plan(plan.week_id).session_on(day).type == "rest"

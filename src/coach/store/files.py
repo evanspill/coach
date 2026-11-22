@@ -214,7 +214,10 @@ class Store:
         dropped = [
             d
             for d, r in recs.items()
-            if d not in dates and r is not None and r.status != "planned" and r.current_session() is not None
+            if d not in dates
+            and r is not None
+            and r.status not in {"planned", "stopped_red_flag"}  # a stop is kept either way (below)
+            and r.current_session() is not None
         ]
         if dropped:
             raise ValueError(

@@ -24,6 +24,8 @@ or a joint >= 4 (reactive deload), test-day Red that can't be moved within the w
 - A day's session lives in its day record and the week is assembled from them (DECISIONS 102). To take a session
   off a day that already ran or is in progress (today, waiting for recovery, paused), replace it with a rest or
   recovery session: a week that drops it is refused. A day stopped for a red flag is never changed by a week save.
+  Build every revision from the assembled week (`coach record get week_plans --key <iso-week>`), never from an
+  older draft or the original plan, so the days' adjustments (a Red-day swap) aren't reverted by accident.
 
 ## Writes
 Revised `week_plans` and/or `block_outlines` (via `coach record add <collection> --file ...`, which validates); proposals (`replan`,
