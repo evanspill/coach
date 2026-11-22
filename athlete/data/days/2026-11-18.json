@@ -25,6 +25,263 @@
   },
   "weather": null,
   "planned_session_id": "2026-11-18-test",
+  "planned_session": {
+    "id": "2026-11-18-test",
+    "date": "2026-11-18",
+    "start_time": "09:30",
+    "type": "test",
+    "title": "Test day: Submaximal Zone 2 drift run (40 min)",
+    "intent": "Rep-max tests at current rungs (no true 1RMs)",
+    "location": "gym",
+    "route": null,
+    "expected_minutes": 70,
+    "key": true,
+    "carb_tier": "high",
+    "blocks": [
+      {
+        "kind": "warmup",
+        "title": "Lower/run prep: McGill Big 3, tibs, pogos, couch stretch",
+        "items": [
+          {
+            "exercise_id": "mcgill_curl_up",
+            "sets": 1,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "10 s holds",
+            "ramp": []
+          },
+          {
+            "exercise_id": "side_plank",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 20,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "bird_dog",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "tib_raise_wall",
+            "sets": 1,
+            "reps": 15,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "pogo_hops",
+            "sets": 2,
+            "reps": 20,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "couch_stretch",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 45,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "test",
+        "title": "Submaximal Zone 2 drift run (40 min)",
+        "items": [],
+        "run": [
+          {
+            "label": "Easy",
+            "zone": "Z1",
+            "duration_min": 10.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "run",
+            "terrain": "treadmill",
+            "pace_s_per_mi": [
+              662,
+              744
+            ],
+            "hr_bpm": [
+              109,
+              137
+            ]
+          },
+          {
+            "label": "Locked-pace drift run",
+            "zone": "Z2",
+            "duration_min": 30.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "run",
+            "terrain": "treadmill",
+            "pace_s_per_mi": [
+              586,
+              648
+            ],
+            "hr_bpm": [
+              137,
+              152
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": "run_submax_drift",
+        "notes": "Motorized treadmill at 1%. Find your conversational pace in the first 10 min, then lock it for the 30 min (don't change it); the shown pace/HR ranges are defaults until this test sets your zones."
+      },
+      {
+        "kind": "cooldown",
+        "title": "10 min walk + slow breathing to HR < 110",
+        "items": [
+          {
+            "exercise_id": "easy_cooldown",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 180,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "child_pose_breathing",
+            "sets": 2,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 30,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [
+          {
+            "label": "Cool-down walk",
+            "zone": "Z1",
+            "duration_min": 10.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "walk",
+            "terrain": "treadmill",
+            "pace_s_per_mi": [
+              662,
+              744
+            ],
+            "hr_bpm": [
+              109,
+              137
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [
+      "run_submax_drift"
+    ],
+    "recovery_note": "",
+    "shoe": null
+  },
   "session": {
     "id": "2026-11-18-test",
     "date": "2026-11-18",

@@ -1,0 +1,190 @@
+{
+  "date": "2026-11-26",
+  "status": "planned",
+  "readiness": null,
+  "weather": null,
+  "planned_session_id": "2026-11-26-run-easy",
+  "planned_session": {
+    "id": "2026-11-26-run-easy",
+    "date": "2026-11-26",
+    "start_time": "09:30",
+    "type": "run_easy",
+    "title": "Zone 2 run (Thanksgiving, no gym)",
+    "intent": "Easy outdoor run, conversational; cadence a touch quicker (~165)",
+    "location": "outdoor",
+    "route": "farmington_river_trail",
+    "expected_minutes": 65,
+    "key": false,
+    "carb_tier": "high",
+    "blocks": [
+      {
+        "kind": "warmup",
+        "title": "Easy-run prep: tibs, pogos, lateral lunges (then the first 5-10 min truly easy)",
+        "items": [
+          {
+            "exercise_id": "tib_raise_wall",
+            "sets": 1,
+            "reps": 15,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "pogo_hops",
+            "sets": 1,
+            "reps": 20,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "lateral_lunge_bw",
+            "sets": 1,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": "inner-thigh prep for the left groin/hip history",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "run",
+        "title": "Zone 2 run",
+        "items": [],
+        "run": [
+          {
+            "label": "Zone 2 run",
+            "zone": "Z2",
+            "duration_min": null,
+            "distance_mi": 2.5,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "run",
+            "terrain": "flat",
+            "pace_s_per_mi": [
+              781,
+              864
+            ],
+            "hr_bpm": [
+              138,
+              152
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "mobility",
+        "title": "Mobility + Copenhagen planks",
+        "items": [
+          {
+            "exercise_id": "hip_90_90",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "cooldown",
+        "title": "3-5 min walk",
+        "items": [
+          {
+            "exercise_id": "easy_cooldown",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 240,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "easy walk",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "session": null,
+  "changes": [],
+  "recovery_prescription": [],
+  "nutrition": null,
+  "fueling_cue": "",
+  "gear_alerts": [],
+  "pushed": null,
+  "handoffs": [],
+  "approvals_pending": [],
+  "stale_sources": [],
+  "generated_by": "claude",
+  "notification": ""
+}

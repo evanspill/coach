@@ -23,6 +23,138 @@
   },
   "weather": null,
   "planned_session_id": "2026-11-22-recovery",
+  "planned_session": {
+    "id": "2026-11-22-recovery",
+    "date": "2026-11-22",
+    "start_time": "09:30",
+    "type": "recovery",
+    "title": "Recovery: Z1 walk + mobility",
+    "intent": "Promote recovery; nothing hard.",
+    "location": "home",
+    "route": "neighbourhood walk",
+    "expected_minutes": 50,
+    "key": false,
+    "carb_tier": "low",
+    "blocks": [
+      {
+        "kind": "run",
+        "title": "Zone 1 walk",
+        "items": [],
+        "run": [
+          {
+            "label": "Z1 walk",
+            "zone": "Z1",
+            "duration_min": 35.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "walk",
+            "terrain": "flat",
+            "pace_s_per_mi": [
+              662,
+              744
+            ],
+            "hr_bpm": [
+              109,
+              137
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "mobility",
+        "title": "Mobility: foam roller, bands, lacrosse ball",
+        "items": [
+          {
+            "exercise_id": "foam_roll",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 300,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "hip_90_90",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "band_mobility",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 300,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "thoracic_open_book",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
   "session": {
     "id": "2026-11-22-recovery",
     "date": "2026-11-22",
