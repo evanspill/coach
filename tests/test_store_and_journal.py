@@ -394,3 +394,18 @@ def test_daily_run_turns_a_planned_day_into_a_run_day(home):
     assert again.planned_session == rec.planned_session and again.session == rec.session
     week = st.week_plan(rec.planned_session.date.strftime("%G-W%V"))
     assert week.session_on(day) == rec.current_session()
+
+
+def test_week_submit_reports_a_kept_red_flag_stop(b1):
+    from coach.coaching import records
+    from coach.coaching.skills import design as D
+
+    ctx, plan, _ = b1
+    day = plan.sessions[0].date
+    ctx.state.put("week_plans", plan)
+    stop = ctx.state.day_record(day)
+    stop.status, stop.session = "stopped_red_flag", D.rest_session(ctx, day, "Red flag: see a doctor.")
+    ctx.state.put("day_records", stop)
+    res = records.submit(ctx.state, ctx.cfg, "week_plans", plan.model_dump(mode="json"), day)
+    assert any("kept the red-flag stop" in a for a in res["actions"])
+    assert ctx.state.day_record(day).session.type == "rest"

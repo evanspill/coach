@@ -21,6 +21,9 @@ or a joint >= 4 (reactive deload), test-day Red that can't be moved within the w
 - **Reactive deload:** pull the next deload forward to next week, re-space the rest of the block (no 5-week span
   without a deload), add a `revisions` entry to the outline. Needs the athlete's confirmation unless a joint is rated >= 4.
 - Every change carries a reason in `deviations` (week) or `revisions` (outline). Validate before saving.
+- A day's session lives in its day record and the week is assembled from them (DECISIONS 102). To take a session
+  off a day that already ran or is in progress (today, waiting for recovery, paused), replace it with a rest or
+  recovery session: a week that drops it is refused. A day stopped for a red flag is never changed by a week save.
 
 ## Writes
 Revised `week_plans` and/or `block_outlines` (via `coach record add <collection> --file ...`, which validates); proposals (`replan`,
