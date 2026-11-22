@@ -543,6 +543,14 @@ Each entry: **decision** - why - how to reverse.
       calibration and the "why did Tuesday change?" answer all need what was planned as well as what was done.
       `adjust-day` starts from the planned session, never from an earlier adjustment, so a re-run or finish mode
       can't apply the same change twice. A fresh day record written without its planned session keeps the stored one.
+    - Guards (review of #18): a day stopped for a red flag is never overwritten by a week save (only `coach health
+      resolve` clears a stop); a week can't drop the session of a day that already ran (the save fails: replace it,
+      e.g. with a rest session, so adherence and totals stay honest); every check runs before anything is written.
+    - Deliberate consequences: the approval-shape check (a revised approved week stays approved only if every day
+      keeps its type) compares against the assembled week, i.e. each day's current session, which is what the
+      athlete has now; `coach push --week` pushes current sessions too (a day already adjusted goes out as
+      adjusted), and `push` still re-validates. `coach status` reports `planned_session` from the day record and
+      adds `current_session` when they differ; `test_day`/`tests_today` follow the current session.
     - The block outline already held per-week targets, not sessions, and finds its weeks by their start dates; it
       is unchanged.
     - Migration: `coach migrate` (also run by the daily bootstrap; idempotent) moves each old week file's sessions

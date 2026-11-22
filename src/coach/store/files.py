@@ -200,17 +200,33 @@ class Store:
     def _write_week_days(self, plan: WeekPlan) -> None:
         """Write a week's sessions into its day records. A day not run yet takes the session as its plan; a day
         already run (or adjusted) whose session the week changes gets it as its current session, with the change
-        recorded. Days the week no longer schedules lose their planned-only record."""
+        recorded. A day stopped for a red flag is never overwritten (only `coach health resolve` clears it). Days
+        the week no longer schedules lose their planned-only record; a week can't drop the session of a day that
+        already ran (replace it, e.g. with a rest session). Every check runs before anything is written."""
         dates = [s.date for s in plan.sessions]
         if len(set(dates)) != len(dates):
             raise ValueError(f"{plan.week_id}: one session per day (a day record holds one session)")
         outside = [d for d in dates if not plan.start <= d <= plan.end]
         if outside:
             raise ValueError(f"{plan.week_id}: sessions outside the week: {outside}")
+        days = {plan.start + dt.timedelta(days=i): None for i in range(7)}
+        recs = {d: self.day_record(d) for d in days}
+        dropped = [
+            d
+            for d, r in recs.items()
+            if d not in dates and r is not None and r.status != "planned" and r.current_session() is not None
+        ]
+        if dropped:
+            raise ValueError(
+                f"{plan.week_id}: can't drop the session of a day already run ({', '.join(map(str, dropped))}): "
+                "replace it (e.g. with a rest session) instead"
+            )
         for s in plan.sessions:
-            rec = self.day_record(s.date)
+            rec = recs[s.date]
             if rec is None:
                 rec = DayRecord(date=s.date, status="planned", planned_session=s, planned_session_id=s.id)
+            elif rec.status == "stopped_red_flag":
+                continue  # safety first: a stopped day keeps its stop, whatever the week says
             else:
                 cur = rec.current_session()
                 if cur is not None and cur.model_dump(mode="json") == s.model_dump(mode="json"):
@@ -229,12 +245,9 @@ class Store:
                         )
                     )
             self._write(self.collection("day_records").file(s.date.isoformat()), scrub_day_record(rec))
-        for i in range(7):
-            d = plan.start + dt.timedelta(days=i)
-            if d not in dates:
-                rec = self.day_record(d)
-                if rec is not None and rec.status == "planned":
-                    self.delete("day_records", d.isoformat())
+        for d, r in recs.items():
+            if d not in dates and r is not None and r.status == "planned":
+                self.delete("day_records", d.isoformat())
 
     def _keep_planned(self, rec: DayRecord) -> DayRecord:
         """A day record written without its planned session (the daily run builds a fresh record) keeps the one

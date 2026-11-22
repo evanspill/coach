@@ -312,3 +312,66 @@ def test_migrate_legacy_week_files(b1, tmp_path):
     assert st.migrate_week_plans() == []  # idempotent
     week = st.week_plan(plan.week_id)
     assert [s.date for s in week.sessions] == [s.date for s in plan.sessions]
+
+
+def test_week_save_guards(b1, tmp_path):
+    """Review of #18: stopped days are never overwritten, a run day's session can't be dropped, sessions stay
+    inside their week, and a dropped planned-only day loses its record. Checks run before any write."""
+    import pytest
+
+    from coach.coaching.skills import design as D
+
+    ctx, plan, _ = b1
+    st, plan = _week_store(b1, tmp_path)
+    d0, d1, d2 = (plan.sessions[i].date for i in range(3))
+    # a red-flag stop: the day keeps its rest session whatever the week says
+    stop = st.day_record(d0)
+    stop.status, stop.session = "stopped_red_flag", D.rest_session(ctx, d0, "Red flag: see a doctor.")
+    st.put("day_records", stop)
+    st.put("week_plans", plan)  # the original week again, with d0 still a training session
+    assert (
+        st.day_record(d0).session.type == "rest" and st.week_plan(plan.week_id).session_on(d0).type == "rest"
+    )
+    # dropping a planned-only day deletes its record
+    week = st.week_plan(plan.week_id)
+    week.sessions = [s for s in week.sessions if s.date != d2]
+    st.put("week_plans", week)
+    assert st.day_record(d2) is None and st.week_plan(plan.week_id).session_on(d2) is None
+    # dropping a day already run fails, and nothing is written
+    ran = st.day_record(d1)
+    ran.status, ran.session = "complete", ran.planned_session
+    st.put("day_records", ran)
+    before = st.week_plan(plan.week_id)
+    week = before.model_copy(deep=True)
+    week.sessions = [s for s in week.sessions if s.date != d1]
+    week.focus_points = ["changed"]
+    with pytest.raises(ValueError, match="can't drop"):
+        st.put("week_plans", week)
+    assert st.week_plan(plan.week_id) == before
+    # sessions outside the week
+    week = before.model_copy(deep=True)
+    week.sessions[-1].date = plan.end + dt.timedelta(days=1)
+    with pytest.raises(ValueError, match="outside the week"):
+        st.put("week_plans", week)
+
+
+def test_daily_run_turns_a_planned_day_into_a_run_day(home):
+    """planned -> complete through the daily run: the plan survives, the current session is the adjusted one, and a
+    second run (finish mode, a re-run) starts from the same plan."""
+    from coach.coaching.daily import run_daily
+    from coach.integrations.mock import MockWorld, mock_sources
+
+    day = dt.date(2026, 11, 17)
+    src = mock_sources(MockWorld.load())
+    st = Store()
+    first = run_daily(src, st, day, auto_approve=True).record
+    rec = st.day_record(day)
+    assert rec.status == "complete" and rec.planned_session is not None
+    assert rec.planned_session.id == first.planned_session_id
+    nxt = st.day_record(day + dt.timedelta(days=1))
+    assert nxt is not None and nxt.status == "planned" and nxt.session is None
+    run_daily(src, st, day, auto_approve=True)
+    again = st.day_record(day)
+    assert again.planned_session == rec.planned_session and again.session == rec.session
+    week = st.week_plan(rec.planned_session.date.strftime("%G-W%V"))
+    assert week.session_on(day) == rec.current_session()

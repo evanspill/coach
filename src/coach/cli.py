@@ -117,9 +117,13 @@ def status_dict(today: dt.date) -> dict:
     out["first_wednesday"] = clock.first_wednesday(today)
     out["test_day"] = bool(session and session.tests)
     out["tests_today"] = session.tests if session else []
+    # planned = as the week plan wrote it (the day record keeps it); test_day/tests_today follow the current session
+    planned = (rec.planned_session if rec else None) or session
     out["planned_session"] = (
-        {"id": session.id, "type": session.type, "title": session.title} if session else None
+        {"id": planned.id, "type": planned.type, "title": planned.title} if planned else None
     )
+    if session is not None and planned is not None and session.id != planned.id:
+        out["current_session"] = {"id": session.id, "type": session.type, "title": session.title}
     out["week_plan"] = (
         {"week_id": plan.week_id, "approval": plan.approval, "type": plan.week_type} if plan else None
     )
