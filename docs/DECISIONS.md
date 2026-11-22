@@ -517,6 +517,9 @@ Each entry: **decision** - why - how to reverse.
     - Which items: a test-block item whose test is scored in `cal` (on the test's own exercise), or any prescription
       with `calories` set (the target is prefilled; a max-effort test leaves it empty). Warm-ups and other timed
       work on the same erg stay on the built-in timed exercise. No config change: the test's unit decides.
+    - Hevy's reps-only type has no timer, so a calorie item's duration (the test's 10 min, an interval's cap) is not
+      a Hevy timer any more: it is printed in the note ("10:00 effort") and the athlete times it on the erg. Calories
+      are the score, so the trade is deliberate.
     - Sync maps '<name> (cal)' (also with ' (Left)'/' (Right)') back to the library exercise and stores
       `SetRecord.calories` (reps cleared); `max_reps` tests in `cal` score from the calories.
     - Also fixed: `coach test score` crashed printing its result (the zones model wasn't JSON-serialisable) after it

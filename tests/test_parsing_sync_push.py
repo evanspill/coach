@@ -831,6 +831,34 @@ def test_calorie_efforts_use_the_reps_box_and_score_back(b1, monkeypatch):
     assert extract_raw(tid, dt.date(2026, 12, 1), ctx) == {"reps": 119}
 
 
+def test_calorie_titles_with_sides_and_timed_only_logs(b1, monkeypatch):
+    """'(cal)' resolves with a side suffix too; a calorie test logged the old way (timed only) is not scored."""
+    from coach.coaching.skills.assess import extract_raw
+    from coach.integrations.normalize import hevy_workouts
+    from coach.models.library import is_calorie_title
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    tid = next(k for k, t in ctx.cfg.tests.tests.items() if t.unit == "cal" and t.scoring == "max_reps")
+    ex = lib.get(ctx.cfg.tests.tests[tid].session["exercise"])
+    assert is_calorie_title(f"{ex.name} (cal) (Left)") and not is_calorie_title(f"{ex.name} (Left)")
+    assert lib.parse_hevy_title(f"{ex.name} (cal) (Right)") == (ex, "right")
+    assert not is_calorie_title(ex.hevy_name())
+    raw = [
+        {
+            "id": "w",
+            "title": "t",
+            "start_time": "2026-12-01T14:00:00Z",
+            "end_time": "2026-12-01T15:00:00Z",
+            "exercises": [{"title": ex.hevy_name(), "sets": [{"type": "normal", "duration_seconds": 600}]}],
+        }
+    ]
+    session = hevy_workouts(raw, lib)[0]
+    assert session.sets[0].calories is None
+    monkeypatch.setattr(ctx.state, "sessions", lambda a, b: [session])
+    assert extract_raw(tid, dt.date(2026, 12, 1), ctx) is None  # reported in chat instead (--result)
+
+
 def test_calorie_prescriptions_prefill_the_target(b1):
     from coach.integrations.push import TemplateResolver, hevy_routine
     from coach.models.plans import Prescription
