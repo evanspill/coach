@@ -784,6 +784,104 @@ def test_inch_logged_jumps_use_the_reps_box_and_convert_back(b1):
         lib.exercises["broad_jump"].hevy_log = "default"
 
 
+def test_calorie_efforts_use_the_reps_box_and_score_back(b1, monkeypatch):
+    """Hevy has no calories field (the Echo bike is a timed exercise): calorie tests are logged as reps in a
+    reps-only '<name> (cal)' exercise and scored from the calories."""
+    from coach.coaching.skills.assess import extract_raw
+    from coach.integrations.normalize import hevy_workouts
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    tid = next(k for k, t in ctx.cfg.tests.tests.items() if t.unit == "cal" and t.scoring == "max_reps")
+    t = ctx.cfg.tests.tests[tid]
+    ex_id = t.session["exercise"]
+    title = f"{lib.get(ex_id).name} (cal)"
+    s = _one_block_session(
+        "test",
+        [Prescription(exercise_id=ex_id, sets=1, duration_s=t.session.get("duration_s", 600))],
+        test_id=tid,
+    )
+    world = MockWorld.load()
+    res = TemplateResolver(mock_sources(world).hevy)
+    res._ids().pop(title.lower(), None)
+    created = []
+    res.hevy.create_template = lambda ttl, kind, eq, mu: created.append((ttl, kind)) or "tpl-cal"
+    ex = hevy_routine(s, ctx, res)["exercises"][0]
+    assert created == [(title, "reps_only")] and ex["exercise_template_id"] == "tpl-cal"
+    assert all("reps" not in st and "duration_seconds" not in st for st in ex["sets"])
+    assert "Log calories in the reps box" in ex["notes"]
+    raw = [
+        {
+            "id": "w",
+            "title": "t",
+            "start_time": "2026-12-01T14:00:00Z",
+            "end_time": "2026-12-01T15:00:00Z",
+            "exercises": [
+                {"title": lib.get(ex_id).hevy_name(), "sets": [{"type": "warmup", "duration_seconds": 300}]},
+                {"title": title, "sets": [{"type": "normal", "reps": 119}]},
+            ],
+        }
+    ]
+    session = hevy_workouts(raw, lib)[0]
+    st = session.sets[-1]
+    assert st.exercise_id == ex_id and st.reps is None and st.calories == 119
+    monkeypatch.setattr(ctx.state, "sessions", lambda a, b: [session])
+    assert extract_raw(tid, dt.date(2026, 12, 1), ctx) == {"reps": 119}
+
+
+def test_calorie_titles_with_sides_and_timed_only_logs(b1, monkeypatch):
+    """'(cal)' resolves with a side suffix too; a calorie test logged the old way (timed only) is not scored."""
+    from coach.coaching.skills.assess import extract_raw
+    from coach.integrations.normalize import hevy_workouts
+    from coach.models.library import is_calorie_title
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    tid = next(k for k, t in ctx.cfg.tests.tests.items() if t.unit == "cal" and t.scoring == "max_reps")
+    ex = lib.get(ctx.cfg.tests.tests[tid].session["exercise"])
+    assert is_calorie_title(f"{ex.name} (cal) (Left)") and not is_calorie_title(f"{ex.name} (Left)")
+    assert lib.parse_hevy_title(f"{ex.name} (cal) (Right)") == (ex, "right")
+    assert not is_calorie_title(ex.hevy_name())
+    raw = [
+        {
+            "id": "w",
+            "title": "t",
+            "start_time": "2026-12-01T14:00:00Z",
+            "end_time": "2026-12-01T15:00:00Z",
+            "exercises": [{"title": ex.hevy_name(), "sets": [{"type": "normal", "duration_seconds": 600}]}],
+        }
+    ]
+    session = hevy_workouts(raw, lib)[0]
+    assert session.sets[0].calories is None
+    monkeypatch.setattr(ctx.state, "sessions", lambda a, b: [session])
+    assert extract_raw(tid, dt.date(2026, 12, 1), ctx) is None  # reported in chat instead (--result)
+
+
+def test_calorie_prescriptions_prefill_the_target(b1):
+    from coach.integrations.push import TemplateResolver, hevy_routine
+    from coach.models.plans import Prescription
+
+    ctx, _, _ = b1
+    lib = ctx.cfg.library
+    ex_id = next(k for k, e in lib.exercises.items() if k in {"echo_bike", "row_erg", "bike_erg"})
+    s = _one_block_session("conditioning", [Prescription(exercise_id=ex_id, sets=4, calories=15, rest_s=60)])
+    res = TemplateResolver(mock_sources(MockWorld.load()).hevy)
+    res.hevy.create_template = lambda ttl, kind, eq, mu: "tpl-cal"
+    ex = hevy_routine(s, ctx, res)["exercises"][0]
+    assert [st.get("reps") for st in ex["sets"]] == [15] * 4
+    assert "Log calories in the reps box" in ex["notes"]
+
+
+def test_dumps_serialises_nested_models():
+    from coach.models.records import ThresholdZones
+    from coach.store.files import dumps
+
+    z = ThresholdZones(lthr=165, threshold_pace_s_per_mi=640, source="x")
+    assert '"threshold_pace_s_per_mi": 640' in dumps({"zones": z})
+
+
 def test_routine_notes_carry_the_how_to_and_video(b1):
     from coach.integrations.push import TemplateResolver, hevy_routine
     from coach.models.plans import Prescription

@@ -6,7 +6,7 @@ from collections.abc import Callable
 from coach.engine.readiness import rpe_to_rir
 from coach.engine.units import M_PER_MI
 from coach.models import Checkin, DailyMetrics, Gear, SessionRecord, SetRecord
-from coach.models.library import M_PER_IN, ExerciseLibrary
+from coach.models.library import M_PER_IN, ExerciseLibrary, is_calorie_title
 
 
 def _parse_ts(value: str) -> dt.datetime:
@@ -142,13 +142,17 @@ def hevy_workouts(
             by_title, side = library.parse_hevy_title(ex["title"])
             match = match or by_title
             inches = match is not None and match.hevy_log == "inches"
+            calories = is_calorie_title(ex["title"])
             totals = pair_total(start.date()) if callable(pair_total) else pair_total
             per = match.implements if match is not None and totals else 1
             for s in ex.get("sets", []):
                 st = s.get("type", "normal")
                 reps: int | None = s.get("reps")
                 dist: float | None = s.get("distance_meters")
-                if inches and reps is not None:  # reps carry the measurement in inches
+                cal: int | None = None
+                if calories and reps is not None:  # reps carry the calories
+                    cal, reps = reps, None
+                elif inches and reps is not None:  # reps carry the measurement in inches
                     dist, reps = round(reps * M_PER_IN, 4), None
                 sets.append(
                     SetRecord(
@@ -161,6 +165,7 @@ def hevy_workouts(
                         rir=rpe_to_rir(s.get("rpe")),
                         distance_m=dist,
                         duration_s=s.get("duration_seconds"),
+                        calories=cal,
                         side=side,
                     )
                 )

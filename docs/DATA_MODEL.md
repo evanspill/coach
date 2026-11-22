@@ -103,7 +103,8 @@ keep the readiness state and reasons, not Whoop's numbers. Chat check-ins live i
 
 Session sets from Hevy are stored as the coach plans them: a set's `side` is `left`/`right` for per-side work logged as
 `X (Left)` / `X (Right)` (else empty); inch-logged measurements (`Name (in)`, reps = inches) are stored as
-`distance_m`; DB/KB pairs logged as totals (`coach.yaml pair_weight_logging: total`, from
+`distance_m`; calorie efforts (`Name (cal)`, reps = calories: a calorie-scored test's own exercise or a prescription
+with `calories`) are stored as `calories` with `reps` empty (DECISIONS 101); DB/KB pairs logged as totals (`coach.yaml pair_weight_logging: total`, from
 `pair_weight_total_since`) are stored per implement. Library fields that drive this (`config/exercises.yaml`):
 `hevy_log` (`default` | `inches`), `implements` (2 = a pair), plus `description` and `video_url`, the how-to and
 demo link added to the routine notes (DECISIONS 94-95).
