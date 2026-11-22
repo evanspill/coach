@@ -38,6 +38,7 @@ class SetRecord(Model):
     rir: float | None = None
     distance_m: float | None = None
     duration_s: float | None = None
+    calories: int | None = None  # calorie efforts logged as reps in a '<name> (cal)' Hevy exercise
     side: Literal["left", "right"] | None = None  # per-side work logged as 'X (Left)' / 'X (Right)'
 
 

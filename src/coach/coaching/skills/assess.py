@@ -75,7 +75,9 @@ def extract_raw(
     # test sets only: warm-up sets of the same exercise (a 20 s side plank in the warm-up) are not attempts
     work = [st for s in sessions for st in s.sets if st.exercise_id == ex_id and st.set_type != "warmup"]
     if t.scoring == "max_reps" and ex_id:
-        reps = [st.reps for st in work if st.reps]
+        # calorie tests are logged as '<name> (cal)': the calories, not reps, are the score
+        logged = [st.calories if t.unit == "cal" else st.reps for st in work]
+        reps = [r for r in logged if r]
         return {"reps": max(reps)} if reps else None
     if t.scoring == "max_hold" and ex_id:
         holds = [st.duration_s for st in work if st.duration_s]

@@ -509,3 +509,16 @@ Each entry: **decision** - why - how to reverse.
       gates apply; recovery-type sessions skip the structure rules) plus a library and home-equipment check.
     - Changing the item set (an approved config change) and re-running the push updates the routine in place.
     - Reverse: revert the commit; delete the routine in Hevy.
+101. **Calorie efforts logged as reps in Hevy** (athlete request, 2026-11-22):
+    - Hevy has no calories field (the Echo bike is a timed exercise), so the 10-min bike test score (119 cal) had
+      nowhere to go and had to be reported in chat. Calorie efforts now go to Hevy as a reps-only custom exercise
+      '<name> (cal)' (e.g. 'Echo bike (cal)'), the same trick as the inch-logged jumps (decision 94,
+      `hevy_log: inches`): the reps box holds the calories.
+    - Which items: a test-block item whose test is scored in `cal` (on the test's own exercise), or any prescription
+      with `calories` set (the target is prefilled; a max-effort test leaves it empty). Warm-ups and other timed
+      work on the same erg stay on the built-in timed exercise. No config change: the test's unit decides.
+    - Sync maps '<name> (cal)' (also with ' (Left)'/' (Right)') back to the library exercise and stores
+      `SetRecord.calories` (reps cleared); `max_reps` tests in `cal` score from the calories.
+    - Also fixed: `coach test score` crashed printing its result (the zones model wasn't JSON-serialisable) after it
+      had saved; the JSON encoder now serialises any nested model.
+    - Reverse: revert the commit; the '(cal)' exercises can be deleted in Hevy.

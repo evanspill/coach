@@ -27,7 +27,20 @@ HevyLog = Literal["default", "inches"]
 Sides = Literal["none", "split", "alternating", "either"]
 SIDES = ("Left", "Right")
 INCHES_SUFFIX = " (in)"
+# calorie efforts (erg tests, calorie intervals): Hevy has no calories field, so they are logged as reps = calories
+# in a reps-only custom exercise '<name> (cal)'
+CALORIES_SUFFIX = " (cal)"
 M_PER_IN = 0.0254
+
+
+def is_calorie_title(title: str) -> bool:
+    """A logged Hevy title of a calorie effort ('Echo bike (cal)', also with a ' (Left)'/' (Right)' suffix)."""
+    t = title.strip()
+    for s in SIDES:
+        if t.endswith(f" ({s})"):
+            t = t[: -len(f" ({s})")]
+            break
+    return t.endswith(CALORIES_SUFFIX)
 
 
 class EstimateFrom(Model):
@@ -78,10 +91,16 @@ class Exercise(Model):
     def has_tag(self, *tags: str) -> bool:
         return any(t in self.tags for t in tags)
 
-    def hevy_name(self, side: str | None = None) -> str:
+    def hevy_name(self, side: str | None = None, calories: bool = False) -> str:
         """The Hevy exercise title this exercise is logged under. Inch-logged exercises get their own custom
-        exercise ('Standing broad jump (in)'); per-side work is two exercises, 'X (Left)' and 'X (Right)'."""
-        base = f"{self.name}{INCHES_SUFFIX}" if self.hevy_log == "inches" else (self.hevy_title or self.name)
+        exercise ('Standing broad jump (in)'), as do calorie efforts ('Echo bike (cal)'); per-side work is two
+        exercises, 'X (Left)' and 'X (Right)'."""
+        if calories:
+            base = f"{self.name}{CALORIES_SUFFIX}"
+        elif self.hevy_log == "inches":
+            base = f"{self.name}{INCHES_SUFFIX}"
+        else:
+            base = self.hevy_title or self.name
         return f"{base} ({side})" if side else base
 
 
@@ -106,6 +125,10 @@ class ExerciseLibrary(Model):
             if t.endswith(f" ({s})"):
                 t, side = t[: -len(f" ({s})")], s.lower()
                 break
+        if t.endswith(CALORIES_SUFFIX):
+            base = t[: -len(CALORIES_SUFFIX)]
+            hit = next((e for e in self.exercises.values() if e.name.lower() == base.lower()), None)
+            return hit or self.by_hevy_title(base), side
         if t.endswith(INCHES_SUFFIX):
             base = t[: -len(INCHES_SUFFIX)].lower()
             hit = next(

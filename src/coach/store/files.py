@@ -53,6 +53,9 @@ def _default(o):
         return o.isoformat()
     if isinstance(o, set):
         return sorted(o)
+    # a model nested in a command's result (e.g. the zones `coach test score` returns)
+    if isinstance(o, BaseModel):
+        return o.model_dump(mode="json")
     raise TypeError(type(o))
 
 

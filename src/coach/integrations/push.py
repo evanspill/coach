@@ -138,6 +138,12 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
             if ex is None or b.kind == "cooldown" and ex.id == "easy_cooldown":
                 continue
             inches = ex.hevy_log == "inches"
+            test = ctx.cfg.tests.tests.get(b.test_id) if b.kind == "test" and b.test_id else None
+            # calorie efforts (a calorie-scored test, or a prescription in calories) go in the reps box of a
+            # reps-only '<name> (cal)' exercise: Hevy has no calories field
+            calories = it.calories is not None or (
+                test is not None and test.unit == "cal" and test.session.get("exercise") == ex.id
+            )
             # a pair of DBs/KBs is logged as the total of both when the athlete logs that way (Whoop style)
             pair = ex.implements if pair_total else 1
             sets: list[dict[str, Any]] = [
@@ -151,6 +157,11 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 }  # Hevy has no cooldown type
                 if it.load_kg is not None:
                     st["weight_kg"] = round(it.load_kg * pair, 2)
+                if calories:
+                    if it.calories is not None:  # the target, prefilled; a max-effort test leaves it empty
+                        st["reps"] = it.calories
+                    sets.append(st)
+                    continue
                 if it.reps is not None and not inches:  # inch-logged: the reps box is the measurement
                     st["reps"] = it.reps
                 if it.duration_s is not None:
@@ -158,9 +169,8 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 if it.distance_m is not None and not inches:
                     st["distance_meters"] = it.distance_m
                 sets.append(st)
-            title = ex.hevy_name()
+            title = ex.hevy_name(calories=calories)
             timed_generic = title.lower() in TIMED_GENERIC and it.duration_s is None
-            test = ctx.cfg.tests.tests.get(b.test_id) if b.kind == "test" and b.test_id else None
             # block notes (e.g. the movement screen) on its first item; a test's procedure only when the plan
             # didn't already write this item's own instructions (e.g. "RPE 8, not 9")
             procedure = test.protocol.get("procedure", "") if test and not it.notes else ""
@@ -198,8 +208,14 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 x
                 for x in [
                     # the coach's exercise when Hevy's differs ("Trap bar deadlift (high handle)" in "Deadlift (Trap bar)")
-                    ex.name if _plain(ex.name) != _plain(ex.hevy_title or ex.name) and not inches else "",
-                    "Log the measurement in inches in the reps box" if inches else "",
+                    ex.name
+                    if _plain(ex.name) != _plain(ex.hevy_title or ex.name) and not (inches or calories)
+                    else "",
+                    "Log the measurement in inches in the reps box" if inches and not calories else "",
+                    "Log calories in the reps box"
+                    + (f" ({_mmss(it.duration_s)} effort)" if it.duration_s else "")
+                    if calories
+                    else "",
                     f"{it.reps} reps"
                     if timed_generic and it.reps
                     else "",  # a timed Hevy exercise shows no reps
@@ -216,7 +232,9 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 ]
                 if x
             )
-            spec = ("reps_only", *_custom_spec(ex, it, ctx.cfg.tests.tests)[1:]) if inches else None
+            spec = (
+                ("reps_only", *_custom_spec(ex, it, ctx.cfg.tests.tests)[1:]) if inches or calories else None
+            )
             split = it.per_side and not alternating
             sides: list[str | None] = list(SIDES) if split else [None]
             superset = None
@@ -224,9 +242,10 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
                 superset = next_superset
                 next_superset += 1
             for side in sides:
-                side_title = ex.hevy_name(side)
+                side_title = ex.hevy_name(side, calories=calories)
                 entry: dict[str, Any] = {
-                    "exercise_template_id": (ex.hevy_template_id if side is None else None)
+                    # the library's built-in template is the plain (timed) exercise: calorie logging needs its own
+                    "exercise_template_id": (ex.hevy_template_id if side is None and not calories else None)
                     or resolver.resolve(side_title, *(spec or _custom_spec(ex, it, ctx.cfg.tests.tests))),
                     # left side: a short switch; the full rest comes after the right side
                     "rest_seconds": rules.side_switch_s if side == "Left" else rest,
