@@ -26,7 +26,7 @@ from coach.models import (
     WeekPlan,
 )
 from coach.models.journal import Availability, HealthEvent, Note
-from coach.models.records import ThresholdZones
+from coach.models.records import Change, ThresholdZones
 from coach.store.collections import COLLECTIONS, Collection
 
 M = TypeVar("M", bound=BaseModel)
@@ -100,6 +100,8 @@ class Store:
         data = self._read(c.file(key))
         if data is None or c.model is None:
             return data
+        if name == "week_plans":
+            data = self._assemble_week(data)
         return c.model.model_validate(data)
 
     def put(self, name: str, obj: Any, key: str | None = None) -> Any:
@@ -111,6 +113,12 @@ class Store:
             obj = c.model.model_validate(obj)
         if c.kind == "doc" and key is None:
             key = self.key_of(name, obj)
+        if name == "week_plans":
+            self._write_week_days(obj)
+            self._write(c.file(key), obj.model_dump(mode="json", exclude={"sessions"}))
+            return obj
+        if name == "day_records":
+            obj = self._keep_planned(obj)
         self._write(c.file(key), scrub_day_record(obj) if name == "day_records" else obj)
         if name == "notes":
             self._render_notes()
@@ -171,6 +179,118 @@ class Store:
                 if (d := day(o)) is None or ((start is None or d >= start) and (end is None or d <= end))
             ]
         return out
+
+    # ---------- plans: the day record is the single home of a day's session (DECISIONS 102) ----------
+    def _assemble_week(self, data: dict) -> dict:
+        """A stored week file -> the week with its sessions: each day's current session from its day record. A
+        week file still carrying its own sessions (written before DECISIONS 102) fills the days with no record."""
+        start = dt.date.fromisoformat(str(data["start"]))
+        embedded = {str(s["date"]): s for s in data.get("sessions") or []}
+        sessions = []
+        for i in range(7):
+            d = start + dt.timedelta(days=i)
+            rec = self.day_record(d)
+            cur = rec.current_session() if rec else None
+            if cur is not None:
+                sessions.append(cur.model_dump(mode="json"))
+            elif d.isoformat() in embedded:
+                sessions.append(embedded[d.isoformat()])
+        return {**data, "sessions": sessions}
+
+    def _write_week_days(self, plan: WeekPlan) -> None:
+        """Write a week's sessions into its day records. A day not run yet takes the session as its plan; a day
+        already run (or adjusted) whose session the week changes gets it as its new plan and current session, with
+        the change recorded. A day stopped for a red flag is never overwritten (only `coach health resolve` clears it). Days
+        the week no longer schedules lose their planned-only record; a week can't drop the session of a day that
+        already ran (replace it, e.g. with a rest session). Every check runs before anything is written."""
+        dates = [s.date for s in plan.sessions]
+        if len(set(dates)) != len(dates):
+            raise ValueError(f"{plan.week_id}: one session per day (a day record holds one session)")
+        outside = [d for d in dates if not plan.start <= d <= plan.end]
+        if outside:
+            raise ValueError(f"{plan.week_id}: sessions outside the week: {outside}")
+        days = {plan.start + dt.timedelta(days=i): None for i in range(7)}
+        recs = {d: self.day_record(d) for d in days}
+        dropped = [
+            d
+            for d, r in recs.items()
+            if d not in dates
+            and r is not None
+            and r.status not in {"planned", "stopped_red_flag"}  # a stop is kept either way (below)
+            and r.current_session() is not None
+        ]
+        if dropped:
+            raise ValueError(
+                f"{plan.week_id}: can't drop the session of a day already run ({', '.join(map(str, dropped))}): "
+                "replace it (e.g. with a rest session) instead"
+            )
+        for s in plan.sessions:
+            rec = recs[s.date]
+            if rec is None:
+                rec = DayRecord(date=s.date, status="planned", planned_session=s, planned_session_id=s.id)
+            elif rec.status == "stopped_red_flag":
+                continue  # safety first: a stopped day keeps its stop, whatever the week says
+            else:
+                cur = rec.current_session()
+                if cur is not None and cur.model_dump(mode="json") == s.model_dump(mode="json"):
+                    continue
+                if rec.status == "planned" or rec.session is None:
+                    rec.planned_session, rec.planned_session_id, rec.session = s, s.id, None
+                else:
+                    # a revision of a day already run is that day's new plan too: a re-run of the daily run or
+                    # finish mode starts from the planned session, so it must not rebuild from the old plan
+                    rec.session, rec.planned_session, rec.planned_session_id = s, s, s.id
+                    rec.changes.append(
+                        Change(
+                            what=f"{cur.title} -> {s.title}"
+                            if cur and cur.title != s.title
+                            else "session revised",
+                            why="week plan revised",
+                            kind="replan",
+                        )
+                    )
+            self._write(self.collection("day_records").file(s.date.isoformat()), scrub_day_record(rec))
+        for d, r in recs.items():
+            if d not in dates and r is not None and r.status == "planned":
+                self.delete("day_records", d.isoformat())
+
+    def _keep_planned(self, rec: DayRecord) -> DayRecord:
+        """A day record written without its planned session (the daily run builds a fresh record) keeps the one
+        the week plan stored."""
+        if rec.planned_session is not None:
+            return rec
+        prior = self.day_record(rec.date)
+        if prior is None or prior.planned_session is None:
+            return rec
+        rec = rec.model_copy()
+        rec.planned_session = prior.planned_session
+        rec.planned_session_id = rec.planned_session_id or prior.planned_session_id
+        return rec
+
+    def migrate_week_plans(self) -> list[str]:
+        """One-time move of week files written before DECISIONS 102 (sessions inside the week): each session becomes
+        its day record's planned session (a day already run keeps its adjusted session), then the week file drops
+        its copy. Idempotent."""
+        c = self.collection("week_plans")
+        done = []
+        for key in self.keys("week_plans"):
+            data = self._read(c.file(key))
+            embedded = (data or {}).get("sessions") or []
+            if not embedded:
+                continue
+            for raw in embedded:
+                s = WeekPlan.model_validate({**data, "sessions": [raw]}).sessions[0]
+                rec = self.day_record(s.date)
+                if rec is None:
+                    rec = DayRecord(date=s.date, status="planned", planned_session=s, planned_session_id=s.id)
+                elif rec.planned_session is None:
+                    rec.planned_session, rec.planned_session_id = s, rec.planned_session_id or s.id
+                else:
+                    continue
+                self._write(self.collection("day_records").file(s.date.isoformat()), scrub_day_record(rec))
+            self._write(c.file(key), {k: v for k, v in data.items() if k != "sessions"})
+            done.append(key)
+        return done
 
     @staticmethod
     def key_of(name: str, obj: Any) -> str:

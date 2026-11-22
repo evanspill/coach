@@ -66,7 +66,23 @@ def submit(
 
             if stored is None or stored.approval == "pending" or shape(stored) != shape(obj):
                 obj.approval = "pending"
+        drafted = {s.date: s for s in obj.sessions}
+        stopped = []  # red-flag stops the draft changes or leaves out: the store keeps them as they are
+        for i in range(7):
+            d = obj.start + dt.timedelta(days=i)
+            r = store.day_record(d)
+            if r is None or r.status != "stopped_red_flag":
+                continue
+            cur, new = r.current_session(), drafted.get(d)
+            if new is None or cur is None or cur.model_dump(mode="json") != new.model_dump(mode="json"):
+                stopped.append(d)
         store.put(collection, obj)
+        if stopped:  # the store never overwrites a red-flag stop: say so instead of reporting a full save
+            actions.append(
+                "kept the red-flag stop on "
+                + ", ".join(map(str, stopped))
+                + " (only `coach health resolve` clears it)"
+            )
         store.save_report("week_summaries", week_summary_md(ctx, obj), obj.week_id)
         if obj.approval == "pending":
             p = proposals.create(

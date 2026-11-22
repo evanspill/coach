@@ -155,7 +155,9 @@ class WeekPlan(Model):
     week_index: int
     week_type: WeekType
     start: dt.date
-    sessions: list[Session]
+    # assembled from the week's day records when loaded (each day's current session) and written back to them when
+    # saved: the stored week file holds no sessions (DECISIONS 102)
+    sessions: list[Session] = Field(default_factory=list)
     deviations: list[Deviation] = Field(default_factory=list)
     generated_by: Literal["claude", "fallback"] = "claude"
     approval: Literal["pending", "approved", "auto"] = "pending"

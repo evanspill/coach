@@ -73,11 +73,17 @@ class Change(Model):
 
 
 class DayRecord(Model):
+    """One day, and the single home of that day's session (DECISIONS 102). `planned_session` is the session as the
+    week plan wrote it; `session` is the session as it stands after the day's adjustments (None until something
+    changed it or the daily run ran). The week plan holds no copy: it is assembled from its seven day records."""
+
     date: dt.date
-    status: Literal["complete", "waiting_for_recovery", "paused", "stopped_red_flag"]
+    # "planned": written by a week plan, the daily run hasn't run for this day yet
+    status: Literal["planned", "complete", "waiting_for_recovery", "paused", "stopped_red_flag"]
     readiness: Readiness | None = None
     weather: WeatherCall | None = None
     planned_session_id: str | None = None
+    planned_session: Session | None = None
     session: Session | None = None
     changes: list[Change] = Field(default_factory=list)
     recovery_prescription: list[str] = Field(default_factory=list)
@@ -90,6 +96,10 @@ class DayRecord(Model):
     stale_sources: list[str] = Field(default_factory=list)
     generated_by: Literal["claude", "fallback"] = "claude"
     notification: str = ""
+
+    def current_session(self) -> Session | None:
+        """The session the athlete is doing that day: the adjusted one, else the planned one."""
+        return self.session or self.planned_session
 
 
 class RungEvent(Model):

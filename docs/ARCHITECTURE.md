@@ -85,13 +85,19 @@ missed-session replans and reactive deloads are explicit steps.
 ## Planning layers
 ```mermaid
 flowchart TD
-  Y[Year: macrocycle from race dates] --> BL[Block: goal, guardrails, outline, deloads]
-  BL --> WE[Week: detailed sessions, loads, paces]
-  WE --> DA[Day: readiness + weather adjustments]
+  Y[Year: macrocycle from race dates] --> BL[Block: goal, guardrails, outline = per-week targets]
+  BL --> WE[Week: type, targets, deviations, approval]
+  WE -- writes each day's planned session --> DA[Day record: planned session + current session + changes]
+  DA -- assembled into --> WE
   DA -. results .-> WE
   WE -. adherence + progress .-> BL
   BL -. review .-> Y
 ```
+
+Each level owns its own facts and points down to the next; nothing is copied. A day's session lives only in its
+day record (as planned, and as it stands after the day's adjustments). A week plan holds the week's own facts and is
+assembled from its seven day records when loaded, so a change to a day is the week's change too. The block outline
+holds per-week targets (not sessions) and finds its weeks by their start dates (DECISIONS 102).
 
 ## Block lifecycle
 ```mermaid

@@ -95,9 +95,19 @@ COLLECTIONS: dict[str, Collection] = {
             "race_targets", "doc", "events/{key}/target.json", RaceTarget, "coach's race target, by race id"
         ),
         Collection("test_sets", "doc", "blocks/{a}/tests_{b}.json", TestSet, "test results, key block:phase"),
-        Collection("week_plans", "doc", "weeks/{key}/plan.json", WeekPlan, "weekly plan"),
         Collection(
-            "day_records", "doc", "days/{key}.json", DayRecord, "daily readiness, adjustments, notification"
+            "week_plans",
+            "doc",
+            "weeks/{key}/plan.json",
+            WeekPlan,
+            "weekly plan: the week's own facts; its sessions are assembled from the day records (decision 102)",
+        ),
+        Collection(
+            "day_records",
+            "doc",
+            "days/{key}.json",
+            DayRecord,
+            "the single home of a day's session (planned + current), plus readiness, adjustments, notification",
         ),
         Collection("proposals", "doc", "proposals/{key}.json", Proposal, "everything awaiting approval"),
         Collection("movement_readiness", "singleton", "movement_readiness.json", MovementReadiness, "rungs"),

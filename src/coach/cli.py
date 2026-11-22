@@ -58,6 +58,11 @@ def cmd_init(args):
     return {"done": bootstrap(st, cfg, _today(args))}
 
 
+def cmd_migrate(args):
+    """One-time data migrations (idempotent): week plans' sessions move into their day records (DECISIONS 102)."""
+    return {"week_plans_migrated": Store().migrate_week_plans()}
+
+
 def _jitter(args) -> None:
     """Scheduled runs: wait a random 0..N s before the first API call so requests never land on the minute
     (Hevy asks for this; applied to every integration). No-op in mock mode and for N = 0."""
@@ -112,9 +117,13 @@ def status_dict(today: dt.date) -> dict:
     out["first_wednesday"] = clock.first_wednesday(today)
     out["test_day"] = bool(session and session.tests)
     out["tests_today"] = session.tests if session else []
+    # planned = as the week plan wrote it (the day record keeps it); test_day/tests_today follow the current session
+    planned = (rec.planned_session if rec else None) or session
     out["planned_session"] = (
-        {"id": session.id, "type": session.type, "title": session.title} if session else None
+        {"id": planned.id, "type": planned.type, "title": planned.title} if planned else None
     )
+    if session is not None and planned is not None and session.id != planned.id:
+        out["current_session"] = {"id": session.id, "type": session.type, "title": session.title}
     out["week_plan"] = (
         {"week_id": plan.week_id, "approval": plan.approval, "type": plan.week_type} if plan else None
     )
@@ -330,7 +339,8 @@ def cmd_push(args):
             return push_week(plan, ctx, sources, dry_run=True if args.dry_run else None)
         rec = ctx.state.day_record(today)
         plan = ctx.week_plan(today)
-        session = rec.session if rec and rec.session else (plan.session_on(today) if plan else None)
+        # the day record is the single home of today's session; the week plan is assembled from it
+        session = (rec.current_session() if rec else None) or (plan.session_on(today) if plan else None)
         if session is None:
             return {"error": "no session for today"}
         return push_day(session, ctx, sources, plan, dry_run=True if args.dry_run else None)
@@ -709,6 +719,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("init", help="one-time setup: macrocycle, starting rungs, config lock, notes")
+    sub.add_parser("migrate", help="one-time data migrations (week plan sessions -> day records); idempotent")
     sy = sub.add_parser("sync", help="fetch, normalize and store new data (idempotent)")
     sy.add_argument(
         "--jitter", type=int, default=0, metavar="S", help="wait a random 0..S seconds first (scheduled runs)"
@@ -804,6 +815,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 COMMANDS = {
     "init": cmd_init,
+    "migrate": cmd_migrate,
     "sync": cmd_sync,
     "status": cmd_status,
     "readiness": cmd_readiness,
