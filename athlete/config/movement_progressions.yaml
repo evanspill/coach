@@ -58,7 +58,7 @@ families:
     aliases: [kipping, pull-up, pull-ups, pullup, pullups, pull up, pull ups]
     region: shoulders
     rungs:
-      - {name: Strict pulling + hollow/arch, exercises: [], min_rir: 2}
+      - {name: Strict pulling + hollow/arch, exercises: [hollow_hold, arch_hold], min_rir: 2}
       - {name: Kip swing, exercises: [kip_swing], min_rir: 3}
       - {name: Kipping pull-up, exercises: [kipping_pull_up], min_rir: 3, min_days_before: 21, form_check: true}
       - {name: Chest-to-bar / toes-to-bar, exercises: [chest_to_bar_pull_up, toes_to_bar], min_rir: 2, min_days_before: 21, form_check: true}

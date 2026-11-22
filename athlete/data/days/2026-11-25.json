@@ -9,11 +9,11 @@
     "date": "2026-11-25",
     "start_time": "09:30",
     "type": "upper",
-    "title": "Upper strength + skill + metcon + easy run",
-    "intent": "DB press + strict pull-ups 4 x 5 @ 2 RIR, hollow skill, short AMRAP (moderate, golf tonight), then 1.5 mi easy treadmill",
+    "title": "Upper strength + skill + metcon",
+    "intent": "Skill primer fresh; DB press + strict pull-ups 4 x 5 @ 2 RIR; overhead ladder (half-kneeling landmine) 3 x 8; short AMRAP (moderate, golf tonight)",
     "location": "gym",
     "route": null,
-    "expected_minutes": 115,
+    "expected_minutes": 95,
     "key": true,
     "carb_tier": "moderate",
     "blocks": [
@@ -133,6 +133,25 @@
             "per_side": true,
             "alternating": null,
             "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "pvc_pass_through",
+            "sets": 1,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "overhead mobility (the PVC overhead squat screen showed shoulder flexion / T-spine is the limiter): wide grip, ribs down, narrow the grip a little each week",
             "ramp": []
           },
           {
@@ -256,6 +275,38 @@
                 "pct": null
               }
             ]
+          },
+          {
+            "exercise_id": "half_kneeling_landmine_press",
+            "sets": 3,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 3.0,
+            "load_kg": 27.2,
+            "load_lb": 60.0,
+            "load_note": "60 lb on the sleeve",
+            "tempo": null,
+            "rest_s": 150,
+            "per_side": false,
+            "alternating": null,
+            "notes": "overhead ladder exposure: smooth, ribs down, pain-free range",
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": 13.6,
+                "load_lb": 30.0,
+                "pct": null
+              },
+              {
+                "reps": 3,
+                "load_kg": 20.4,
+                "load_lb": 45.0,
+                "pct": null
+              }
+            ]
           }
         ],
         "run": [],
@@ -320,34 +371,8 @@
             ]
           },
           {
-            "exercise_id": "lateral_raise_db",
-            "sets": 3,
-            "reps": 15,
-            "reps_max": null,
-            "duration_s": null,
-            "distance_m": null,
-            "calories": null,
-            "rir": 2.0,
-            "load_kg": null,
-            "load_lb": null,
-            "load_note": "by RIR (2); warm-up ~60% x5 of your working weight",
-            "tempo": null,
-            "rest_s": 90,
-            "per_side": false,
-            "alternating": null,
-            "notes": null,
-            "ramp": [
-              {
-                "reps": 5,
-                "load_kg": null,
-                "load_lb": null,
-                "pct": 0.6
-              }
-            ]
-          },
-          {
             "exercise_id": "face_pull",
-            "sets": 2,
+            "sets": 1,
             "reps": 15,
             "reps_max": null,
             "duration_s": null,
@@ -472,34 +497,6 @@
           "scaling": "Only movements at or below current rungs/skill levels; scale reps before load",
           "score_type": "rounds_reps"
         },
-        "test_id": null,
-        "notes": ""
-      },
-      {
-        "kind": "run",
-        "title": "Easy treadmill run",
-        "items": [],
-        "run": [
-          {
-            "label": "Easy treadmill run",
-            "zone": "Z2",
-            "duration_min": null,
-            "distance_mi": 1.5,
-            "reps": 1,
-            "recovery_min": null,
-            "modality": "run",
-            "terrain": "treadmill",
-            "pace_s_per_mi": [
-              781,
-              864
-            ],
-            "hr_bpm": [
-              138,
-              152
-            ]
-          }
-        ],
-        "metcon": null,
         "test_id": null,
         "notes": ""
       },

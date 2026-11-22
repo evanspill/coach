@@ -1,0 +1,67 @@
+{
+  "id": "2026-11-22-block-goal-2",
+  "kind": "block_goal",
+  "created": "2026-11-22",
+  "created_by": "assess",
+  "title": "Block goal for 2026-27-B1",
+  "what": "pullups_max: 10.0 -> 12.5 reps",
+  "why": "Block 1 builds strength, then peaks for the CrossFit Open. For the Open the limiter is movement access, not strength: kipping, chest-to-bar, toes-to-bar and muscle-ups all sit on strict pulling, and strict pull-ups (10, 83% of the 12-15 benchmark) are both a real gap and Open-specific. Goal: strict pull-ups 10 -> 12.5 (+25%), alongside the kipping ladder 2x/week. The hinge (69%, the biggest strength gap) keeps progressing as a main lift every week and is a Block 2 focus test. Guardrails: the Sorensen hold must not drop (back history) and the 10-min Echo bike must not drop (the engine the Open needs). Calorie phase stays recomp.",
+  "before": null,
+  "after": {
+    "block_id": "2026-27-B1",
+    "primary": {
+      "test_id": "pullups_max",
+      "metric": "reps",
+      "baseline_value": 10.0,
+      "target_value": 12.5,
+      "unit": "reps",
+      "change_pct": 25.0,
+      "direction": "increase"
+    },
+    "guardrails": [
+      {
+        "test_id": "sorensen_hold",
+        "metric": "s",
+        "description": "Back extensor endurance holds while the main lifts get heavier (Sorensen hold no lower than baseline)",
+        "baseline_value": 60.0,
+        "limit_value": 60.0,
+        "direction": "no_lower_than"
+      },
+      {
+        "test_id": "bike_10min",
+        "metric": "cal",
+        "description": "Engine holds while strength and skills are the focus (10-min Echo bike no lower than baseline)",
+        "baseline_value": 119.0,
+        "limit_value": 119.0,
+        "direction": "no_lower_than"
+      }
+    ],
+    "rationale": "Block 1 builds strength, then peaks for the CrossFit Open. For the Open the limiter is movement access, not strength: kipping, chest-to-bar, toes-to-bar and muscle-ups all sit on strict pulling, and strict pull-ups (10, 83% of the 12-15 benchmark) are both a real gap and Open-specific. Goal: strict pull-ups 10 -> 12.5 (+25%), alongside the kipping ladder 2x/week. The hinge (69%, the biggest strength gap) keeps progressing as a main lift every week and is a Block 2 focus test. Guardrails: the Sorensen hold must not drop (back history) and the 10-min Echo bike must not drop (the engine the Open needs). Calorie phase stays recomp.",
+    "gap_analysis": {
+      "neural:broad_jump": 85.2,
+      "force:hinge_rm": 69.2,
+      "force:squat_rm": 95.0,
+      "force:db_press_5rm": 112.3,
+      "force:pullups_max": 83.3
+    },
+    "calorie_phase": "recomp",
+    "calorie_phase_reason": "Body fat ~14% against a 10-12% goal with weight near the 200 lb target: recomp (maintenance to a slight deficit, high protein) keeps strength and skill progressing.",
+    "status": "pending",
+    "generated_by": "claude"
+  },
+  "target": "block_goals/2026-27-B1",
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-22",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22",
+      "status": "approved",
+      "note": ""
+    }
+  ]
+}

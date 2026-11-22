@@ -13,7 +13,7 @@
     "intent": "Explosive primer, heavy squat, threshold Hyrox intervals",
     "location": "gym",
     "route": null,
-    "expected_minutes": 75,
+    "expected_minutes": 90,
     "key": true,
     "carb_tier": "high",
     "blocks": [
@@ -247,6 +247,35 @@
         "notes": ""
       },
       {
+        "kind": "skill",
+        "title": "Olympic positions (fresh, <= 70%)",
+        "items": [
+          {
+            "exercise_id": "snatch_positions_pvc",
+            "sets": 4,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 4.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": "positions first; stop when mechanics degrade",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
         "kind": "strength",
         "title": "",
         "items": [
@@ -327,6 +356,38 @@
                 "load_kg": null,
                 "load_lb": null,
                 "pct": 0.75
+              }
+            ]
+          },
+          {
+            "exercise_id": "half_kneeling_landmine_press",
+            "sets": 3,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 3.0,
+            "load_kg": 27.2,
+            "load_lb": 60.0,
+            "load_note": "60 lb on the sleeve",
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": "overhead ladder exposure: smooth, ribs down, pain-free range",
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": 13.6,
+                "load_lb": 30.0,
+                "pct": null
+              },
+              {
+                "reps": 3,
+                "load_kg": 20.4,
+                "load_lb": 45.0,
+                "pct": null
               }
             ]
           }

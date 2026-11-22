@@ -50,12 +50,17 @@
   },
   "target": "block_goals/2026-27-B1",
   "payload": null,
-  "status": "pending",
+  "status": "superseded",
   "history": [
     {
       "at": "2026-11-22",
       "status": "pending",
       "note": ""
+    },
+    {
+      "at": "2026-11-22",
+      "status": "superseded",
+      "note": "replaced by a newer proposal"
     }
   ]
 }

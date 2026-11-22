@@ -1,10 +1,10 @@
 {
   "block_id": "2026-27-B1",
   "name": "Strength base -> CrossFit Open",
-  "focus": "force build, then metcon/gymnastics sharpening into the Open",
+  "focus": "force build (weeks 1-8), then Open prep (weeks 9-11): metcons + skills into the CrossFit Open",
   "start": "2026-11-23",
   "end": "2027-03-14",
-  "goal_id": null,
+  "goal_id": "2026-27-B1",
   "main_lifts": [
     {
       "family": "hinge",
@@ -27,7 +27,7 @@
     {
       "family": null,
       "exercise_id": "strict_pull_up",
-      "scheme": "4 x 5 (add load at 3 x 8)",
+      "scheme": "4 x 5 strict (add load at 3 x 8); block goal 10 -> 12.5 max reps",
       "progression": "reps then load"
     }
   ],
@@ -35,7 +35,7 @@
   "pillars": {
     "neural": {
       "mode": "maintain",
-      "description": "primers 2x/wk",
+      "description": "primers 2x/wk + Open skill ladders (olympic, kipping, overhead) ~2x/wk each, fresh, <= 70%",
       "med": 1.0,
       "deload_med": 1.0
     },
@@ -47,7 +47,7 @@
     },
     "glycolytic": {
       "mode": "build",
-      "description": "Open peak: 2-3 metcons/wk",
+      "description": "Open peak: 2 metcons/wk in weeks 1-8, 3/wk in the Open-prep weeks 9-11 (Open formats, unlocked movements only)",
       "med": 2.0,
       "deload_med": 1.0
     },
@@ -389,31 +389,31 @@
       ],
       "hard_sets": {
         "quads": [
-          8,
-          16
+          5,
+          12
         ],
         "hamstrings": [
-          6,
-          14
+          4,
+          10
         ],
         "glutes": [
-          8,
-          18
-        ],
-        "chest": [
-          6,
+          5,
           14
         ],
+        "chest": [
+          4,
+          10
+        ],
         "back": [
-          10,
-          20
+          6,
+          15
         ],
         "shoulders": [
-          6,
-          16
+          4,
+          12
         ]
       },
-      "notes": ""
+      "notes": "Open prep: main lifts at maintenance (same loads, ~2/3 of the sets), 3 metcons this week in Open formats using unlocked movements only; gymnastics under fatigue only for competent skills; skill ladders keep 2 exposures/wk."
     },
     {
       "week_index": 10,
@@ -429,31 +429,31 @@
       ],
       "hard_sets": {
         "quads": [
-          8,
-          16
+          5,
+          12
         ],
         "hamstrings": [
-          6,
-          14
+          4,
+          10
         ],
         "glutes": [
-          8,
-          18
-        ],
-        "chest": [
-          6,
+          5,
           14
         ],
+        "chest": [
+          4,
+          10
+        ],
         "back": [
-          10,
-          20
+          6,
+          15
         ],
         "shoulders": [
-          6,
-          16
+          4,
+          12
         ]
       },
-      "notes": ""
+      "notes": "Open prep: main lifts at maintenance (same loads, ~2/3 of the sets), 3 metcons this week in Open formats using unlocked movements only; gymnastics under fatigue only for competent skills; skill ladders keep 2 exposures/wk."
     },
     {
       "week_index": 11,
@@ -469,31 +469,31 @@
       ],
       "hard_sets": {
         "quads": [
-          8,
-          16
+          5,
+          12
         ],
         "hamstrings": [
-          6,
-          14
+          4,
+          10
         ],
         "glutes": [
-          8,
-          18
-        ],
-        "chest": [
-          6,
+          5,
           14
         ],
+        "chest": [
+          4,
+          10
+        ],
         "back": [
-          10,
-          20
+          6,
+          15
         ],
         "shoulders": [
-          6,
-          16
+          4,
+          12
         ]
       },
-      "notes": ""
+      "notes": "Open prep: main lifts at maintenance (same loads, ~2/3 of the sets), 3 metcons this week in Open formats using unlocked movements only; gymnastics under fatigue only for competent skills; skill ladders keep 2 exposures/wk."
     },
     {
       "week_index": 12,
@@ -678,6 +678,11 @@
       "at": "2026-11-22",
       "reason": "goal pending approval (2026-11-22-block-goal-1)",
       "change": "provisional outline; running weeks 1-7 ramp from ~6 mi (no running before baseline, old groin/hip injury) instead of starting at 10"
+    },
+    {
+      "at": "2026-11-22",
+      "reason": "block goal approved (2026-11-22-block-goal-2: strict pull-ups 10 -> 12.5; guardrails Sorensen >= 60 s, 10-min bike >= 119 cal)",
+      "change": "outline final (no longer provisional); weeks 9-11 become the Open-prep phase (strength to maintenance, 3 metcons/wk); skill ladders ~2x/wk from week 1 (config 2026-11-22-config-change-1)"
     }
   ]
 }

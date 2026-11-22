@@ -9,11 +9,11 @@
     "date": "2026-11-24",
     "start_time": "09:30",
     "type": "lower",
-    "title": "Lower force",
-    "intent": "Block 1 week 1: trap bar (high handle) 4 x 4 @ 2 RIR, belt on the last set; single-leg + hamstrings. No fatiguing finisher (golf Wed evening).",
+    "title": "Lower force + Open skills + easy run",
+    "intent": "Olympic positions + hollow/arch first (fresh), trap bar (high handle) 4 x 4 @ 2 RIR, belt on the last set; single-leg + hamstrings; then 1.5 mi easy treadmill. No fatiguing finisher (golf Wed evening).",
     "location": "gym",
     "route": null,
-    "expected_minutes": 70,
+    "expected_minutes": 100,
     "key": true,
     "carb_tier": "high",
     "blocks": [
@@ -209,6 +209,54 @@
         "notes": ""
       },
       {
+        "kind": "skill",
+        "title": "Open skills (10 min, fresh, <= 70%)",
+        "items": [
+          {
+            "exercise_id": "snatch_positions_pvc",
+            "sets": 4,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 4.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": "positions first; stop when mechanics degrade",
+            "ramp": []
+          },
+          {
+            "exercise_id": "hollow_hold",
+            "sets": 3,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 20,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 45,
+            "per_side": false,
+            "alternating": null,
+            "notes": "hollow/arch holds now; kip swings once the rung opens",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
         "kind": "strength",
         "title": "Main lift",
         "items": [
@@ -365,6 +413,34 @@
           }
         ],
         "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "run",
+        "title": "Easy treadmill run",
+        "items": [],
+        "run": [
+          {
+            "label": "Easy treadmill run",
+            "zone": "Z2",
+            "duration_min": null,
+            "distance_mi": 1.5,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "run",
+            "terrain": "treadmill",
+            "pace_s_per_mi": [
+              781,
+              864
+            ],
+            "hr_bpm": [
+              138,
+              152
+            ]
+          }
+        ],
         "metcon": null,
         "test_id": null,
         "notes": ""

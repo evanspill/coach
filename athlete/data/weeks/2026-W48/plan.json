@@ -13,15 +13,15 @@
     },
     {
       "field": "sessions",
-      "planned": "sprints + upper aesthetics + easy run",
-      "actual": "dropped; its 1.5 mi easy run moved to Wednesday",
+      "planned": "sprints + upper aesthetics + kipping ladder + easy run",
+      "actual": "dropped; its 1.5 mi easy run moved to Tuesday, kipping exposure comes from Tuesday and Wednesday",
       "reason": "week 1 of a return to running after 4+ weeks off with a past groin/hip issue: no sprints yet; Red start to the week"
     },
     {
       "field": "long_run_day",
       "planned": "Saturday",
       "actual": "Friday",
-      "reason": "keeps hard lower and glycolytic work off the day before the long run, Thursday is Thanksgiving"
+      "reason": "keeps hard lower and glycolytic work off the day before the long run; Thursday is Thanksgiving"
     },
     {
       "field": "run_miles",
@@ -38,11 +38,12 @@
   ],
   "generated_by": "claude",
   "approval": "pending",
-  "rationale": "Block 1 week 1 (provisional outline, goal pending). Sunday was Red, so Monday is Z1 + mobility by rule and the hinge moves to Tuesday. Thanksgiving Thursday is an outdoor easy run (no gym). Long run Friday, squat + Hyrox intervals Saturday, Sunday recovery. Running restarts at ~6 mi, all easy.",
+  "rationale": "Block 1 week 1. Goal: strict pull-ups 10 -> 12.5. Sunday was Red, so Monday is Z1 + mobility by rule and the hinge moves to Tuesday. Open skill ladders start now, ~2 exposures each a week (olympic Tue/Sat, kipping Tue/Wed, overhead Wed/Sat). Thanksgiving Thursday is an outdoor easy run. Long run Friday, squat + Hyrox intervals Saturday, Sunday recovery. Running restarts at ~5 mi, all easy.",
   "illness_dates": [],
   "travel_dates": [],
   "focus_points": [
     "Start calm: Monday Z1, then normal training if HRV comes back into its band",
-    "Treadmill/watch: use the Treadmill activity so run data counts; log the jump in inches and the bike in calories"
+    "Skill work is practice, not a workout: <= 70%, stop when positions slip",
+    "Treadmill: use the watch's Treadmill activity; log jumps in inches and bike scores in calories"
   ]
 }

@@ -133,6 +133,7 @@ warmups:
       - {exercise: band_serratus_flexion, sets: 1, reps: 8, notes: "PT: elbows in, forearms parallel"}
       - {exercise: cable_external_rotation, sets: 1, reps: 12, per_side: true, notes: "light (cuff primer, not a working set)"}
       - {exercise: thoracic_open_book, sets: 1, reps: 6, per_side: true}
+      - {exercise: pvc_pass_through, sets: 1, reps: 10, notes: "overhead mobility (the PVC overhead squat screen showed shoulder flexion / T-spine is the limiter): wide grip, ribs down, narrow the grip a little each week"}
       - {exercise: scap_pull_up, sets: 1, reps: 6}
   sprint_prep:
     title: "Sprint prep: easy bike, McGill Big 3, lateral lunges, pogos, A-skips"
@@ -311,6 +312,8 @@ sessions:
   lower_force:
     {type: lower, title: Lower force, intent: "Heavy hinge 3-5 reps @ 2 RIR + single-leg + hamstrings", key: true, warmup: lift_hinge, cooldown: cool_lower,
      blocks: [{kind: power, use: primer_lower},
+              {kind: skill, title: "Open skills (10 min, fresh, <= 70%)", items: [{family: olympic, sets: 4, reps: 3, rir: 4, notes: "positions first; stop when mechanics degrade"},
+                                                                         {family: kipping, sets: 3, duration_s: 20, rest_s: 45, notes: "hollow/arch holds now; kip swings once the rung opens"}]},
               {kind: strength, title: Main lift, items: [{family: hinge, sets: 4, reps: 4, rir: 2, rest_s: 180},
                                                          {exercise: bulgarian_split_squat, sets: 3, reps: 8, rir: 2, per_side: true}]},
               {kind: hypertrophy, title: Accessories, items: [{exercise: seated_leg_curl, sets: 3, reps: 10, rir: 2},
@@ -332,16 +335,18 @@ sessions:
   squat_hyrox:
     {type: full_body, title: Squat + Hyrox threshold, intent: "Explosive primer, heavy squat, threshold Hyrox intervals", key: true, warmup: lift_squat, cooldown: cool_hard,
      blocks: [{kind: power, use: primer_lower},
+              {kind: skill, title: "Olympic positions (fresh, <= 70%)", items: [{family: olympic, sets: 4, reps: 3, rir: 4, notes: "positions first; stop when mechanics degrade"}]},
               {kind: strength, items: [{family: squat, sets: 4, reps: 5, rir: 2, rest_s: 180}]},
-              {kind: hypertrophy, items: [{exercise: hip_thrust, sets: 3, reps: 10, rir: 2}]},
+              {kind: hypertrophy, items: [{exercise: hip_thrust, sets: 3, reps: 10, rir: 2},
+                                          {family: overhead, sets: 3, reps: 8, rir: 3, notes: "overhead ladder exposure: smooth, ribs down, pain-free range"}]},
               {kind: conditioning, use: metcon_ramp},
               {kind: conditioning, generate: metcon, pool: hyrox, minutes: 20}]}
   upper_skill_metcon:
     {type: upper, title: Upper strength + skill + metcon, intent: "Skill fresh, press + pull heavy, short metcon", key: true, warmup: upper_lift, cooldown: cool_upper,
      blocks: [{kind: skill, generate: skill_practice},
-              {kind: strength, items: [{family: press, sets: 4, reps: 5, rir: 2, rest_s: 150}, {exercise: strict_pull_up, sets: 4, reps: 5, rir: 2}]},
-              {kind: hypertrophy, items: [{exercise: chest_supported_db_row, sets: 3, reps: 10, rir: 2}, {exercise: lateral_raise_db, sets: 3, reps: 15, rir: 2},
-                                          {exercise: face_pull, sets: 2, reps: 15, rir: 2}]},
+              {kind: strength, items: [{family: press, sets: 4, reps: 5, rir: 2, rest_s: 150}, {exercise: strict_pull_up, sets: 4, reps: 5, rir: 2},
+                                       {family: overhead, sets: 3, reps: 8, rir: 3, notes: "overhead ladder exposure: smooth, ribs down, pain-free range"}]},
+              {kind: hypertrophy, items: [{exercise: chest_supported_db_row, sets: 3, reps: 10, rir: 2}, {exercise: lateral_raise_db, sets: 3, reps: 15, rir: 2}]},
               {kind: conditioning, use: metcon_ramp},
               {kind: conditioning, generate: metcon, pool: short, minutes: 10}]}
   upper_hyp_metcon:
@@ -355,6 +360,7 @@ sessions:
   sprint_upper:
     {type: sprint_upper, title: Sprints + upper aesthetics + easy run, intent: "Alactic sprints, upper hypertrophy, easy miles", warmup: sprint_prep, cooldown: cool_upper, run_share: 0.25,
      blocks: [{kind: power, use: sprints},
+              {kind: skill, title: "Kipping ladder (fresh, <= 70%)", items: [{family: kipping, sets: 3, duration_s: 20, rest_s: 45, notes: "hollow/arch holds now; kip swings once the rung opens"}]},
               {kind: hypertrophy, items: [{exercise: incline_db_press, sets: 3, reps: 10, rir: 2}, {exercise: lat_pulldown, sets: 3, reps: 10, rir: 2},
                                           {exercise: cable_fly, sets: 2, reps: 12, rir: 2}, {exercise: rear_delt_fly_machine, sets: 2, reps: 15, rir: 2},
                                           {exercise: db_curl, sets: 2, reps: 12, rir: 2}, {exercise: cable_triceps_pushdown, sets: 2, reps: 12, rir: 2}]},
