@@ -1,0 +1,155 @@
+{
+  "block_id": "2026-27-B0",
+  "phase": "baseline",
+  "results": [
+    {
+      "test_id": "hinge_rm",
+      "date": "2026-11-16",
+      "variant": "trap_bar_deadlift_high",
+      "value": 124.36,
+      "unit": "kg",
+      "comparable_value": 124.36,
+      "details": {
+        "weight_kg": 106.59433371737533,
+        "reps": 5,
+        "rir": 0,
+        "factor": 1.0
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "db_press_5rm",
+      "date": "2026-11-16",
+      "variant": "db_bench_press_neutral",
+      "value": 42.34,
+      "unit": "kg",
+      "comparable_value": 42.34,
+      "details": {
+        "weight_kg": 36.28743275485118,
+        "reps": 5,
+        "rir": 0,
+        "factor": 1.0
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "pullups_max",
+      "date": "2026-11-17",
+      "variant": null,
+      "value": 10.0,
+      "unit": "reps",
+      "comparable_value": 10.0,
+      "details": {},
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "sorensen_hold",
+      "date": "2026-11-17",
+      "variant": null,
+      "value": 60.0,
+      "unit": "s",
+      "comparable_value": 60.0,
+      "details": {
+        "holds_s": [
+          60.0
+        ]
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "side_bridge",
+      "date": "2026-11-17",
+      "variant": null,
+      "value": 60.0,
+      "unit": "s",
+      "comparable_value": 60.0,
+      "details": {
+        "holds_s": [
+          60.0,
+          60.0
+        ],
+        "asymmetry_pct": 0.0
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "dead_hang_max",
+      "date": "2026-11-17",
+      "variant": null,
+      "value": 60.0,
+      "unit": "s",
+      "comparable_value": 60.0,
+      "details": {
+        "holds_s": [
+          60.0
+        ]
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "run_submax_drift",
+      "date": "2026-11-18",
+      "variant": null,
+      "value": 640.0,
+      "unit": "s_per_mi",
+      "comparable_value": 640.0,
+      "details": {
+        "lthr": 188,
+        "threshold_pace_s_per_mi": 640,
+        "confidence": "low: estimated from a submaximal run"
+      },
+      "conditions": {
+        "variant": "indoor"
+      },
+      "notes": ""
+    },
+    {
+      "test_id": "squat_rm",
+      "date": "2026-11-20",
+      "variant": "ssb_box_squat",
+      "value": 136.53,
+      "unit": "kg",
+      "comparable_value": 136.53,
+      "details": {
+        "weight_kg": 117.02697063439506,
+        "reps": 5,
+        "rir": 0,
+        "factor": 1.0
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "body_comp",
+      "date": "2026-11-22",
+      "variant": null,
+      "value": 89.56,
+      "unit": "kg",
+      "comparable_value": 89.56,
+      "details": {
+        "n": 4,
+        "body_fat_pct": 13.8
+      },
+      "conditions": {},
+      "notes": ""
+    }
+  ],
+  "scheduled": {
+    "broad_jump": "2026-11-16",
+    "hinge_rm": "2026-11-16",
+    "db_press_5rm": "2026-11-16",
+    "pullups_max": "2026-11-17",
+    "sorensen_hold": "2026-11-17",
+    "side_bridge": "2026-11-17",
+    "dead_hang_max": "2026-11-17",
+    "run_submax_drift": "2026-11-18",
+    "squat_rm": "2026-11-20",
+    "bike_10min": "2026-11-21"
+  }
+}

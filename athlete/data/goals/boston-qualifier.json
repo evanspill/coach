@@ -1,0 +1,29 @@
+{
+  "goal_id": "boston-qualifier",
+  "checks": [
+    {
+      "date": "2026-11-22",
+      "kind": "marathon_time",
+      "event_date": "2029-04-16",
+      "qualify_by": "2028-09-15",
+      "age_on_event": 36,
+      "metric": "marathon time",
+      "unit": "s",
+      "required_value": 10500.0,
+      "current_value": 19004.0,
+      "missing": [],
+      "standard_s": 10800,
+      "required_s": 10500,
+      "required_threshold_s_per_mi": 356.6,
+      "current_threshold_s_per_mi": 640.0,
+      "threshold_source": "run test 2026-11-18",
+      "predicted_marathon_s": 19004,
+      "rate_pct_per_year": 8.0,
+      "rate_basis": "assumed 8%/yr (fewer than two run tests 8+ weeks apart)",
+      "projected_date": "2033-11-27",
+      "deadline": "2027-10-17",
+      "status": "behind",
+      "note": "at this rate the required fitness arrives after the last counting race"
+    }
+  ]
+}

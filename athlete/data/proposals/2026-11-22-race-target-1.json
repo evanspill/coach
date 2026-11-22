@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-22-race-target-1",
+  "kind": "race_target",
+  "created": "2026-11-22",
+  "created_by": "assess",
+  "title": "Race target: Fall marathon",
+  "what": "4:54:00",
+  "why": "Threshold 10:40/mi (run test 2026-11-18) projected to 9:54/mi by race day at 8%/yr (assumed 8%/yr (fewer than two run tests 8+ weeks apart)); Riegel k=1.06 + 10 min (no marathon result yet) -> 4:53:15. Re-checked every block and in the taper. Long-term: Boston qualifier: behind. Target 2:55:00 (needs threshold ~5:57/mi); now 10:40/mi, supports ~5:16:44; projected Nov 2033 vs deadline 2027-10-17 (assumed 8%/yr (fewer than two run tests 8+ weeks apart)).",
+  "before": null,
+  "after": "4:54:00",
+  "target": "race_targets/marathon-2027",
+  "payload": null,
+  "status": "pending",
+  "history": [
+    {
+      "at": "2026-11-22",
+      "status": "pending",
+      "note": ""
+    }
+  ]
+}

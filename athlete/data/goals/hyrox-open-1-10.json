@@ -1,0 +1,29 @@
+{
+  "goal_id": "hyrox-open-1-10",
+  "checks": [
+    {
+      "date": "2026-11-22",
+      "kind": "race_time",
+      "event_date": "2028-06-30",
+      "qualify_by": "2028-06-30",
+      "age_on_event": 35,
+      "metric": "open time",
+      "unit": "s",
+      "required_value": 4200.0,
+      "current_value": null,
+      "missing": [],
+      "standard_s": null,
+      "required_s": null,
+      "required_threshold_s_per_mi": null,
+      "current_threshold_s_per_mi": null,
+      "threshold_source": "",
+      "predicted_marathon_s": null,
+      "rate_pct_per_year": null,
+      "rate_basis": "",
+      "projected_date": null,
+      "deadline": "2028-06-30",
+      "status": "unknown",
+      "note": "no open result yet: the first race sets the starting point"
+    }
+  ]
+}

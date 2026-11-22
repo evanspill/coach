@@ -1,0 +1,6 @@
+{
+  "lthr": 165,
+  "threshold_pace_s_per_mi": 640,
+  "source": "run_submax_drift 2026-11-18",
+  "confidence": "low: estimated from a submaximal run"
+}

@@ -1,0 +1,9 @@
+{
+  "race_id": "marathon-2027",
+  "set_on": "2026-11-22",
+  "target_time": "4:54:00",
+  "predicted_s": 17595,
+  "basis": "run test 2026-11-18, assumed 8%/yr (fewer than two run tests 8+ weeks apart)",
+  "status": "pending",
+  "rationale": "Threshold 10:40/mi (run test 2026-11-18) projected to 9:54/mi by race day at 8%/yr (assumed 8%/yr (fewer than two run tests 8+ weeks apart)); Riegel k=1.06 + 10 min (no marathon result yet) -> 4:53:15. Re-checked every block and in the taper. Long-term: Boston qualifier: behind. Target 2:55:00 (needs threshold ~5:57/mi); now 10:40/mi, supports ~5:16:44; projected Nov 2033 vs deadline 2027-10-17 (assumed 8%/yr (fewer than two run tests 8+ weeks apart))."
+}

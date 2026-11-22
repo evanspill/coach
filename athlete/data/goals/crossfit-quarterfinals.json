@@ -1,0 +1,45 @@
+{
+  "goal_id": "crossfit-quarterfinals",
+  "checks": [
+    {
+      "date": "2026-11-22",
+      "kind": "open_percentile",
+      "event_date": "2028-03-13",
+      "qualify_by": "2028-03-06",
+      "age_on_event": 35,
+      "metric": "Open percentile (rx division)",
+      "unit": "%",
+      "required_value": 25.0,
+      "current_value": null,
+      "missing": [
+        "Kipping pull-up",
+        "Chest-to-bar pull-up",
+        "Toes-to-bar",
+        "Bar muscle-up",
+        "Power clean",
+        "Squat clean",
+        "Snatch",
+        "Overhead squat",
+        "Jerk / push press",
+        "Handstand push-up",
+        "Wall walk",
+        "Ring muscle-up",
+        "overhead unlocked (Push press / jerk)",
+        "olympic unlocked (Full lifts from the floor)",
+        "kipping unlocked (Bar muscle-up)"
+      ],
+      "standard_s": null,
+      "required_s": null,
+      "required_threshold_s_per_mi": null,
+      "current_threshold_s_per_mi": null,
+      "threshold_source": "",
+      "predicted_marathon_s": null,
+      "rate_pct_per_year": null,
+      "rate_basis": "",
+      "projected_date": null,
+      "deadline": "2028-03-06",
+      "status": "building",
+      "note": "rx needs: Kipping pull-up, Chest-to-bar pull-up, Toes-to-bar, Bar muscle-up, Power clean, Squat clean, Snatch, Overhead squat, Jerk / push press, Handstand push-up, Wall walk, Ring muscle-up, overhead unlocked (Push press / jerk), olympic unlocked (Full lifts from the floor), kipping unlocked (Bar muscle-up)"
+    }
+  ]
+}

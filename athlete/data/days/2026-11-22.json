@@ -1,0 +1,290 @@
+{
+  "date": "2026-11-22",
+  "status": "complete",
+  "readiness": {
+    "date": "2026-11-22",
+    "state": "red",
+    "reasons": [
+      "HRV trend below baseline band 3 days"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {},
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": []
+  },
+  "weather": null,
+  "planned_session_id": "2026-11-22-recovery",
+  "session": {
+    "id": "2026-11-22-recovery",
+    "date": "2026-11-22",
+    "start_time": "09:30",
+    "type": "recovery",
+    "title": "Recovery: Z1 walk + mobility",
+    "intent": "Red: next 48 h are Z1 + mobility",
+    "location": "home",
+    "route": "neighbourhood walk",
+    "expected_minutes": 50,
+    "key": false,
+    "carb_tier": "low",
+    "blocks": [
+      {
+        "kind": "run",
+        "title": "Zone 1 walk",
+        "items": [],
+        "run": [
+          {
+            "label": "Z1 walk",
+            "zone": "Z1",
+            "duration_min": 35.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "walk",
+            "terrain": "flat",
+            "pace_s_per_mi": [
+              883,
+              992
+            ],
+            "hr_bpm": [
+              109,
+              138
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "mobility",
+        "title": "Mobility + PT routine (back, neck, shoulders)",
+        "items": [
+          {
+            "exercise_id": "foam_roll",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 300,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "hip_90_90",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "lower_trunk_rotation",
+            "sets": 1,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "thread_the_needle",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "childs_pose_traction",
+            "sets": 1,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "5 slow breaths per rep",
+            "ramp": []
+          },
+          {
+            "exercise_id": "chin_tuck_fly",
+            "sets": 1,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "prone_t",
+            "sets": 1,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "oa_nod",
+            "sets": 1,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "thoracic_open_book",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "changes": [
+    {
+      "what": "None: planned recovery day already matches Red (Z1 walk + mobility)",
+      "why": "Red readiness (HRV trend below baseline band 3 days)",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "'Evening mobility (coach)' in Hevy (~10 min; Venom heat first if the back is tight) + magnesium at night",
+    "Bed 10-10:30 pm: HRV has been low 3 days after the test week and yard work",
+    "Monday is Z1 + mobility too (48 h after Red); training resumes Tuesday"
+  ],
+  "nutrition": {
+    "date": "2026-11-22",
+    "carb_tier": "low",
+    "kcal": 2421,
+    "protein_g": 207,
+    "fat_g": 100,
+    "carbs_g": 173,
+    "scaled": true,
+    "peri_workout": "Easy day: normal meals, protein at each; magnesium tonight.",
+    "note": "carbs scaled down proportionally: weekly target is tight; weekly target (chat: MacroFactor maintenance, 209 g protein / 94 g fat / 288 g carbs per day (2834 kcal))"
+  },
+  "fueling_cue": "Easy day: normal meals, protein at each; magnesium tonight.",
+  "gear_alerts": [
+    "Use the watch's Treadmill activity on treadmill runs (last one logged 0.47 mi)"
+  ],
+  "pushed": null,
+  "handoffs": [],
+  "approvals_pending": [
+    "2026-11-22-block-goal-1",
+    "2026-11-22-weekly-plan-1",
+    "2026-11-22-race-target-1"
+  ],
+  "stale_sources": [],
+  "generated_by": "claude",
+  "notification": ""
+}

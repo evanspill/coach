@@ -1,0 +1,41 @@
+{
+  "block_id": "2026-27-B1",
+  "primary": {
+    "test_id": "hinge_rm",
+    "metric": "kg",
+    "baseline_value": 124.4,
+    "target_value": 133.7,
+    "unit": "kg",
+    "change_pct": 7.5,
+    "direction": "increase"
+  },
+  "guardrails": [
+    {
+      "test_id": "sorensen_hold",
+      "metric": "s",
+      "description": "Back extensor endurance holds while the hinge gets heavier (Sorensen hold no lower than baseline)",
+      "baseline_value": 60.0,
+      "limit_value": 60.0,
+      "direction": "no_lower_than"
+    },
+    {
+      "test_id": "body_comp",
+      "metric": "kg",
+      "description": "7-day weight trend no faster than -0.75%/wk (protect strength)",
+      "baseline_value": 89.6,
+      "limit_value": 78.8,
+      "direction": "no_lower_than"
+    }
+  ],
+  "rationale": "Block 1 is force first, then sharpening into the Open. Of the four focus lifts the hinge is furthest from the hybrid benchmark (69%; squat 95%, DB press 112%, pull-ups 83%), and it is also the lift with the least confidence after the June back pop. Goal: trap bar (high handle) e1RM 124.4 -> 133.7 kg (+7.5%, ~235 -> ~252 lb x5) through graded, predictable exposures at 2 RIR, with a rung move to the low handle only on clean exposures. Guardrails: the Sorensen hold must not drop (the back gets stronger, not just the pull), and recomp weight loss stays slow. Trade-off: hinge volume competes with golf and the running ramp for back recovery, so the hinge sits early in the week, away from Wed/Thu golf.",
+  "gap_analysis": {
+    "force:hinge_rm": 69.2,
+    "force:squat_rm": 95.0,
+    "force:db_press_5rm": 112.3,
+    "force:pullups_max": 83.3
+  },
+  "calorie_phase": "recomp",
+  "calorie_phase_reason": "Body fat ~14% against a 10-12% goal with weight near the 200 lb target: recomp (small deficit, high protein) keeps strength progressing.",
+  "status": "pending",
+  "generated_by": "claude"
+}
