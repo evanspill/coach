@@ -164,6 +164,51 @@
       "details": {},
       "conditions": {},
       "notes": ""
+    },
+    {
+      "test_id": "standing_reach",
+      "date": "2026-11-16",
+      "variant": null,
+      "value": 236.0,
+      "unit": "cm",
+      "comparable_value": 236.0,
+      "details": {
+        "attempts": [
+          236
+        ]
+      },
+      "conditions": {},
+      "notes": "estimated from athlete photos/video (8-in cinder-block rows as the ruler), about +/-3 cm"
+    },
+    {
+      "test_id": "standing_jump_touch",
+      "date": "2026-11-16",
+      "variant": null,
+      "value": 300.0,
+      "unit": "cm",
+      "comparable_value": 300.0,
+      "details": {
+        "attempts": [
+          300
+        ]
+      },
+      "conditions": {},
+      "notes": "estimated from athlete photos/video (8-in cinder-block rows as the ruler), about +/-3 cm"
+    },
+    {
+      "test_id": "approach_jump_touch",
+      "date": "2026-11-16",
+      "variant": null,
+      "value": 304.0,
+      "unit": "cm",
+      "comparable_value": 304.0,
+      "details": {
+        "attempts": [
+          304
+        ]
+      },
+      "conditions": {},
+      "notes": "estimated from athlete photos/video (8-in cinder-block rows as the ruler), about +/-3 cm"
     }
   ],
   "scheduled": {
@@ -176,6 +221,9 @@
     "dead_hang_max": "2026-11-17",
     "run_submax_drift": "2026-11-18",
     "squat_rm": "2026-11-20",
-    "bike_10min": "2026-11-21"
+    "bike_10min": "2026-11-21",
+    "standing_reach": "2026-11-16",
+    "standing_jump_touch": "2026-11-16",
+    "approach_jump_touch": "2026-11-16"
   }
 }
