@@ -273,8 +273,27 @@ def test_week_revision_of_a_day_already_run(b1, tmp_path):
     revised.sessions = [new if s.date == day else s for s in revised.sessions]
     st.put("week_plans", revised)
     rec = st.day_record(day)
-    assert rec.session == new and rec.planned_session == plan.sessions[2]
+    assert rec.session == new and rec.planned_session == new  # the revision is the day's new plan
     assert rec.changes[-1].kind == "replan"
+
+
+def test_rerun_after_a_week_revision_keeps_the_revision(b1):
+    """Review of #18: complete day, week revised, daily re-run -> the re-run starts from the revised plan."""
+    from coach.coaching.skills import adjust_day
+
+    ctx, plan, _ = b1
+    day = plan.sessions[0].date
+    ctx.state.put("week_plans", plan)
+    ctx.state.put("day_records", adjust_day.adjust(ctx, day, ctx.state.week_plan(plan.week_id)))
+    revised = ctx.state.week_plan(plan.week_id)
+    other = next(s for s in revised.sessions if s.type != revised.session_on(day).type)
+    new = other.model_copy(deep=True)
+    new.date, new.id = day, f"{day}-replanned"
+    revised.sessions = [new if s.date == day else s for s in revised.sessions]
+    ctx.state.put("week_plans", revised)
+    again = adjust_day.adjust(ctx, day, ctx.state.week_plan(plan.week_id))
+    assert again.planned_session_id == f"{day}-replanned"
+    assert again.session is not None and again.session.type == new.type
 
 
 def test_one_session_per_day(b1, tmp_path):

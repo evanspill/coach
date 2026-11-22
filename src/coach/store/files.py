@@ -199,8 +199,8 @@ class Store:
 
     def _write_week_days(self, plan: WeekPlan) -> None:
         """Write a week's sessions into its day records. A day not run yet takes the session as its plan; a day
-        already run (or adjusted) whose session the week changes gets it as its current session, with the change
-        recorded. A day stopped for a red flag is never overwritten (only `coach health resolve` clears it). Days
+        already run (or adjusted) whose session the week changes gets it as its new plan and current session, with
+        the change recorded. A day stopped for a red flag is never overwritten (only `coach health resolve` clears it). Days
         the week no longer schedules lose their planned-only record; a week can't drop the session of a day that
         already ran (replace it, e.g. with a rest session). Every check runs before anything is written."""
         dates = [s.date for s in plan.sessions]
@@ -234,7 +234,9 @@ class Store:
                 if rec.status == "planned" or rec.session is None:
                     rec.planned_session, rec.planned_session_id, rec.session = s, s.id, None
                 else:
-                    rec.session = s
+                    # a revision of a day already run is that day's new plan too: a re-run of the daily run or
+                    # finish mode starts from the planned session, so it must not rebuild from the old plan
+                    rec.session, rec.planned_session, rec.planned_session_id = s, s, s.id
                     rec.changes.append(
                         Change(
                             what=f"{cur.title} -> {s.title}"

@@ -536,7 +536,9 @@ Each entry: **decision** - why - how to reverse.
     - The week file (`weeks/<id>/plan.json`) keeps only the week's own facts (type, targets, deviations, approval,
       rationale, focus). `Store` assembles `WeekPlan.sessions` from the seven day records when it loads a week, and
       saving a week writes each session into its day record: a day not run yet takes it as its plan; a day already
-      run whose session the week changes gets it as its current session with a `replan` change recorded; an
+      run whose session the week changes gets it as its new plan and current session, with a `replan` change recorded
+      (the old title is in the change; a re-run of the daily run or finish mode starts from the revised plan, never
+      from the one the replan replaced); an
       unchanged session is a no-op. So every reader of a week sees each day's current session, and a change to a
       day is the week's change too. One session per day, inside the week (the store refuses others).
     - Planned and current stay separate on purpose: adherence (a coach-made Red-day swap is not a miss), the monthly
