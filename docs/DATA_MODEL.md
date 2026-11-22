@@ -70,8 +70,8 @@ erDiagram
 | `goal_progress` | doc | `GoalProgress` | `athlete/data/goals/{key}.json` | long-term goal feasibility checks, by goal id |
 | `race_targets` | doc | `RaceTarget` | `athlete/data/events/{key}/target.json` | coach's race target, by race id |
 | `test_sets` | doc | `TestSet` | `athlete/data/blocks/{a}/tests_{b}.json` | test results, key block:phase |
-| `week_plans` | doc | `WeekPlan` | `athlete/data/weeks/{key}/plan.json` | weekly plan |
-| `day_records` | doc | `DayRecord` | `athlete/data/days/{key}.json` | daily readiness, adjustments, notification |
+| `week_plans` | doc | `WeekPlan` | `athlete/data/weeks/{key}/plan.json` | weekly plan: the week's own facts; its sessions are assembled from the day records (decision 102) |
+| `day_records` | doc | `DayRecord` | `athlete/data/days/{key}.json` | the single home of a day's session (planned + current), plus readiness, adjustments, notification |
 | `proposals` | doc | `Proposal` | `athlete/data/proposals/{key}.json` | everything awaiting approval |
 | `movement_readiness` | singleton | `MovementReadiness` | `athlete/data/movement_readiness.json` | rungs; per family `last_exposure_date`/`last_exposure_clean` make exposure logging idempotent (a later pain report can overturn a clean one) |
 | `zones` | singleton | `ThresholdZones` | `athlete/data/zones.json` | LTHR + threshold pace (HR zones come from heart rate reserve instead when `default_zones.hr_model` is `hrr`; decision 99) |

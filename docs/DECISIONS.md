@@ -525,3 +525,28 @@ Each entry: **decision** - why - how to reverse.
     - Also fixed: `coach test score` crashed printing its result (the zones model wasn't JSON-serialisable) after it
       had saved; the JSON encoder now serialises any nested model.
     - Reverse: revert the commit; the '(cal)' exercises can be deleted in Hevy.
+102. **One home per session: the day record** (athlete request, 2026-11-22):
+    - Before: the week plan held full copies of its seven sessions and each day record held its own copy of the
+      adjusted session, with no rule for which one a reader used. Push read the day record; test scoring, the
+      weekly review, mileage totals and the week validator read the week. A test added on the day (the 2026-11-16
+      reach and jump-and-touch) was invisible to `coach test score`.
+    - Now: `DayRecord` is the only place a session lives. `planned_session` is the session as the week plan wrote it;
+      `session` is the session as it stands after the day's adjustments (`current_session()` = session or planned).
+      New status `planned`: a day the week plan wrote that the daily run hasn't run yet.
+    - The week file (`weeks/<id>/plan.json`) keeps only the week's own facts (type, targets, deviations, approval,
+      rationale, focus). `Store` assembles `WeekPlan.sessions` from the seven day records when it loads a week, and
+      saving a week writes each session into its day record: a day not run yet takes it as its plan; a day already
+      run whose session the week changes gets it as its current session with a `replan` change recorded; an
+      unchanged session is a no-op. So every reader of a week sees each day's current session, and a change to a
+      day is the week's change too. One session per day, inside the week (the store refuses others).
+    - Planned and current stay separate on purpose: adherence (a coach-made Red-day swap is not a miss), the monthly
+      calibration and the "why did Tuesday change?" answer all need what was planned as well as what was done.
+      `adjust-day` starts from the planned session, never from an earlier adjustment, so a re-run or finish mode
+      can't apply the same change twice. A fresh day record written without its planned session keeps the stored one.
+    - The block outline already held per-week targets, not sessions, and finds its weeks by their start dates; it
+      is unchanged.
+    - Migration: `coach migrate` (also run by the daily bootstrap; idempotent) moves each old week file's sessions
+      into its day records as planned sessions (a day already run keeps its adjusted session) and drops the copy.
+      Reading an unmigrated week still works (its sessions fill days with no record).
+    - Reverse: revert the commit; week files would need their sessions back (rebuild from the day records'
+      planned sessions).

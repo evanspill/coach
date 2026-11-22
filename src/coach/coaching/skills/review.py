@@ -14,14 +14,9 @@ from coach.models import WeekPlan
 
 def adherence(ctx: Context, plan: WeekPlan) -> tuple[int, int, list[str]]:
     """Planned vs completed, where 'planned' is what the coach finally prescribed that day (a Red-day swap to a
-    walk is the coach's call, not a miss)."""
+    walk is the coach's call, not a miss). The week's sessions already are each day's current session."""
     done_days = {s.date for s in ctx.state.sessions(plan.start, plan.end)}
-    planned = []
-    for s in plan.sessions:
-        rec = ctx.state.day_record(s.date)
-        final = rec.session if rec and rec.session else s
-        if final.type not in {"rest", "recovery"}:
-            planned.append(final)
+    planned = [s for s in plan.sessions if s.type not in {"rest", "recovery"}]
     missed = [f"{s.date:%a} {s.title}" for s in planned if s.date not in done_days]
     return len(planned) - len(missed), len(planned), missed
 

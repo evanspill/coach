@@ -196,3 +196,119 @@ def test_a_config_patch_that_breaks_the_config_is_undone(home):
         proposals.approve(st, p.id, d, cfg)
     assert f.read_text() == original
     assert st.proposal(p.id).status == "pending"
+
+
+# ---------- one home per session: the day record (DECISIONS 102) ----------
+def _week_store(b1, tmp_path):
+    _, plan, _ = b1
+    st = Store(tmp_path / "data")
+    st.put("week_plans", plan)
+    return st, plan
+
+
+def test_week_plan_sessions_live_in_day_records(b1, tmp_path):
+    import json
+
+    st, plan = _week_store(b1, tmp_path)
+    raw = json.loads((tmp_path / "data" / "weeks" / plan.week_id / "plan.json").read_text())
+    assert "sessions" not in raw  # the week file holds no copy
+    for s in plan.sessions:
+        rec = st.day_record(s.date)
+        assert rec.status == "planned" and rec.planned_session == s and rec.session is None
+    assert st.week_plan(plan.week_id) == plan  # assembled back from the day records
+
+
+def test_a_day_change_shows_in_the_week(b1, tmp_path):
+    """The bug that started this: a test added on the day was invisible to the week (and to test scoring)."""
+    from coach.coaching.daily import tests_scheduled
+
+    st, plan = _week_store(b1, tmp_path)
+    day = plan.sessions[0].date
+    rec = st.day_record(day)
+    adjusted = rec.planned_session.model_copy(deep=True)
+    adjusted.tests = [*adjusted.tests, "standing_reach"]
+    rec.status, rec.session = "complete", adjusted
+    st.put("day_records", rec)
+    week = st.week_plan(plan.week_id)
+    assert week.session_on(day).tests[-1] == "standing_reach"
+    assert tests_scheduled(week)["standing_reach"] == day
+    assert st.day_record(day).planned_session == plan.sessions[0]  # the plan as written is kept
+
+
+def test_daily_record_keeps_the_planned_session(b1, tmp_path):
+    from coach.models import DayRecord
+
+    st, plan = _week_store(b1, tmp_path)
+    day = plan.sessions[1].date
+    st.put("day_records", DayRecord(date=day, status="paused"))  # a fresh record from the daily run
+    rec = st.day_record(day)
+    assert rec.planned_session == plan.sessions[1] and rec.current_session() == plan.sessions[1]
+
+
+def test_adjust_starts_from_the_plan_not_an_earlier_adjustment(b1):
+    from coach.coaching.skills import adjust_day
+
+    ctx, plan, _ = b1
+    day = plan.sessions[0].date
+    ctx.state.put("week_plans", plan)
+    first = adjust_day.adjust(ctx, day, ctx.state.week_plan(plan.week_id))
+    ctx.state.put("day_records", first)
+    again = adjust_day.adjust(ctx, day, ctx.state.week_plan(plan.week_id))
+    assert again.planned_session == plan.sessions[0]
+    assert again.session == first.session  # re-running applies the same changes once, not twice
+
+
+def test_week_revision_of_a_day_already_run(b1, tmp_path):
+    st, plan = _week_store(b1, tmp_path)
+    day = plan.sessions[2].date
+    rec = st.day_record(day)
+    rec.status, rec.session = "complete", rec.planned_session.model_copy(deep=True)
+    st.put("day_records", rec)
+    st.put("week_plans", st.week_plan(plan.week_id))  # unchanged week: no-op
+    assert st.day_record(day).changes == []
+    revised = st.week_plan(plan.week_id)
+    other = next(s for s in revised.sessions if s.type != revised.session_on(day).type)
+    new = other.model_copy(deep=True)
+    new.date, new.id = day, f"{day}-moved"
+    revised.sessions = [new if s.date == day else s for s in revised.sessions]
+    st.put("week_plans", revised)
+    rec = st.day_record(day)
+    assert rec.session == new and rec.planned_session == plan.sessions[2]
+    assert rec.changes[-1].kind == "replan"
+
+
+def test_one_session_per_day(b1, tmp_path):
+    import pytest
+
+    _, plan, _ = b1
+    bad = plan.model_copy(deep=True)
+    dup = bad.sessions[0].model_copy(deep=True)
+    dup.id = "dup"
+    bad.sessions.append(dup)
+    with pytest.raises(ValueError, match="one session per day"):
+        Store(tmp_path / "d").put("week_plans", bad)
+
+
+def test_migrate_legacy_week_files(b1, tmp_path):
+    import json
+
+    from coach.models import DayRecord
+
+    _, plan, _ = b1
+    st = Store(tmp_path / "data")
+    p = tmp_path / "data" / "weeks" / plan.week_id / "plan.json"
+    p.parent.mkdir(parents=True)
+    p.write_text(json.dumps(plan.model_dump(mode="json")))  # a week file from before the change
+    ran = plan.sessions[0]
+    adjusted = ran.model_copy(deep=True)
+    adjusted.title = "adjusted"
+    st.put("day_records", DayRecord(date=ran.date, status="complete", session=adjusted))
+    assert st.week_plan(plan.week_id).session_on(ran.date).title == "adjusted"  # readable before migrating
+    assert st.migrate_week_plans() == [plan.week_id]
+    assert "sessions" not in json.loads(p.read_text())
+    rec = st.day_record(ran.date)
+    assert rec.planned_session == ran and rec.session == adjusted
+    assert st.day_record(plan.sessions[1].date).planned_session == plan.sessions[1]
+    assert st.migrate_week_plans() == []  # idempotent
+    week = st.week_plan(plan.week_id)
+    assert [s.date for s in week.sessions] == [s.date for s in plan.sessions]

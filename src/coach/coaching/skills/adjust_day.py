@@ -92,8 +92,12 @@ def adjust(
 ) -> DayRecord:
     cfg = ctx.cfg
     rec = DayRecord(date=day, status="complete", generated_by="fallback")
-    planned = plan.session_on(day) if plan else None
+    # start from the session as planned, never from an earlier adjustment of it (a re-run or finish mode would
+    # apply the same changes twice); a day with no planned copy yet uses the week's session for it
+    prior = ctx.state.day_record(day)
+    planned = (prior.planned_session if prior else None) or (plan.session_on(day) if plan else None)
     rec.planned_session_id = planned.id if planned else None
+    rec.planned_session = planned.model_copy(deep=True) if planned else None
     session = planned.model_copy(deep=True) if planned else None
     changes: list[Change] = []
     week_type = plan.week_type if plan else "training"

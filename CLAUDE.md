@@ -53,6 +53,9 @@ tests/                     pytest (CI: ruff + pytest + config check + 120-day si
 - **Plans you write go through the same door**: `coach record add week_plans|day_records|block_outlines|block_goals|
   movement_readiness|macrocycle --file draft.json` fills the numbers, validates, saves and opens any proposal in one
   step, and refuses (listing the violations) if the draft fails. Never save a plan any other way.
+- **One home per session**: a day's session lives only in its day record (`planned_session` as planned, `session` as
+  adjusted). Week plans are assembled from their day records, so changing a day changes the week; saving a week
+  writes its sessions into the day records (DECISIONS 102).
 - To change the training approach, edit `athlete/config/season.yaml` / `athlete/config/training.yaml` (code holds no session content);
   threshold changes still need an approved proposal.
 - `coach daily --fallback` is the deterministic safety net if you can't complete the daily run yourself.

@@ -53,6 +53,9 @@ def bootstrap(state: Store, cfg: Config, today: dt.date) -> list[str]:
     if not state.exists("intake"):
         state.put("intake", assess.intake_template(today, cfg.profile.intake_questions))
         done.append("intake questionnaire template written (run it with the athlete in chat)")
+    migrated = state.migrate_week_plans()  # week files from before DECISIONS 102 (no-op once moved)
+    if migrated:
+        done.append(f"week plan sessions moved into day records: {', '.join(migrated)}")
     return done
 
 
