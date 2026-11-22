@@ -138,6 +138,32 @@
       },
       "conditions": {},
       "notes": ""
+    },
+    {
+      "test_id": "broad_jump",
+      "date": "2026-11-16",
+      "variant": null,
+      "value": 213.0,
+      "unit": "cm",
+      "comparable_value": 213.0,
+      "details": {
+        "attempts": [
+          213.0
+        ]
+      },
+      "conditions": {},
+      "notes": ""
+    },
+    {
+      "test_id": "bike_10min",
+      "date": "2026-11-21",
+      "variant": null,
+      "value": 119.0,
+      "unit": "cal",
+      "comparable_value": 119.0,
+      "details": {},
+      "conditions": {},
+      "notes": ""
     }
   ],
   "scheduled": {
