@@ -2,11 +2,18 @@
   "rule_id": "training.rules.yellow_replacement",
   "rule": "Yellow replacement session = 40 min Z2",
   "origin": "coach",
-  "evidence_level": "practitioner",
+  "evidence_level": "rct",
   "impact": "medium",
   "verdict": "keep_flagged",
   "summary": "Reflects the HRV-guided trials' approach (low intensity when readiness is down) but the 40-min dose is a coaching choice. See the HRV evidence records.",
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17849143/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Kiviniemi 2007 RCT (n=26): low intensity or rest when HRV dropped, hard otherwise; larger gains in max running load"
+    }
+  ],
   "value_at_review": {
     "minutes": 40,
     "zone": "Z2"

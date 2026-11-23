@@ -1,0 +1,51 @@
+{
+  "rule_id": "nutrition.peri_workout",
+  "rule": "Peri-workout cues: pre 30-60 g carbs + sodium 60-90 min out (+ beet juice and matcha); during per the intra rule; after 40 g protein + carbs within 2 h; easy/rest days protein at each meal (4 meals) and magnesium at night",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "The pre-session carbohydrate and post-session protein (immediately to 2 h, 20-40 g, spread every 3-4 h) cues match the ISSN nutrient-timing stand. 40 g after whole-body resistance training stimulated more muscle protein synthesis than 20 g in trained men. A timing meta-analysis found total daily protein, not timing, drives hypertrophy, so the 2 h window is a convenience, not a requirement. Beet-juice nitrate gives a small effect (d\u22480.17) in recreationally active men and none in well-trained endurance athletes, so the cue is harmless but probably small for him. Magnesium and matcha are supplement context the coach doesn't change.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28919842/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "ISSN: 20-40 g protein every 3-4 h; post-exercise protein immediately-2 h stimulates MPS; pre-exercise meal size affects post-exercise needs"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27511985/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "40 g vs 20 g whey after whole-body RT: greater MPS in resistance-trained men"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24299050/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "Protein timing has no independent effect once total protein is controlled"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23360586/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Aragon & Schoenfeld 2013: the 'anabolic window' is wider than often claimed and depends on the pre-workout meal"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32936597/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "Nitrate: small ergogenic effect (d=0.17) in recreationally active men; none in well-trained (>=65 ml/kg/min) athletes"
+    }
+  ],
+  "value_at_review": {
+    "pre": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha",
+    "during": "during: {lo}-{hi} g carbs/h + sodium (session > {minutes} min)",
+    "after": "after: 40 g protein + carbs within 2 h",
+    "easy_day": "Easy day: normal meals, protein at each; magnesium tonight.",
+    "rest_day": "Rest day: protein spread over 4 meals; magnesium tonight."
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

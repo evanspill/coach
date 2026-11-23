@@ -1,14 +1,39 @@
 {
   "rule_id": "nutrition.fat_floor_g",
-  "rule": "Fat floor 72 g (~0.8 g/kg)",
+  "rule": "Daily fat floor 72 g (~0.8 g/kg at ~90 kg; ~23% of 2834 kcal), kept before carbs are allocated",
   "origin": "coach",
-  "evidence_level": "practitioner",
+  "evidence_level": "consensus",
   "impact": "medium",
-  "verdict": "keep_flagged",
-  "summary": "Set so hard days reach their carb tier (with 100 g, carbs fell to ~1.8-2.9 g/kg). No source retrieved for the exact number.",
-  "sources": [],
+  "verdict": "keep",
+  "summary": "A meta-analysis of 6 intervention studies (206 men) found low-fat diets lowered total and free testosterone compared with high-fat diets (SMD about -0.38). That argues for a floor, not for any particular number. Consensus ranges are 0.5-1.5 g/kg (off-season review), 15-30% of energy (contest prep) and ~30% (with 0.5-1 g/kg acceptable when cutting) per the ISSN. 72 g (~0.8 g/kg, ~23% at maintenance, ~28% in a cut) sits inside all of them while leaving room for hard-day carbs. The evidence supports keeping a floor in this range; the exact number is still a judgement.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33741447/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Low-fat vs high-fat diets in men: total T SMD -0.38, free T -0.37; stronger in European/N American men; small, low-certainty evidence"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30068354/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "ISSN 2018: ~30% of kcal from fat generally; 0.5-1 g/kg/day (as little as ~20% kcal) when reducing body fat; higher-fat diets maintain testosterone better"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24864135/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Contest prep: 15-30% of calories from fat"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31247944/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "Off-season: fat 0.5-1.5 g/kg/day"
+    }
+  ],
   "value_at_review": 72.0,
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-08-20",
   "proposal_id": null
 }

@@ -1,0 +1,56 @@
+{
+  "rule_id": "nutrition.calorie_phase_settings",
+  "rule": "MacroFactor goal per block phase: cut ~0.5% BW/week with high protein; recomp maintenance-to-slight deficit; lean gain ~0.25% BW/week; maintenance fuel-matched to training",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "high",
+  "verdict": "keep",
+  "summary": "The cut rate sits at the conservative end of the bodybuilding consensus range (0.5-1%/week). In an RCT in athletes, ~0.7%/week preserved or added lean mass where 1.4%/week did not. A meta-regression found deficits of about 500 kcal/day stop lean-mass gains, and 0.5% of ~90 kg is roughly that, so 0.5% is the sensible ceiling for a concurrent athlete. Lean gain of 0.25%/week matches the off-season review's 0.25-0.5% (more conservative for advanced lifters), and a 2023 RCT in trained lifters found larger surpluses mostly added fat. Recomp near maintenance fits the finding that a surplus helps but its size is unknown. The numbers come from physique-sport and short trials, not hybrid athletes, so watch them against the EA flag in run-heavy blocks.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24864135/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Helms 2014 contest-prep recommendations: lose ~0.5-1% BW/week to maximise muscle retention"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21558571/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Athletes losing 0.7%/week gained LBM (+2.1%); 1.4%/week did not (-0.2%)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34623696/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Energy deficit impairs lean-mass gains (ES -0.57) but not strength; ~500 kcal/day deficit prevented LM gains"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31247944/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "Off-season review: ~10-20% surplus, target gain 0.25-0.5% BW/week; advanced lifters more conservative"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37914977/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Trained lifters, maintenance vs +5% vs +15% kcal for 8 weeks: faster weight gain mainly increased skinfolds, not muscle thickness"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31482093/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Slater 2019: an energy surplus is anabolic, but the optimal size has never been validated in resistance-trained people"
+    }
+  ],
+  "value_at_review": {
+    "cut": "MacroFactor: weight loss ~0.5% BW/week (coached, moderate); protein high",
+    "recomp": "MacroFactor: maintenance-to-slight deficit (recomposition); protein high",
+    "lean_gain": "MacroFactor: lean gain ~0.25% BW/week",
+    "maintenance": "MacroFactor: maintenance, fuel-matched to training load"
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

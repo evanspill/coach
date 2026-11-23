@@ -1,0 +1,27 @@
+{
+  "rule_id": "nutrition.estimate_kcal_per_kg",
+  "rule": "Fallback weekly calorie target = bodyweight x 33 kcal/kg/day x 7, used only when there's no MacroFactor target or saved weekly target",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "The ISSN gives ~25-35 kcal/kg/day for general fitness (30-40 min, 3x/week) and 40-70 for athletes doing 2-3+ h/day, with a minimum of 27-30 kcal/kg for all exercisers. 33 is therefore low by textbook ranges for a hybrid athlete. It does match this athlete's measured MacroFactor maintenance (2834 kcal, ~31.5 kcal/kg), so it is calibrated to him, not to a population. It only applies when there is no MacroFactor or saved target. Treat it as a placeholder; if it's ever used across a run-heavy block, check the EA flag (at 33 kcal/kg, EA is close to 30 once ~600 kcal of exercise is subtracted).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30068354/",
+      "kind": "consensus",
+      "direction": "mixed",
+      "note": "ISSN 2018: general fitness 25-35 kcal/kg/day; moderate-to-high-volume athletes 40-70 kcal/kg/day; minimum 27-30 kcal/kg"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28161872/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Endurance athletes' total energy expenditure varies across the training season; intake often lags expenditure"
+    }
+  ],
+  "value_at_review": 33.0,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

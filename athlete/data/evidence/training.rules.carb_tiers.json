@@ -1,0 +1,66 @@
+{
+  "rule_id": "training.rules.carb_tiers",
+  "rule": "Carb tier by session type: high = lower, full_body, run_long, run_quality, hyrox, metcon, test, competition, race (and the day before a long run/race); moderate = upper, sprint_upper, run_easy; low = recovery, rest",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "'Fuel for the work required' and the consensus statements support raising carbohydrate on days with a high glycogen cost (long and quality runs, Hyrox, metcons, races, the day before a long run) and lowering it on rest and recovery days. That idea is well supported, but the mapping of each session type is a coaching judgement. The weakest placement is 'lower' (heavy strength) in high: strength-training reviews find little or no carbohydrate dose-response for resistance performance, and resistance work rarely depletes glycogen. Because tiers only redistribute a fixed weekly total, the cost of a misplacement is small. If MacroFactor's total gets tight, 'lower' is the first candidate to move to moderate so run_long, run_quality and Hyrox days keep their carbs.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29453741/",
+      "kind": "theory",
+      "direction": "supports",
+      "note": "Impey 2018: adjust carbohydrate to the demands of the upcoming session; glycogen threshold hypothesis"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21660838/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Burke 2011: high carbohydrate availability for high-intensity or key sessions; train-low benefit for performance unclear"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35215506/",
+      "kind": "other",
+      "direction": "contradicts",
+      "note": "Henselmans 2022: no carbohydrate dose-response for strength performance; benefit mainly in high-volume (>10 sets/muscle) sessions"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27993175/",
+      "kind": "other",
+      "direction": "contradicts",
+      "note": "Escobar 2016: 3-7 g/kg for resistance training may be more than needed; true glycogen depletion unlikely"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40471841/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "CrossFit: high-carbohydrate diets improved performance"
+    }
+  ],
+  "value_at_review": {
+    "high": [
+      "lower",
+      "full_body",
+      "run_long",
+      "run_quality",
+      "hyrox",
+      "metcon",
+      "test",
+      "competition",
+      "race"
+    ],
+    "moderate": [
+      "upper",
+      "sprint_upper",
+      "run_easy"
+    ],
+    "low": [
+      "recovery",
+      "rest"
+    ]
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-08-20",
+  "proposal_id": null
+}

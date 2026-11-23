@@ -1,0 +1,49 @@
+{
+  "rule_id": "nutrition.carb_g_per_kg",
+  "rule": "Daily carbohydrate by tier: high 5.5, moderate 4.0, low 3.0 g/kg (scaled down proportionally when MacroFactor's weekly total can't fund them)",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "medium",
+  "verdict": "keep",
+  "summary": "The ACSM/AND/DC 2016 tiers are 3-5 g/kg for light days, 5-7 for a moderate program (~1 h/day) and 6-10 for 1-3 h/day of moderate-to-high work. The ISSN puts 2-3 h/day of intense training at 5-8 g/kg. Low (3) and moderate (4) sit inside the light band. High (5.5) is at the bottom of the moderate band, which fits ~1-1.5 h/day of concurrent training. Strength-training evidence shows little carbohydrate dose-response, while CrossFit-style training seems to benefit from higher-carb diets. These are directional ranges, not tested numbers. Their real effect is limited because they only redistribute MacroFactor's total: at the current 2834 kcal the average is ~4 g/kg. Revisit only if long-run or Hyrox weeks run above ~2 h/day.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26891166/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Joint position stand on athlete nutrition (abstract); its carbohydrate table (seen via search reproduction) gives light 3-5, moderate ~1 h/day 5-7, 1-3 h/day 6-10, extreme 8-12 g/kg/day"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30068354/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "ISSN 2018: general fitness 3-5 g/kg; 2-3 h/day intense training 5-8 g/kg; 3-6 h/day 8-10 g/kg"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21660838/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Burke 2011: judge carbohydrate by whether availability matches the day's training demand"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35215506/",
+      "kind": "other",
+      "direction": "contradicts",
+      "note": "Henselmans 2022 SR (49 studies): no dose-response of carbohydrate on strength performance; benefit mainly with fasted controls or >10 sets per muscle"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40471841/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "CrossFit scoping review: athletes under-eat carbohydrate; high-carb diets helped CrossFit performance"
+    }
+  ],
+  "value_at_review": {
+    "high": 5.5,
+    "moderate": 4.0,
+    "low": 3.0
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-08-20",
+  "proposal_id": null
+}

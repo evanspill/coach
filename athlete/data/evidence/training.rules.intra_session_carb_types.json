@@ -1,0 +1,39 @@
+{
+  "rule_id": "training.rules.intra_session_carb_types",
+  "rule": "Extra session types that always get intra-session carbs regardless of length: none ([])",
+  "origin": "coach",
+  "evidence_level": "rct",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "An empty list means only sessions longer than 75 min get intra-session carbs. That's supported for the short high-intensity types that might otherwise be added (metcon, Hyrox sims, tests): two CrossFit RCTs and a scoping review found negligible benefit from carbohydrate taken during roughly 1 h sessions, and guidance for ~1 h efforts is a mouth rinse or small amounts at most. For races over 2.5 h, the choice of carbohydrate matters more than the session type: glucose:fructose blends raise exogenous oxidation and help most beyond 2.5-3 h. That belongs in compete's race plan, not here.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39671024/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "CrossFit RCT: intra-session 60 g CHO gave no benefit"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40471841/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "Scoping review/meta-analysis: carbs before or during CrossFit workouts had negligible impact"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/20574242/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Jeukendrup 2010: multiple transportable carbohydrates raise oxidation to ~1.75 g/min; useful in events of 3 h or more"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40321909/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "14 RCTs: glucose-fructose raises exogenous carbohydrate oxidation vs glucose alone"
+    }
+  ],
+  "value_at_review": [],
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

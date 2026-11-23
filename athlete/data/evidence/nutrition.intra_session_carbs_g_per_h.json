@@ -1,0 +1,42 @@
+{
+  "rule_id": "nutrition.intra_session_carbs_g_per_h",
+  "rule": "Intra-session carbohydrate 45-60 g/h (+ sodium) for sessions longer than the threshold",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Consensus is 30-60 g/h for exercise longer than ~1 h, and up to ~90 g/h (multiple transportable carbohydrates) beyond 2.5 h. A single carbohydrate source is oxidised at up to ~60 g/h. 45-60 g/h is the upper half of the standard range and is well supported for long runs and long Hyrox-style sessions. Meta-analyses confirm intra-session carbohydrate helps endurance performance more as sessions get longer, with no clear dose effect within the usual range. For runs or races longer than 2.5 h (marathon long runs, race day), compete should use 60-90 g/h glucose:fructose rather than this training default.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21660838/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Burke et al. 2011: 30-60 g/h for longer sessions; up to 90 g/h for events >2.5 h; ~1 h events: small amounts or mouth rinse"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28919842/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "ISSN nutrient timing: ~30-60 g/h in a 6-8% solution for >60 min high-intensity bouts, especially >70 min"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24791914/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "Jeukendrup 2014: single carbohydrate up to ~60 g/h for 2-3 h; ~90 g/h multiple transportable for ultra"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37449467/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "136 studies: carbohydrate during endurance exercise improves performance, more with longer duration; dose not a moderator"
+    }
+  ],
+  "value_at_review": [
+    45,
+    60
+  ],
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

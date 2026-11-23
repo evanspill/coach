@@ -6,7 +6,20 @@
   "impact": "medium",
   "verdict": "keep_flagged",
   "summary": "Hard-easy sequencing is standard coaching practice; this run found no trial testing specific pairs. Kept as a scheduling heuristic; overrides on athlete request are fine and should be watched in review.",
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18438210/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Bishop 2008 review: recovery between workouts is a planned part of training"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24445548/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "Ristolainen 2014 (446 top endurance athletes): <2 rest days/wk had 5.2x overuse-injury risk (retrospective)"
+    }
+  ],
   "value_at_review": [
     [
       "glycolytic",

@@ -2,11 +2,24 @@
   "rule_id": "training.rules.min_recovery_days_per_week",
   "rule": "At least 1 recovery day per week",
   "origin": "coach",
-  "evidence_level": "practitioner",
+  "evidence_level": "cohort",
   "impact": "medium",
   "verdict": "keep_flagged",
-  "summary": "Common coaching practice; no trial found on weekly rest-day counts in concurrent training. Cheap and conservative.",
-  "sources": [],
+  "summary": "One retrospective cohort of top endurance athletes links fewer than 2 rest days a week to 5x overuse-injury risk; no trial sets the count for concurrent training. 1 recovery day is the floor, not a target; watch it if training volume rises.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24445548/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "Ristolainen 2014 (446 top endurance athletes): <2 rest days/wk had 5.2x overuse-injury risk (retrospective)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18438210/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Bishop 2008 review: recovery between workouts is a planned part of training"
+    }
+  ],
   "value_at_review": 1,
   "reviewed": "2026-11-23",
   "review_after": "2027-11-23",

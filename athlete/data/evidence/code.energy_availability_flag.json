@@ -1,0 +1,57 @@
+{
+  "rule_id": "code.energy_availability_flag",
+  "rule": "Weekly review flags estimated energy availability < 30 kcal/kg FFM/day (intake minus Whoop exercise kcal, over FFM from weight and body fat, default 15% BF), outside taper weeks, and asks about energy, mood and sleep",
+  "origin": "coach",
+  "evidence_level": "consensus",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "The 30 kcal/kg FFM cut-off comes from a 5-day study in sedentary women, where LH pulsatility was disrupted only below 30. In exercising men, 4 days at 15 kcal/kg FFM lowered leptin and insulin but not testosterone, T3 or IGF-1, so the male threshold is probably lower and not well defined. The 2023 IOC REDs consensus (as summarised by Jeukendrup 2024) holds that EA cannot be measured accurately enough in the field, and this estimate stacks Whoop kJ error on an assumed body-fat %. Keep it as a cheap prompt to start a conversation, worded as a rough estimate (not a REDs verdict), and pair it with symptoms the IOC lists for men (low libido or morning erections, fatigue, mood, illness, stalled lean mass).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12519869/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Origin of the 30 cut-off: LH pulsatility unaffected at 30 kcal/kg LBM, disrupted below it; sedentary women, 5 days"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26852783/",
+      "kind": "rct",
+      "direction": "mixed",
+      "note": "Exercising men at 15 vs 40 kcal/kg FFM for 4 days: leptin and insulin fell, testosterone, T3, IGF-1 and ghrelin did not change"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37752011/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "IOC 2023 REDs consensus: LEA harms male and female athletes; introduces REDs CAT2 for risk stratification"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39287777/",
+      "kind": "other",
+      "direction": "contradicts",
+      "note": "Jeukendrup et al. 2024: per the IOC 2023 consensus, EA can't be measured accurately enough in the field; symptoms are generic and multifactorial"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28530498/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Male bodybuilders: prolonged EA < 25 kcal/kg FFM linked to muscle loss and hormonal problems; > 25 suggested"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41087038/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "2026 systematic review (21 studies): LEA linked to impaired lean-mass and functional responses to training; thresholds used vary"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42461760/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "At EA 25, higher carbohydrate availability (4.0 vs 1.5 g/kg) partially attenuated the IGF-1 drop: carbs matter, not only kcal"
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

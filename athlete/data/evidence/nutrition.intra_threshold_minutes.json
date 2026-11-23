@@ -1,0 +1,45 @@
+{
+  "rule_id": "nutrition.intra_threshold_minutes",
+  "rule": "Intra-session carbohydrate is prescribed only when expected session length > 75 min",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Guidance says sessions of about 30-75 min need only small amounts or a carbohydrate mouth rinse, and that intra-session carbohydrate matters for bouts over ~60-70 min (ISSN: especially past 70 min). 75 min matches those cut-offs. Supporting this, two randomised CrossFit trials (60 g/h glucose-fructose; 30 g cyclodextrin) found no performance or recovery benefit during ~1 h sessions. One caveat: a meta-analysis of resistance sessions found carbohydrate raised training volume in sessions longer than 45 min, mostly against fasted controls, which the pre-workout carbs already cover.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24791914/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "Jeukendrup 2014: ~30 min-1 h needs no large intake; a mouth rinse may be enough"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28919842/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "ISSN: intra carbs for >60 min bouts, particularly those beyond 70 min"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39671024/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "CrossFit RCT (n=23): 60 g maltodextrin+fructose during the session did not improve performance, RPE or DOMS"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38390927/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "CrossFit crossover: 30 g cyclodextrin across two 20-min WODs had no metabolic or performance effect"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35809162/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "RT meta-analysis: carbs raised session volume (SMD 0.61), mainly in sessions >45 min and after >=8 h fasting"
+    }
+  ],
+  "value_at_review": 75,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}
