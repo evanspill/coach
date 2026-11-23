@@ -30,6 +30,83 @@ EQUIPMENT = {
 MUSCLE = {"quads": "quadriceps", "core": "abdominals", "back": "upper_back"}
 
 
+# Routine folders (DECISIONS 103): the current week, one archive per block, and the standing routines. Hevy
+# folders are one level deep and nothing can be deleted through the API, so older weeks are moved, never deleted.
+FOLDER_THIS_WEEK = "This week (coach)"
+FOLDER_STANDING = "Standing (coach)"
+
+
+def archive_folder_title(ctx: Context, day: dt.date) -> str:
+    macro = ctx.macro
+    if macro is not None and macro.baseline_start <= day <= macro.baseline_end:
+        return "Baseline (coach)"
+    blk = macro.block_for(day) if macro else None
+    if blk is None:  # before the season, after it, or a gap in it
+        return "Other (coach)"
+    num = blk.key[1:] if blk.key[:1] == "B" and blk.key[1:].isdigit() else blk.key
+    return f"Block {num} (coach)"
+
+
+class FolderResolver:
+    """Folder title -> Hevy folder id: from push_ids, else an existing folder of that title, else a new one.
+    Dry runs only report the folders they would create."""
+
+    def __init__(self, hevy, ids: dict, read_only: bool = False):
+        self.hevy, self.ids, self.read_only = hevy, ids, read_only
+        self.existing: dict[str, str] | None = None
+        self.would_create: list[str] = []
+
+    def resolve(self, title: str):
+        key = f"hevy-folder:{title}"
+        if self.ids.get(key):
+            return _folder_id(self.ids[key])
+        if self.hevy is None or self.read_only:
+            if title not in self.would_create:
+                self.would_create.append(title)
+            return None
+        if self.existing is None:
+            self.existing = self.hevy.folders()
+        fid = self.existing.get(title) or self.hevy.create_folder(title)
+        self.existing[title] = self.ids[key] = str(fid)
+        return _folder_id(fid)
+
+
+def _folder_id(fid):
+    s = str(fid)
+    return int(s) if s.isdigit() else s
+
+
+def archive_routines(
+    ids: dict, folders: FolderResolver, ctx: Context, sources: Sources | None, before: dt.date, dry_run: bool
+) -> list[dict]:
+    """Move the routines of sessions dated before `before` out of the current-week folder into their block's
+    archive folder. Idempotent (each moved routine is marked in push_ids); a routine deleted in the app is skipped."""
+    moved: list[dict] = []
+    for key, rid in list(ids.items()):
+        if not key.startswith("hevy:") or key.startswith(f"hevy:{STANDING_PREFIX}"):
+            continue
+        sid = key[len("hevy:") :]
+        try:
+            day = dt.date.fromisoformat(sid[:10])
+        except ValueError:
+            continue
+        if day >= before or ids.get(f"hevy-archived:{sid}"):
+            continue
+        title = archive_folder_title(ctx, day)
+        if dry_run or sources is None:
+            moved.append({"session": sid, "folder": title})
+            continue
+        try:  # housekeeping: a failed move is reported and retried next push, never blocks today's push
+            fid = folders.resolve(title)
+            ok = sources.hevy.move_routine(rid, fid)
+        except Exception as e:  # noqa: BLE001
+            moved.append({"session": sid, "folder": title, "error": str(e)[:200]})
+            continue
+        ids[f"hevy-archived:{sid}"] = title if ok else "gone (deleted in Hevy)"
+        moved.append({"session": sid, "folder": title if ok else None})
+    return moved
+
+
 class TemplateResolver:
     """Hevy needs an exercise_template_id per exercise. Titles come from the library (`hevy_title`, else the name);
     missing ones become custom exercises on first use only (free accounts allow 7). Dry runs only report."""
@@ -100,7 +177,9 @@ class PushRefused(Exception):
         self.violations = violations
 
 
-def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = None) -> dict | None:
+def hevy_routine(
+    s: Session, ctx: Context, resolver: TemplateResolver | None = None, folder_id=None
+) -> dict | None:
     lib = ctx.cfg.library
     resolver = resolver or TemplateResolver()
     exercises: list[dict[str, Any]] = []
@@ -260,7 +339,7 @@ def hevy_routine(s: Session, ctx: Context, resolver: TemplateResolver | None = N
         return None
     return {
         "title": f"{s.date:%a %b %d}: {s.title}",
-        "folder_id": None,
+        "folder_id": folder_id,
         "notes": f"{s.intent} (~{s.expected_minutes} min). Check-in tag in notes: back X shoulder Y knee Z rpe N",
         "exercises": exercises,
     }
@@ -306,12 +385,28 @@ def intervals_event(s: Session, ctx: Context) -> dict | None:
     }
 
 
-def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | None, dry_run: bool) -> dict:
+def _push_sessions(
+    sessions: list[Session],
+    ctx: Context,
+    sources: Sources | None,
+    dry_run: bool,
+    archive_before: dt.date | None = None,
+) -> dict:
     ids = ctx.state.get("push_ids") or {}
     out: dict = {"dry_run": dry_run, "hevy": [], "intervals": []}
     resolver = TemplateResolver(sources.hevy if sources else None, read_only=dry_run)
+    folders = FolderResolver(sources.hevy if sources else None, ids, read_only=dry_run)
     events = []
     try:
+        if archive_before is not None:
+            moved = archive_routines(ids, folders, ctx, sources, archive_before, dry_run)
+            if errors := [m for m in moved if "error" in m]:
+                out["hevy_archive_errors"] = errors
+            if moved := [m for m in moved if "error" not in m]:
+                out["hevy_archived"] = moved
+        this_week = None
+        if any(s.type != "rest" for s in sessions):
+            this_week = folders.resolve(FOLDER_THIS_WEEK)
         for s in sessions:
             if s.type == "rest":
                 continue
@@ -321,7 +416,7 @@ def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | Non
                 "run_quality",
                 "race",
             }:
-                r = hevy_routine(s, ctx, resolver)
+                r = hevy_routine(s, ctx, resolver, folder_id=this_week)
                 if r:
                     if dry_run or sources is None:
                         out["hevy"].append(
@@ -330,6 +425,8 @@ def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | Non
                     else:
                         rid = sources.hevy.upsert_routine(r, ids.get(f"hevy:{s.id}"))
                         ids[f"hevy:{s.id}"] = rid
+                        # pushed again (a rescheduled day): it's in the current-week folder now, archive it again later
+                        ids.pop(f"hevy-archived:{s.id}", None)
                         out["hevy"].append({"session": s.id, "routine_id": rid})
             e = intervals_event(s, ctx)
             if e:
@@ -342,6 +439,8 @@ def _push_sessions(sessions: list[Session], ctx: Context, sources: Sources | Non
             out["intervals"] = [{"session": e["external_id"], "name": e["name"]} for e in events]
         else:
             out["intervals"] = sources.intervals.upsert_events(events)
+    if folders.would_create:
+        out["hevy_folders_needed"] = folders.would_create
     if resolver.would_create:
         out["hevy_custom_exercises_needed"] = resolver.would_create
     if resolver.created:
@@ -358,7 +457,8 @@ def push_week(plan: WeekPlan, ctx: Context, sources: Sources | None, dry_run: bo
     dry = (not ctx.cfg.settings.push.enabled) if dry_run is None else dry_run
     today = ctx.today
     upcoming = [s for s in plan.sessions if s.date >= today]
-    return _push_sessions(upcoming, ctx, sources, dry)
+    # earlier weeks leave the current-week folder; today's routine stays even when pushing next week on Sunday
+    return _push_sessions(upcoming, ctx, sources, dry, archive_before=min(plan.start, today))
 
 
 def push_day(
@@ -374,7 +474,8 @@ def push_day(
     if violations:
         raise PushRefused(violations)
     dry = (not ctx.cfg.settings.push.enabled) if dry_run is None else dry_run
-    return _push_sessions([session], ctx, sources, dry)
+    monday = session.date - dt.timedelta(days=session.date.weekday())
+    return _push_sessions([session], ctx, sources, dry, archive_before=min(monday, ctx.today))
 
 
 def current_week_only(plan: WeekPlan, today: dt.date) -> bool:
@@ -436,7 +537,8 @@ def push_routine(name: str, ctx: Context, sources: Sources | None, dry_run: bool
     dry = (not ctx.cfg.settings.push.enabled) if dry_run is None else dry_run
     ids = ctx.state.get("push_ids") or {}
     resolver = TemplateResolver(sources.hevy if sources else None, read_only=dry)
-    r = hevy_routine(s, ctx, resolver)
+    folders = FolderResolver(sources.hevy if sources else None, ids, read_only=dry)
+    r = hevy_routine(s, ctx, resolver, folder_id=folders.resolve(FOLDER_STANDING))
     if r is None:
         return {"error": f"item set '{name}' has no exercises"}
     r["title"] = f"{s.title} (coach)"

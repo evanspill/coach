@@ -1168,3 +1168,148 @@ def test_the_how_to_is_not_printed_twice(b1):
         )  # kept when not duplicated
     finally:
         ex_def.description, ex_def.video_url = old
+
+
+def test_week_push_organises_routines_in_folders(b1):
+    """DECISIONS 103: the current week sits in 'This week (coach)'; earlier weeks move to their block's archive
+    folder (today's routine stays); standing routines aren't touched; nothing is deleted; re-pushes are idempotent."""
+    from coach.integrations.mock import MockWorld, mock_sources
+    from coach.integrations.push import FOLDER_THIS_WEEK, push_week
+
+    ctx, plan, _ = b1  # today is Sunday 2026-11-29, the plan starts Monday 2026-11-30
+    world = MockWorld.load()
+    src = mock_sources(world)
+    for rid in ("r-old", "r-today", "r-standing"):
+        world.routines[rid] = {"title": rid, "folder_id": None}
+    ctx.state.put(
+        "push_ids",
+        {
+            "hevy:2026-11-23-lower-force": "r-old",
+            "hevy:2026-11-22-recovery": "r-gone",  # deleted in the Hevy app
+            "hevy:2026-11-29-recovery": "r-today",
+            "hevy:routine-evening_mobility": "r-standing",
+        },
+    )
+    good = plan.model_copy(deep=True)
+    good.approval = "approved"
+    dry = push_week(good, ctx, src, dry_run=True)
+    assert not world.folders and FOLDER_THIS_WEEK in dry["hevy_folders_needed"]
+    assert {m["session"] for m in dry["hevy_archived"]} == {"2026-11-23-lower-force", "2026-11-22-recovery"}
+
+    res = push_week(good, ctx, src, dry_run=False)
+    this_week, archive = world.folders[FOLDER_THIS_WEEK], world.folders["Block 1 (coach)"]
+    assert str(world.routines["r-old"]["folder_id"]) == archive  # the API takes numeric folder ids
+    assert world.routines["r-today"]["folder_id"] is None  # today's routine stays where it is
+    assert world.routines["r-standing"]["folder_id"] is None
+    new = [h["routine_id"] for h in res["hevy"]]
+    assert new and all(str(world.routines[r]["folder_id"]) == this_week for r in new)
+    ids = ctx.state.get("push_ids")
+    assert ids["hevy-archived:2026-11-23-lower-force"] == "Block 1 (coach)"
+    assert ids["hevy-archived:2026-11-22-recovery"].startswith("gone")
+    n_folders, n_routines = len(world.folders), len(world.routines)
+    again = push_week(good, ctx, src, dry_run=False)
+    assert (
+        "hevy_archived" not in again and len(world.folders) == n_folders and len(world.routines) == n_routines
+    )
+
+
+def test_live_move_routine_rebuilds_the_put_body(monkeypatch):
+    import urllib.error
+
+    from coach.integrations import live
+
+    calls = []
+    got = {
+        "routine": {
+            "id": "r1",
+            "title": "Mon: Lower",
+            "folder_id": None,
+            "notes": "n",
+            "updated_at": "x",
+            "exercises": [
+                {
+                    "index": 0,
+                    "title": "Squat",
+                    "notes": "Rest 3:00",
+                    "exercise_template_id": "t1",
+                    "superset_id": None,
+                    "rest_seconds": 180,
+                    "sets": [{"index": 0, "type": "normal", "weight_kg": 100, "reps": 5}],
+                }
+            ],
+        }
+    }
+
+    def fake(method, url, headers, body=None, **_k):
+        calls.append((method, url, body))
+        if url.endswith("/gone"):
+            raise urllib.error.HTTPError(url, 404, "nf", {}, None)
+        return got
+
+    monkeypatch.setattr(live, "_request", fake)
+    h = live.LiveHevy()
+    assert h.move_routine("r1", "42") is True
+    method, url, body = calls[-1]
+    assert method == "PUT" and url.endswith("/routines/r1")
+    r = body["routine"]
+    assert r["folder_id"] == 42 and r["title"] == "Mon: Lower"
+    ex = r["exercises"][0]
+    assert set(ex) == {"exercise_template_id", "superset_id", "rest_seconds", "notes", "sets"}
+    assert ex["sets"] == [{"type": "normal", "weight_kg": 100, "reps": 5}]
+    assert h.move_routine("gone", "42") is False
+
+
+def test_archive_failures_never_block_the_push_and_repush_unarchives(b1):
+    """Review of #19: a failed housekeeping move is reported and retried next push; today's routines still go out.
+    A session pushed again after being archived is archived again later; push_day archives too."""
+    from coach.integrations.mock import MockWorld, mock_sources
+    from coach.integrations.push import archive_folder_title, push_day, push_week
+
+    ctx, plan, _ = b1
+    world = MockWorld.load()
+    src = mock_sources(world)
+    world.routines["r-old"] = {"title": "old", "folder_id": None}
+    ctx.state.put("push_ids", {"hevy:2026-11-23-lower-force": "r-old"})
+    good = plan.model_copy(deep=True)
+    good.approval = "approved"
+
+    def boom(rid, fid):
+        raise RuntimeError("HTTP 429")
+
+    real_move = src.hevy.move_routine
+    src.hevy.move_routine = boom  # type: ignore[method-assign]
+    res = push_week(good, ctx, src, dry_run=False)
+    assert res["hevy"] and res["hevy_archive_errors"][0]["session"] == "2026-11-23-lower-force"
+    assert "hevy-archived:2026-11-23-lower-force" not in ctx.state.get("push_ids")
+    src.hevy.move_routine = real_move  # type: ignore[method-assign]
+    res = push_week(good, ctx, src, dry_run=False)  # retried and done
+    assert res["hevy_archived"][0]["folder"] == "Block 1 (coach)" and "hevy_archive_errors" not in res
+
+    # re-pushing an archived session clears its mark (it's back in the current-week folder)
+    s = good.sessions[0]
+    ids = ctx.state.get("push_ids")
+    ids[f"hevy-archived:{s.id}"] = "Block 1 (coach)"
+    ctx.state.put("push_ids", ids)
+    push_day(s, ctx, src, good, dry_run=False)
+    assert f"hevy-archived:{s.id}" not in ctx.state.get("push_ids")
+
+    # folder names: baseline week, a block, outside the season
+    m = ctx.macro
+    assert archive_folder_title(ctx, m.baseline_start) == "Baseline (coach)"
+    assert archive_folder_title(ctx, m.blocks[0].start) == "Block 1 (coach)"
+    assert archive_folder_title(ctx, m.baseline_start - dt.timedelta(days=30)) == "Other (coach)"
+
+
+def test_push_day_archives_earlier_weeks(b1):
+    from coach.integrations.mock import MockWorld, mock_sources
+    from coach.integrations.push import push_day
+
+    ctx, plan, _ = b1
+    world = MockWorld.load()
+    src = mock_sources(world)
+    world.routines["r-old"] = {"title": "old", "folder_id": None}
+    ctx.state.put("push_ids", {"hevy:2026-11-23-lower-force": "r-old"})
+    good = plan.model_copy(deep=True)
+    good.approval = "approved"
+    res = push_day(good.sessions[0], ctx, src, good, dry_run=False)
+    assert res["hevy_archived"] and world.routines["r-old"]["folder_id"] is not None

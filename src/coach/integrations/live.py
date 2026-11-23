@@ -138,6 +138,53 @@ class LiveHevy(HevySource):
             return text.strip('"')
         return str(res.get("id") if isinstance(res, dict) else res)
 
+    def folders(self):
+        out, page = {}, 1
+        while True:
+            data = _request("GET", f"{self.BASE}/routine_folders?page={page}&pageSize=10", self.headers)
+            for f in data.get("routine_folders", []):
+                out[str(f["title"])] = str(f["id"])
+            if page >= data.get("page_count", 1):
+                return out
+            page += 1
+
+    def create_folder(self, title):
+        res = _request(
+            "POST", f"{self.BASE}/routine_folders", self.headers, {"routine_folder": {"title": title}}
+        )
+        f = res.get("routine_folder", res) if isinstance(res, dict) else {}
+        return str(f["id"])
+
+    def move_routine(self, routine_id, folder_id):
+        try:
+            got = _request("GET", f"{self.BASE}/routines/{routine_id}", self.headers)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return False
+            raise
+        r = got.get("routine", got) if isinstance(got, dict) else {}
+        if isinstance(r, list):
+            r = r[0]
+        if str(r.get("folder_id")) == str(folder_id):
+            return True
+        body = {
+            "title": r["title"],
+            "folder_id": int(folder_id),
+            "notes": r.get("notes") or "",
+            "exercises": [
+                {
+                    "exercise_template_id": e["exercise_template_id"],
+                    "superset_id": e.get("superset_id"),
+                    "rest_seconds": e.get("rest_seconds"),
+                    "notes": e.get("notes") or "",
+                    "sets": [{k: v for k, v in st.items() if k != "index"} for st in e.get("sets", [])],
+                }
+                for e in r.get("exercises", [])
+            ],
+        }
+        _request("PUT", f"{self.BASE}/routines/{routine_id}", self.headers, {"routine": body})
+        return True
+
     def upsert_routine(self, routine, routine_id=None):
         res = None
         if routine_id:

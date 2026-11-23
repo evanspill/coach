@@ -91,7 +91,7 @@ erDiagram
 | `metrics` | series | `-` | `athlete/data/metrics/{key}.jsonl` | daily wellness, sessions, synced check-ins |
 | `gear` | singleton | `-` | `athlete/data/metrics/gear.json` | shoe mileage snapshot |
 | `sync_state` | singleton | `SyncState` | `athlete/data/metrics/sync_state.json` | last sync + report |
-| `push_ids` | singleton | `-` | `athlete/data/push_ids.json` | external ids of pushed routines/events: `hevy:<session id>`, `intervals:<session id>`, and `hevy:routine-<item set>` for standing routines (decision 100) |
+| `push_ids` | singleton | `-` | `athlete/data/push_ids.json` | external ids of pushed routines/events: `hevy:<session id>`, `intervals:<session id>`, and `hevy:routine-<item set>` for standing routines (decision 100); `hevy-folder:<title>` (routine folder ids) and `hevy-archived:<session id>` (routines moved to a block archive, decision 103) |
 
 `metrics` holds three row types per month file: `daily` (key = date; weight/body fat and nutrition from Intervals.icu
 wellness, CTL/ATL, merged across sources), `session` (key = source + start time; one merged

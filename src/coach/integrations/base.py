@@ -42,6 +42,20 @@ class HevySource(ABC):
     def create_template(self, title: str, exercise_type: str, equipment: str, muscle: str) -> str:
         """Create a custom exercise template; returns its id. Free Hevy accounts allow 7 custom exercises."""
 
+    # Routine folders (one level: Hevy folders have no parent) and moving a routine between them. The public API
+    # has no DELETE for routines or folders, so the coach organises by moving, never by deleting (DECISIONS 103).
+    def folders(self) -> dict[str, str]:
+        """Routine folder title -> id."""
+        raise NotImplementedError
+
+    def create_folder(self, title: str) -> str:
+        raise NotImplementedError
+
+    def move_routine(self, routine_id: str, folder_id: str) -> bool:
+        """Put an existing routine in a folder, keeping its content as it is in Hevy (edits included). False when
+        the routine no longer exists (deleted in the app)."""
+        raise NotImplementedError
+
 
 class IntervalsSource(ABC):
     """Runs (+ Running Dynamics), wellness (incl. custom check-in fields), gear, planned events -> Garmin."""
