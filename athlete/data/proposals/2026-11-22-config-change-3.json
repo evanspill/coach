@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-22-config-change-3",
+  "kind": "config_change",
+  "created": "2026-11-22",
+  "created_by": "audit",
+  "title": "Audit rule changes in code (PR #21): Red-day carry, single-run spike cap, resting-HR median, readiness log",
+  "what": "code.red_carry_48h v1 -> v2: the day after a Red day follows its own readiness; the next-day Z1 carry stays only when the Red came from a joint (rating at the Red level or a region flag). Safety-listed rule: loosened only with this explicit athlete approval. New thresholds run_spike_max_pct 10 and run_spike_min_step_mi 0.25 (defaults): no run more than 10% longer than the longest run of the last 30 days (min step 0.25 mi), replacing the +1 mi/week long-run step. Resting-HR trend by 7-day median. Weekly review logs readiness colour vs outcome.",
+  "why": "First re-evaluation audit (coach review + blind skill run agreed). HRV-guided trials lower intensity on the day of a low signal, not 48 h (PubMed 34489178); the athlete overrode the 48 h carry the first time it fired while recovery rose. Frandsen 2025 cohort (n=5200, https://pmc.ncbi.nlm.nih.gov/articles/PMC12421110): single-run spikes > 10% of the 30-day longest raised overuse-injury rates; week-to-week change did not. Buist 2008 RCT: the 10% weekly rule did not reduce injuries. Athlete approved all audit changes explicitly in chat (\"Make all the audit changes\").",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-22",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22",
+      "status": "approved",
+      "note": ""
+    }
+  ]
+}
