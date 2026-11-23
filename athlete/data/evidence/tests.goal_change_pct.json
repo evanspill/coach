@@ -1,0 +1,54 @@
+{
+  "rule_id": "tests.goal_change_pct",
+  "rule": "Default block-goal size per test (e.g. lifts +7.5% e1RM, DB press +5%, pull-ups +25%, threshold pace -3%, 2k row +3%, broad jump +3%).",
+  "origin": "gemini",
+  "evidence_level": "rct",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "No source sets block-goal sizes. Trial data give a sense of scale: national-level athletes gained 2.9-6.5% in 1RM squat over 10 weeks, so +7.5% e1RM per block is ambitious for a trained lifter, though more realistic while the athlete rebuilds. Concurrent training does not blunt maximal-strength gains but does blunt explosive gains (relevant to the +3% broad jump). Several goals sit close to test noise: row 3% vs about 2-2.5% error, threshold 3% vs 2-2.7%, DB press 5% vs 4% error plus 5-6% dumbbell jumps. A single retest cannot confirm those goals, so say so when one is chosen.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34473848/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Lindberg 2021: 10 weeks of strength/power training in national-level athletes gave 2.9-6.5% 1RM squat, 3-6% CMJ."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34757594/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Concurrent training: maximal strength not compromised, explosive strength attenuated (SMD -0.28)."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/10907753/",
+      "kind": "theory",
+      "direction": "context",
+      "note": "Hopkins 2000: judge an individual's change against the typical error; changes within noise are not interpretable."
+    }
+  ],
+  "value_at_review": {
+    "broad_jump": 3.0,
+    "standing_reach": 0.0,
+    "standing_jump_touch": 2.0,
+    "approach_jump_touch": 2.0,
+    "hinge_rm": 7.5,
+    "squat_rm": 7.5,
+    "db_press_5rm": 5.0,
+    "pullups_max": 25.0,
+    "run_tt_30": 3.0,
+    "run_submax_drift": 3.0,
+    "z2_drift_60": 30.0,
+    "row_2k": 3.0,
+    "bike_10min": 5.0,
+    "benchmark_wod": 5.0,
+    "open_repeat": 5.0,
+    "hyrox_sim": 4.0,
+    "body_comp": 5.0,
+    "sorensen_hold": 25.0,
+    "side_bridge": 25.0,
+    "dead_hang_max": 15.0
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

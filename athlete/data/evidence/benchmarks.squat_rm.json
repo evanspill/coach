@@ -1,17 +1,42 @@
 {
   "rule_id": "benchmarks.squat_rm",
-  "rule": "squat_rm benchmark target",
+  "rule": "Force benchmark: SSB box squat e1RM 1.6-1.75 x bodyweight (treated as about 1.75 x BW back squat).",
   "origin": "gemini",
   "evidence_level": "none",
   "impact": "high",
   "verdict": "keep_flagged",
-  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
-  "sources": [],
+  "summary": "No normative back-squat-to-bodyweight data for trained, non-powerlifting men were retrieved; the SSB-box to back-squat equivalence is also unsourced. Powerlifting norms show relative squat strength falls by about 0.009-0.013 x BW per kg of body mass, so fixed multipliers suit heavier athletes poorly. Concurrent-training meta-analysis shows that running does not blunt maximal strength gains, so the target need not be lowered for hybrid training. In CrossFit samples back-squat strength explains about 42% of the variance in Fran.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42747735/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Squat multiplier declines 0.0092-0.0125 per kg of body mass across percentiles in male powerlifters."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34757594/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Schumann 2022: concurrent training does not compromise maximal strength (SMD -0.06) but blunts explosive strength (-0.28), especially in the same session."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31013585/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Back-squat strength explained 42% of variance in Fran; supports strength mattering for CrossFit, but gives no target."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26838985/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Strength review: more strength helps general athletic tasks; no specific hybrid threshold."
+    }
+  ],
   "value_at_review": [
     1.6,
     1.75
   ],
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

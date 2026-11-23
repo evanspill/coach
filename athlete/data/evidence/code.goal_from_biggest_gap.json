@@ -1,14 +1,39 @@
 {
   "rule_id": "code.goal_from_biggest_gap",
-  "rule": "Block goal defaults to the focus test furthest from its benchmark",
+  "rule": "Default block goal = the focus test with the lowest % of its benchmark target (biggest raw % gap).",
   "origin": "coach",
-  "evidence_level": "none",
+  "evidence_level": "theory",
   "impact": "high",
-  "verdict": "keep_flagged",
-  "summary": "The benchmarks are unsourced coach targets, so gap % is a rough guide; the coach overrides it on judgment (B1 goal is pull-ups for the Open).",
-  "sources": [],
+  "verdict": "change",
+  "summary": "No study tests this rule directly. The nearest evidence, training aimed at an individual's force-velocity deficit, began with a positive trial; a later RCT in national-level athletes and a 2025 meta-analysis found no clear benefit over standard training, so 'attack the biggest deficit' is plausible but unproven. Reviews support building strength when an athlete is in a strength-deficit phase. A specific flaw: raw '% of target' is not comparable across tests. A 5% gap in threshold pace is far larger than a 5% gap in pull-ups (typical error 2% vs 10%), so the rule is biased toward noisy, fast-moving tests. Proposed: Rank gaps in comparable units: gap% / goal_change_pct (blocks needed to close), ignore gaps smaller than typical_error_pct, and break ties by athlete priority or race calendar. Fallback only; Claude still proposes with a stated trade-off. Bump the CODE_RULES version. Possibly wrong if: the normalized rule picks goals the athlete rejects more often than the current rule does.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28119624/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Jimenez-Reyes 2017: deficit-targeted (F-V) training improved jump height more consistently than generic training."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34473848/",
+      "kind": "rct",
+      "direction": "contradicts",
+      "note": "Lindberg 2021: training toward, away from or irrespective of the F-V deficit gave no group differences in athletes."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40593873/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Solberg 2025: optimized F-V training corrects profiles, but jump gains are comparable to non-optimized training; unclear superiority."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26838985/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Strength deficit, association and reserve phases: training emphasis depends on which phase the athlete is in."
+    }
+  ],
   "value_at_review": "v1",
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

@@ -1,14 +1,33 @@
 {
   "rule_id": "benchmarks.run_tt_30",
-  "rule": "run_tt_30 benchmark target",
+  "rule": "Aerobic benchmark: 30-min TT threshold pace 420 s/mi (7:00/mi), described as 'supporting ~3:16 marathon (Riegel)'.",
   "origin": "gemini",
-  "evidence_level": "none",
+  "evidence_level": "cohort",
   "impact": "high",
-  "verdict": "keep_flagged",
-  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
-  "sources": [],
+  "verdict": "change",
+  "summary": "This is a goal-derived stepping stone, not a population norm, and none was found; keep it as a coach target. The Riegel claim in its note is contradicted: in 2,303 recreational runners, Riegel was well calibrated up to the half marathon but predicted marathon times at least 10 minutes too fast for half of runners. A 7:00/mi threshold therefore likely supports a marathon slower than 3:16. Self-paced running time trials carry about 2-2.7% test-retest error. Proposed: Keep 420 s/mi as a coach stepping stone, but replace the note 'supports ~3:16 (Riegel)' with 'Riegel overestimates marathon ability (often by 10+ min, Vickers 2016); the marathon projection comes from goal_progress using long-run and mileage data'. Possibly wrong if: the athlete's own half-to-full conversion matches Riegel.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27570626/",
+      "kind": "cohort",
+      "direction": "contradicts",
+      "note": "Vickers 2016: Riegel underestimates marathon time by 10 min or more for half of recreational runners; models using prior races and mileage do better."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17762371/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "5-km time-trial typical error 2.0% CV in trained male runners."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/9506800/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "60-min treadmill time trial CV 2.7% in trained runners."
+    }
+  ],
   "value_at_review": 420,
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

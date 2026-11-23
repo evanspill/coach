@@ -1,17 +1,30 @@
 {
   "rule_id": "benchmarks.pullups_max",
-  "rule": "pullups_max benchmark target",
+  "rule": "Force benchmark: 12-15 strict pull-ups.",
   "origin": "gemini",
-  "evidence_level": "none",
+  "evidence_level": "cohort",
   "impact": "high",
-  "verdict": "keep_flagged",
-  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
-  "sources": [],
+  "verdict": "change",
+  "summary": "A population norm exists: 18,847 Norwegian men aged 17-21 did a median of 7 strict overhand pull-ups (IQR 3-10; no kipping, full hang). So 12-15 is above the 75th percentile of young men, which makes it a reasonable 'good' target for a trained athlete. The norm comes from lighter, younger, mostly untrained men; at 95 kg the target is harder in absolute terms. The test-retest ICC was 0.95-0.96. Proposed: Keep 12-15 but relabel it as sourced: 'above the 75th percentile (10 reps) of young adult men on a strict dead-hang protocol (Aandstad 2021)'. Write the protocol into tests.yaml as dead hang, chin over bar, no kip. Possibly wrong if: reps at 95 kg plateau below 12 while weighted pull-up e1RM keeps rising (then a relative-load test would fit better).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34390403/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Aandstad 2021 (PMC8505311): men's vertical pull-ups median 7 (25-75th percentile 3-10), n=18,847; strict protocol; reported ICC 0.95-0.96."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21088548/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Modified pull-up test: ICC 0.958 and minimal detectable change of 2 reps."
+    }
+  ],
   "value_at_review": [
     12,
     15
   ],
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

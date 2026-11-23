@@ -1,14 +1,27 @@
 {
   "rule_id": "benchmarks.row_2k",
-  "rule": "row_2k benchmark target",
+  "rule": "Glycolytic benchmark: 2k row at 3.4 W/kg (about 6:50 at 95 kg, about 323 W).",
   "origin": "gemini",
   "evidence_level": "none",
   "impact": "high",
   "verdict": "keep_flagged",
-  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
-  "sources": [],
+  "summary": "No peer-reviewed W/kg norm for 2k erg in non-rowers was found; the available rankings come from practitioner data. For context, 8 well-trained rowers (VO2peak 61) averaged 313 +/- 38 W in a 2k erg test, so about 323 W is roughly well-trained-rower power: ambitious for a hybrid athlete. Erg power is very reliable (about 2% CV), so the test can track progress well even though the target itself is unsourced.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/10487463/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Schabort 1999: well-trained rowers' 2k mean power was 313 +/- 38 W; CV for power 2.0%."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40230601/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Hyrox simulation: performance tracks VO2max, endurance volume and body fat rather than maximal strength, so engine targets matter more than strength for Hyrox."
+    }
+  ],
   "value_at_review": 3.4,
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

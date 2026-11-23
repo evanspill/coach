@@ -1,0 +1,72 @@
+{
+  "rule_id": "tests.typical_error_pct",
+  "rule": "Test-retest noise per test (e.g. hinge/squat 3%, DB press 4%, pull-ups 10%, broad jump 3%, 30-min TT 2%, 2k row 1.5%); smaller changes are reported as noise.",
+  "origin": "coach",
+  "evidence_level": "meta_analysis",
+  "impact": "medium",
+  "verdict": "change",
+  "summary": "Meta-analytic and test-specific data set the scale. 1RM tests have a median CV of 4.2% (range 0.5-12.1%), and an e1RM from a rep-max adds estimation error (one rep at a 5RM is about 3% in Epley). Jump distance has a CV of about 2%, and non-athletes and first trials run about 1.3x higher. Self-paced 5-km and 60-min running time trials have CVs of 2.0% and 2.7%. 2k erg mean power has a CV of 2.0% even in well-trained rowers, so 1.5% for a non-rower's W/kg is too optimistic. Pull-up MDC is about 2 reps, so 10% is reasonable. Proposed: hinge_rm and squat_rm 3 -> 4; row_2k 1.5 -> 2.5; run_tt_30 2 -> 2.5; keep the others (broad_jump 3, pullups 10, db_press 4) and keep flagging the rest as coaching estimates. Then refine each from the athlete's own repeat tests (Hopkins typical error from 2 or more trials). Possibly wrong if: the athlete's repeat tests show smaller within-subject variation than these values.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32681399/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Grgic 2020 (32 studies, n=1595): 1RM CV median 4.2%, range 0.5-12.1%; argues 3% is optimistic for hinge/squat."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11286357/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Hopkins 2001: jump CV about 2%; constant-power tests 0.9-2.0%; non-athletes 1.3x; first-trial CV 1.3x. Broad jump 3% is reasonable."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/10487463/",
+      "kind": "cohort",
+      "direction": "contradicts",
+      "note": "2k erg power CV 2.0% (1.3-3.1) in well-trained rowers; the 1.5% row value is too tight."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17762371/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "5-km TT CV 2.0% in trained runners on a treadmill; outdoor field tests are likely noisier."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/9506800/",
+      "kind": "cohort",
+      "direction": "contradicts",
+      "note": "60-min treadmill TT CV 2.7% (1.8-4.0); a 30-min field TT at 2% is on the optimistic side."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21088548/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Modified pull-up MDC 2 reps (ICC 0.958), consistent with about 10% at 12-15 reps."
+    }
+  ],
+  "value_at_review": {
+    "broad_jump": 3.0,
+    "standing_reach": 0.5,
+    "standing_jump_touch": 2.0,
+    "approach_jump_touch": 2.0,
+    "hinge_rm": 3.0,
+    "squat_rm": 3.0,
+    "db_press_5rm": 4.0,
+    "pullups_max": 10.0,
+    "run_tt_30": 2.0,
+    "run_submax_drift": 4.0,
+    "z2_drift_60": 30.0,
+    "row_2k": 1.5,
+    "bike_10min": 3.0,
+    "benchmark_wod": 4.0,
+    "open_repeat": 5.0,
+    "hyrox_sim": 3.0,
+    "body_comp": 1.0,
+    "sorensen_hold": 25.0,
+    "side_bridge": 20.0,
+    "dead_hang_max": 10.0
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

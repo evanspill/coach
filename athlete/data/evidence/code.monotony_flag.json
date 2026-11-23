@@ -1,0 +1,39 @@
+{
+  "rule_id": "code.monotony_flag",
+  "rule": "Weekly review flags Foster training monotony (mean/SD of daily sRPE load) > 2 as a question or focus point.",
+  "origin": "literature",
+  "evidence_level": "cohort",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "Foster 1998 linked illness mainly to individually identifiable strain thresholds (load x monotony), not to a fixed monotony cutoff. An IOC-subgroup systematic review lists increased training monotony as a risk factor for acute respiratory illness, and immune position statements recommend variety to limit monotony. The '> 2' number is a practitioner convention; the retrieved papers do not support it. The flag only starts a conversation, so it is cheap to keep. Pairing it with strain and the athlete's own history would be more faithful to Foster.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/9662690/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "Foster 1998 (n=25): illnesses mostly followed individual strain thresholds; defines monotony; no universal cutoff in the abstract."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35277393/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Derman 2022 IOC-subgroup systematic review (48 studies): increased training monotony is associated with acute respiratory illness."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21446353/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Walsh 2011 immune position statement: add variety to limit training monotony and strain."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11708692/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Foster 2001: session-RPE is a valid load measure across exercise types (basis for the calculation)."
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

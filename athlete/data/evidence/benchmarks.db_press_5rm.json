@@ -1,17 +1,36 @@
 {
   "rule_id": "benchmarks.db_press_5rm",
-  "rule": "db_press_5rm benchmark target",
+  "rule": "Force benchmark: DB press per-hand e1RM 0.42-0.50 x bodyweight (claimed to equal about 1.25 x BW barbell bench).",
   "origin": "gemini",
   "evidence_level": "none",
   "impact": "high",
   "verdict": "keep_flagged",
-  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
-  "sources": [],
+  "summary": "No published norm for per-hand dumbbell press relative to bodyweight was found. The conversion to barbell bench is itself unsourced, and the studies that predict barbell loads from dumbbell loads carry errors of about 7-8%, so the '1.25 x BW bench equivalent' cannot be checked. Coarse dumbbell increments (2-2.5 kg on about 40 kg is 5-6%) also limit how precisely this benchmark can be tracked. Keep it as a coach target and label it as one.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33666593/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Football players: barbell and dumbbell reps-to-fatigue predicted 1RM bench with 7.3% and 8.2% total error, so DB-to-BB conversions are imprecise."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24149723/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Bench 6RM predicts DB shoulder-press and assistance loads (R2 0.64-0.86), with 6.5-8.5% prediction differences."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42747735/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Powerlifter norms (n=101,898): bodyweight multipliers fall non-linearly with body mass, so a fixed ratio is harder to reach for a 95 kg athlete."
+    }
+  ],
   "value_at_review": [
     0.42,
     0.5
   ],
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

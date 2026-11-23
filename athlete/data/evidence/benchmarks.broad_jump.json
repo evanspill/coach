@@ -1,14 +1,33 @@
 {
   "rule_id": "benchmarks.broad_jump",
-  "rule": "broad_jump benchmark target",
+  "rule": "Neural benchmark: standing broad jump target 250 cm (about 1.33 x height for a 188 cm athlete).",
   "origin": "gemini",
-  "evidence_level": "none",
+  "evidence_level": "cohort",
   "impact": "high",
-  "verdict": "keep_flagged",
-  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
-  "sources": [],
+  "verdict": "change",
+  "summary": "A large population norm exists: 21,481 Norwegian men aged 17-21 at conscript selection jumped 2.25 m (SD 0.24); Swiss 20-year-old conscripts averaged 2.31 m. So 250 cm is about mean + 1 SD (around the 85th percentile) of young men. The value holds up, but its label (unsourced, 'x height') does not: no retrieved source supports a height multiple. Adult norms for men in their mid-30s were not found (youth norms such as Hungarian 18-year-olds, P50 210 cm, are lower). The norms come from untrained young men rather than trained hybrid athletes, and the test protocol differs (that study measured to the nearest 5 cm with no stick required). Proposed: Keep 250 cm but relabel it as sourced: 'about mean + 1 SD (~85th percentile) of young adult men (Aandstad 2021, n=21,481: 225 +/- 24 cm)'. Drop the '1.33 x height' rationale. Possibly wrong if: the athlete reaches 250 cm and it shows no link to sprint or dunk progress, or norms for trained men in their 30s turn out much higher.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34390403/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Aandstad 2021 (PMC8505311): 21,481 young men, standing long jump 2.25 +/- 0.24 m; cites Swiss conscripts at 2.31 m. 250 cm is about +1 SD."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26054955/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Hungarian youth norms: boys' median plateaus at 210 cm by age 18, so 250 cm is well above the population median."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35064915/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Systematic review of adult field tests: moderate evidence that the standing broad jump has moderate-to-high reliability."
+    }
+  ],
   "value_at_review": 250,
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

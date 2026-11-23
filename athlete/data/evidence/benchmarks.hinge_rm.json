@@ -1,17 +1,36 @@
 {
   "rule_id": "benchmarks.hinge_rm",
-  "rule": "hinge_rm benchmark target",
+  "rule": "Force benchmark: trap bar (high handle) e1RM 2.0-2.25 x bodyweight.",
   "origin": "gemini",
   "evidence_level": "none",
   "impact": "high",
   "verdict": "keep_flagged",
-  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
-  "sources": [],
+  "summary": "No normative trap-bar or hex-bar data for trained men were found; the hex-bar studies retrieved report 1RM relationships, not population norms. Powerlifting norms show that relative strength falls with body mass (about 0.015-0.020 x BW per kg in the deadlift), so a linear BW multiplier is a crude target for a 95 kg athlete. Reviews support more strength as broadly beneficial but give no threshold for a hybrid athlete. Keep it as a coach target, labelled as such.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42747735/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Montenegro 2026: percentile norms for drug-tested powerlifters; deadlift multiplier declines 0.015-0.020 per kg of body mass; argues against fixed BW multipliers."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26838985/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Suchomel 2016 review: greater strength improves jumping, sprinting and change of direction; describes strength deficit/association/reserve phases but no hybrid-athlete number."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36895846/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Hex-bar 1RM in 23 mixed-training adults relates to isometric pull force; no normative ratios."
+    }
+  ],
   "value_at_review": [
     2.0,
     2.25
   ],
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

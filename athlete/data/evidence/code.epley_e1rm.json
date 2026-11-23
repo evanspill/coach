@@ -1,0 +1,39 @@
+{
+  "rule_id": "code.epley_e1rm",
+  "rule": "e1RM = weight x (1 + (reps + RIR)/30) (Epley with RIR); used for test scoring and for every prescribed load.",
+  "origin": "literature",
+  "evidence_level": "cohort",
+  "impact": "high",
+  "verdict": "change",
+  "summary": "Validation studies find reps-to-failure equations accurate at low rep counts and progressively worse above about 10 reps. In trained bench-press lifters, Epley gave small mean differences and the lowest standard error of the estimate among the methods compared, while other equations systematically under- or over-predicted. Accuracy is exercise-dependent: equations under-predicted 1RM in pulling exercises by 2-7 kg. The code has no cap on effective reps (reps + RIR), and adding RIR adds its own rating error. Proposed: Keep Epley, but when reps + RIR > 10 mark the e1RM as low-confidence: it does not set a new test result or raise working e1RM unless it is confirmed by a 10-rep-or-fewer set. Protocols stay at 3-6RM. Bump the code version in CODE_RULES. Possibly wrong if: the athlete's high-rep e1RMs agree with low-rep e1RMs within about 3% across a block.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32740290/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Resistance-trained adults, bench: Epley had small mean differences and the lowest SEE versus velocity, Wathen and Mayhew methods."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16937972/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "Reynolds 2006: the drop from 1RM with reps is non-linear; 5RM predicts best; use no more than 10 reps in linear equations."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/7500624/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "Mayhew 1995 (n=220): equations had r 0.82-0.98 but over- or under-predicted, more so above 10 reps; Brzycki was most accurate at 10 reps or fewer."
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30741875/",
+      "kind": "cohort",
+      "direction": "contradicts",
+      "note": "Lat pull-down/cable row: rep equations under-predicted 1RM by 2.1-6.7 kg; velocity methods were more accurate."
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}
