@@ -1,0 +1,27 @@
+{
+  "rule_id": "thresholds.high_strain",
+  "rule": "Yesterday's Whoop day strain > 16 adds evening mobility for the loaded area to today's recovery prescription",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Whoop strain is a proprietary HR-based load score; independent data are limited to a single-athlete study showing it tracks session-RPE load. Wrist HR is less accurate during resistance and mixed work (burpees, rows), so strain under-reads gym sessions. The threshold only adds optional mobility, so the cost of a wrong value is negligible.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42783663/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Single elite swimmer, 128 sessions: WHOOP Activity Strain associated with session-RPE load and distance"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36803578/",
+      "kind": "other",
+      "direction": "context",
+      "note": "WHOOP 3.0 HR agreement was high for squats but low for rows and burpees - strain from gym work may be under-estimated"
+    }
+  ],
+  "value_at_review": 16.0,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

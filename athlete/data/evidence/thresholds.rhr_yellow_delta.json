@@ -1,0 +1,33 @@
+{
+  "rule_id": "thresholds.rhr_yellow_delta",
+  "rule": "7-day median resting HR 3-5 bpm above the 60-day median -> Yellow (metcon/threshold -> Z2, strength kept)",
+  "origin": "gemini",
+  "evidence_level": "meta_analysis",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "The direction is supported for short-term overload (RHR rises, small-moderate effect), but the effect is small and inside day-to-day variability, and in functionally overreached triathletes resting HR actually fell, so a normal RHR does not rule out fatigue. No study validates a 3 bpm cut-off; Whoop RHR accuracy is moderate. The Yellow consequence is mild (strength kept), so a heuristic number is acceptable.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18308872/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Meta-analysis: resting HR rose with short-term overload (SMD 0.55) but effects small and within day-to-day noise"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24136138/",
+      "kind": "rct",
+      "direction": "contradicts",
+      "note": "Functionally overreached triathletes showed lower resting HR and higher HRV (parasympathetic hyperactivity), not an RHR rise"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40834291/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Whoop 4.0 nocturnal RHR showed only moderate agreement with ECG"
+    }
+  ],
+  "value_at_review": 3.0,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

@@ -1,0 +1,33 @@
+{
+  "rule_id": "thresholds.sustained_red_days",
+  "rule": "Red on >= 3 days within the sustained-Red window triggers the sustained-Red / reactive-deload path",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "No trial validates '3 Red days' as a deload trigger; HRV-guided studies react to 1-2 low days with an easy day, not a deload. Requiring 3 of 5 filters single bad nights, and the non-joint path is only a proposal, so false positives cost an approval decision rather than a lost week. A 1-week break costs some strength in trained lifters, so the number should not be lowered without data.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17849143/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Low HRV (below reference or 2-day decreasing trend) -> easy/rest that day only; no multi-day deload trigger"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37730925/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Consensus supports reactive deloads when fatigue accumulates, without a specific day count"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38274324/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "1-week deload mid-programme reduced strength gains - a trigger that fires too readily has a cost"
+    }
+  ],
+  "value_at_review": 3,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

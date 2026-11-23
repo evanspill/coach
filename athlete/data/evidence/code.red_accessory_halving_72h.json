@@ -1,14 +1,45 @@
 {
   "rule_id": "code.red_accessory_halving_72h",
-  "rule": "Accessory sets halved for 72 h after a Red day",
+  "rule": "Hypertrophy/accessory sets are halved on days 2-3 after any Red day, whatever today's readiness (v1)",
   "origin": "gemini",
   "evidence_level": "none",
   "impact": "medium",
-  "verdict": "keep_flagged",
-  "summary": "No evidence either way; cheap and conservative.",
-  "sources": [],
+  "verdict": "change",
+  "summary": "No study tests a blanket 72 h accessory-volume cut after a low-readiness day. The HRV-guided trials this system follows adjust the day the signal is low and train normally once it recovers, which is the same reasoning behind the 2026-11-22 change of the Red carry to 'next day follows its own readiness'. Recovery studies in trained men show neuromuscular fatigue from non-failure sets clearing within 24-48 h (high-volume/failure work up to 48 h), so a fixed 72 h window has no specific basis. Cost per firing is small (1-2 sessions of accessory volume) but it fires after every Red, including non-training Reds such as a bad night. Proposed: Code PR (bump to v2): halve accessory sets on days 2-3 after a Red only when that Red was joint-driven (same condition as the v2 Red carry) or today's readiness is Yellow/Red; on a Green day after a non-joint Red, train as planned. Wrong if, over the next block, sessions within 3 days of a non-joint Red show higher session RPE at the same loads or a second Red follows within 72 h more often than before.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26909534/",
+      "kind": "rct",
+      "direction": "contradicts",
+      "note": "HRV-guided runners: hard session if HRV in SWC band, otherwise easy that day; no multi-day carry-over cut, and performance improved"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17849143/",
+      "kind": "rct",
+      "direction": "contradicts",
+      "note": "Daily HRV decisions (low day -> easy/rest that day; high again -> hard) beat predefined training; adjustments were day-by-day"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30836680/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Squat fatigue (velocity vs 1 m/s load, CMJ) recovered by 24-48 h; higher velocity loss slowed recovery"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26970332/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Sets to failure kept CMJ down up to 48 h; half-the-possible reps recovered faster - fatigue window depends on proximity to failure, not a fixed 72 h"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37730925/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Delphi: reduced-load periods are a fatigue-management tool, but the consensus says nothing about a 72 h per-Red volume cut"
+    }
+  ],
   "value_at_review": "v1",
-  "reviewed": "2026-11-22",
-  "review_after": "2027-11-22",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

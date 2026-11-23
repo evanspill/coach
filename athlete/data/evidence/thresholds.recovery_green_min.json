@@ -1,14 +1,39 @@
 {
   "rule_id": "thresholds.recovery_green_min",
-  "rule": "Whoop recovery >= 67 = Green",
+  "rule": "Whoop recovery >= 67 is Green on its own; 34-66 is Green only if the HRV 7-day trend is in band (else Yellow)",
   "origin": "gemini",
-  "evidence_level": "none",
+  "evidence_level": "cohort",
   "impact": "medium",
   "verdict": "keep_flagged",
-  "summary": "Vendor colour band; only shapes Green vs Yellow together with the HRV trend.",
-  "sources": [],
+  "summary": "67 is Whoop's own colour band and has no published validation as a training-decision cut-off. The best independent-ish evidence (389 pro golfers, Whoop-affiliated authors) links within-athlete recovery to performance, but the effect is small and continuous, with no threshold. Whoop HRV agrees acceptably with ECG but its error approaches the smallest worthwhile change, and users themselves report treating the score as one input. Its practical bite here is limited because mid-range recovery stays Green when the HRV trend is in band.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41265431/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Within golfers, +10 recovery points associated with ~0.24 fewer strokes; continuous association, no cut-off; Whoop-linked authors"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34065516/",
+      "kind": "other",
+      "direction": "context",
+      "note": "WHOOP HR valid vs ECG; Ln rMSSD bias/LOA approached or exceeded the SWC - recovery inputs are noisy at the decision margin"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40834291/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Whoop 4.0 nocturnal RHR/HRV moderate agreement with ECG (HRV MAPE ~8%)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38668986/",
+      "kind": "other",
+      "direction": "context",
+      "note": "Whoop/Oura users treat readiness scores as one input and rely on self-awareness; recognise device errors"
+    }
+  ],
   "value_at_review": 67,
-  "reviewed": "2026-11-22",
-  "review_after": "2027-11-22",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

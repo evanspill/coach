@@ -1,0 +1,39 @@
+{
+  "rule_id": "thresholds.hrv_baseline_days",
+  "rule": "HRV baseline (mean and SD of ln rMSSD for the SWC band) uses the last 60 days",
+  "origin": "gemini",
+  "evidence_level": "rct",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "The HRV-guided trials used shorter references: a 10-day rolling mean-SD (Kiviniemi) or a 4-week baseline block (Javaloyes, Vesterinen), and the methodological meta-analysis says the best way to set baseline values (fixed vs rolling, length) is still unresolved. A 60-day window gives a steadier band but lags real fitness-driven HRV shifts during a running ramp; the trials test the approach, not the 60-day number. Reasonable and conservative; label as heuristic.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17849143/",
+      "kind": "rct",
+      "direction": "mixed",
+      "note": "Used a 10-day rolling reference (mean - SD), much shorter than 60 days, and the HRV-guided group improved more"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29809080/",
+      "kind": "rct",
+      "direction": "mixed",
+      "note": "4 baseline weeks set each cyclist's resting HRV reference before HRV-guided training; improvements in TT and peak power"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26909534/",
+      "kind": "rct",
+      "direction": "mixed",
+      "note": "Individual SWC derived from a baseline period of a few weeks; HRV-guided group improved 3000 m"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34639599/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Meta-analysis: methods for baseline reference values (fixed vs rolling) 'require further study'; benefits small"
+    }
+  ],
+  "value_at_review": 60,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-08-20",
+  "proposal_id": null
+}

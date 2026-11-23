@@ -1,14 +1,39 @@
 {
   "rule_id": "code.sustained_red_replan",
-  "rule": "Sustained Red hands off to replan (reactive deload, via proposal)",
+  "rule": "Sustained Red (sustained_red_days of sustained_red_window, or any joint >= 4) hands off to replan for a reactive deload; non-joint triggers are a proposal (v1, safety)",
   "origin": "gemini",
-  "evidence_level": "practitioner",
+  "evidence_level": "consensus",
   "impact": "high",
   "verdict": "keep_flagged",
-  "summary": "Conservative and gated by approval; fires less now HRV alone can't Red.",
-  "sources": [],
+  "summary": "Expert consensus treats deloads as a fatigue-management tool and supports reacting to accumulated fatigue, and overreaching studies show a reduced-load week reverses functional overreaching. No trial tests 'n Red days -> deload'; the HRV-guided trials only shift intensity day by day. A planned 1-week deload in trained lifters cost some strength, so false-positive deloads are not free - the proposal gate (athlete approval for non-joint triggers) is the right brake. Safety rule: kept as is.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37730925/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "Delphi of 21-34 expert coaches: deloading is reduced training stress to mitigate fatigue and restore preparedness; reactive use endorsed"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24136138/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Triathletes overreached by 3 weeks overload (-9% performance) supercompensated after a 1-week taper"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38274324/",
+      "kind": "rct",
+      "direction": "contradicts",
+      "note": "A 1-week full training break mid-programme reduced lower-body strength gains vs continuous training; hypertrophy unchanged - unnecessary deloads have a cost"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34489178/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "HRV-guided endurance training mostly removed individual hard sessions rather than whole weeks; small performance benefit, fewer non-responders"
+    }
+  ],
   "value_at_review": "v1",
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

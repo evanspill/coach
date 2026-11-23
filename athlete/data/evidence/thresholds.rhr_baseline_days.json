@@ -1,0 +1,27 @@
+{
+  "rule_id": "thresholds.rhr_baseline_days",
+  "rule": "Resting-HR baseline is the median of the last 60 days",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "No study compares RHR baseline lengths. Overload-related RHR changes are small and can be masked by day-to-day noise, so a long, stable baseline is sensible; the downside is lag as aerobic fitness lowers RHR during the running ramp, which slightly biases the delta toward 'below baseline' (lenient). HRV-guided training meta-analysis found no RHR advantage, so RHR is a secondary signal; the 60-day number is a heuristic matched to the HRV window.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18308872/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Short-term overload raised resting HR (SMD 0.55); long-term overload showed no RHR change; small amplitude limits use"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34639599/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "HRV-guided vs predefined training: no difference in resting HR (SMD 0.04) - RHR responds slowly/weakly"
+    }
+  ],
+  "value_at_review": 60,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-08-20",
+  "proposal_id": null
+}

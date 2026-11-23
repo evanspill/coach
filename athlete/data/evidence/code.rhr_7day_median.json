@@ -1,0 +1,33 @@
+{
+  "rule_id": "code.rhr_7day_median",
+  "rule": "Resting-HR trend = median of the last 7 days minus median of the baseline window (v1)",
+  "origin": "coach",
+  "evidence_level": "consensus",
+  "impact": "medium",
+  "verdict": "keep",
+  "summary": "Monitoring literature agrees that single-day cardiac readings are too noisy and that multi-day averages (plateau at 3-4 valid days per week) are needed; the 7-day window matches HRV practice. Using a median rather than a mean is a statistical choice (robust to one sick/late night) rather than something tested in athletes, but it only makes the rule harder to trip on one outlier. Overreaching-related RHR shifts are small and can sit inside day-to-day noise, which argues for smoothing, not against it.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24334285/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Ln rMSSD averaged over >=3-4 days per week reached the same signal as 7-day averages; single days were weaker (HRV, applied by analogy to RHR)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18308872/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Short-term overload raised resting HR only modestly (SMD 0.55); changes may fall within day-to-day variability, so single days mislead"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24136138/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Once-weekly isolated readings missed changes that weekly means detected, due to wide day-to-day variability"
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}
