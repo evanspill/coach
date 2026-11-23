@@ -52,7 +52,7 @@
     "start_time": "09:30",
     "type": "recovery",
     "title": "Recovery: Z1 walk + mobility",
-    "intent": "Red: next 48 h are Z1 + mobility",
+    "intent": "Red: Z1 + mobility today",
     "location": "home",
     "route": "neighbourhood walk",
     "expected_minutes": 50,

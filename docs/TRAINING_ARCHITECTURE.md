@@ -146,6 +146,9 @@ Single studies, mouse studies, or hype never change my programming. Every cited 
 - 2026-11-11: HYROX goal changed to a sub-1:05 Open time (athlete-approved); double-unders, handstand push-ups, wall
   walks and ring muscle-ups added with shoulder-gated progressions.
 - 2026-11-11: HYROX goal set to sub-1:10 Open, the like-for-like Boston-qualifier level (athlete-approved).
+- 2026-11-22: first re-evaluation audit (decisions 104-105, athlete-approved): HRV trend alone never makes a day Red;
+  the day after a Red follows its own readiness unless a joint was Red; single-run spike cap replaces long-run growth
+  <= 1 mi/week; resting HR by 7-day median; protein 2.0 g/kg outside a cut; fat floor 72 g.
 
 ### Shoulder-safe gymnastics progressions
 Overhead and Open gymnastics skills follow the shoulder: strict before kipping, upright pressing before going

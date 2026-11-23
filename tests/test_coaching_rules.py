@@ -549,6 +549,19 @@ def test_the_day_after_red_follows_its_own_readiness_unless_a_joint_was_red(home
     assert any(c.what.startswith(f"tests {tests} moved to") for c in rec.changes)
     assert any(set(tests) <= set(s.tests) for s in plan.sessions if s.date > day)
 
+    # a Red from a region flag alone (a joint at 3 on two check-ins, none at the Red level) still carries
+    from coach.models.records import JointFlag
+
+    flag = JointFlag(
+        region="back", since=y, restricted_tags=["spine_load"], reason="back >= 3 on 2 check-ins"
+    )
+    red_flag = red.model_copy(
+        update={"reasons": ["back >= 3 on 2 check-ins"], "joints": {"back": 3}, "joint_flags": [flag]}
+    )
+    ctx.state.put("day_records", DayRecord(date=y, status="complete", readiness=red_flag))
+    fresh = plan_week(ctx, dt.date(2026, 11, 16))
+    assert adjust_day.adjust(ctx, day, fresh).session.type == "recovery"
+
 
 def test_adjust_day_keeps_the_high_carb_tier_before_the_long_run(home):
     from coach.coaching.skills import adjust_day

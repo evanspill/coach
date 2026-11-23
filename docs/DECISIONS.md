@@ -610,7 +610,7 @@ Each entry: **decision** - why - how to reverse.
       items in the monthly `learn`, plus on demand.
     - Reverse: revert the commit; evidence records and audit reports are plain athlete data.
 105. **Audit changes: Red-day carry, single-run spikes, resting-HR median, readiness log, nutrition** (athlete
-     approved all, 2026-11-23; from the first re-evaluation, decision 104):
+     approved all, 2026-11-22 ET; from the first re-evaluation, decision 104):
     - The day after a Red day follows its own readiness. The carry (Z1 + mobility the next day too) stays only when
       the Red came from a joint rated at the Red level; illness and red flags have their own gates. HRV-guided
       trials lower intensity on the day the signal is low, not for 48 h. The athlete overrode the 48 h carry the
