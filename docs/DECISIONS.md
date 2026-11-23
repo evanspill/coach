@@ -583,3 +583,23 @@ Each entry: **decision** - why - how to reverse.
       go to "Other (coach)", not "Baseline (coach)". Logged workouts are separate Hevy records, and the coach reads workouts, not routines, so moving
       or deleting a routine by hand loses no training data.
     - Reverse: revert the commit. Folders can be deleted or emptied in the app.
+104. **Re-evaluation audit: the coach questions its own rules** (athlete request, 2026-11-22):
+    - Why: `learn` brings in new evidence, but nothing re-checked the rules already in place. Many of them came from
+      the original planning chat or practitioner habit. The first one examined, HRV trend 3 days below its band ->
+      Red, had no trial behind it and was costing training days (changed in 2026-11-22-config-change-2). Coach
+      development research describes expert coaches as reflective practitioners who notice, try and evaluate, and
+      notes that reflection doesn't come from experience alone.
+    - `coach audit` (deterministic) lists every rule: the config sections that hold rules (thresholds, weather,
+      nutrition, running, training rules, skill practice, deloads, ladder rules, benchmarks, test noise and goal
+      sizes) are walked automatically, so a new number shows up unreviewed without anyone remembering to add it.
+      Rules that live in code are named in `engine/audit.py` CODE_RULES. It compares the list with the `evidence`
+      records and returns the queue: changed since review, unreviewed, due again, weak evidence with high impact,
+      and records whose rule no longer exists.
+    - The `audit` skill does the judging: signals from use first (how often a rule fired, what followed, how often
+      the athlete overrode it), then a literature search citing retrieved sources only, an evidence grade, an impact
+      grade and a verdict (keep / keep_flagged / change / retire / trial). Changes go through proposals or PRs. A
+      4-week trial is offered, not required (the athlete may take a well-supported change directly). Safety rules are
+      never loosened by an audit.
+    - Cadence: every block transition Sunday (after the block review, before the next goal), plus up to 3 high-impact
+      items in the monthly `learn`, plus on demand.
+    - Reverse: revert the commit; evidence records and audit reports are plain athlete data.

@@ -58,6 +58,19 @@ def cmd_init(args):
     return {"done": bootstrap(st, cfg, _today(args))}
 
 
+def cmd_audit(args):
+    """The re-evaluation queue (DECISIONS 104): rules never reviewed, changed since their review, due again, or
+    resting on weak evidence while costly. The judging is the `audit` skill's job; this only lists."""
+    from coach.engine.audit import audit
+
+    st, cfg = Store(), load_config()
+    records = {r.rule_id: r for r in st.query("evidence")}
+    out = audit(cfg, records, _today(args))
+    if not args.full:
+        out.pop("inventory")
+    return out
+
+
 def cmd_migrate(args):
     """One-time data migrations (idempotent): week plans' sessions move into their day records (DECISIONS 102)."""
     return {"week_plans_migrated": Store().migrate_week_plans()}
@@ -720,6 +733,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("init", help="one-time setup: macrocycle, starting rungs, config lock, notes")
     sub.add_parser("migrate", help="one-time data migrations (week plan sessions -> day records); idempotent")
+    au = sub.add_parser(
+        "audit", help="re-evaluation queue: rules unreviewed, changed, due or weakly supported"
+    )
+    au.add_argument("--full", action="store_true", help="include the whole rule inventory")
     sy = sub.add_parser("sync", help="fetch, normalize and store new data (idempotent)")
     sy.add_argument(
         "--jitter", type=int, default=0, metavar="S", help="wait a random 0..S seconds first (scheduled runs)"
@@ -816,6 +833,7 @@ def build_parser() -> argparse.ArgumentParser:
 COMMANDS = {
     "init": cmd_init,
     "migrate": cmd_migrate,
+    "audit": cmd_audit,
     "sync": cmd_sync,
     "status": cmd_status,
     "readiness": cmd_readiness,

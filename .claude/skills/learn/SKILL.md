@@ -20,6 +20,11 @@ description: Getting better as a coach. Monthly (first Wednesday) - (1) an exter
   hype never change programming.
 - Save the `science` report (`coach record add science --key YYYY-MM --file audit.md`).
 
+## Re-evaluation queue
+- Run `coach audit`. If it lists rules that changed since their review, or high-impact rules that are unreviewed or
+  rest on weak evidence, review up to 3 of them with the `audit` skill's procedure (evidence record + proposal if
+  needed). The full re-evaluation runs at every block transition (`audit`).
+
 ## Calibration
 - Start with `coach` output from the deterministic calibration (it compares next-day RPE on Green vs Yellow days);
   extend it (progression rate vs RPE drift, carb tiers vs session quality, sleep vs readiness).
