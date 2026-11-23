@@ -122,7 +122,14 @@ def test_code_rule_versions_changed_and_due_safety(home, monkeypatch):
     assert "code.red_carry_48h" not in q["due"]  # changed is reported once, ahead of due
     full = {r["rule_id"]: r for r in A.audit(cfg, {}, TODAY)["inventory"]}
     assert full["code.red_carry_48h"]["safety"] and not full["season.deload.every"]["safety"]
-    assert set(full["code.red_carry_48h"]) == {"rule_id", "where", "value", "description", "safety"}
+    assert set(full["code.red_carry_48h"]) == {
+        "rule_id",
+        "where",
+        "value",
+        "description",
+        "safety",
+        "evidence",
+    }
 
 
 def test_dotted_rule_ids_round_trip_through_the_store(home):
@@ -146,3 +153,41 @@ def test_safety_rules_exist_and_change_verdicts_surface(home):
     rec = _rec("thresholds.joint_red", v, verdict="change", review_after=dt.date(2027, 6, 1))
     q = A.audit(cfg, {"thresholds.joint_red": rec}, TODAY)
     assert "thresholds.joint_red" in q["safety_rules_queued"] and "thresholds.joint_red" not in q["due"]
+
+
+def test_structured_sources_counts_and_audit_view(home):
+    """Decision 106: several sources per rule, each with a kind and a direction; plain URLs still accepted."""
+    from coach.config import load_config
+    from coach.engine.audit import audit
+    from coach.models.records import EvidenceRecord
+
+    rec = EvidenceRecord(
+        rule_id="thresholds.weekly_run_increase_pct",
+        rule="weekly mileage cap",
+        evidence_level="cohort",
+        impact="high",
+        verdict="change",
+        sources=[
+            {
+                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12421110",
+                "kind": "cohort",
+                "direction": "contradicts",
+                "note": "week-to-week change not associated with injury; single-run spikes were",
+            },
+            {
+                "url": "https://research.rug.nl/en/publications/no-effect-of-a-graded-training-program-on-the-number-of-running-r/",
+                "kind": "rct",
+                "direction": "contradicts",
+            },
+            "https://example.org/plain-url",
+        ],
+        value_at_review=10,
+        reviewed=dt.date(2026, 11, 22),
+    )
+    assert rec.sources[2].url == "https://example.org/plain-url" and rec.sources[2].direction == "supports"
+    assert rec.source_counts() == {"supports": 1, "contradicts": 2, "mixed": 0, "context": 0}
+    cfg = load_config()
+    inv = {r["rule_id"]: r for r in audit(cfg, {rec.rule_id: rec}, TODAY)["inventory"]}
+    ev = inv["thresholds.weekly_run_increase_pct"]["evidence"]
+    assert ev["level"] == "cohort" and ev["sources"]["contradicts"] == 2 and ev["verdict"] == "change"
+    assert inv["thresholds.joint_red"]["evidence"] is None

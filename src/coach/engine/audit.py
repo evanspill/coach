@@ -207,6 +207,19 @@ def _norm(v: Any) -> Any:
 WEAK = {"practitioner", "theory", "none", "unknown"}
 
 
+def _evidence_view(rec: Any) -> dict | None:
+    """What `coach audit --full` shows next to each rule: where it came from and what supports it."""
+    if rec is None:
+        return None
+    return {
+        "origin": rec.origin,
+        "level": rec.evidence_level,
+        "verdict": rec.verdict,
+        "sources": rec.source_counts(),
+        "reviewed": rec.reviewed.isoformat(),
+    }
+
+
 def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
     """records: rule_id -> EvidenceRecord. Returns the review queue, most urgent first."""
     inv = inventory(cfg)
@@ -250,6 +263,7 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
                 "value": r.value,
                 "description": r.description,
                 "safety": r.safety,
+                "evidence": _evidence_view(records.get(r.rule_id)),
             }
             for r in inv
         ],
