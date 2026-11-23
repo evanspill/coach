@@ -19,47 +19,87 @@ class RuleRef:
     where: str
     value: Any
     description: str = ""
+    safety: bool = False  # never loosened by an audit; always shown to the athlete when queued
 
 
-# Rules that live in code, not config: id -> (where, what it does). Keep in step with the code.
-CODE_RULES: dict[str, tuple[str, str]] = {
+# Safety-relevant rules: an audit may only make them clearer or stricter (skill rule), and the queue lists them.
+SAFETY_RULES = {
+    "thresholds.joint_red",
+    "thresholds.joint_yellow",
+    "thresholds.joint_flag_rating",
+    "thresholds.joint_flag_consecutive",
+    "thresholds.pain_rule_max",
+    "thresholds.recovery_red_max",
+    "thresholds.rhr_red_delta",
+    "progressions.rules.max_session_pain_to_advance",
+    "progressions.rules.regress_on_session_pain_above",
+    "progressions.rules.regress_on_next_day_flare",
+    "progressions.rules.pain_rule",
+    "progressions.rules.region_flag_rating",
+    "progressions.rules.region_flag_consecutive",
+    "code.red_carry_48h",
+    "code.sustained_red_replan",
+}
+
+
+# Rules that live in code, not config: id -> (where, what it does, version). The version is what `coach audit`
+# compares with the evidence record: bump it whenever the rule's behaviour or constant changes, so the change shows
+# up as `changed_since_review`. Keep in step with the code.
+CODE_RULES: dict[str, tuple[str, str, str]] = {
     "code.red_carry_48h": (
         "coaching/skills/adjust_day.py",
         "the day after a Red day is Z1 + mobility too (the 48 h after Red)",
+        "v1",
     ),
     "code.red_accessory_halving_72h": (
         "coaching/skills/adjust_day.py",
         "accessory (hypertrophy) sets are halved for 72 h after a Red day",
+        "v1",
     ),
     "code.sustained_red_replan": (
         "coaching/skills/adjust_day.py + replan",
         "sustained Red (thresholds.sustained_red_days in the window) hands off to replan (reactive deload)",
+        "v1",
     ),
-    "code.monotony_flag": ("coaching/skills/review.py", "weekly review flags training monotony > 2 (Foster)"),
+    "code.monotony_flag": (
+        "coaching/skills/review.py",
+        "weekly review flags training monotony > 2 (Foster)",
+        "v1",
+    ),
     "code.easy_share_flag": (
         "coaching/skills/review.py",
         "weekly review flags < 75% of running time easy over two weeks (80/20)",
+        "v1",
     ),
     "code.energy_availability_flag": (
         "coaching/skills/review.py",
         "weekly review flags estimated energy availability < ~30 kcal/kg FFM/day",
+        "v1",
     ),
     "code.two_a_day_gap_6h": (
         "engine/validator.py",
         ">= 6 h between endurance and hypertrophy on the same day (two-a-days)",
+        "v1",
     ),
-    "code.epley_e1rm": ("engine/testing.py", "estimated 1RM = weight x (1 + reps/30) from rep-max tests"),
+    "code.epley_e1rm": (
+        "engine/testing.py",
+        "estimated 1RM = weight x (1 + reps/30) from rep-max tests",
+        "v1",
+    ),
     "code.submax_threshold_pace": (
         "engine/testing.py",
         "threshold pace from a submax run = avg pace / 1.25 (low confidence)",
+        "v1",
     ),
     "code.marathon_riegel": (
         "coaching/skills/assess.py",
         "race-time prediction with Riegel k = 1.06 (+10 min)",
+        "v1",
     ),
     "code.goal_from_biggest_gap": (
         "coaching/skills/assess.py",
         "the block goal defaults to the focus test furthest from its benchmark",
+        "v1",
     ),
 }
 
@@ -109,7 +149,7 @@ def inventory(cfg: Config) -> list[RuleRef]:
             rid = f"{label}.{key}"
             if rid in _SKIP:
                 continue
-            rules.append(RuleRef(rid, f"config {path}.{key}", value))
+            rules.append(RuleRef(rid, f"config {path}.{key}", value, safety=rid in SAFETY_RULES))
     shoe = _as_dict(cfg.profile.gear).get("shoe_alert_miles")
     if shoe is not None:
         rules.append(RuleRef("gear.shoe_alert_miles", "config profile.gear.shoe_alert_miles", shoe))
@@ -140,8 +180,8 @@ def inventory(cfg: Config) -> list[RuleRef]:
             "default block-goal size per test",
         )
     )
-    for rid, (where, what) in CODE_RULES.items():
-        rules.append(RuleRef(rid, where, None, what))
+    for rid, (where, what, version) in CODE_RULES.items():
+        rules.append(RuleRef(rid, where, version, what, safety=rid in SAFETY_RULES))
     return sorted(rules, key=lambda r: r.rule_id)
 
 
@@ -181,8 +221,19 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
         "due": due,
         "weak_evidence_high_impact": weak,
         "orphaned_records": sorted(set(records) - known),  # a reviewed rule that no longer exists
+        # safety rules in the queue: the verdict is always shown to the athlete, and may never loosen them
+        "safety_rules_queued": sorted(
+            {r.rule_id for r in inv if r.safety}
+            & ({c["rule_id"] for c in changed} | set(unreviewed) | set(due) | set(weak))
+        ),
         "inventory": [
-            {"rule_id": r.rule_id, "where": r.where, "value": r.value, "description": r.description}
+            {
+                "rule_id": r.rule_id,
+                "where": r.where,
+                "value": r.value,
+                "description": r.description,
+                "safety": r.safety,
+            }
             for r in inv
         ],
     }

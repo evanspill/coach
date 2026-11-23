@@ -594,7 +594,10 @@ Each entry: **decision** - why - how to reverse.
       sizes) are walked automatically, so a new number shows up unreviewed without anyone remembering to add it.
       Rules that live in code are named in `engine/audit.py` CODE_RULES. It compares the list with the `evidence`
       records and returns the queue: changed since review, unreviewed, due again, weak evidence with high impact,
-      and records whose rule no longer exists.
+      and records whose rule no longer exists. Rules in code carry a version string in CODE_RULES that is bumped
+      whenever the rule changes, so code edits show up as "changed since review" too. Safety rules (joint, pain,
+      Red-day and sustained-Red rules) are flagged; the queue lists them under `safety_rules_queued` so their
+      verdicts always reach the athlete (review of #20).
     - The `audit` skill does the judging: signals from use first (how often a rule fired, what followed, how often
       the athlete overrode it), then a literature search citing retrieved sources only, an evidence grade, an impact
       grade and a verdict (keep / keep_flagged / change / retire / trial). Changes go through proposals or PRs. A

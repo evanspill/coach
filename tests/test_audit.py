@@ -45,7 +45,12 @@ def test_queue_unreviewed_changed_due_weak_orphaned(home):
             review_after=dt.date(2026, 11, 1),
         ),
         # weak evidence, high impact, kept: stays on the radar
-        "code.red_carry_48h": _rec("code.red_carry_48h", None, evidence_level="practitioner", impact="high"),
+        "code.red_carry_48h": _rec(
+            "code.red_carry_48h",
+            inv["code.red_carry_48h"].value,
+            evidence_level="practitioner",
+            impact="high",
+        ),
         # a rule that no longer exists
         "thresholds.gone": _rec("thresholds.gone", 1),
     }
@@ -90,3 +95,43 @@ def test_evidence_records_go_through_the_door_and_feed_the_cli(home):
     assert "gear.shoe_alert_miles" not in out["unreviewed"] and "inventory" not in out
     full = cli.COMMANDS["audit"](cli.build_parser().parse_args(["audit", "--full"]))
     assert any(r["rule_id"] == "code.red_carry_48h" for r in full["inventory"])
+
+
+def test_code_rule_versions_changed_and_due_safety(home, monkeypatch):
+    """Review of #20: a code rule's version bump shows as changed (changed wins over due); safety rules are listed."""
+    from coach.config import load_config
+    from coach.engine import audit as A
+
+    cfg = load_config()
+    v = A.CODE_RULES["code.red_carry_48h"][2]
+    rec = _rec(
+        "code.red_carry_48h",
+        v,
+        review_after=dt.date(2026, 1, 1),
+        evidence_level="practitioner",
+        impact="high",
+    )
+    q = A.audit(cfg, {"code.red_carry_48h": rec}, TODAY)
+    assert q["due"] == ["code.red_carry_48h"] and not q["changed_since_review"]
+    assert (
+        "code.red_carry_48h" in q["safety_rules_queued"]
+        and "thresholds.joint_red" in q["safety_rules_queued"]
+    )
+    where, what, _ = A.CODE_RULES["code.red_carry_48h"]
+    monkeypatch.setitem(A.CODE_RULES, "code.red_carry_48h", (where, what, "v2"))
+    q = A.audit(cfg, {"code.red_carry_48h": rec}, TODAY)
+    assert [c["rule_id"] for c in q["changed_since_review"]] == ["code.red_carry_48h"]
+    assert "code.red_carry_48h" not in q["due"]  # changed is reported once, ahead of due
+    full = {r["rule_id"]: r for r in A.audit(cfg, {}, TODAY)["inventory"]}
+    assert full["code.red_carry_48h"]["safety"] and not full["season.deload.every"]["safety"]
+    assert set(full["code.red_carry_48h"]) == {"rule_id", "where", "value", "description", "safety"}
+
+
+def test_dotted_rule_ids_round_trip_through_the_store(home):
+    from coach.store import Store
+
+    st = Store()
+    for rid in ("code.red_carry_48h", "progressions.rules.min_days_at_rung"):
+        st.put("evidence", _rec(rid, 1))
+        assert st.get("evidence", rid).rule_id == rid
+    assert sorted(st.keys("evidence")) == ["code.red_carry_48h", "progressions.rules.min_days_at_rung"]
