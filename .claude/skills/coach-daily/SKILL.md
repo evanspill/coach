@@ -32,7 +32,8 @@ summary." In chat only when the athlete asks to "run today's coaching", or says 
    `replan`. On competition days/weeks, `compete` leads. Then `coach validate` the day record's session and
    `coach push --day`.
 5. **Sunday:** `review` (week just finished). If `block_transition_due`: `assess` (score tests) -> `review` (block
-   review) -> `assess` (propose next goal; needs approval) -> `plan-block` (after approval; provisional outline
+   review) -> `audit` (re-evaluate the coach's own rules; changes become proposals) -> `assess` (propose next
+   goal; needs approval) -> `plan-block` (after approval; provisional outline
    if still pending). Then `plan-week` for next week (calls `design-session`), validate (max 3 revisions, then
    `coach daily --fallback`-style template), and push or mark pending per `athlete/config/coach.yaml`.
 6. **First Wednesday of the month:** `learn` (science audit + calibration).

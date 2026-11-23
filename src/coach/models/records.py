@@ -212,6 +212,29 @@ class ThresholdZones(Model):
     confidence: str = "normal"
 
 
+EvidenceLevel = Literal[
+    "meta_analysis", "rct", "cohort", "consensus", "practitioner", "theory", "none", "unknown"
+]
+
+
+class EvidenceRecord(Model):
+    """The coach's re-evaluation of one rule (DECISIONS 104): what the rule says, how well it is supported, what it
+    costs when it is wrong, and the verdict. `value_at_review` lets `coach audit` notice a rule that changed since."""
+
+    rule_id: str  # as `coach audit` lists it, e.g. "thresholds.hrv_below_days_red" or "code.red_carry_48h"
+    rule: str  # what the rule does, in plain words
+    origin: Literal["gemini", "coach", "athlete", "literature", "unknown"] = "unknown"
+    evidence_level: EvidenceLevel = "unknown"
+    impact: Literal["high", "medium", "low"] = "medium"  # how often it fires x cost when it is wrong
+    verdict: Literal["keep", "keep_flagged", "change", "retire", "trial"] = "keep"
+    summary: str = ""  # the evidence and the reasoning, briefly
+    sources: list[str] = Field(default_factory=list)  # retrieved URLs/DOIs only
+    value_at_review: Any = None
+    reviewed: dt.date
+    review_after: dt.date | None = None
+    proposal_id: str | None = None  # the change, when the verdict asks for one
+
+
 class ConfigLock(Model):
     fingerprint: str
     approved_by: str

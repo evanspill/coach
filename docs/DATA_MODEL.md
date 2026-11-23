@@ -76,6 +76,7 @@ erDiagram
 | `movement_readiness` | singleton | `MovementReadiness` | `athlete/data/movement_readiness.json` | rungs; per family `last_exposure_date`/`last_exposure_clean` make exposure logging idempotent (a later pain report can overturn a clean one) |
 | `zones` | singleton | `ThresholdZones` | `athlete/data/zones.json` | LTHR + threshold pace (HR zones come from heart rate reserve instead when `default_zones.hr_model` is `hrr`; decision 99) |
 | `notes` | doc | `Note` | `athlete/data/notes/{key}.json` | durable facts (rendered to notes.md) |
+| `evidence` | doc | `EvidenceRecord` | `athlete/data/evidence/{key}.json` | the coach's re-evaluation of each rule: evidence level, impact, verdict, retrieved sources, value at review (decision 104) |
 | `config_lock` | singleton | `ConfigLock` | `athlete/data/config_lock.json` | approved-thresholds fingerprint |
 | **reports (markdown)** | | | | |
 | `week_reviews` | report | `-` | `athlete/data/weeks/{key}/review.md` | weekly review |
@@ -84,6 +85,7 @@ erDiagram
 | `annual_reviews` | report | `-` | `athlete/data/reviews/{key}.md` | end-of-season review |
 | `event_plans` | report | `-` | `athlete/data/events/{key}/plan.md` | race plan / strategy |
 | `science` | report | `-` | `athlete/data/science/{key}.md` | monthly science audit + calibration |
+| `audits` | report | `-` | `athlete/data/audits/{key}.md` | re-evaluation audit report (decision 104) |
 | `notes_view` | report | `-` | `athlete/data/notes.md` | rendered notes |
 | `changelog` | report | `-` | `athlete/data/changelog.md` | approved config/rule changes |
 | `simulation_report` | report | `-` | `athlete/data/simulation_report.md` | simulation summary |

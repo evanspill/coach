@@ -35,7 +35,14 @@ from coach.models.journal import (
     Note,
 )
 from coach.models.metrics import Checkin
-from coach.models.records import ConfigLock, Intake, NutritionTarget, SyncState, ThresholdZones
+from coach.models.records import (
+    ConfigLock,
+    EvidenceRecord,
+    Intake,
+    NutritionTarget,
+    SyncState,
+    ThresholdZones,
+)
 
 
 @dataclass(frozen=True)
@@ -114,6 +121,13 @@ COLLECTIONS: dict[str, Collection] = {
         Collection("zones", "singleton", "zones.json", ThresholdZones, "LTHR + threshold pace"),
         Collection("notes", "doc", "notes/{key}.json", Note, "durable facts (rendered to notes.md)"),
         Collection(
+            "evidence",
+            "doc",
+            "evidence/{key}.json",
+            EvidenceRecord,
+            "the coach's re-evaluation of each rule: evidence, impact, verdict (decision 104)",
+        ),
+        Collection(
             "config_lock", "singleton", "config_lock.json", ConfigLock, "approved-thresholds fingerprint"
         ),
         # --- reports (rendered markdown) ---
@@ -126,6 +140,9 @@ COLLECTIONS: dict[str, Collection] = {
         Collection("event_plans", "report", "events/{key}/plan.md", description="race plan / strategy"),
         Collection(
             "science", "report", "science/{key}.md", description="monthly science audit + calibration"
+        ),
+        Collection(
+            "audits", "report", "audits/{key}.md", description="re-evaluation audit report (decision 104)"
         ),
         Collection("notes_view", "report", "notes.md", description="rendered notes"),
         Collection("changelog", "report", "changelog.md", description="approved config/rule changes"),

@@ -64,7 +64,7 @@ flowchart TD
   SR -- no --> H{Sunday?}
   H -- yes --> RV[review this week]
   RV --> X{Block transition due?}
-  X -- yes --> R[assess: score tests -> review: block review -> assess: next goal -> approval -> plan-block]
+  X -- yes --> R[assess: score tests -> review: block review -> audit: re-evaluate own rules -> assess: next goal -> approval -> plan-block]
   X -- no --> WK
   R --> WK[plan-week + design-session]
   WK --> V2{validate} --> AP{Approval mode}
@@ -73,7 +73,7 @@ flowchart TD
   H -- no --> SA
   P2 --> SA{First Wednesday of month?}
   PEND --> SA
-  SA -- yes --> SCI[learn: science audit + calibration] --> CM
+  SA -- yes --> SCI[learn: science audit + calibration + top of the audit queue] --> CM
   SA -- no --> CM[Commit + push state]
   Z --> CM
   CM --> NT[Summary = push notification]

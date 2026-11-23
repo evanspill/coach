@@ -46,7 +46,8 @@ tests/                     pytest (CI: ruff + pytest + config check + 120-day si
   `coach macrocycle regenerate`, `coach test schedule|score`, `coach log "<message>"`,
   `coach simulate --days 120 --from 2026-11-16`, `coach form-check <family> --by coach|physio`,
   `coach collections`, `coach record add|list|get <collection> ['<json>' | --file draft.json]`,
-  `coach health resolve <id> --by doctor`, `coach goals [--check]`, `coach migrate` (one-time data migrations; idempotent).
+  `coach health resolve <id> --by doctor`, `coach goals [--check]`, `coach migrate` (one-time data migrations; idempotent),
+  `coach audit [--full]` (re-evaluation queue: rules unreviewed, changed, due or weakly supported).
 - **Athlete data is read and written only through `coach` commands** (never edit `athlete/data/` by hand): they
   validate every record against its model. Journal entries, health events, availability, lab results, measurements,
   event results and notes all use `coach record add <collection> '<json>'` (or `coach log` for chat messages).
@@ -77,6 +78,7 @@ tests/                     pytest (CI: ruff + pytest + config check + 120-day si
 | "Approve the plan / the block goal" | `coach approve week` / `coach approve block-goal` (then push) |
 | "Retest X" | `assess` |
 | Monthly science/calibration questions | `learn` |
+| "Is X backed by science?", "does this rule earn its place?", block-transition re-evaluation | `audit` (`coach audit`) |
 
 The scheduled daily run (one a day, 8:25 AM ET) uses `coach-daily` (the coordinator), which calls the other skills.
 
