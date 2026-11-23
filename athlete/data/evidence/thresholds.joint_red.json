@@ -1,0 +1,39 @@
+{
+  "rule_id": "thresholds.joint_red",
+  "rule": "Any joint rated >= 4 (1-5) makes the day Red and pulls a deload forward immediately",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "high",
+  "verdict": "keep",
+  "summary": "A 4/5 joint rating is near the magnitude of a self-reported flare (Suri 2025: ~2.8 NRS points above baseline) and fits the consensus definition of a flare that impacts usual activity. Acting on it the same day is conservative; the separate red-flag pathway (sharp/worsening pain, radiating symptoms) still sends the athlete to a doctor, consistent with IFOMPT's emphasis on clinical reasoning and referral. Unvalidated number but cheap relative to training on a flaring joint.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623243/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Self-reported LBP flare associated with ~2.8 NRS points higher pain, more interference and analgesic use (11,817 surveys)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30904517/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Delphi LBP flare definition: a worsening lasting hours to weeks, hard to tolerate, impacting usual activities"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32438853/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "IFOMPT red-flag framework: red flags have poor accuracy alone; clinical reasoning and onward referral when suspicion rises"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23038786/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "OSTRC weekly questionnaire (knee/low back/shoulder): repeated self-report captures far more overuse problems than time-loss reporting"
+    }
+  ],
+  "value_at_review": 4,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

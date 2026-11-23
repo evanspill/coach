@@ -1,0 +1,27 @@
+{
+  "rule_id": "training.skill_practice.per_session",
+  "rule": "Each skill primer practises at most 2 pending skills, rotating weekly",
+  "origin": "gemini",
+  "evidence_level": "theory",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "Motor-learning evidence favours spreading practice across many short sessions over massing it (Cecilio-Fernandes 2018 systematic review of spacing RCTs, though in surgical skills, not sport). That supports short, frequent (2x/wk) primers rather than the exact count of 2 skills. Mixing skills (contextual interference) improves retention in the lab, but the effect was almost negligible in applied settings and in young participants (Czyz 2024 meta-analysis), so whether 1, 2 or 3 skills are interleaved matters little. Two skills in a 10-12 min window is a time-budget heuristic.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28843958/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Cecilio-Fernandes 2018 systematic review (11 RCTs, surgical trainees): spaced practice sessions beat massed practice for retention; best gap unclear"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38987617/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "Czyz 2024, 54 studies: random/interleaved practice helps retention in the lab but is near-negligible in applied settings, so the number of skills interleaved matters little"
+    }
+  ],
+  "value_at_review": 2,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

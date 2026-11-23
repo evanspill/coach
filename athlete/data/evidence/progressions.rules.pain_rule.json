@@ -1,0 +1,63 @@
+{
+  "rule_id": "progressions.rules.pain_rule",
+  "rule": "Discomfort > 2/10 in a session: regress ROM or switch to an isometric next time; if next-morning stiffness rises: drop that movement's load ~15% and use a 3 s eccentric for 2 weeks",
+  "origin": "gemini",
+  "evidence_level": "rct",
+  "impact": "high",
+  "verdict": "change",
+  "summary": "The rule is a pain-monitoring model (Thomee 1997; Silbernagel 2007 RCT), which in trials allows up to 5/10 during activity provided pain returns to baseline by next morning and does not trend up week to week; 2/10 is stricter, defensible for an L5-S1/shoulder history (safety rule, not loosened). Meta-analyses find painful exercise no worse than pain-free (Smith 2017; Tran 2025), so the cost of the strict cap is lost training, not safety. Isometric analgesia is inconsistent (Rio 2015 yes; Challoumas 2021 pooled no), and the -15% / 3 s eccentric / 2 weeks numbers are practitioner choices (slow-tempo heavy loading is supported in tendinopathy, Kongsgaard 2009). The next-morning criterion is worded vaguely ('stiffness rises') and lacks the model's week-to-week trend check. Proposed: Clearer/stricter wording, numbers unchanged: 'Session pain > 2/10: regress ROM or switch to an isometric next time and drop one rung. If next-morning pain or stiffness has not returned to its pre-session level, or the movement's session pain is higher than the week before: -15% load, 3 s eccentric, 2 weeks.' Adds the pain-monitoring model's 24 h return-to-baseline and week-to-week trend criteria. Wrong if it triggers regressions on >1 in 4 gated sessions with no later pain/flag signal (over-sensitive, then revisit with the athlete via proposal).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17307888/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Silbernagel 2007 RCT (n=38, Achilles): continued running/jumping under a pain-monitoring model was no worse than 6 weeks of active rest"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33632313/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Pilot RCT (patellar tendinopathy): Pain-Monitoring Model = pain <= 5/10 during/after activity and back to pre-activity level by next morning; feasible, high compliance"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/9413448/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Thomee 1997 (PFPS, n=40): pain-monitoring system + graded training; isometric and eccentric programmes did equally well"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28596288/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Smith 2017 MA (7 RCTs, chronic MSK pain): painful exercise small short-term benefit vs pain-free, no difference medium/long term; pain need not be a barrier"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40699606/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Tran 2025 updated MA (16 RCTs): no difference painful vs non-painful exercise; very low-low certainty; pain may not need to be avoided"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25979840/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Rio 2015 crossover (n=6 volleyball): isometrics cut patellar tendon pain 45 min, more than isotonics"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34900334/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Challoumas 2021 NMA: pooled 3 RCTs, isometric no better than isotonic for immediate pain relief"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19793213/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Kongsgaard 2009 RCT: heavy slow resistance (slow tempo) as good as eccentric training and better long term than injections in patellar tendinopathy"
+    }
+  ],
+  "value_at_review": "Discomfort > 2/10 in a session: regress range of motion or switch to an isometric next time. If next-morning stiffness rises: drop that movement's load ~15% and use a 3 s eccentric for 2 weeks.\n",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

@@ -1,14 +1,39 @@
 {
   "rule_id": "progressions.rules.exposures_to_advance",
-  "rule": "3 clean exposures to advance a rung",
+  "rule": "Advance a movement family one rung only after 3 clean exposures at the current rung (pain <= 2/10, no next-morning stiffness rise)",
   "origin": "coach",
   "evidence_level": "practitioner",
   "impact": "high",
   "verdict": "keep_flagged",
-  "summary": "Graded-exposure heuristic, no direct evidence for the number.",
-  "sources": [],
+  "summary": "Criteria-based, symptom-guided progression is consensus practice in return to sport (Bern 2016; Silbernagel & Crossley), but no study tests a specific number of clean exposures before progressing a strength movement. Three is a conservative coaching heuristic; at 1-2 gated sessions/week it rarely binds more than the 14-day minimum. Evidence supports the direction (criteria + symptom response), not the number.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27226389/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": "2016 Bern RTS consensus: return to sport is a graded continuum and a risk-management decision, not a single end-point"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26390272/",
+      "kind": "practitioner",
+      "direction": "supports",
+      "note": "Silbernagel & Crossley 2015: criteria- and symptom-guided staged return to sport; recurrence risk is highest in the return phase"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27162233/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Delaware-Oslo ACL cohort: both time (each month of delay to 9 mo cut reinjury 51%) and passing function criteria lowered reinjury: time AND criteria both matter"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34972489/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "2022 Bern shoulder consensus (Delphi): principle-based load/risk management; no high-quality evidence for specific RTS criteria"
+    }
+  ],
   "value_at_review": 3,
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

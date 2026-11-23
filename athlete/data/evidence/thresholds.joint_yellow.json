@@ -1,0 +1,27 @@
+{
+  "rule_id": "thresholds.joint_yellow",
+  "rule": "A single joint rated 3 (1-5) makes the day Yellow; Green needs all joints <= 2",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep",
+  "summary": "Subjective self-report tracks training response better than objective markers (Saw 2016), and a moderate joint rating is a reasonable trigger to trim the day. The number is a heuristic on an unvalidated scale; low cost because Yellow only moderates the session.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26423706/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Saw 2016 SR (56 studies): subjective self-report measures track training load more sensitively than objective markers"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23038786/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "OSTRC weekly questionnaire (knee/low back/shoulder): repeated self-report captures far more overuse problems than time-loss reporting"
+    }
+  ],
+  "value_at_review": 3,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

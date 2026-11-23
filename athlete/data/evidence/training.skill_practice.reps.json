@@ -1,0 +1,27 @@
+{
+  "rule_id": "training.skill_practice.reps",
+  "rule": "Skill-primer drills are prescribed as 3 reps per set",
+  "origin": "gemini",
+  "evidence_level": "rct",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "In power-clean studies, technique (bar path, vertical displacement, peak velocity) drifts across longer continuous sets: by rep 6 at 80% 1RM (Hardee 2013) and across 9-rep sets at 70% (Nagatani 2026). Breaking reps up, or adding 20-30 s rest between reps, preserves technique. That supports low reps per set for technique work, though no study tests 3 specifically and the studies are acute, in recreational lifters, and don't measure learning. Caveat: the same reps=3 is applied to hold/swing drills (e.g. hollow_hold, kip_swing when chosen as a drill), where reps or seconds would read better. That is a design-session detail, not a reason to change the number.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23121475/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Hardee 2013, recreational weightlifters, 3x6 power clean at 80%: catch/first pull drift forward and bar height drops by rep 6 without intra-set rest; 20 s+ rest preserves technique"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41133971/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Nagatani 2026 crossover (n=20), 3x9 power clean at 70%: traditional sets lost peak velocity and bar path shifted; cluster sets kept technique"
+    }
+  ],
+  "value_at_review": 3,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

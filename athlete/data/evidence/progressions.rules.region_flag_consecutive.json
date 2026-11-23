@@ -1,0 +1,33 @@
+{
+  "rule_id": "progressions.rules.region_flag_consecutive",
+  "rule": "A region rated >= 3 (1-5) on 2 consecutive check-ins drops its families one rung for a week",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep",
+  "summary": "Repeated self-report of a body region (OSTRC-style) captures overuse problems that single reports or time-loss miss, and subjective measures track load response well (Saw 2016). Requiring 2 consecutive days filters single-day noise while a single Red rating (>= 4) still acts immediately. The number 2 is a heuristic; no study tests it.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23038786/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "OSTRC weekly questionnaire (knee/low back/shoulder): repeated self-report captures far more overuse problems than time-loss reporting"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26423706/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Saw 2016 SR (56 studies): subjective self-report measures track training load more sensitively than objective markers"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30904517/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Delphi LBP flare definition: a worsening lasting hours to weeks, hard to tolerate, impacting usual activities"
+    }
+  ],
+  "value_at_review": 2,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

@@ -1,0 +1,27 @@
+{
+  "rule_id": "thresholds.joint_flag_consecutive",
+  "rule": "Readiness joint flag after a region rated >= joint_flag_rating on 2 consecutive check-ins (clears after 2 consecutive <= 2)",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep",
+  "summary": "Same logic as the region flag: repeated self-reported regional problems are informative (Clarsen 2013; Saw 2016), and two days filters one-off soreness. Symmetric 2-day clearing is a heuristic. No study tests the number.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23038786/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "OSTRC weekly questionnaire (knee/low back/shoulder): repeated self-report captures far more overuse problems than time-loss reporting"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26423706/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Saw 2016 SR (56 studies): subjective self-report measures track training load more sensitively than objective markers"
+    }
+  ],
+  "value_at_review": 2,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

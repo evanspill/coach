@@ -1,14 +1,39 @@
 {
   "rule_id": "progressions.rules.min_days_at_rung",
-  "rule": "At least 14 days at a rung before advancing",
+  "rule": "At least 14 days at a rung before advancing (21 days before the unrestricted top rungs)",
   "origin": "coach",
-  "evidence_level": "practitioner",
+  "evidence_level": "theory",
   "impact": "high",
   "verdict": "keep_flagged",
-  "summary": "Graded-exposure heuristic; it sets the Open timeline. A physio OK is the lever to speed it, not a smaller number.",
-  "sources": [],
+  "summary": "Tendon and connective tissue adapt more slowly than muscle (Kjaer 2009; Mersmann 2017), with measurable tendon changes over 8-12+ week interventions (Bohm 2015 MA), so a time floor alongside performance criteria is physiologically sensible; ACL cohort data show time and criteria each reduce reinjury. No evidence tests 14 days per rung specifically; across a 3-4 rung ladder it gives a 6-10 week minimum, which sits near the tendon-adaptation time scale. Heuristic, cheap relative to a back/shoulder setback.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27747846/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Bohm 2015 MA (27 studies): tendon stiffness adapts to loading magnitude over >= 8-12 week interventions; larger effects with >= 12 weeks"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19706001/",
+      "kind": "theory",
+      "direction": "supports",
+      "note": "Kjaer 2009 review: tendon adaptation to chronic loading takes longer than muscle; collagen synthesis responds to strain"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29249987/",
+      "kind": "theory",
+      "direction": "supports",
+      "note": "Mersmann 2017 review: muscle and tendon adapt on different time courses; imbalance may raise tendon overload risk"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27162233/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Delaware-Oslo ACL cohort: both time (each month of delay to 9 mo cut reinjury 51%) and passing function criteria lowered reinjury: time AND criteria both matter"
+    }
+  ],
   "value_at_review": 14,
-  "reviewed": "2026-11-22",
-  "review_after": "2027-05-21",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
   "proposal_id": null
 }

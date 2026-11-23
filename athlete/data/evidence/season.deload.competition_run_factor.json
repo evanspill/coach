@@ -1,0 +1,33 @@
+{
+  "rule_id": "season.deload.competition_run_factor",
+  "rule": "In a competition week (e.g. CrossFit Open week) run volume is 0.8x the current weekly mileage",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "change",
+  "summary": "No study tests run volume during a multi-week in-season test like the Open. Taper meta-analyses (Bosquet 2007; Wang 2023) say peaking works best with a 41-60% volume cut while intensity and frequency are kept. A 20% cut is therefore a mild 'freshen-up', not a peak, which fits an Open week where one scored workout sits inside normal training. The number is a sensible heuristic. However, the config key is NOT read by code: engine/running.py ramp_targets hardcodes 0.8 for competition weeks, so editing season.yaml does nothing. Proposed: No value change. Code PR: make engine/running.py ramp_targets read season.deload.competition_run_factor instead of the hardcoded 0.8 (pass it through RampRules from plan_block.build_outline), and bump the rule version in engine/audit.py. This is wrong if, after wiring, the simulations change output while the config is still at 0.8.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17762369/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Bosquet 2007, 27 studies: best taper is ~2 wk with volume cut 41-60%, intensity and frequency kept; a 20% cut is well short of a peaking taper"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37163550/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Wang 2023, endurance athletes: tapers that cut volume 41-60% and keep intensity/frequency improved time-trial performance"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32172680/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Vachon 2021, team sports: tapering improves power, VO2max and repeated sprints, but there are too few studies to give a dose for in-season competition"
+    }
+  ],
+  "value_at_review": 0.8,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

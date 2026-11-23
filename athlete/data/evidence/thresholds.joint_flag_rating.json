@@ -1,0 +1,27 @@
+{
+  "rule_id": "thresholds.joint_flag_rating",
+  "rule": "Joint flag rating threshold: >= 3 on the 1-5 scale",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep",
+  "summary": "Mirrors region_flag_rating and joint_yellow, keeping one definition of a 'moderate' joint across readiness and ladders. Unvalidated 1-5 item; conservative and consistent.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23038786/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "OSTRC weekly questionnaire (knee/low back/shoulder): repeated self-report captures far more overuse problems than time-loss reporting"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623243/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Self-reported LBP flare associated with ~2.8 NRS points higher pain, more interference and analgesic use (11,817 surveys)"
+    }
+  ],
+  "value_at_review": 3,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

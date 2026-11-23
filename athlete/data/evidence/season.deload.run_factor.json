@@ -1,0 +1,39 @@
+{
+  "rule_id": "season.deload.run_factor",
+  "rule": "In a deload (and transition/reset) week run volume is 0.7x the current weekly mileage",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "No trial tests a running 'down week' or its size; the 20-40% cut every 3-4 weeks is a coaching convention. A 30% cut is well below the 41-60% that taper meta-analyses find best for peaking, so it keeps aerobic stimulus while easing load, which suits a returning runner who must not lose the ramp. The strength-deload literature (Delphi consensus, surveys) supports reducing volume while keeping frequency, and Coleman 2024 suggests a complete break costs strength; it says nothing about the 0.7 number for running. Keep it as a labelled heuristic and check it against the athlete's data (next-week RPE, joint scores, readiness after deloads).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17762369/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "Bosquet 2007: a 41-60% volume cut with intensity kept is the best taper; a 30% cut is a lighter, non-peaking reduction"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37730925/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Bell 2023 Delphi: deload = reduced training stress to mitigate fatigue; strength/physique only, no running dose"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38499934/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Rogerson 2024 survey: deloads cut volume while frequency stays unchanged (in lifters)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38274324/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Coleman 2024: complete 1-wk cessation reduced strength gains vs continuous training, which favours a partial cut over stopping"
+    }
+  ],
+  "value_at_review": 0.7,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

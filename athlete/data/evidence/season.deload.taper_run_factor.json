@@ -1,0 +1,33 @@
+{
+  "rule_id": "season.deload.taper_run_factor",
+  "rule": "Taper weeks run at 0.75x weekly mileage",
+  "origin": "coach",
+  "evidence_level": "meta_analysis",
+  "impact": "low",
+  "verdict": "retire",
+  "summary": "This key does nothing. engine/running.py hardcodes 0.75 for taper weeks, and plan_block.build_outline routes any block containing taper weeks to the event-block path, which uses the block's taper_volumes [0.8, 0.6, 0.4] instead. So neither the config value nor the hardcoded 0.75 is ever used. The rule that actually runs (taper_volumes: a 3-week progressive taper, about 50% average cut over the last two weeks, intensity kept) matches the evidence: Bosquet 2007 and Wang 2023 (cut volume 41-60%, keep intensity and frequency, progressive pattern, up to 21 days). Smyth 2021, in more than 158,000 recreational marathoners, linked strict 3-week tapers to the best finish times. A flat 0.75 would be a weaker taper than the evidence supports. Proposed: Retire season.deload.taper_run_factor (and the hardcoded 0.75 taper branch in engine/running.py ramp_targets), or wire it explicitly as unused. The taper dose lives in the block's taper_volumes [0.8, 0.6, 0.4], which is consistent with Bosquet 2007 / Wang 2023 / Smyth 2021. Config proposal plus a code PR (season model default and running.py), with the rule version bumped in engine/audit.py. This is wrong if any outline path is found that produces a 'taper' week outside an event block (check the simulations).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17762369/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Bosquet 2007: best taper cuts volume 41-60% (exponential/progressive), more than a flat 25%"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37163550/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Wang 2023: tapers of up to 21 days, progressive or step, cutting volume 41-60% with intensity kept improve endurance time trials"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34651125/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Smyth 2021, >158k recreational marathoners: strict, progressively decreasing 3-wk tapers were linked to ~2.6% faster finishes than minimal tapers, which supports taper_volumes [0.8,0.6,0.4]"
+    }
+  ],
+  "value_at_review": 0.75,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

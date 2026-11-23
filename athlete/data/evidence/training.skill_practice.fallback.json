@@ -1,0 +1,17 @@
+{
+  "rule_id": "training.skill_practice.fallback",
+  "rule": "When no pending skill has a usable drill, the skill primer falls back to hollow hold + arch hold (3 x 20 s)",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "A cheap, low-fatigue body-position primer that is the base progression of the kipping skills in skills.yaml (level 0 'hollow/arch holds'). No direct evidence is needed or available for a 2-minute filler; it costs almost nothing. Note: the 3 x 20 s dose is hardcoded in coaching/skills/design.py skill_block, not in config.",
+  "sources": [],
+  "value_at_review": [
+    "hollow_hold",
+    "arch_hold"
+  ],
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

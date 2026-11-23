@@ -1,0 +1,39 @@
+{
+  "rule_id": "progressions.rules.regress_on_next_day_flare",
+  "rule": "Regress a family one rung when a session is followed by a next-day flare",
+  "origin": "gemini",
+  "evidence_level": "rct",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "The 24 h response is the core of the pain-monitoring model: symptoms should be back to baseline by the next morning, and if not, load is reduced (Thomee; Silbernagel 2007; Sprague 2021). Trials reduce load rather than prescribe a fixed regression, so one rung is a reasonable translation. 'Flare' is undefined in config; the LBP consensus defines it as a worsening lasting hours to weeks that impacts usual activity, so operationally tie it to next-morning stiffness/pain above pre-session level.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33632313/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Pilot RCT (patellar tendinopathy): Pain-Monitoring Model = pain <= 5/10 during/after activity and back to pre-activity level by next morning; feasible, high compliance"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17307888/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Silbernagel 2007 RCT (n=38, Achilles): continued running/jumping under a pain-monitoring model was no worse than 6 weeks of active rest"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30904517/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Delphi LBP flare definition: a worsening lasting hours to weeks, hard to tolerate, impacting usual activities"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623243/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Self-reported LBP flare associated with ~2.8 NRS points higher pain, more interference and analgesic use (11,817 surveys)"
+    }
+  ],
+  "value_at_review": true,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

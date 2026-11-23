@@ -1,0 +1,33 @@
+{
+  "rule_id": "progressions.rules.region_flag_rating",
+  "rule": "Region flag threshold: a joint/region rated >= 3 on the 1-5 check-in scale",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep",
+  "summary": "On a 1-5 scale, 3 is the first 'moderate' level, broadly comparable to an OSTRC 'moderate' problem, and well below the ~2.8-NRS-point worsening that marks a self-reported LBP flare. No validation of a 1-5 joint item exists; the threshold is a sensible conservative heuristic consistent with joint_yellow.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23038786/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "OSTRC weekly questionnaire (knee/low back/shoulder): repeated self-report captures far more overuse problems than time-loss reporting"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623243/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Self-reported LBP flare associated with ~2.8 NRS points higher pain, more interference and analgesic use (11,817 surveys)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26423706/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Saw 2016 SR (56 studies): subjective self-report measures track training load more sensitively than objective markers"
+    }
+  ],
+  "value_at_review": 3,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

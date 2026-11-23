@@ -1,0 +1,45 @@
+{
+  "rule_id": "thresholds.pain_rule_max",
+  "rule": "Maximum acceptable in-session pain: 2/10 (validator/readiness threshold mirroring the ladder pain rule)",
+  "origin": "gemini",
+  "evidence_level": "rct",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "Trials of pain-monitoring models accept up to 5/10 with next-morning return to baseline (Silbernagel 2007; Sprague 2021), and meta-analyses find no harm from painful exercise (Smith 2017; Tran 2025): 2/10 is deliberately stricter, justified by the back/shoulder history. Safety rule: not loosened. Duplicates progressions.rules.regress_on_session_pain_above; keep the two equal (a check that they match would prevent drift).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17307888/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Silbernagel 2007 RCT (n=38, Achilles): continued running/jumping under a pain-monitoring model was no worse than 6 weeks of active rest"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33632313/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Pilot RCT (patellar tendinopathy): Pain-Monitoring Model = pain <= 5/10 during/after activity and back to pre-activity level by next morning; feasible, high compliance"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28596288/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Smith 2017 MA (7 RCTs, chronic MSK pain): painful exercise small short-term benefit vs pain-free, no difference medium/long term; pain need not be a barrier"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40699606/",
+      "kind": "meta_analysis",
+      "direction": "contradicts",
+      "note": "Tran 2025 updated MA (16 RCTs): no difference painful vs non-painful exercise; very low-low certainty; pain may not need to be avoided"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11690728/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Farrar 2001 (2724 pts): ~2 points / ~30% on a 0-10 NRS is a clinically important change; smaller shifts sit within noise"
+    }
+  ],
+  "value_at_review": 2.0,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}
