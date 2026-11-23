@@ -1,0 +1,21 @@
+{
+  "rule_id": "thresholds.recovery_red_max",
+  "rule": "Whoop recovery <= 33 two days running = Red",
+  "origin": "gemini",
+  "evidence_level": "none",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "Recovery is a proprietary composite with no published validation as a decision rule; HRV and RHR inside it are validated. Kept (conservative); the readiness-vs-outcome log will test it on this athlete.",
+  "sources": [
+    {
+      "url": "https://trainright.com/new-study-reveals-holes-in-wearable-device-scores/",
+      "kind": "other",
+      "direction": "mixed",
+      "note": "wearable recovery scores poorly related to questionnaire recovery"
+    }
+  ],
+  "value_at_review": 33,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

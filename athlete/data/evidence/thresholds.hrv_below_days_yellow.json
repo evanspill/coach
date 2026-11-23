@@ -1,0 +1,33 @@
+{
+  "rule_id": "thresholds.hrv_below_days_yellow",
+  "rule": "HRV 7-day trend below the band 2+ days = Yellow (intensity -> Z2)",
+  "origin": "gemini",
+  "evidence_level": "rct",
+  "impact": "high",
+  "verdict": "keep",
+  "summary": "Matches the HRV-guided trial protocols (low intensity when below the band).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26909534/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": ""
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34489178/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": ""
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8705715/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "similar outcomes with fewer hard days"
+    }
+  ],
+  "value_at_review": 2,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

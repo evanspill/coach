@@ -1,0 +1,30 @@
+{
+  "rule_id": "running.cadence_target_spm",
+  "rule": "Cadence target 170-180 spm",
+  "origin": "gemini",
+  "evidence_level": "meta_analysis",
+  "impact": "low",
+  "verdict": "change",
+  "summary": "Raising step rate 5-10% from one's own lowers joint loading; no basis for a fixed 170-180 and the injury link is unproven. Coach wording uses a relative +5-10%.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/20581720/",
+      "kind": "other",
+      "direction": "mixed",
+      "note": "+5-10% from preferred lowers knee/hip loading"
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4000471",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "higher step rate lowers loading measures"
+    }
+  ],
+  "value_at_review": [
+    170,
+    180
+  ],
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

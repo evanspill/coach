@@ -1,0 +1,14 @@
+{
+  "rule_id": "progressions.rules.min_days_at_rung",
+  "rule": "At least 14 days at a rung before advancing",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "Graded-exposure heuristic; it sets the Open timeline. A physio OK is the lever to speed it, not a smaller number.",
+  "sources": [],
+  "value_at_review": 14,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

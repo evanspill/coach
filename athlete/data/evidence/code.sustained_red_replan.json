@@ -1,0 +1,14 @@
+{
+  "rule_id": "code.sustained_red_replan",
+  "rule": "Sustained Red hands off to replan (reactive deload, via proposal)",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "Conservative and gated by approval; fires less now HRV alone can't Red.",
+  "sources": [],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

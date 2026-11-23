@@ -1,0 +1,21 @@
+{
+  "rule_id": "thresholds.hrv_swc_sd",
+  "rule": "Normal band = baseline +/- 0.5 SD (smallest worthwhile change)",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "SWC bands are standard practice (AIS); the exact 0.5 SD figure wasn't confirmed this run.",
+  "sources": [
+    {
+      "url": "https://www.ais.gov.au/__data/assets/pdf_file/0013/1130260/HRV-BPG_FINAL.pdf",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": ""
+    }
+  ],
+  "value_at_review": 0.5,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

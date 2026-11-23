@@ -1,0 +1,30 @@
+{
+  "rule_id": "nutrition.protein_g_per_kg",
+  "rule": "Protein 1.6-2.4 g/kg: 2.0 outside a cut, 2.4 in a cut",
+  "origin": "gemini",
+  "evidence_level": "meta_analysis",
+  "impact": "medium",
+  "verdict": "keep",
+  "summary": "Gains plateau ~1.6 g/kg (upper CI ~2.2); higher intakes mainly help in a deficit. Changed 2026-11-23 from 2.2-2.4.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28698222/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "breakpoint ~1.6 g/kg/day"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24092765/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "2.3-3.1 g/kg FFM in a deficit"
+    }
+  ],
+  "value_at_review": [
+    1.6,
+    2.4
+  ],
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

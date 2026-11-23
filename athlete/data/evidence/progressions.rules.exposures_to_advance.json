@@ -1,0 +1,14 @@
+{
+  "rule_id": "progressions.rules.exposures_to_advance",
+  "rule": "3 clean exposures to advance a rung",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "Graded-exposure heuristic, no direct evidence for the number.",
+  "sources": [],
+  "value_at_review": 3,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

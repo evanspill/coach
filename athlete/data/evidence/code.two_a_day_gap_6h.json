@@ -1,0 +1,21 @@
+{
+  "rule_id": "code.two_a_day_gap_6h",
+  "rule": ">= 6 h between endurance and hypertrophy on the same day",
+  "origin": "gemini",
+  "evidence_level": "meta_analysis",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "Concurrent training didn't blunt hypertrophy or max strength; explosive strength was blunted mainly within one session. Two-a-days are off, so low impact.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34757594/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "no interference for hypertrophy; small for explosive, same-session"
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

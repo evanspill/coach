@@ -1,0 +1,33 @@
+{
+  "rule_id": "thresholds.hrv_below_days_red",
+  "rule": "HRV 7-day trend below its band alone never makes a day Red (set to 999)",
+  "origin": "gemini",
+  "evidence_level": "meta_analysis",
+  "impact": "high",
+  "verdict": "keep",
+  "summary": "HRV-guided trials respond to a below-band trend with lower intensity that day, not rest; benefits are small. Changed 2026-11-22 from 3 days -> Red.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26909534/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "below SWC -> low-intensity training that day"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34489178/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "medium effect on submax measures, small on performance"
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7663087",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "small VO2max benefit of HRV-guided training"
+    }
+  ],
+  "value_at_review": 999,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

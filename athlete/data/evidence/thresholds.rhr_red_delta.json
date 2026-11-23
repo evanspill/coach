@@ -1,0 +1,21 @@
+{
+  "rule_id": "thresholds.rhr_red_delta",
+  "rule": "Resting HR (7-day median) > +5 bpm vs baseline = Red",
+  "origin": "gemini",
+  "evidence_level": "cohort",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "Overload raises resting HR on average, but no validated bpm cut-off exists. Now a median so one outlier morning can't hold it up (decision 105).",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18308872/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "RHR rises with short-term overload"
+    }
+  ],
+  "value_at_review": 5.0,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

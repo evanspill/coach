@@ -1,0 +1,14 @@
+{
+  "rule_id": "benchmarks.broad_jump",
+  "rule": "broad_jump benchmark target",
+  "origin": "gemini",
+  "evidence_level": "none",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
+  "sources": [],
+  "value_at_review": 250,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

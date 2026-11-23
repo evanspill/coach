@@ -1,0 +1,17 @@
+{
+  "rule_id": "benchmarks.squat_rm",
+  "rule": "squat_rm benchmark target",
+  "origin": "gemini",
+  "evidence_level": "none",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "Unsourced target from the planning chat; it sets the gap analysis. Labelled as a coach target until a published norm is found.",
+  "sources": [],
+  "value_at_review": [
+    1.6,
+    1.75
+  ],
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

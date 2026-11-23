@@ -1,0 +1,27 @@
+{
+  "rule_id": "thresholds.weekly_run_increase_pct",
+  "rule": "Weekly mileage increase cap (backstop)",
+  "origin": "gemini",
+  "evidence_level": "rct",
+  "impact": "high",
+  "verdict": "change",
+  "summary": "The 10%-per-week rule didn't reduce injuries in an RCT, and week-to-week change wasn't linked to injury in a 5200-runner cohort; single-run spikes were. Kept only as a looser backstop (proposed 20%).",
+  "sources": [
+    {
+      "url": "https://research.rug.nl/en/publications/no-effect-of-a-graded-training-program-on-the-number-of-running-r/",
+      "kind": "rct",
+      "direction": "contradicts",
+      "note": "graded 10% plan: 20.8% vs 20.3% injured"
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12421110",
+      "kind": "cohort",
+      "direction": "contradicts",
+      "note": "week-to-week change not associated with injury"
+    }
+  ],
+  "value_at_review": 20.0,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

@@ -1,0 +1,33 @@
+{
+  "rule_id": "thresholds.hrv_trend_days",
+  "rule": "HRV judged on a 7-day rolling mean of ln(rMSSD)",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "high",
+  "verdict": "keep",
+  "summary": "AIS guidance and Plews' work favour the 7-day rolling mean over single days.",
+  "sources": [
+    {
+      "url": "https://www.ais.gov.au/__data/assets/pdf_file/0013/1130260/HRV-BPG_FINAL.pdf",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": ""
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/22367011/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "7-day mean tracked overreaching"
+    },
+    {
+      "url": "https://openrepository.aut.ac.nz/handle/10292/7122",
+      "kind": "other",
+      "direction": "supports",
+      "note": "weekly mean beats single-day values"
+    }
+  ],
+  "value_at_review": 7,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

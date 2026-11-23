@@ -1,0 +1,27 @@
+{
+  "rule_id": "code.red_carry_48h",
+  "rule": "The day after a Red stays Z1 only when the Red came from a joint",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "high",
+  "verdict": "keep",
+  "summary": "v1 (48 h carry after any Red) had no trial basis and was overridden by the athlete; v2 approved 2026-11-22.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26909534/",
+      "kind": "rct",
+      "direction": "contradicts",
+      "note": "trials adjust the day of the signal, not 48 h"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34489178/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": ""
+    }
+  ],
+  "value_at_review": "v2",
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

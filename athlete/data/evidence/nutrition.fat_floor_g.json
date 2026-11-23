@@ -1,0 +1,14 @@
+{
+  "rule_id": "nutrition.fat_floor_g",
+  "rule": "Fat floor 72 g (~0.8 g/kg)",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "Set so hard days reach their carb tier (with 100 g, carbs fell to ~1.8-2.9 g/kg). No source retrieved for the exact number.",
+  "sources": [],
+  "value_at_review": 72.0,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}

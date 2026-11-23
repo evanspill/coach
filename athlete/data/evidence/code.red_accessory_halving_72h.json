@@ -1,0 +1,14 @@
+{
+  "rule_id": "code.red_accessory_halving_72h",
+  "rule": "Accessory sets halved for 72 h after a Red day",
+  "origin": "gemini",
+  "evidence_level": "none",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "No evidence either way; cheap and conservative.",
+  "sources": [],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

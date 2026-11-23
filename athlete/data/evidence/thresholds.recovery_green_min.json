@@ -1,0 +1,14 @@
+{
+  "rule_id": "thresholds.recovery_green_min",
+  "rule": "Whoop recovery >= 67 = Green",
+  "origin": "gemini",
+  "evidence_level": "none",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "Vendor colour band; only shapes Green vs Yellow together with the HRV trend.",
+  "sources": [],
+  "value_at_review": 67,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

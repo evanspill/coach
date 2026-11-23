@@ -1,0 +1,21 @@
+{
+  "rule_id": "thresholds.long_run_max_increase_mi",
+  "rule": "Long run +1 mi/week (retired; kept so configs load)",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "retire",
+  "summary": "Replaced by the single-run spike cap: +1 mi from a 1 mi base is a +100% spike.",
+  "sources": [
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12421110",
+      "kind": "cohort",
+      "direction": "contradicts",
+      "note": ""
+    }
+  ],
+  "value_at_review": 1.0,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

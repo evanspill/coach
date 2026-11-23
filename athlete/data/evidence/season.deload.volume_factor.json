@@ -1,0 +1,21 @@
+{
+  "rule_id": "season.deload.volume_factor",
+  "rule": "Deload volume x0.55, intensity kept",
+  "origin": "gemini",
+  "evidence_level": "consensus",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "Consensus practice (cut sets/reps, keep load).",
+  "sources": [
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10511399/",
+      "kind": "consensus",
+      "direction": "supports",
+      "note": ""
+    }
+  ],
+  "value_at_review": 0.55,
+  "reviewed": "2026-11-22",
+  "review_after": "2027-11-22",
+  "proposal_id": null
+}

@@ -1,0 +1,14 @@
+{
+  "rule_id": "code.goal_from_biggest_gap",
+  "rule": "Block goal defaults to the focus test furthest from its benchmark",
+  "origin": "coach",
+  "evidence_level": "none",
+  "impact": "high",
+  "verdict": "keep_flagged",
+  "summary": "The benchmarks are unsourced coach targets, so gap % is a rough guide; the coach overrides it on judgment (B1 goal is pull-ups for the Open).",
+  "sources": [],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-22",
+  "review_after": "2027-05-21",
+  "proposal_id": null
+}
