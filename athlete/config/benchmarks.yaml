@@ -1,4 +1,5 @@
-# Hybrid-athlete standards used for gap analysis. Strength ratios are e1RM / bodyweight, adapted to the
+# Coach targets (unsourced: they came from the original planning chat, not from published norms; the audit will look
+# for real sources and relabel or replace them; decision 104). Used for gap analysis. Strength ratios are e1RM / bodyweight, adapted to the
 # reference variant of each test (the variant factor in tests.yaml converts other rungs).
 pillars:
   neural:

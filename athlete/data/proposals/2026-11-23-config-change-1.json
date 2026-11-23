@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-23-config-change-1",
+  "kind": "config_change",
+  "created": "2026-11-23",
+  "created_by": "audit",
+  "title": "Audit changes (config): protein by phase, fat floor 0.8 g/kg, benchmarks labelled as coach targets",
+  "what": "athlete_context.json nutrition.protein_g_per_kg [2.2, 2.4] -> [2.0, 2.4] (the code uses the low end outside a cut, the top in a cut: recomp now ~180 g/day at 90 kg, was ~200-210); nutrition.fat_floor_g 100 -> 72 (0.8 g/kg at ~90 kg; revisit if weight moves > 5 kg). benchmarks.yaml header: the targets are unsourced coach targets from the planning chat, to be sourced or replaced by the audit.",
+  "why": "Re-evaluation audit 2026-11-22 (coach review + blind skill run agreed): protein gains plateau ~1.6 g/kg (Morton 2018 meta-analysis, PubMed 28698222; upper CI ~2.2), higher intakes mainly help in a deficit (PubMed 24092765). With 207 g protein and a 100 g fat floor on a 2834 kcal maintenance target, carbs averaged ~2.9 g/kg and fell to 1.8 g/kg on 2026-11-22, below even the low tier. The fat floor number is a coaching heuristic (no source retrieved). Benchmarks: no source found; they set the gap analysis that picks block goals, so they are labelled honestly. Athlete approved all audit changes in chat 2026-11-23.",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-23",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22",
+      "status": "approved",
+      "note": ""
+    }
+  ]
+}
