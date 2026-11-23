@@ -521,7 +521,9 @@ def test_family_movement_in_a_metcon_respects_skill_competence(home):
     assert got is None or P.ok(ctx.cfg.library.get(got.exercise_id), for_metcon=True)
 
 
-def test_adjust_day_reschedules_tests_on_the_second_day_after_red(home):
+def test_the_day_after_red_follows_its_own_readiness_unless_a_joint_was_red(home):
+    """Audit 2026-11-23: a Red day no longer forces the next day easy; a joint rated at the Red level still does
+    (and a test on that day moves)."""
     from coach.coaching.skills import adjust_day
     from coach.coaching.skills.plan_week import plan_week
     from coach.models import DayRecord
@@ -532,12 +534,33 @@ def test_adjust_day_reschedules_tests_on_the_second_day_after_red(home):
     plan = plan_week(ctx, dt.date(2026, 11, 16))
     tests = plan.session_on(day).tests
     assert tests and ctx.readiness(day).state != "red"
-    red = ctx.readiness(day - dt.timedelta(days=1)).model_copy(update={"state": "red"})
-    ctx.state.put("day_records", DayRecord(date=day - dt.timedelta(days=1), status="complete", readiness=red))
+    y = day - dt.timedelta(days=1)
+    red = ctx.readiness(y).model_copy(
+        update={"state": "red", "reasons": ["HRV trend below baseline band 3 days"]}
+    )
+    ctx.state.put("day_records", DayRecord(date=y, status="complete", readiness=red))
+    rec = adjust_day.adjust(ctx, day, plan.model_copy(deep=True))
+    assert rec.session.type == "test" and rec.session.tests == tests  # today's own readiness decides
+
+    red_joint = red.model_copy(update={"reasons": ["back rated 4/5"], "joints": {"back": 4}})
+    ctx.state.put("day_records", DayRecord(date=y, status="complete", readiness=red_joint))
     rec = adjust_day.adjust(ctx, day, plan)
     assert rec.session.type == "recovery"
     assert any(c.what.startswith(f"tests {tests} moved to") for c in rec.changes)
     assert any(set(tests) <= set(s.tests) for s in plan.sessions if s.date > day)
+
+    # a Red from a region flag alone (a joint at 3 on two check-ins, none at the Red level) still carries
+    from coach.models.records import JointFlag
+
+    flag = JointFlag(
+        region="back", since=y, restricted_tags=["spine_load"], reason="back >= 3 on 2 check-ins"
+    )
+    red_flag = red.model_copy(
+        update={"reasons": ["back >= 3 on 2 check-ins"], "joints": {"back": 3}, "joint_flags": [flag]}
+    )
+    ctx.state.put("day_records", DayRecord(date=y, status="complete", readiness=red_flag))
+    fresh = plan_week(ctx, dt.date(2026, 11, 16))
+    assert adjust_day.adjust(ctx, day, fresh).session.type == "recovery"
 
 
 def test_adjust_day_keeps_the_high_carb_tier_before_the_long_run(home):
@@ -767,3 +790,22 @@ def test_waiting_for_recovery_asks_the_athlete_to_say_when_recovery_is_in():
     rec = DayRecord(date=dt.date(2026, 11, 18), status="waiting_for_recovery")
     text = compose(rec)
     assert "tell me when recovery is in" in text and "9:05" not in text and "catch-up" not in text
+
+
+def test_weekly_review_logs_readiness_against_outcome(b1):
+    """Audit 2026-11-23: each day's colour next to what happened, so learn can test the colours later."""
+    from coach.coaching.skills import review
+    from coach.models import DayRecord
+
+    ctx, plan, _ = b1
+    ctx.state.put("week_plans", plan)
+    d = plan.sessions[0].date
+    r = ctx.readiness(d).model_copy(update={"state": "yellow"})
+    rec = ctx.state.day_record(d)
+    ctx.state.put(
+        "day_records", DayRecord(date=d, status="complete", readiness=r, planned_session=rec.planned_session)
+    )
+    md, summary = review.weekly_review(ctx, ctx.state.week_plan(plan.week_id))
+    rows = summary["readiness_outcomes"]
+    assert len(rows) == 7 and rows[0]["state"] == "yellow" and rows[0]["session"] == plan.sessions[0].type
+    assert "## Readiness vs outcome" in md

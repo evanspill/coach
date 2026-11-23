@@ -70,7 +70,9 @@ def rhr_delta(day: dt.date, by_date: dict[dt.date, DailyMetrics], th: Thresholds
     ]
     if len(week) < 3 or len(base) < 14:
         return None
-    return round(statistics.fmean(week) - statistics.fmean(base), 1)
+    # medians: one outlier morning (a late night, a sick day) can't hold the 7-day value up for a week (audit
+    # 2026-11-23; the same flaw the HRV mean showed)
+    return round(statistics.median(week) - statistics.median(base), 1)
 
 
 def joint_flags(

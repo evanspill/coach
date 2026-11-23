@@ -19,7 +19,8 @@ or a major disruption that changes the block's shape.
    `docs/TRAINING_ARCHITECTURE.md` "Evidence basis".
 2. Week types: deloads every ~4th week counting back from the transition week (3:1), never in competition weeks;
    the last week is the transition week. No 5-week span without a deload.
-3. Weekly targets: run miles (return-to-running ramp: <= +10%/week over the trailing 3 normal weeks, hold flat on
+3. Weekly targets: run miles (single runs grow <= ~10% over the longest run of the last 30 days, min step 0.25 mi;
+   weekly increase within `thresholds.weekly_run_increase_pct` over the trailing 3 normal weeks as a backstop; hold flat on
    deloads, block mileage range), long run, key sessions (as stress categories: `lower_heavy`, `upper_heavy`,
    `glycolytic`, `run_quality`, `long_run`, `test`, `competition`, `race`), hard-set ranges per muscle (deload
    weeks have their own ranges).

@@ -14,7 +14,8 @@ adjusted one; the week plan is assembled from these), yesterday's day record, `h
 ## Rules (thresholds come from config; the most restrictive state wins)
 - **Green:** run the plan as written.
 - **Yellow:** keep primary strength; replace metcon/threshold work with **40 min Zone 2**.
-- **Red:** today and the next 48 h are **Z1 + mobility**; accessory volume -50% for the following days;
+- **Red:** today is **Z1 + mobility**; accessory volume -50% for the next 72 h; the next day follows its own
+  readiness (it stays Z1 only when the Red came from a joint rated at the Red level);
   consider a reactive deload (sustained Red or a joint >= 4 -> hand off to `replan`).
 - **Test day:** needs Green or Yellow; on Red move the test within +/-2 days (strength, run TT and engine stay on
   separate days) - via `replan` if it reshapes the week.

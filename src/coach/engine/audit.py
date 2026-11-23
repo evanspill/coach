@@ -48,8 +48,9 @@ SAFETY_RULES = {
 CODE_RULES: dict[str, tuple[str, str, str]] = {
     "code.red_carry_48h": (
         "coaching/skills/adjust_day.py",
-        "the day after a Red day is Z1 + mobility too (the 48 h after Red)",
-        "v1",
+        "the day after a Red day is Z1 + mobility too, only when the Red came from a joint rated at the Red level "
+        "(v1 carried every Red; changed by the 2026-11-23 audit)",
+        "v2",
     ),
     "code.red_accessory_halving_72h": (
         "coaching/skills/adjust_day.py",
@@ -59,6 +60,17 @@ CODE_RULES: dict[str, tuple[str, str, str]] = {
     "code.sustained_red_replan": (
         "coaching/skills/adjust_day.py + replan",
         "sustained Red (thresholds.sustained_red_days in the window) hands off to replan (reactive deload)",
+        "v1",
+    ),
+    "code.run_spike_cap": (
+        "engine/validator.py + coaching/skills/plan_week.py",
+        "no single run longer than the longest run of the last 30 days by more than thresholds.run_spike_max_pct "
+        "(min step thresholds.run_spike_min_step_mi)",
+        "v1",
+    ),
+    "code.rhr_7day_median": (
+        "engine/readiness.py",
+        "resting-HR trend = median of the last 7 days minus the median of the baseline window",
         "v1",
     ),
     "code.monotony_flag": (
@@ -120,6 +132,7 @@ _SKIP = {
     "running.default_zones",
     "running.marathon_prediction",
     "running.gait_analysis_recommended",
+    "running.max_weekly_increase_pct",  # unused duplicate of thresholds.weekly_run_increase_pct
     "nutrition.supplements",  # context only: the coach never changes doses
     "nutrition.supplements_note",
 }
@@ -150,9 +163,6 @@ def inventory(cfg: Config) -> list[RuleRef]:
             if rid in _SKIP:
                 continue
             rules.append(RuleRef(rid, f"config {path}.{key}", value, safety=rid in SAFETY_RULES))
-    shoe = _as_dict(cfg.profile.gear).get("shoe_alert_miles")
-    if shoe is not None:
-        rules.append(RuleRef("gear.shoe_alert_miles", "config profile.gear.shoe_alert_miles", shoe))
     for pillar, items in (cfg.benchmarks.get("pillars") or {}).items():
         for b in items:
             rules.append(

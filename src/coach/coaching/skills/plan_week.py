@@ -116,20 +116,35 @@ def plan_week(
         shares["long_run"] = min(shares["long_run"], limit - 0.02)
     total_share = sum(shares.values()) or 1
     miles_for = {r: round(run_total * shares[r] / total_share, 1) for r in shares}
-    prev_long = ctx.previous_long_run(week_start)
-    if (
-        "long_run" in miles_for
-        and prev_long
-        and week_type not in {"taper", "transition", "reset", "baseline"}
-    ):
-        cap = round(prev_long + th.long_run_max_increase_mi, 1)
-        if miles_for["long_run"] > cap:
-            surplus = round(miles_for["long_run"] - cap, 1)
-            miles_for["long_run"] = cap
-            others = [r for r in miles_for if r != "long_run"]
-            if others:
-                biggest = max(others, key=lambda r: miles_for[r])
-                miles_for[biggest] = round(miles_for[biggest] + surplus, 1)
+    # single-run spike rule (audit 2026-11-23): no run beyond the cap set by the longest run of the last 30 days;
+    # the surplus moves to runs under the cap, and what doesn't fit is dropped (and said so)
+    from coach.engine.validator import spike_cap
+
+    longest = ctx.longest_run_30d(week_start)
+    spike = spike_cap(longest or 0.0, th)
+    if spike is not None and miles_for and week_type not in {"taper", "transition", "reset", "baseline"}:
+        spike = round(spike - 0.05, 1)  # rounded down: planned miles round to 0.1
+        surplus = 0.0
+        for r in miles_for:
+            if miles_for[r] > spike:
+                surplus += miles_for[r] - spike
+                miles_for[r] = spike
+        for r in sorted(miles_for, key=lambda r: miles_for[r]):
+            room = spike - miles_for[r]
+            take = min(room, surplus)
+            if take > 0:
+                miles_for[r] = round(miles_for[r] + take, 1)
+                surplus -= take
+        if surplus > 0.05:
+            deviations.append(
+                Deviation(
+                    field="run_miles",
+                    planned=f"{run_total:.1f}",
+                    actual=f"{run_total - surplus:.1f}",
+                    reason=f"single-run spike rule: no run over {spike:.1f} mi (longest in the last 30 days "
+                    f"{longest:.1f} mi, +{th.run_spike_max_pct:g}%)",
+                )
+            )
     if week_type in {"baseline", "transition"}:
         miles_for = {r: 3.0 for r in shares}
 

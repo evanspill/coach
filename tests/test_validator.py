@@ -270,12 +270,20 @@ def test_joint_flag_swaps_use_regressions(P):
     assert "JOINT_RESTRICTED" not in codes(plan, ctx, joint_flags=[flag])
 
 
-def test_long_run_growth_limited(P):
+def test_single_run_spikes_limited(P):
+    """Audit 2026-11-23: each run against the longest run of the last 30 days (+10%, min step 0.25 mi)."""
+    from coach.engine.sessions import session_miles
+    from coach.engine.validator import spike_cap
+
     ctx, plan = P
-    long = next(s for s in plan.sessions if s.type == "run_long")
-    lr = sum(seg.distance_mi or 0 for seg in long.run_segments() if seg.modality == "run")
-    assert "LONG_RUN_INCREASE" not in codes(plan, ctx, previous_long_run=lr - 1.0)
-    assert "LONG_RUN_INCREASE" in codes(plan, ctx, previous_long_run=lr - 1.6)
+    longest = max(session_miles(s, ctx.zones.threshold_pace_s_per_mi) for s in plan.sessions)
+    assert "RUN_SPIKE" not in codes(plan, ctx, longest_run_30d=longest)
+    assert "RUN_SPIKE" not in codes(
+        plan, ctx, longest_run_30d=None
+    )  # no recent base: the ramp-start rule governs
+    assert "RUN_SPIKE" in codes(plan, ctx, longest_run_30d=longest / 1.3)
+    th = ctx.cfg.profile.thresholds
+    assert spike_cap(1.0, th) == 1.25 and spike_cap(4.0, th) == 4.4 and spike_cap(0, th) is None
 
 
 def test_run_increase_uses_the_configured_pct(P, monkeypatch):
@@ -310,3 +318,46 @@ def test_alternating_must_match_the_library(P):
     assert sides_codes(exercise_id="side_plank", per_side=True, alternating=True)  # split-only
     assert sides_codes(exercise_id="hip_90_90", per_side=True, alternating=False)  # always alternates
     assert sides_codes(exercise_id="reverse_lunge_db", alternating=True)  # not per-side work
+
+
+def test_new_thresholds_at_default_keep_the_lock(home):
+    """Decision 105: the spike thresholds join the fingerprint only when set away from their defaults."""
+    from coach.config import load_config
+    from coach.engine.validator import thresholds_fingerprint
+
+    cfg = load_config()
+    fp = thresholds_fingerprint(cfg)
+    cfg.profile.thresholds.run_spike_max_pct = 15.0
+    assert thresholds_fingerprint(cfg) != fp
+
+
+def test_longest_run_counts_a_run_done_today_once(b1, monkeypatch):
+    """Review of #21: on a day with a logged run, the planned run that day doesn't count (no plan/log double count)."""
+    import datetime as dt
+
+    from coach.engine.sessions import session_miles
+    from coach.models import SessionRecord
+
+    ctx, plan, _ = b1
+    plan = plan.model_copy(deep=True)
+    run = next(s for s in plan.sessions if any(seg.modality == "run" for seg in s.run_segments()))
+    seg = next(seg for seg in run.run_segments() if seg.modality == "run")
+    seg.distance_mi, seg.duration_min = 50.0, None  # an obviously huge planned run today
+    ctx.state.put("week_plans", plan)
+    d = run.date
+    ctx.today = d
+    logged = SessionRecord(
+        id="r",
+        date=d,
+        start=dt.datetime(d.year, d.month, d.day, 9),
+        sport="run",
+        title="run",
+        duration_min=10,
+        distance_mi=0.5,
+        sources=["intervals"],
+    )
+    monkeypatch.setattr(ctx.state, "sessions", lambda a, b: [logged] if a <= d <= b else [])
+    pace = ctx.zones.threshold_pace_s_per_mi
+    later = [session_miles(s, pace) for s in plan.sessions if s.date > d]
+    longest = ctx.longest_run_30d(plan.start + dt.timedelta(days=7))
+    assert longest == round(max([0.5, *later]), 2) and longest < 50

@@ -157,14 +157,21 @@ def adjust(
 
     if session is not None and session.type != "rest" and rec.status != "waiting_for_recovery":
         yesterday = ctx.state.day_record(day - dt.timedelta(days=1))
+        # The day after a Red day follows its own readiness (audit 2026-11-23: HRV-guided trials adjust that day
+        # only). The carry stays when the Red came from a joint (a rating at the Red level, or a region flag): a
+        # sore joint keeps the next day easy too. Illness and red flags have their own gates (health events).
+        prev_ready = yesterday.readiness if yesterday else None
         red_carry = bool(
-            yesterday
-            and yesterday.readiness
-            and yesterday.readiness.state == "red"
+            prev_ready is not None
+            and prev_ready.state == "red"
             and readiness.state != "red"
+            and (
+                any(v >= cfg.profile.thresholds.joint_red for v in prev_ready.joints.values())
+                or bool(prev_ready.joint_flags)
+            )
         )
         state = readiness.state
-        if session.tests and (state == "red" or red_carry):  # the 48 h after a Red day are Z1 too
+        if session.tests and (state == "red" or red_carry):
             new_day = None
             if plan:
                 new_day = _reschedule_tests(ctx, plan, session, day)
@@ -174,20 +181,20 @@ def adjust(
                     if new_day
                     else f"tests {session.tests} postponed (no slot within +/-2 days)",
                     why="test day needs Green or Yellow readiness"
-                    + ("" if state == "red" else " (second day of the 48 h after a Red day)"),
+                    + ("" if state == "red" else " (the day after a Red joint rating)"),
                     kind="replan",
                 )
             )
             session = D.recovery_session(ctx, day, 30, "Red: Z1 + mobility")
         elif state == "red" or red_carry:
-            why = "; ".join(readiness.reasons) if state == "red" else "second day of the 48 h after a Red day"
+            why = "; ".join(readiness.reasons) if state == "red" else "the day after a Red joint rating"
             changes.append(
                 Change(
                     what=f"{session.title} -> Z1 walk + mobility", why=f"Red readiness ({why})", kind="small"
                 )
             )
             session = D.recovery_session(
-                ctx, day, cfg.training.rules.red_recovery_minutes, "Red: next 48 h are Z1 + mobility"
+                ctx, day, cfg.training.rules.red_recovery_minutes, "Red: Z1 + mobility today"
             )
         elif state == "yellow":
             yr = cfg.training.rules.yellow_replacement

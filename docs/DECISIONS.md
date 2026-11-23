@@ -603,8 +603,38 @@ Each entry: **decision** - why - how to reverse.
     - The `audit` skill does the judging: signals from use first (how often a rule fired, what followed, how often
       the athlete overrode it), then a literature search citing retrieved sources only, an evidence grade, an impact
       grade and a verdict (keep / keep_flagged / change / retire / trial). Changes go through proposals or PRs. A
-      4-week trial is offered, not required (the athlete may take a well-supported change directly). Safety rules are
-      never loosened by an audit.
+      4-week trial is offered, not required (the athlete may take a well-supported change directly). An audit never
+      loosens a safety rule on its own authority: a change to one is put to the athlete with its evidence and needs
+      their explicit approval, recorded as a proposal (decision 105 is the first such case).
     - Cadence: every block transition Sunday (after the block review, before the next goal), plus up to 3 high-impact
       items in the monthly `learn`, plus on demand.
     - Reverse: revert the commit; evidence records and audit reports are plain athlete data.
+105. **Audit changes: Red-day carry, single-run spikes, resting-HR median, readiness log, nutrition** (athlete
+     approved all, 2026-11-22 ET; from the first re-evaluation, decision 104):
+    - The day after a Red day follows its own readiness. The carry (Z1 + mobility the next day too) stays only when
+      the Red came from a joint rated at the Red level; illness and red flags have their own gates. HRV-guided
+      trials lower intensity on the day the signal is low, not for 48 h. The athlete overrode the 48 h carry the
+      first time it fired, while recovery was rising. `code.red_carry_48h` v2. This loosens a
+      safety-listed rule, so it was put to the athlete with the evidence and approved explicitly (proposal recorded
+      2026-11-22). The check reads structured fields (yesterday's joint ratings vs `joint_red`, and joint flags), not
+      reason text; a region flag (a region rated 3+ on two check-ins) still carries.
+    - Running: a single-run spike cap replaces the long-run "+1 mi/week" step. No run may be more than
+      `run_spike_max_pct` (10%) longer than the longest run of the previous 30 days, the week's own earlier runs
+      included. A minimum step of `run_spike_min_step_mi` (0.25 mi) lets a very low base grow. A 5200-runner
+      cohort (Frandsen 2025) linked single-session spikes over 10% to overuse injuries, while week-to-week change
+      was not linked; the 10%-per-week rule didn't reduce injuries in an RCT (Buist 2008). The weekly cap stays
+      as a looser backstop. It is a config value, loosened to 20% in a separate approved config change. plan-week
+      caps each run and moves the surplus to shorter runs; what doesn't fit is dropped, with a deviation.
+      `long_run_max_increase_mi` is kept only so older configs load. The 30-day longest counts planned
+      runs only on days without a logged run. The new thresholds join the config fingerprint only once set away from
+      their defaults (as in decision 99), so moving one back to its default is caught only if the lock held another
+      value.
+    - Resting HR trend: 7-day median vs baseline median, so one outlier morning can't hold it up for a week (the
+      same flaw the HRV mean showed).
+    - The weekly review logs each day's readiness colour next to the outcome: session done, RPE, next-day joint
+      max. After 8-12 weeks `learn` tests whether Yellow and Red days actually went worse, and proposes
+      recalibrating the cut-offs if they didn't (the colours are a vendor score plus coaching cut-offs).
+    - Duplicates: `running.max_weekly_increase_pct` is now optional and unused, and `gear.shoe_alert_miles` leaves
+      the audit inventory. `thresholds.*` are the ones the code reads; the config copies are removed separately.
+    - Config side, approved separately: protein 1.6-2.4 g/kg (2.0 outside a cut), fat floor 72 g, benchmarks
+      labelled as unsourced coach targets.
