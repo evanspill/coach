@@ -380,7 +380,7 @@
       "start": "2027-01-18",
       "type": "training",
       "run_miles": 11.8,
-      "long_run_miles": 4.5,
+      "long_run_miles": 4.4,
       "key_sessions": [
         "lower_heavy",
         "upper_heavy",
@@ -683,6 +683,11 @@
       "at": "2026-11-22",
       "reason": "block goal approved (2026-11-22-block-goal-2: strict pull-ups 10 -> 12.5; guardrails Sorensen >= 60 s, 10-min bike >= 119 cal)",
       "change": "outline final (no longer provisional); weeks 9-11 become the Open-prep phase (strength to maintenance, 3 metcons/wk); skill ladders ~2x/wk from week 1 (config 2026-11-22-config-change-1)"
+    },
+    {
+      "at": "2026-11-23",
+      "reason": "single-run spike cap (DECISIONS 105: no run more than 10% over the longest run of the last 30 days)",
+      "change": "week 9 long run 4.5 -> 4.4 mi"
     }
   ]
 }
