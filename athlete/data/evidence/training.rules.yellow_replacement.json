@@ -1,0 +1,17 @@
+{
+  "rule_id": "training.rules.yellow_replacement",
+  "rule": "Yellow replacement session = 40 min Z2",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "Reflects the HRV-guided trials' approach (low intensity when readiness is down) but the 40-min dose is a coaching choice. See the HRV evidence records.",
+  "sources": [],
+  "value_at_review": {
+    "minutes": 40,
+    "zone": "Z2"
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

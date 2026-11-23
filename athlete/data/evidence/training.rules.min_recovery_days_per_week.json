@@ -1,0 +1,14 @@
+{
+  "rule_id": "training.rules.min_recovery_days_per_week",
+  "rule": "At least 1 recovery day per week",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "Common coaching practice; no trial found on weekly rest-day counts in concurrent training. Cheap and conservative.",
+  "sources": [],
+  "value_at_review": 1,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

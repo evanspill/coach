@@ -1,0 +1,27 @@
+{
+  "rule_id": "training.rules.required_warmup",
+  "rule": "Lower-body days start with curl-up, side plank, bird dog (McGill big 3)",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "Warm-ups in general show a likely, not certain, injury reduction in RCTs; the McGill big 3 specifically is a practitioner choice for back history. Cheap; keep.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16679062/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "Fradkin 2006 SR of RCTs: 3 of 5 trials show fewer injuries with warm-up; weight of evidence favours it"
+    }
+  ],
+  "value_at_review": {
+    "lower_body": [
+      "mcgill_curl_up",
+      "side_plank",
+      "bird_dog"
+    ]
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

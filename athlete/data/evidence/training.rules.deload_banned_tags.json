@@ -1,0 +1,17 @@
+{
+  "rule_id": "training.rules.deload_banned_tags",
+  "rule": "No eccentric-heavy or high-impact work in deload weeks",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Follows from what a deload is for (lower fatigue and soreness); eccentric and impact work cause the most soreness. Coaching habit, cheap.",
+  "sources": [],
+  "value_at_review": [
+    "eccentric_heavy",
+    "high_impact"
+  ],
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

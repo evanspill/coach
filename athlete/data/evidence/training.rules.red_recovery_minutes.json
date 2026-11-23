@@ -1,0 +1,14 @@
+{
+  "rule_id": "training.rules.red_recovery_minutes",
+  "rule": "Red day = 35 min of recovery work",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Size of the Red-day recovery session; a dose choice, not an evidence claim.",
+  "sources": [],
+  "value_at_review": 35,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

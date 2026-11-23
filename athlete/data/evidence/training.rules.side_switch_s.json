@@ -1,0 +1,14 @@
+{
+  "rule_id": "training.rules.side_switch_s",
+  "rule": "10 s to switch sides in unilateral work",
+  "origin": "coach",
+  "evidence_level": "none",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Timing convenience for session-length estimates.",
+  "sources": [],
+  "value_at_review": 10,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

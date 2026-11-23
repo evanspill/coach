@@ -1,0 +1,19 @@
+{
+  "rule_id": "training.rules.long_session_types",
+  "rule": "Session types allowed to run long (run_long, race, test, competition)",
+  "origin": "coach",
+  "evidence_level": "none",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Classification used by the session-length check, not a training claim.",
+  "sources": [],
+  "value_at_review": [
+    "run_long",
+    "race",
+    "test",
+    "competition"
+  ],
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

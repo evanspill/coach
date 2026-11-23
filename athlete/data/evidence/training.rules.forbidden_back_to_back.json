@@ -1,0 +1,47 @@
+{
+  "rule_id": "training.rules.forbidden_back_to_back",
+  "rule": "No two hard sessions of these pairs on consecutive days (glycolytic, run quality, long run, heavy lower)",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "Hard-easy sequencing is standard coaching practice; this run found no trial testing specific pairs. Kept as a scheduling heuristic; overrides on athlete request are fine and should be watched in review.",
+  "sources": [],
+  "value_at_review": [
+    [
+      "glycolytic",
+      "glycolytic"
+    ],
+    [
+      "glycolytic",
+      "run_quality"
+    ],
+    [
+      "run_quality",
+      "glycolytic"
+    ],
+    [
+      "run_quality",
+      "run_quality"
+    ],
+    [
+      "lower_heavy",
+      "lower_heavy"
+    ],
+    [
+      "long_run",
+      "run_quality"
+    ],
+    [
+      "run_quality",
+      "long_run"
+    ],
+    [
+      "glycolytic",
+      "long_run"
+    ]
+  ],
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

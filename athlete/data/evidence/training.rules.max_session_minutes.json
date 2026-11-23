@@ -1,0 +1,14 @@
+{
+  "rule_id": "training.rules.max_session_minutes",
+  "rule": "Sessions capped at 120 min (except long types)",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Scheduling limit tied to the athlete's available time, not a physiological claim.",
+  "sources": [],
+  "value_at_review": 120,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

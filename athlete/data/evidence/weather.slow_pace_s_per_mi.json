@@ -1,0 +1,24 @@
+{
+  "rule_id": "weather.slow_pace_s_per_mi",
+  "rule": "Slow easy pace 15-30 s/mi in heat",
+  "origin": "gemini",
+  "evidence_level": "cohort",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "Direction supported (heat slows runners progressively); the exact adjustment is a rule of thumb.",
+  "sources": [
+    {
+      "url": "https://experts.umn.edu/en/publications/impact-of-weather-on-marathon-running-performance/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Ely 2007: marathon times slow progressively as WBGT rises 5-25 C, more so for slower runners"
+    }
+  ],
+  "value_at_review": [
+    15,
+    30
+  ],
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

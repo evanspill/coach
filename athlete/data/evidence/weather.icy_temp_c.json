@@ -1,0 +1,14 @@
+{
+  "rule_id": "weather.icy_temp_c",
+  "rule": "Icy if temperature <= 0 C with recent precipitation",
+  "origin": "coach",
+  "evidence_level": "theory",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Freezing point; physical rather than training evidence.",
+  "sources": [],
+  "value_at_review": 0.0,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

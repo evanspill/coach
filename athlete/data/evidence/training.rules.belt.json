@@ -1,0 +1,39 @@
+{
+  "rule_id": "training.rules.belt",
+  "rule": "Belt only on primary spine-loaded strength/test sets at <= 8 reps and <= 2 RIR",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "Lab studies show a belt raises intra-abdominal pressure and trunk stiffness in heavy lifts, with mixed effect on spine load; no trial ties belt use to injury. Restricting it to heavy primary sets is a sensible habit, not a tested rule.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/1533266/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "Lander 1992: belt raised intra-abdominal pressure across multi-rep squats"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/2141312/",
+      "kind": "other",
+      "direction": "mixed",
+      "note": "1990 lab study: belts change trunk muscle activity/IAP little in short lifts; hard to justify for workers"
+    }
+  ],
+  "value_at_review": {
+    "tags_all": [
+      "primary",
+      "spine_load"
+    ],
+    "block_kinds": [
+      "strength",
+      "test"
+    ],
+    "max_rir": 2.0,
+    "max_reps": 8,
+    "test_sets": 2
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

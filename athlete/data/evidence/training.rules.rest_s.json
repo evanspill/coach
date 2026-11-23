@@ -1,0 +1,44 @@
+{
+  "rule_id": "training.rules.rest_s",
+  "rule": "Default rest by block kind (strength 150 s, hypertrophy 90 s, conditioning 60 s ...)",
+  "origin": "gemini",
+  "evidence_level": "meta_analysis",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Hypertrophy rest of 90 s matches the meta-analytic finding of no clear gain beyond ~90 s; strength rest of 150 s is slightly below the 3-5 min that favours strength but applies to secondary work only.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28641044/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "Grgic 2017 SR: short and long rest both build muscle; long rest may help trained lifters"
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11349676/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Singer 2024 Bayesian MA: small hypertrophy benefit for >60 s rest; no clear difference beyond ~90 s"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19691365/",
+      "kind": "other",
+      "direction": "supports",
+      "note": "de Salles 2009 review: 3-5 min rest gives larger absolute strength gains"
+    }
+  ],
+  "value_at_review": {
+    "default": 60,
+    "warmup": 15,
+    "skill": 90,
+    "power": 120,
+    "strength": 150,
+    "hypertrophy": 90,
+    "conditioning": 60,
+    "test": 180,
+    "mobility": 15,
+    "cooldown": 15
+  },
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

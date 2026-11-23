@@ -1,0 +1,27 @@
+{
+  "rule_id": "weather.extreme_cold_f",
+  "rule": "Run indoors below 0 F",
+  "origin": "coach",
+  "evidence_level": "consensus",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "ACSM places the danger zone lower (about -8 F, frostbite within 30 min) and stresses wind and wet clothing; 0 F is slightly more conservative. Fine as a safety margin.",
+  "sources": [
+    {
+      "url": "https://acsm.org/wp-content/uploads/2025/02/Exercising-in-hot-and-cold-environments.pdf",
+      "kind": "consensus",
+      "direction": "mixed",
+      "note": "ACSM sheet: avoid exercise below about -8 F; frostbite possible within 30 min"
+    },
+    {
+      "url": "https://discovery.ucl.ac.uk/10138556/1/Montgormery_ACSM_Expert_Consensus%20Accepted%20Final.pdf",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "ACSM 2021 cold-injury consensus: risk rises with wind, wet clothing and stops; moving keeps skin warm"
+    }
+  ],
+  "value_at_review": 0.0,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

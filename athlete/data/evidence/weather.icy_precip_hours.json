@@ -1,0 +1,14 @@
+{
+  "rule_id": "weather.icy_precip_hours",
+  "rule": "Treat as icy if precipitation in the last 12 h",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "Slip-risk heuristic; no evidence for the window. Cheap.",
+  "sources": [],
+  "value_at_review": 12,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}
