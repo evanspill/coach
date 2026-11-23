@@ -191,3 +191,25 @@ def test_structured_sources_counts_and_audit_view(home):
     ev = inv["thresholds.weekly_run_increase_pct"]["evidence"]
     assert ev["level"] == "cohort" and ev["sources"]["contradicts"] == 2 and ev["verdict"] == "change"
     assert inv["thresholds.joint_red"]["evidence"] is None
+
+
+def test_unsourced_high_or_medium_impact_records_are_queued(home):
+    from coach.config import load_config
+    from coach.engine import audit as A
+
+    cfg = load_config()
+    inv = {r.rule_id: r.value for r in A.inventory(cfg)}
+    recs = {
+        "season.deload.every": _rec("season.deload.every", inv["season.deload.every"], impact="high"),
+        "thresholds.rhr_yellow_delta": _rec(
+            "thresholds.rhr_yellow_delta", inv["thresholds.rhr_yellow_delta"], impact="low"
+        ),
+        "thresholds.hrv_below_days_red": _rec(
+            "thresholds.hrv_below_days_red",
+            inv["thresholds.hrv_below_days_red"],
+            impact="medium",
+            sources=["https://example.org/a"],
+        ),
+    }
+    q = A.audit(cfg, recs, TODAY)
+    assert q["unsourced"] == ["season.deload.every"]

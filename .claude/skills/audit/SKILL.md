@@ -23,7 +23,7 @@ from), `coach report ...`, `day_records` and week-plan `deviations` (overrides),
 ## Procedure
 1. **Queue.** Run `coach audit`. Work in this order and stop at about 8 rules per run (depth beats breadth); the
    first full pass (no evidence records yet) covers every high-impact rule, however many that takes:
-   `changed_since_review` -> `unreviewed` with high impact -> `weak_evidence_high_impact` -> `due` -> other
+   `changed_since_review` -> `unreviewed` with high impact -> `weak_evidence_high_impact` -> `unsourced` (high/medium-impact records with no sources) -> `due` -> other
    `unreviewed`. Impact = how often the rule fires x what it costs when wrong (training days lost, injury risk,
    wrong goals). High: readiness states and what they force, progression caps, benchmarks that choose goals, ladder
    speed. Low: labels and flags that only start a conversation.

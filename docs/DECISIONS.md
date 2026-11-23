@@ -651,3 +651,5 @@ Each entry: **decision** - why - how to reverse.
       low-impact heuristics may be recorded as `practitioner` with no source. Every rule gets a record as the queue
       reaches it. There is still only one home: citations live in the evidence records, and config and docs point to
       them rather than copying.
+    - `coach audit` lists high- or medium-impact records with no sources under `unsourced`, so the policy is checked
+      rather than only stated (the model still accepts them: a record may be saved before its sources are found).

@@ -224,7 +224,7 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
     """records: rule_id -> EvidenceRecord. Returns the review queue, most urgent first."""
     inv = inventory(cfg)
     known = {r.rule_id for r in inv}
-    changed, unreviewed, due, weak = [], [], [], []
+    changed, unreviewed, due, weak, unsourced = [], [], [], [], []
     for r in inv:
         rec = records.get(r.rule_id)
         if rec is None:
@@ -236,6 +236,8 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
             due.append(r.rule_id)
         if rec.evidence_level in WEAK and rec.impact == "high" and rec.verdict in {"keep", "keep_flagged"}:
             weak.append(r.rule_id)
+        if rec.impact in {"high", "medium"} and not rec.sources:
+            unsourced.append(r.rule_id)  # citation policy: high/medium-impact verdicts need retrieved sources
     return {
         "rules": len(inv),
         "reviewed": len(inv) - len(unreviewed),
@@ -243,6 +245,7 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
         "unreviewed": unreviewed,
         "due": due,
         "weak_evidence_high_impact": weak,
+        "unsourced": unsourced,
         "orphaned_records": sorted(set(records) - known),  # a reviewed rule that no longer exists
         # safety rules in the queue: the verdict is always shown to the athlete, and may never loosen them
         "safety_rules_queued": sorted(
