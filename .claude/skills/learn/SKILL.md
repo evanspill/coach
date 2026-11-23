@@ -26,7 +26,10 @@ description: Getting better as a coach. Monthly (first Wednesday) - (1) an exter
   needed). The full re-evaluation runs at every block transition (`audit`).
 
 ## Calibration
-- Start with `coach` output from the deterministic calibration (it compares next-day RPE on Green vs Yellow days);
+- Start with `coach` output from the deterministic calibration (it compares next-day RPE on Green vs Yellow days)
+  and the weekly reviews' "Readiness vs outcome" rows (`readiness_outcomes`): after 8-12 weeks, test whether Yellow
+  and Red days actually went worse (RPE, missed sessions, next-day joint ratings) and propose recalibrating the
+  colour cut-offs if they don't;
   extend it (progression rate vs RPE drift, carb tiers vs session quality, sleep vs readiness).
 - Propose changes as `calibration` proposals with a `config_patch` payload; `coach approve` applies the patch, updates
   the config lock and writes the `changelog` report. Approved rule changes also get a changelog line in

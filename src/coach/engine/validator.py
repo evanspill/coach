@@ -46,8 +46,17 @@ class ValidationContext:
     trailing_miles: list[float] = field(default_factory=list)
     threshold_pace: float = S.DEFAULT_THRESHOLD_PACE
     previous_session: Session | None = None  # last session of the previous week (back-to-back rule)
-    previous_long_run: float | None = None  # longest run of the last normal week (long-run growth rule)
+    previous_long_run: float | None = None  # longest run of the last normal week (reporting)
+    longest_run_30d: float | None = None  # longest single run of the 30 days before the week (spike rule)
     week_type_override: str | None = None
+
+
+def spike_cap(longest: float, th) -> float | None:
+    """Longest allowed single run given the longest run of the previous 30 days; None with no recent base (the weekly
+    ramp-start rule governs a first week back)."""
+    if longest <= 0:
+        return None
+    return round(max(longest * (1 + th.run_spike_max_pct / 100), longest + th.run_spike_min_step_mi), 2)
 
 
 def _restricted_tags(ctx: ValidationContext) -> dict[str, str]:
@@ -359,17 +368,24 @@ def validate_week(plan: WeekPlan, ctx: ValidationContext) -> list[Violation]:
                     f"{miles:.1f} mi exceeds +{th.weekly_run_increase_pct:g}% over the trailing 3-week average (cap {cap:.1f} mi)",
                 )
             )
-        if (
-            ctx.previous_long_run is not None
-            and long_run > ctx.previous_long_run + th.long_run_max_increase_mi + 0.05
-        ):
-            v.append(
-                Violation(
-                    "LONG_RUN_INCREASE",
-                    f"long run {long_run:.1f} mi grows more than {th.long_run_max_increase_mi:g} mi "
-                    f"over the last normal week's {ctx.previous_long_run:.1f} mi",
+        # single-run spikes (audit 2026-11-23): each run against the longest of the previous 30 days, the week's
+        # own earlier runs included
+        longest = ctx.longest_run_30d or 0.0
+        for s in sorted(plan.sessions, key=lambda s: s.date):
+            d = S.session_miles(s, ctx.threshold_pace)
+            if d <= 0:
+                continue
+            limit = spike_cap(longest, th)
+            if limit is not None and d > limit + 0.05:
+                v.append(
+                    Violation(
+                        "RUN_SPIKE",
+                        f"{s.date:%a} run {d:.1f} mi is more than +{th.run_spike_max_pct:g}% over the longest run "
+                        f"of the last 30 days ({longest:.1f} mi; cap {limit:.1f} mi)",
+                        s.id,
+                    )
                 )
-            )
+            longest = max(longest, d)
         ok, limit = long_run_fraction_ok(long_run, miles, th)
         if not ok:
             v.append(
@@ -479,10 +495,19 @@ def validate_movement_change(
 
 
 # ---------- config / threshold lock ----------
+NEW_THRESHOLD_DEFAULTS = {"run_spike_max_pct": 10.0, "run_spike_min_step_mi": 0.25}  # decision 105
+
+
 def thresholds_fingerprint(cfg: Config) -> str:
     p = cfg.profile
+    th = p.thresholds.model_dump(mode="json")
+    # thresholds added after a lock was recorded join the fingerprint only once set away from their defaults, so
+    # existing locks stay valid (same approach as decision 99); changing them still needs an approved proposal
+    for key, default in NEW_THRESHOLD_DEFAULTS.items():
+        if th.get(key) == default:
+            th.pop(key, None)
     payload = {
-        "thresholds": p.thresholds.model_dump(mode="json"),
+        "thresholds": th,
         "weather": p.weather.model_dump(mode="json"),
         "nutrition": {
             k: v

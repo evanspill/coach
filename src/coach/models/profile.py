@@ -135,7 +135,13 @@ class Thresholds(Model):
     long_run_max_fraction: float
     long_run_max_fraction_low_volume: float
     long_run_rule_min_weekly_miles: float
+    # retired 2026-11-23 (audit): long-run growth is now covered by the single-run spike rule below; kept so older
+    # configs still load
     long_run_max_increase_mi: float = 1.0
+    # single-run spike rule (audit 2026-11-23, Frandsen 2025 cohort): no run longer than the longest run of the
+    # previous 30 days by more than run_spike_max_pct, except a minimum step so a very low base can still grow
+    run_spike_max_pct: float = 10.0
+    run_spike_min_step_mi: float = 0.25
     pain_rule_max: float
     shoe_alert_miles: float
 
@@ -214,7 +220,8 @@ class Running(Model):
     ramp_start_miles: tuple[float, float]
     runs_per_week_at_start: int
     cadence_target_spm: tuple[int, int]
-    max_weekly_increase_pct: float
+    # unused duplicate of thresholds.weekly_run_increase_pct (the one the code reads); optional so it can be removed
+    max_weekly_increase_pct: float | None = None
     hold_every_nth_week: int
     gait_analysis_recommended: bool
     default_zones: DefaultZones = DefaultZones(lthr=165, threshold_pace_s_per_mi=480)

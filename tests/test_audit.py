@@ -75,24 +75,22 @@ def test_evidence_records_go_through_the_door_and_feed_the_cli(home):
         cfg,
         "evidence",
         {
-            "rule_id": "gear.shoe_alert_miles",
+            "rule_id": "thresholds.shoe_alert_miles",
             "rule": "alert to replace shoes at 250 mi",
             "evidence_level": "practitioner",
             "impact": "low",
             "verdict": "keep_flagged",
             "sources": ["https://pmc.ncbi.nlm.nih.gov/articles/PMC5534152"],
-            "value_at_review": cfg.profile.gear.get("shoe_alert_miles")
-            if isinstance(cfg.profile.gear, dict)
-            else cfg.profile.gear.model_dump().get("shoe_alert_miles"),
+            "value_at_review": cfg.profile.thresholds.shoe_alert_miles,
             "reviewed": "2026-11-23",
             "review_after": "2027-11-23",
         },
         TODAY,
     )
-    assert res["saved"] == "evidence/gear.shoe_alert_miles"
+    assert res["saved"] == "evidence/thresholds.shoe_alert_miles"
     args = cli.build_parser().parse_args(["--date", "2026-11-23", "audit"])
     out = cli.COMMANDS["audit"](args)
-    assert "gear.shoe_alert_miles" not in out["unreviewed"] and "inventory" not in out
+    assert "thresholds.shoe_alert_miles" not in out["unreviewed"] and "inventory" not in out
     full = cli.COMMANDS["audit"](cli.build_parser().parse_args(["audit", "--full"]))
     assert any(r["rule_id"] == "code.red_carry_48h" for r in full["inventory"])
 
@@ -118,7 +116,7 @@ def test_code_rule_versions_changed_and_due_safety(home, monkeypatch):
         and "thresholds.joint_red" in q["safety_rules_queued"]
     )
     where, what, _ = A.CODE_RULES["code.red_carry_48h"]
-    monkeypatch.setitem(A.CODE_RULES, "code.red_carry_48h", (where, what, "v2"))
+    monkeypatch.setitem(A.CODE_RULES, "code.red_carry_48h", (where, what, v + "-bumped"))
     q = A.audit(cfg, {"code.red_carry_48h": rec}, TODAY)
     assert [c["rule_id"] for c in q["changed_since_review"]] == ["code.red_carry_48h"]
     assert "code.red_carry_48h" not in q["due"]  # changed is reported once, ahead of due

@@ -106,6 +106,33 @@ def easy_share(ctx: Context, start: dt.date, end: dt.date) -> float | None:
     return round(easy / total, 2) if total >= 60 else None
 
 
+def readiness_outcomes(ctx: Context, plan: WeekPlan) -> list[dict]:
+    """Each day's readiness colour against what happened (audit 2026-11-23): the session as it stood, whether a
+    workout was logged, session RPE (from that day's or the next day's check-in) and the next day's highest joint
+    rating. The colours are a coaching heuristic; after 8-12 weeks `learn` tests them against these rows."""
+    logged = {s.date for s in ctx.state.sessions(plan.start, plan.end + dt.timedelta(days=1))}
+    cis = {c.date: c for c in ctx.state.checkins(plan.start, plan.end + dt.timedelta(days=1))}
+    rows = []
+    for i in range(7):
+        d = plan.start + dt.timedelta(days=i)
+        rec = ctx.state.day_record(d)
+        state = rec.readiness.state if rec and rec.readiness else None
+        s = rec.current_session() if rec else plan.session_on(d)
+        nxt = cis.get(d + dt.timedelta(days=1))
+        rpe = (cis[d].session_rpe if d in cis else None) or (nxt.session_rpe if nxt else None)
+        rows.append(
+            {
+                "date": d.isoformat(),
+                "state": state,
+                "session": s.type if s else None,
+                "done": d in logged,
+                "session_rpe": rpe,
+                "next_day_joint_max": max(nxt.joints.values()) if nxt and nxt.joints else None,
+            }
+        )
+    return rows
+
+
 def journal_summary(ctx: Context, start: dt.date, end: dt.date) -> list[str]:
     entries = ctx.state.query("journal", start, end)
     return [f"{e.date:%a} [{e.kind}] {e.text[:140]}" for e in entries]
@@ -236,6 +263,19 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         "## Focus for next week",
         *[f"- {x}" for x in focus[:2]],
     ]
+    outcomes = readiness_outcomes(ctx, plan)
+    if any(o["state"] for o in outcomes):
+        lines += [
+            "",
+            "## Readiness vs outcome",
+            "| Day | Colour | Session | Done | RPE | Next-day joint max |",
+            "|---|---|---|---|---|---|",
+            *[
+                f"| {dt.date.fromisoformat(o['date']):%a} | {o['state'] or '-'} | {o['session'] or '-'} | "
+                f"{'yes' if o['done'] else 'no'} | {o['session_rpe'] or '-'} | {o['next_day_joint_max'] or '-'} |"
+                for o in outcomes
+            ],
+        ]
     if journal:
         lines += ["", "## From your journal", *[f"- {j}" for j in journal]]
     if alerts:
@@ -257,6 +297,7 @@ def weekly_review(ctx: Context, plan: WeekPlan, next_target_note: str = "") -> t
         "questions": questions,
         "focus": focus[:2],
         "session_load": load,
+        "readiness_outcomes": outcomes,
     }
     return "\n".join(lines) + "\n", summary
 

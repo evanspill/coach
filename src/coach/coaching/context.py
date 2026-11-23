@@ -147,6 +147,23 @@ class Context:
                 return long_run_miles(plan, self.zones.threshold_pace_s_per_mi) or None
         return None
 
+    def longest_run_30d(self, week_start: dt.date) -> float | None:
+        """Longest single run in the 30 days before week_start: logged runs, plus planned runs on days not yet
+        reached (planning next week on a Sunday counts the rest of this week as planned)."""
+        from coach.engine.sessions import session_miles
+
+        start, end = week_start - dt.timedelta(days=30), week_start - dt.timedelta(days=1)
+        runs = [s.distance_mi or 0 for s in self.state.sessions(start, end) if s.sport == "run"]
+        d = max(start, self.today)
+        while d <= end:
+            plan = self.state.week_plan(clock.iso_week_id(d))
+            s = plan.session_on(d) if plan else None
+            if s is not None:
+                runs.append(session_miles(s, self.zones.threshold_pace_s_per_mi))
+            d += dt.timedelta(days=1)
+        best = max(runs, default=0.0)
+        return round(best, 2) if best > 0 else None
+
     def validation(
         self, plan: WeekPlan | None = None, outline: BlockOutline | None = None
     ) -> ValidationContext:
@@ -171,6 +188,7 @@ class Context:
             threshold_pace=self.zones.threshold_pace_s_per_mi,
             previous_session=prev_session,
             previous_long_run=self.previous_long_run(start),
+            longest_run_30d=self.longest_run_30d(start),
         )
 
     def has_metrics(self) -> bool:
