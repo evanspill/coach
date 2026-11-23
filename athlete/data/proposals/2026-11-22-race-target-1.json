@@ -10,12 +10,17 @@
   "after": "4:54:00",
   "target": "race_targets/marathon-2027",
   "payload": null,
-  "status": "pending",
+  "status": "rejected",
   "history": [
     {
       "at": "2026-11-22",
       "status": "pending",
       "note": ""
+    },
+    {
+      "at": "2026-11-22",
+      "status": "rejected",
+      "note": "Deferred by the athlete (2026-11-22): based on a low-confidence drift-run estimate and an unconfirmed race date; re-propose from the March 30-min TT, when a race date may be set."
     }
   ]
 }
