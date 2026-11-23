@@ -135,3 +135,16 @@ def test_dotted_rule_ids_round_trip_through_the_store(home):
         st.put("evidence", _rec(rid, 1))
         assert st.get("evidence", rid).rule_id == rid
     assert sorted(st.keys("evidence")) == ["code.red_carry_48h", "progressions.rules.min_days_at_rung"]
+
+
+def test_safety_rules_exist_and_change_verdicts_surface(home):
+    from coach.config import load_config
+    from coach.engine import audit as A
+
+    cfg = load_config()
+    ids = {r.rule_id for r in A.inventory(cfg)}
+    assert A.SAFETY_RULES.issubset(ids)  # a renamed key would silently drop its safety flag
+    v = next(r.value for r in A.inventory(cfg) if r.rule_id == "thresholds.joint_red")
+    rec = _rec("thresholds.joint_red", v, verdict="change", review_after=dt.date(2027, 6, 1))
+    q = A.audit(cfg, {"thresholds.joint_red": rec}, TODAY)
+    assert "thresholds.joint_red" in q["safety_rules_queued"] and "thresholds.joint_red" not in q["due"]

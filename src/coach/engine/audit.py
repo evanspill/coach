@@ -224,7 +224,14 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
         # safety rules in the queue: the verdict is always shown to the athlete, and may never loosen them
         "safety_rules_queued": sorted(
             {r.rule_id for r in inv if r.safety}
-            & ({c["rule_id"] for c in changed} | set(unreviewed) | set(due) | set(weak))
+            & (
+                {c["rule_id"] for c in changed}
+                | set(unreviewed)
+                | set(due)
+                | set(weak)
+                # a change/retire/trial verdict on a safety rule always reaches the athlete
+                | {rid for rid, rec in records.items() if rec.verdict not in {"keep", "keep_flagged"}}
+            )
         ),
         "inventory": [
             {

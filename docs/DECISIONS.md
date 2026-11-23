@@ -597,7 +597,9 @@ Each entry: **decision** - why - how to reverse.
       and records whose rule no longer exists. Rules in code carry a version string in CODE_RULES that is bumped
       whenever the rule changes, so code edits show up as "changed since review" too. Safety rules (joint, pain,
       Red-day and sustained-Red rules) are flagged; the queue lists them under `safety_rules_queued` so their
-      verdicts always reach the athlete (review of #20).
+      verdicts always reach the athlete (review of #20), including any safety rule whose verdict is change, retire
+      or trial. Yellow-tier thresholds are deliberately not safety rules: Yellow only swaps intensity work for
+      Zone 2, and the Red, joint and pain rules stay the safety net.
     - The `audit` skill does the judging: signals from use first (how often a rule fired, what followed, how often
       the athlete overrode it), then a literature search citing retrieved sources only, an evidence grade, an impact
       grade and a verdict (keep / keep_flagged / change / retire / trial). Changes go through proposals or PRs. A
