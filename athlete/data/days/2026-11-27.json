@@ -13,7 +13,7 @@
     "intent": "1 mi easy run (long-run growth is capped at +1 mi/week from zero), then Z2 bike at the gym; if the gym is closed, walk 30 min instead",
     "location": "outdoor",
     "route": "farmington_river_trail",
-    "expected_minutes": 75,
+    "expected_minutes": 80,
     "key": true,
     "carb_tier": "high",
     "blocks": [
@@ -120,7 +120,7 @@
           {
             "label": "Z2 bike (gym, after the run)",
             "zone": "Z2",
-            "duration_min": 45.0,
+            "duration_min": 50.0,
             "distance_mi": null,
             "reps": 1,
             "recovery_min": null,

@@ -6,44 +6,44 @@
   "start": "2026-11-23",
   "deviations": [
     {
-      "field": "key_sessions",
-      "planned": "lower_heavy Monday",
-      "actual": "lower_heavy Tuesday",
-      "reason": "Sunday Red: the 48 h rule makes Monday Z1 + mobility; Tuesday hinge is the day before Wednesday golf, kept moderate (2 RIR, no finisher) since golf is evening sim with no walking"
+      "field": "sessions",
+      "planned": "Mon recovery (48 h after Sunday's Red), Wed upper, Thu Z2 run",
+      "actual": "Mon lower, Tue upper, Wed/Thu rest",
+      "reason": "athlete request: training Mon/Tue, no training Wed/Thu (Thanksgiving week). Sunday's Red came from the 7-day HRV trend only, with recovery and HRV rising and resting HR back to baseline; Monday follows Monday's own readiness"
     },
     {
       "field": "sessions",
-      "planned": "sprints + upper aesthetics + kipping ladder + easy run",
-      "actual": "dropped; its 1.5 mi easy run moved to Tuesday, kipping exposure comes from Tuesday and Wednesday",
-      "reason": "week 1 of a return to running after 4+ weeks off with a past groin/hip issue: no sprints yet; Red start to the week"
+      "planned": "sprints + upper aesthetics + kipping ladder",
+      "actual": "dropped",
+      "reason": "first week back running after 4+ weeks off with a past groin/hip issue; holiday week"
     },
     {
       "field": "long_run_day",
       "planned": "Saturday",
       "actual": "Friday",
-      "reason": "keeps hard lower and glycolytic work off the day before the long run; Thursday is Thanksgiving"
+      "reason": "keeps hard lower and glycolytic work off the day before the long run"
     },
     {
       "field": "run_miles",
       "planned": "6.0",
-      "actual": "5.0",
-      "reason": "long run capped at 1 mi (+1 mi/week from zero); remainder not crammed into other days in the first week back"
+      "actual": "4.0",
+      "reason": "holiday rest days; long run capped at 1 mi (+1 mi/week from zero); not crammed into other days"
     },
     {
       "field": "hard_sets.chest",
       "planned": "sprint/upper day",
-      "actual": "incline DB press 3 x 10 on Wednesday",
+      "actual": "incline DB press 3 x 10 on Tuesday",
       "reason": "keeps chest in range after dropping the sprint/upper day"
     }
   ],
   "generated_by": "claude",
   "approval": "pending",
-  "rationale": "Block 1 week 1. Goal: strict pull-ups 10 -> 12.5. Sunday was Red, so Monday is Z1 + mobility by rule and the hinge moves to Tuesday. Open skill ladders start now, ~2 exposures each a week (olympic Tue/Sat, kipping Tue/Wed, overhead Wed/Sat). Thanksgiving Thursday is an outdoor easy run. Long run Friday, squat + Hyrox intervals Saturday, Sunday recovery. Running restarts at ~5 mi, all easy.",
+  "rationale": "Block 1 week 1 (holiday week). Goal: strict pull-ups 10 -> 12.5. Athlete trains Mon/Tue and rests Wed/Thu (Thanksgiving). Hinge + Open skills Monday, upper + skills + short metcon Tuesday, long run + Z2 bike Friday, squat + Hyrox Saturday, recovery Sunday. Skill ladders still get ~2 exposures each (olympic Mon/Sat, kipping Mon/Tue, overhead Tue/Sat).",
   "illness_dates": [],
   "travel_dates": [],
   "focus_points": [
-    "Start calm: Monday Z1, then normal training if HRV comes back into its band",
+    "Monday: if anything feels off in the warm-up, drop to the Zone 2 option and tell me",
     "Skill work is practice, not a workout: <= 70%, stop when positions slip",
-    "Treadmill: use the watch's Treadmill activity; log jumps in inches and bike scores in calories"
+    "Enjoy Thanksgiving: two real rest days"
   ]
 }

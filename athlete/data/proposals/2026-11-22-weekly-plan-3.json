@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-22-weekly-plan-3",
+  "kind": "weekly_plan",
+  "created": "2026-11-22",
+  "created_by": "plan-week",
+  "title": "Week 2026-W48 plan (training)",
+  "what": "see week_plans/2026-W48",
+  "why": "Block 1 week 1 (holiday week). Goal: strict pull-ups 10 -> 12.5. Athlete trains Mon/Tue and rests Wed/Thu (Thanksgiving). Hinge + Open skills Monday, upper + skills + short metcon Tuesday, long run + Z2 bike Friday, squat + Hyrox Saturday, recovery Sunday. Skill ladders still get ~2 exposures each (olympic Mon/Sat, kipping Mon/Tue, overhead Tue/Sat).",
+  "before": null,
+  "after": null,
+  "target": "week_plans/2026-W48",
+  "payload": null,
+  "status": "pending",
+  "history": [
+    {
+      "at": "2026-11-22",
+      "status": "pending",
+      "note": ""
+    }
+  ]
+}
