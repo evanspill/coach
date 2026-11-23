@@ -207,11 +207,24 @@ def _norm(v: Any) -> Any:
 WEAK = {"practitioner", "theory", "none", "unknown"}
 
 
+def _evidence_view(rec: Any) -> dict | None:
+    """What `coach audit --full` shows next to each rule: where it came from and what supports it."""
+    if rec is None:
+        return None
+    return {
+        "origin": rec.origin,
+        "level": rec.evidence_level,
+        "verdict": rec.verdict,
+        "sources": rec.source_counts(),
+        "reviewed": rec.reviewed.isoformat(),
+    }
+
+
 def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
     """records: rule_id -> EvidenceRecord. Returns the review queue, most urgent first."""
     inv = inventory(cfg)
     known = {r.rule_id for r in inv}
-    changed, unreviewed, due, weak = [], [], [], []
+    changed, unreviewed, due, weak, unsourced = [], [], [], [], []
     for r in inv:
         rec = records.get(r.rule_id)
         if rec is None:
@@ -223,6 +236,8 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
             due.append(r.rule_id)
         if rec.evidence_level in WEAK and rec.impact == "high" and rec.verdict in {"keep", "keep_flagged"}:
             weak.append(r.rule_id)
+        if rec.impact in {"high", "medium"} and not rec.sources:
+            unsourced.append(r.rule_id)  # citation policy: high/medium-impact verdicts need retrieved sources
     return {
         "rules": len(inv),
         "reviewed": len(inv) - len(unreviewed),
@@ -230,6 +245,7 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
         "unreviewed": unreviewed,
         "due": due,
         "weak_evidence_high_impact": weak,
+        "unsourced": unsourced,
         "orphaned_records": sorted(set(records) - known),  # a reviewed rule that no longer exists
         # safety rules in the queue: the verdict is always shown to the athlete, and may never loosen them
         "safety_rules_queued": sorted(
@@ -250,6 +266,7 @@ def audit(cfg: Config, records: dict[str, Any], today: dt.date) -> dict:
                 "value": r.value,
                 "description": r.description,
                 "safety": r.safety,
+                "evidence": _evidence_view(records.get(r.rule_id)),
             }
             for r in inv
         ],

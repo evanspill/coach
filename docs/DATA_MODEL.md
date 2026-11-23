@@ -76,7 +76,7 @@ erDiagram
 | `movement_readiness` | singleton | `MovementReadiness` | `athlete/data/movement_readiness.json` | rungs; per family `last_exposure_date`/`last_exposure_clean` make exposure logging idempotent (a later pain report can overturn a clean one) |
 | `zones` | singleton | `ThresholdZones` | `athlete/data/zones.json` | LTHR + threshold pace (HR zones come from heart rate reserve instead when `default_zones.hr_model` is `hrr`; decision 99) |
 | `notes` | doc | `Note` | `athlete/data/notes/{key}.json` | durable facts (rendered to notes.md) |
-| `evidence` | doc | `EvidenceRecord` | `athlete/data/evidence/{key}.json` | the coach's re-evaluation of each rule: evidence level, impact, verdict, retrieved sources, value at review (decision 104) |
+| `evidence` | doc | `EvidenceRecord` | `athlete/data/evidence/{key}.json` | the coach's re-evaluation of each rule: evidence level, impact, verdict, retrieved sources (each with kind, direction and note; decision 106), value at review (decision 104) |
 | `config_lock` | singleton | `ConfigLock` | `athlete/data/config_lock.json` | approved-thresholds fingerprint |
 | **reports (markdown)** | | | | |
 | `week_reviews` | report | `-` | `athlete/data/weeks/{key}/review.md` | weekly review |

@@ -638,3 +638,18 @@ Each entry: **decision** - why - how to reverse.
       the audit inventory. `thresholds.*` are the ones the code reads; the config copies are removed separately.
     - Config side, approved separately: protein 1.6-2.4 g/kg (2.0 outside a cut), fat floor 72 g, benchmarks
       labelled as unsourced coach targets.
+106. **Structured sources per rule** (athlete request, 2026-11-22):
+    - An evidence record can cite any number of sources. Each source has a `kind` (meta_analysis, rct, cohort,
+      consensus, practitioner, theory, other), a `direction` (supports, contradicts, mixed, context) and a one-line
+      `note`. A plain URL is still accepted and read as an unclassified supporting source.
+    - Why: multiple sources make a rule stronger only if they are good and they agree. A list of links can't show
+      that, but kinds and directions can, and recording contradicting sources stops a rule from looking better
+      supported than it is. The rule's `evidence_level` stays the coach's judgment of the whole, not a count.
+    - `coach audit --full` shows, next to each rule's value, its origin, evidence level, verdict and source counts
+      by direction. "Where did this rule come from and what supports it?" is one command.
+    - Policy (audit skill): citation depth follows impact. High- and medium-impact rules need retrieved sources;
+      low-impact heuristics may be recorded as `practitioner` with no source. Every rule gets a record as the queue
+      reaches it. There is still only one home: citations live in the evidence records, and config and docs point to
+      them rather than copying.
+    - `coach audit` lists high- or medium-impact records with no sources under `unsourced`, so the policy is checked
+      rather than only stated (the model still accepts them: a record may be saved before its sources are found).

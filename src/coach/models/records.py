@@ -3,7 +3,7 @@
 import datetime as dt
 from typing import Any, Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from coach.models.common import Model
 from coach.models.plans import Session
@@ -217,6 +217,16 @@ EvidenceLevel = Literal[
 ]
 
 
+class EvidenceSource(Model):
+    """One cited source (decision 106): what kind of evidence it is and which way it points. A plain URL string is
+    accepted and read as an unclassified supporting source."""
+
+    url: str  # URL or DOI that this run actually retrieved
+    kind: Literal["meta_analysis", "rct", "cohort", "consensus", "practitioner", "theory", "other"] = "other"
+    direction: Literal["supports", "contradicts", "mixed", "context"] = "supports"
+    note: str = ""  # one line: what it found
+
+
 class EvidenceRecord(Model):
     """The coach's re-evaluation of one rule (DECISIONS 104): what the rule says, how well it is supported, what it
     costs when it is wrong, and the verdict. `value_at_review` lets `coach audit` notice a rule that changed since."""
@@ -228,11 +238,23 @@ class EvidenceRecord(Model):
     impact: Literal["high", "medium", "low"] = "medium"  # how often it fires x cost when it is wrong
     verdict: Literal["keep", "keep_flagged", "change", "retire", "trial"] = "keep"
     summary: str = ""  # the evidence and the reasoning, briefly
-    sources: list[str] = Field(default_factory=list)  # retrieved URLs/DOIs only
+    # retrieved sources only, as many independent ones as were found, contradicting ones included
+    sources: list[EvidenceSource] = Field(default_factory=list)
     value_at_review: Any = None
     reviewed: dt.date
     review_after: dt.date | None = None
     proposal_id: str | None = None  # the change, when the verdict asks for one
+
+    @field_validator("sources", mode="before")
+    @classmethod
+    def _plain_urls(cls, v):
+        return [{"url": s} if isinstance(s, str) else s for s in (v or [])]
+
+    def source_counts(self) -> dict[str, int]:
+        out = {"supports": 0, "contradicts": 0, "mixed": 0, "context": 0}
+        for s in self.sources:
+            out[s.direction] += 1
+        return out
 
 
 class ConfigLock(Model):
