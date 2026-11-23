@@ -8,5 +8,18 @@
   "hevy:2026-11-21-test": "2be3794e-4bf4-4489-b9e8-88943e509003",
   "hevy:2026-11-22-recovery": "d32cc02d-c1ee-4503-9fbf-be9455338188",
   "hevy:routine-evening_mobility": "7a12da27-84d6-4cf1-991a-b0608e7b8c9f",
-  "hevy:2026-11-20-test": "c3f45b70-e7c3-41a5-9ad2-2de1cf7ef509"
+  "hevy:2026-11-20-test": "c3f45b70-e7c3-41a5-9ad2-2de1cf7ef509",
+  "hevy-folder:Baseline (coach)": "4173744",
+  "hevy-archived:2026-11-16-test": "Baseline (coach)",
+  "hevy-archived:2026-11-17-test": "Baseline (coach)",
+  "hevy-archived:2026-11-18-test": "Baseline (coach)",
+  "hevy-archived:2026-11-19-test": "Baseline (coach)",
+  "hevy-archived:2026-11-20-z2-bike": "gone (deleted in Hevy)",
+  "hevy-archived:2026-11-21-test": "Baseline (coach)",
+  "hevy-archived:2026-11-20-test": "Baseline (coach)",
+  "hevy-folder:This week (coach)": "4174120",
+  "hevy:2026-11-23-lower-force": "53e1a4de-19ce-436b-bf1a-f7f91f4331ea",
+  "hevy:2026-11-24-upper": "e904ef5a-bc10-487c-a5de-033e7c23574c",
+  "hevy:2026-11-28-squat-hyrox": "e33ad838-3c02-469a-b7e1-ab1db7d26ee3",
+  "hevy:2026-11-29-recovery": "11c42428-1f3a-4eb9-ad63-b888b19e5ede"
 }

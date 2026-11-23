@@ -251,7 +251,7 @@
     "hrv_trend_days": 7,
     "hrv_swc_sd": 0.5,
     "hrv_below_days_yellow": 2,
-    "hrv_below_days_red": 3,
+    "hrv_below_days_red": 999,
     "rhr_baseline_days": 60,
     "rhr_yellow_delta": 3,
     "rhr_red_delta": 5,

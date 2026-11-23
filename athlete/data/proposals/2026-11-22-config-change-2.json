@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-22-config-change-2",
+  "kind": "config_change",
+  "created": "2026-11-22",
+  "created_by": "learn",
+  "title": "HRV trend below its band means Yellow, not Red",
+  "what": "athlete_context.json thresholds.hrv_below_days_red 3 -> 999 (in effect: the 7-day HRV trend alone never makes a day Red). Below the band for 2+ days stays Yellow (keep strength, swap metcon/threshold for 40 min Z2). Red still comes from recovery <= 33 two days running, resting HR >= +5 bpm, a joint >= 4/5, illness or a red flag. No 4-week trial (athlete's choice).",
+  "why": "Evidence: HRV-guided trials use the 7-day rolling lnRMSSD against a smallest-worthwhile-change band (AIS guidance; Plews; Heikura), and when it falls below they prescribe low-intensity training that day (e.g. Vesterinen 2016, PubMed 26909534), not multi-day rest. Meta-analyses show small benefits overall. The 3-days-below -> Red (48 h Z1) step came from a practitioner plan with no trial behind it, and one outlier day (2026-11-20) kept the 7-day mean below the band for a week, which would have forced Red into a sustained-Red deload in Block 1 week 1 while recovery was rising. Athlete approved in chat 2026-11-22.",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-22",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22",
+      "status": "approved",
+      "note": ""
+    }
+  ]
+}
