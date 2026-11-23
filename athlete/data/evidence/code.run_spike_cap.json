@@ -1,0 +1,33 @@
+{
+  "rule_id": "code.run_spike_cap",
+  "rule": "No single run may be longer than the longest run of the previous 30 days (week's earlier runs included) by more than run_spike_max_pct (10%), with a minimum step of run_spike_min_step_mi (0.25 mi); no cap with no recent run (first week back is governed by the ramp start).",
+  "origin": "literature",
+  "evidence_level": "cohort",
+  "impact": "high",
+  "verdict": "keep",
+  "summary": "Frandsen 2025 (5,205 adult runners, mean age 46, 588k Garmin sessions) found overuse injury rates rose when a single session exceeded the 30-day longest run by >10% (HRR 1.64 for 10-30%, 1.52 for 30-100%, 2.28 for >100%), while week-to-week change showed no association; the code implements that exposure directly. It is observational and the 10% is the study's reference-category edge, not a tested optimum (no clean dose-response between small and moderate spikes); a systematic review of 36 cohorts calls the link between training changes and injury conflicting overall. Cheap to follow with 3+ runs/week, so keep.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623829/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "Single-run spikes >10% over 30-day longest: HRR 1.64/1.52/2.28; week-to-week ratio not associated"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34478518/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "Systematic review, 36 studies/23k runners: evidence linking training parameters or their changes to injury is conflicting"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17940147/",
+      "kind": "rct",
+      "direction": "context",
+      "note": "Weekly 10%-rule graded plan did not reduce injuries (20.8% vs 20.3%): weekly caps alone are not protective"
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-05-22",
+  "proposal_id": null
+}

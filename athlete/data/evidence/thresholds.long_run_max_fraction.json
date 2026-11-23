@@ -1,0 +1,27 @@
+{
+  "rule_id": "thresholds.long_run_max_fraction",
+  "rule": "Long run <= 30% of weekly miles (from 20 mi/week up).",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "No study found tests the long run as a share of weekly mileage. The best evidence (Frandsen 2025) puts the injury signal in a single run's length relative to the longest recent run, which the spike cap already enforces; the 30% share only shapes how the week is distributed. Cheap and conventional, so keep as a labelled heuristic; revisit if it blocks the long-run length the marathon block needs.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623829/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Risk tied to single-run length vs 30-day longest, not to its share of the week"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34478518/",
+      "kind": "meta_analysis",
+      "direction": "context",
+      "note": "No consistent link between distance/duration parameters and injury; caution on prescribing specific parameters"
+    }
+  ],
+  "value_at_review": 0.3,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

@@ -1,0 +1,39 @@
+{
+  "rule_id": "code.marathon_riegel",
+  "rule": "Marathon prediction = Riegel T2 = T1 x (D2/D1)^1.06 from threshold pace treated as ~1-hour race pace, + 10 min until the athlete has a marathon result.",
+  "origin": "coach",
+  "evidence_level": "cohort",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "In 2,303 recreational runners Riegel was well calibrated up to the half but at least 10 min too fast for half of marathoners, which is what the +10 min penalty corrects. Large-data work shows the fatigue exponent is individual (a fixed 1.06 is a population average) and recreational marathoners race at ~85% of critical speed (93% at 2:30, 79% at 6:00); by my own interpolation a 7:00/mi threshold (if ~CS) predicts ~3:16 on Riegel alone (~93.5% of threshold speed) and ~3:26 with the penalty (~89%), the latter closer to the ~89% the CS cohort implies for that finish time. The 'threshold = 1-hour race pace' step adds its own error; it is a feasibility estimate, not a pacing target.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27570626/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "Riegel fine to half marathon; underestimates marathon time by >= 10 min for half of runners (basis for the penalty)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27336162/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "1.4M performances: the power-law exponent is runner-specific; individual models beat Riegel"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32472926/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": ">25k recreational marathoners raced at 84.8 +/- 13.6% of critical speed; faster runners closer to CS"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39439845/",
+      "kind": "cohort",
+      "direction": "mixed",
+      "note": "Small sample (15 runners, 60 races): Riegel ~80% accuracy vs 90% for a model trained on the runner's own log"
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

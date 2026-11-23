@@ -1,0 +1,21 @@
+{
+  "rule_id": "thresholds.long_run_max_fraction_low_volume",
+  "rule": "Below 20 mi/week the long run may be up to 40% of weekly miles.",
+  "origin": "coach",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "An arithmetic accommodation (DECISIONS 10): with 3 runs at 10-12 mi/week a 30% cap is unworkable. No evidence addresses the share itself; injury risk tracks the single run's length vs the 30-day longest, which the spike cap controls regardless of this fraction. Keep as a heuristic.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623829/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "The protective constraint is the single-run spike (>10% over 30-day longest), already enforced separately"
+    }
+  ],
+  "value_at_review": 0.4,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

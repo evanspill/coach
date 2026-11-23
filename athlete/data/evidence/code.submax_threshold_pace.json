@@ -1,0 +1,39 @@
+{
+  "rule_id": "code.submax_threshold_pace",
+  "rule": "Threshold pace estimated from a 30-min pace-locked conversational treadmill run = average pace / 1.25 (i.e. that pace is assumed to be 80% of threshold speed); low confidence until a 30-min TT.",
+  "origin": "coach",
+  "evidence_level": "theory",
+  "impact": "medium",
+  "verdict": "keep_flagged",
+  "summary": "The ratio is consistent with physiology: in competitive athletes VT1 and RCT fell at 67% and 84% of max speed (VT1 ~80% of RCT speed), and a 120k-runner analysis placed the Z1/Z2 boundary at 82.3% of critical speed. The 'last comfortable talk' pace tracks VT1 on average, but speech-difficulty ratings vary widely between people, and a runner may lock a pace well below VT1, so the estimate is likely conservative (too slow) with an individual error around +/-10%. The low-confidence label and 'confirm with a 30-min TT' rule are the right handling; no study tests the 1.25 divisor itself.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24790484/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "VT at 67 +/- 9% and RCT at 84 +/- 6% of Vmax (ratio ~0.80), wide individual spread"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39616560/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Assumes the Z1/Z2 transition at 82.3% of critical speed"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25536539/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Talk test last-positive stage produces sub-VT steady-state running in 30-min runs"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/15221401/",
+      "kind": "cohort",
+      "direction": "contradicts",
+      "note": "Perceived speech difficulty at VT scattered widely between individuals; unstandardised talk test questionable"
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

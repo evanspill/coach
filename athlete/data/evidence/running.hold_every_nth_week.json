@@ -1,0 +1,33 @@
+{
+  "rule_id": "running.hold_every_nth_week",
+  "rule": "During the mileage ramp, every 4th normal week holds mileage flat (on top of scheduled deload weeks).",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep_flagged",
+  "summary": "Periodic reduced or held weeks are near-universal practice (strength athletes deload every ~5-6 weeks; a coaches' Delphi agrees on deloading but not on its timing), but no trial tests a 3:1 ramp/hold pattern for running injury or fitness. Frandsen 2025 found week-to-week mileage change unrelated to injury, so the hold week has no injury-prevention evidence; its cost is a slower ramp (about one week in four without growth). Cheap and conservative during a return to running; label as a heuristic.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37730925/",
+      "kind": "consensus",
+      "direction": "context",
+      "note": "Delphi of strength/physique coaches: deloading endorsed; timing/frequency left to judgement"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38499934/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Survey: strength athletes deload every 5.6 +/- 2.3 weeks; practice, not outcome data"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623829/",
+      "kind": "cohort",
+      "direction": "contradicts",
+      "note": "Week-to-week distance ratio not associated with overuse injury"
+    }
+  ],
+  "value_at_review": 4,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

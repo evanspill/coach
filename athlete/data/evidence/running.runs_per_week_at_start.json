@@ -1,0 +1,33 @@
+{
+  "rule_id": "running.runs_per_week_at_start",
+  "rule": "Return-to-running ramp starts with 3 runs per week.",
+  "origin": "gemini",
+  "evidence_level": "practitioner",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "A systematic review of endurance athletes linked training frequency below 2 sessions/week to more injury/pain (medium effect), and spreading a week's volume over 3 runs keeps each single run shorter, which matters under the single-run spike evidence. Clinical return-to-run programs typically run every other day early on, which 3 runs/week matches. The exact number is untested, but it is cheap and fits the rest of the system.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29559317/",
+      "kind": "meta_analysis",
+      "direction": "supports",
+      "note": "Endurance sport systematic review: frequency < 2 sessions/week associated with higher injury/pain risk"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34478518/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "Evidence on running frequency and injury conflicting across 36 cohorts"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40623829/",
+      "kind": "cohort",
+      "direction": "context",
+      "note": "Injury risk tracks single-session length vs the 30-day longest; more runs per week keep each run shorter"
+    }
+  ],
+  "value_at_review": 3,
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}

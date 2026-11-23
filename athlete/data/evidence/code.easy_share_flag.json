@@ -1,0 +1,45 @@
+{
+  "rule_id": "code.easy_share_flag",
+  "rule": "Weekly review flags when < 75% of running time over two weeks was easy (HR at or below Z2, i.e. <= 84% LTHR): an 80/20 intensity-distribution check that only starts a conversation.",
+  "origin": "gemini",
+  "evidence_level": "meta_analysis",
+  "impact": "low",
+  "verdict": "keep",
+  "summary": "RCTs in trained and recreational runners found more gain with ~77-80% of time below VT1 than with ~47-67% (Esteve-Lanao 2007; Munoz 2014, the latter not significant overall), and a 120k-runner marathon dataset links a larger low-intensity share to faster times. Meta-analyses find polarized and pyramidal distributions roughly equal for time-trial performance (both are mostly easy); recreational athletes may do slightly better on pyramidal, so the flag should target too little easy running, not the shape of the hard work. 75% is a reasonable lower edge but not a tested cutoff; HR time-in-zone overcounts easy time during intervals (HR lag), and running is only part of this hybrid athlete's intensity load.",
+  "sources": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17685689/",
+      "kind": "rct",
+      "direction": "supports",
+      "note": "Sub-elite runners, 5 months: 80.5% Z1 improved 10.4 km XC time more than 66.8% Z1 (-157 vs -122 s)"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23752040/",
+      "kind": "rct",
+      "direction": "mixed",
+      "note": "Recreational 10K runners: ~77% easy vs ~46% easy, 5.0% vs 3.6% gain, not significant overall; larger gain in the most-compliant subset"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39888556/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "IPD network MA (13 studies): polarized = pyramidal for VO2max/TT; recreational athletes may respond better to pyramidal"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38717713/",
+      "kind": "meta_analysis",
+      "direction": "mixed",
+      "note": "Polarized slightly better for VO2peak (SMD 0.24), mainly highly trained/short studies; no TT difference"
+    },
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39616560/",
+      "kind": "cohort",
+      "direction": "supports",
+      "note": "151k marathons: faster runners do more volume, mostly low intensity; Z1 share correlates with faster times; pyramidal most common"
+    }
+  ],
+  "value_at_review": "v1",
+  "reviewed": "2026-11-23",
+  "review_after": "2027-11-23",
+  "proposal_id": null
+}
