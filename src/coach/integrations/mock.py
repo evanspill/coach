@@ -37,6 +37,7 @@ class MockWorld:
     script: dict
     hide_recovery_for: set[dt.date] = field(default_factory=set)
     routines: dict[str, dict] = field(default_factory=dict)
+    folders: dict[str, str] = field(default_factory=dict)  # title -> id
     templates: dict[str, str] = field(default_factory=dict)
     events: dict[str, dict] = field(default_factory=dict)
     extra_gear_miles: dict[str, float] = field(default_factory=dict)
@@ -125,6 +126,21 @@ class MockHevy(HevySource):
         rid = routine_id or f"mock-routine-{len(self.w.routines) + 1}"
         self.w.routines[rid] = routine
         return rid
+
+    def folders(self):
+        return dict(self.w.folders)
+
+    def create_folder(self, title):
+        fid = str(9000 + len(self.w.folders) + 1)
+        self.w.folders[title] = fid
+        return fid
+
+    def move_routine(self, routine_id, folder_id):
+        r = self.w.routines.get(routine_id)
+        if r is None:
+            return False
+        r["folder_id"] = folder_id
+        return True
 
 
 class MockIntervals(IntervalsSource):

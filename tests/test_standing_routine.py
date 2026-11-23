@@ -36,6 +36,7 @@ def test_push_routine_upserts_one_routine(home):
     assert a["routine_id"] == b["routine_id"] and len(world.routines) == 1
     r = world.routines[a["routine_id"]]
     assert r["title"].endswith("(coach)") and "Standing routine" in r["notes"]
+    assert str(r["folder_id"]) == world.folders["Standing (coach)"] and len(world.folders) == 1
     assert Store().get("push_ids")["hevy:routine-recovery_mobility"] == a["routine_id"]
 
 

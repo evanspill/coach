@@ -562,3 +562,18 @@ Each entry: **decision** - why - how to reverse.
       Reading an unmigrated week still works (its sessions fill days with no record).
     - Reverse: revert the commit; week files would need their sessions back (rebuild from the day records'
       planned sessions).
+103. **Hevy routine folders: this week, one archive per block, standing** (athlete request, 2026-11-23):
+    - Before: every pushed routine landed at the top level of Hevy, so the list grew by about 7 a week.
+    - Verified live (2026-11-23): Hevy folders are one level deep (a folder has only id, index and title; a routine
+      has one `folder_id`), so block folders can't hold week folders. The public API has no DELETE for routines or
+      folders ("Cannot DELETE"). `PUT /v1/routines/{id}` with a `folder_id` moves a routine.
+    - Now: `coach push` puts the current week's routines in "This week (coach)", and standing routines in
+      "Standing (coach)". Each week or day push first moves routines of sessions dated before the push week (never
+      today's) into their block's archive folder ("Baseline (coach)", "Block 1 (coach)", ...). Folders are created
+      on first use, or found by title if they already exist. Their ids live in `push_ids` (`hevy-folder:<title>`),
+      and each moved routine is marked `hevy-archived:<session id>`, so moves happen once. A routine deleted in the
+      app is skipped and marked. Dry runs report the folders and moves they would make.
+    - A move reads the routine from Hevy and writes the same content back with the new folder, so edits made in the
+      app survive. Logged workouts are separate Hevy records, and the coach reads workouts, not routines, so moving
+      or deleting a routine by hand loses no training data.
+    - Reverse: revert the commit. Folders can be deleted or emptied in the app.
