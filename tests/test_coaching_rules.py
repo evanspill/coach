@@ -542,7 +542,7 @@ def test_the_day_after_red_follows_its_own_readiness_unless_a_joint_was_red(home
     rec = adjust_day.adjust(ctx, day, plan.model_copy(deep=True))
     assert rec.session.type == "test" and rec.session.tests == tests  # today's own readiness decides
 
-    red_joint = red.model_copy(update={"reasons": ["back rated 4/5"]})
+    red_joint = red.model_copy(update={"reasons": ["back rated 4/5"], "joints": {"back": 4}})
     ctx.state.put("day_records", DayRecord(date=y, status="complete", readiness=red_joint))
     rec = adjust_day.adjust(ctx, day, plan)
     assert rec.session.type == "recovery"

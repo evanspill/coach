@@ -153,10 +153,12 @@ class Context:
         from coach.engine.sessions import session_miles
 
         start, end = week_start - dt.timedelta(days=30), week_start - dt.timedelta(days=1)
-        runs = [s.distance_mi or 0 for s in self.state.sessions(start, end) if s.sport == "run"]
+        logged = [s for s in self.state.sessions(start, end) if s.sport == "run"]
+        runs = [s.distance_mi or 0 for s in logged]
+        ran_on = {s.date for s in logged}
         d = max(start, self.today)
-        while d <= end:
-            plan = self.state.week_plan(clock.iso_week_id(d))
+        while d <= end:  # planned runs count only on days without a logged run (a run done today counts once)
+            plan = self.state.week_plan(clock.iso_week_id(d)) if d not in ran_on else None
             s = plan.session_on(d) if plan else None
             if s is not None:
                 runs.append(session_miles(s, self.zones.threshold_pace_s_per_mi))

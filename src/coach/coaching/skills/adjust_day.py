@@ -158,14 +158,17 @@ def adjust(
     if session is not None and session.type != "rest" and rec.status != "waiting_for_recovery":
         yesterday = ctx.state.day_record(day - dt.timedelta(days=1))
         # The day after a Red day follows its own readiness (audit 2026-11-23: HRV-guided trials adjust that day
-        # only). The carry stays for a joint rated at the Red level: a sore joint keeps the next day easy too.
-        # Illness and red flags have their own gates (health events).
+        # only). The carry stays when the Red came from a joint (a rating at the Red level, or a region flag): a
+        # sore joint keeps the next day easy too. Illness and red flags have their own gates (health events).
+        prev_ready = yesterday.readiness if yesterday else None
         red_carry = bool(
-            yesterday
-            and yesterday.readiness
-            and yesterday.readiness.state == "red"
+            prev_ready is not None
+            and prev_ready.state == "red"
             and readiness.state != "red"
-            and any(r.endswith("/5") and " rated " in r for r in yesterday.readiness.reasons)
+            and (
+                any(v >= cfg.profile.thresholds.joint_red for v in prev_ready.joints.values())
+                or bool(prev_ready.joint_flags)
+            )
         )
         state = readiness.state
         if session.tests and (state == "red" or red_carry):

@@ -329,3 +329,35 @@ def test_new_thresholds_at_default_keep_the_lock(home):
     fp = thresholds_fingerprint(cfg)
     cfg.profile.thresholds.run_spike_max_pct = 15.0
     assert thresholds_fingerprint(cfg) != fp
+
+
+def test_longest_run_counts_a_run_done_today_once(b1, monkeypatch):
+    """Review of #21: on a day with a logged run, the planned run that day doesn't count (no plan/log double count)."""
+    import datetime as dt
+
+    from coach.engine.sessions import session_miles
+    from coach.models import SessionRecord
+
+    ctx, plan, _ = b1
+    plan = plan.model_copy(deep=True)
+    run = next(s for s in plan.sessions if any(seg.modality == "run" for seg in s.run_segments()))
+    seg = next(seg for seg in run.run_segments() if seg.modality == "run")
+    seg.distance_mi, seg.duration_min = 50.0, None  # an obviously huge planned run today
+    ctx.state.put("week_plans", plan)
+    d = run.date
+    ctx.today = d
+    logged = SessionRecord(
+        id="r",
+        date=d,
+        start=dt.datetime(d.year, d.month, d.day, 9),
+        sport="run",
+        title="run",
+        duration_min=10,
+        distance_mi=0.5,
+        sources=["intervals"],
+    )
+    monkeypatch.setattr(ctx.state, "sessions", lambda a, b: [logged] if a <= d <= b else [])
+    pace = ctx.zones.threshold_pace_s_per_mi
+    later = [session_miles(s, pace) for s in plan.sessions if s.date > d]
+    longest = ctx.longest_run_30d(plan.start + dt.timedelta(days=7))
+    assert longest == round(max([0.5, *later]), 2) and longest < 50
