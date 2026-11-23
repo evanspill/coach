@@ -285,10 +285,10 @@
   },
   "nutrition": {
     "protein_g_per_kg": [
-      2.2,
+      1.6,
       2.4
     ],
-    "fat_floor_g": 100,
+    "fat_floor_g": 72,
     "carb_g_per_kg": {
       "high": 5.5,
       "moderate": 4.0,

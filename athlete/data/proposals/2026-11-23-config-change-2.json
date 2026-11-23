@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-23-config-change-2",
+  "kind": "config_change",
+  "created": "2026-11-23",
+  "created_by": "audit",
+  "title": "Correction: protein range [1.6, 2.4] (midpoint 2.0 g/kg outside a cut)",
+  "what": "athlete_context.json nutrition.protein_g_per_kg [2.0, 2.4] -> [1.6, 2.4]. The code uses the range midpoint outside a cut (now 2.0 g/kg, ~180 g at 90 kg) and the top in a cut (2.4 g/kg).",
+  "why": "Corrects 2026-11-23-config-change-1, which assumed the low end is used outside a cut; the midpoint was 2.2 g/kg (198 g). Intended per the audit (athlete-approved 2026-11-23): ~2.0 g/kg at recomp/maintenance, 2.4 in a cut; 1.6 is the meta-analytic plateau (PubMed 28698222).",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-23",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22",
+      "status": "approved",
+      "note": ""
+    }
+  ]
+}
