@@ -37,9 +37,12 @@ FOLDER_STANDING = "Standing (coach)"
 
 
 def archive_folder_title(ctx: Context, day: dt.date) -> str:
-    blk = ctx.macro.block_for(day) if ctx.macro else None
-    if blk is None:
+    macro = ctx.macro
+    if macro is not None and macro.baseline_start <= day <= macro.baseline_end:
         return "Baseline (coach)"
+    blk = macro.block_for(day) if macro else None
+    if blk is None:  # before the season, after it, or a gap in it
+        return "Other (coach)"
     num = blk.key[1:] if blk.key[:1] == "B" and blk.key[1:].isdigit() else blk.key
     return f"Block {num} (coach)"
 
@@ -93,8 +96,12 @@ def archive_routines(
         if dry_run or sources is None:
             moved.append({"session": sid, "folder": title})
             continue
-        fid = folders.resolve(title)
-        ok = sources.hevy.move_routine(rid, fid)
+        try:  # housekeeping: a failed move is reported and retried next push, never blocks today's push
+            fid = folders.resolve(title)
+            ok = sources.hevy.move_routine(rid, fid)
+        except Exception as e:  # noqa: BLE001
+            moved.append({"session": sid, "folder": title, "error": str(e)[:200]})
+            continue
         ids[f"hevy-archived:{sid}"] = title if ok else "gone (deleted in Hevy)"
         moved.append({"session": sid, "folder": title if ok else None})
     return moved
@@ -393,7 +400,9 @@ def _push_sessions(
     try:
         if archive_before is not None:
             moved = archive_routines(ids, folders, ctx, sources, archive_before, dry_run)
-            if moved:
+            if errors := [m for m in moved if "error" in m]:
+                out["hevy_archive_errors"] = errors
+            if moved := [m for m in moved if "error" not in m]:
                 out["hevy_archived"] = moved
         this_week = None
         if any(s.type != "rest" for s in sessions):
@@ -416,6 +425,8 @@ def _push_sessions(
                     else:
                         rid = sources.hevy.upsert_routine(r, ids.get(f"hevy:{s.id}"))
                         ids[f"hevy:{s.id}"] = rid
+                        # pushed again (a rescheduled day): it's in the current-week folder now, archive it again later
+                        ids.pop(f"hevy-archived:{s.id}", None)
                         out["hevy"].append({"session": s.id, "routine_id": rid})
             e = intervals_event(s, ctx)
             if e:

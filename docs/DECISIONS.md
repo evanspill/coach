@@ -574,6 +574,12 @@ Each entry: **decision** - why - how to reverse.
       and each moved routine is marked `hevy-archived:<session id>`, so moves happen once. A routine deleted in the
       app is skipped and marked. Dry runs report the folders and moves they would make.
     - A move reads the routine from Hevy and writes the same content back with the new folder, so edits made in the
-      app survive. Logged workouts are separate Hevy records, and the coach reads workouts, not routines, so moving
+      app survive. Verified live 2026-11-23 on the baseline-week test routine (many custom exercises): the GET's set
+      fields (type, weight_kg, reps, distance_meters, duration_seconds, custom_metric) went back unchanged and the
+      routine read back identical apart from the folder.
+    - Review of #19: a failed move (any HTTP error, a rate limit) never blocks the push. It is reported under
+      `hevy_archive_errors` and retried on the next push. A session pushed again after it was archived (a
+      rescheduled day) loses its archived mark, so it is archived again later. Dates outside the season or in a gap
+      go to "Other (coach)", not "Baseline (coach)". Logged workouts are separate Hevy records, and the coach reads workouts, not routines, so moving
       or deleting a routine by hand loses no training data.
     - Reverse: revert the commit. Folders can be deleted or emptied in the app.
