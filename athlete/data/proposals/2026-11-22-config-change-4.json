@@ -1,0 +1,26 @@
+{
+  "id": "2026-11-22-config-change-4",
+  "kind": "config_change",
+  "created": "2026-11-22",
+  "created_by": "audit",
+  "title": "Weekly mileage cap 10% -> 20% (backstop to the spike cap); duplicate settings removed",
+  "what": "athlete_context.json thresholds.weekly_run_increase_pct 10 -> 20: now a looser backstop; the single-run spike cap (decision 105) is the main ramp guard. Removed running.max_weekly_increase_pct and gear.shoe_alert_miles, unused duplicates of thresholds.weekly_run_increase_pct and thresholds.shoe_alert_miles.",
+  "why": "Audit 2026-11-22 (athlete approved all changes): the 10%-per-week rule didn't reduce injuries in an RCT (Buist 2008), and week-to-week change wasn't linked to injury in the Frandsen 2025 cohort (https://pmc.ncbi.nlm.nih.gov/articles/PMC12421110), while single-run spikes were. 20% is a practitioner backstop, not an evidence-based number.",
+  "before": null,
+  "after": null,
+  "target": null,
+  "payload": null,
+  "status": "approved",
+  "history": [
+    {
+      "at": "2026-11-22",
+      "status": "pending",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22",
+      "status": "approved",
+      "note": ""
+    }
+  ]
+}

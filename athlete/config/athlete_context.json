@@ -156,7 +156,6 @@
       170,
       180
     ],
-    "max_weekly_increase_pct": 10,
     "hold_every_nth_week": 4,
     "gait_analysis_recommended": true,
     "default_zones": {
@@ -223,10 +222,6 @@
       "bands",
       "Theragun",
       "lacrosse ball"
-    ],
-    "shoe_alert_miles": [
-      250,
-      300
     ]
   },
   "recovery_tools": [
@@ -264,7 +259,7 @@
     "vbt_slow_pct": 10,
     "vbt_fast_pct": 5,
     "high_strain": 16,
-    "weekly_run_increase_pct": 10,
+    "weekly_run_increase_pct": 20,
     "long_run_max_fraction": 0.3,
     "long_run_max_fraction_low_volume": 0.4,
     "long_run_rule_min_weekly_miles": 20,
