@@ -1,6 +1,6 @@
 {
   "date": "2026-11-24",
-  "status": "waiting_for_recovery",
+  "status": "complete",
   "readiness": {
     "date": "2026-11-24",
     "state": "yellow",
@@ -19,9 +19,7 @@
     "joints": {},
     "joint_flags": [],
     "sustained_red": false,
-    "data_missing": [
-      "whoop_recovery"
-    ]
+    "data_missing": []
   },
   "weather": null,
   "planned_session_id": "2026-11-24-upper",
@@ -1136,9 +1134,7 @@
   },
   "handoffs": [],
   "approvals_pending": [],
-  "stale_sources": [
-    "whoop: today's recovery not available yet"
-  ],
+  "stale_sources": [],
   "generated_by": "claude",
-  "notification": "YELLOW: HRV trend still below baseline (Whoop recovery not in yet).\nToday: Upper strength + skill (~120 min, gym). DB press + strict pull-ups 4x5 @ 2 RIR, landmine press 3x8.\nFuel: carbs + LMNT 60-90 min pre; carbs + sodium during; 40 g protein after.\nTonight: Evening mobility (coach) + magnesium; bed 10-10:30.\nChanged: 10-min AMRAP -> 15 min Zone 2 bike, then the easy run (Yellow: keep strength, skip the glycolytic piece).\nUpdated session is in Hevy. Tell me when recovery is in and I'll finish the day."
+  "notification": "YELLOW: recovery is good, but the HRV trend is still below baseline.\nToday: no change. Upper strength + skill (~120 min, gym), then 15 min Zone 2 bike + 1.5 mi easy run instead of the AMRAP. Session already in Hevy.\nFuel: carbs + LMNT before; carbs + sodium during; 40 g protein after.\nTonight: Evening mobility (coach) + magnesium; bed 10-10:30."
 }
