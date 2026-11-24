@@ -5,7 +5,7 @@ import datetime as dt
 
 from coach import clock
 from coach.coaching.context import Context
-from coach.coaching.fill import Filler
+from coach.coaching.fill import Filler, planned_rir
 from coach.coaching.skills import design as D
 from coach.coaching.skills.templates import build_session
 from coach.engine import nutrition as nut
@@ -228,7 +228,13 @@ def finalize(ctx: Context, sessions: list[Session]) -> None:
     """Minutes, carb tiers, loads and paces (code-computed numbers)."""
     hist = ctx.state.sessions(ctx.today - dt.timedelta(weeks=10), ctx.today)
     filler = Filler(
-        ctx.cfg.library, ctx.cfg.equipment.loading, hist, ctx.zones, ctx.today, ctx.cfg.training.rules
+        ctx.cfg.library,
+        ctx.cfg.equipment.loading,
+        hist,
+        ctx.zones,
+        ctx.today,
+        ctx.cfg.training.rules,
+        planned=planned_rir(ctx.state, hist),
     )
     ordered = sorted(sessions, key=lambda s: s.date)
     for i, s in enumerate(ordered):

@@ -21,6 +21,20 @@ def load_for(e1rm_kg: float, reps: int, rir: float) -> float:
     return e1rm_kg / (1 + (reps + rir) / 30.0)
 
 
+# (planned_session_id, exercise_id) -> the RIR that session prescribed for the exercise (0 for a test's max sets).
+PlannedRIR = dict[tuple[str, str], float]
+
+
+def set_rir(s: SessionRecord, st, planned: PlannedRIR | None) -> float | None:
+    """A set's RIR: as logged, else what its planned session prescribed (an athlete who did the prescribed work
+    without logging RIR did it at about that effort), else None (unknown). DECISIONS 107."""
+    if st.rir is not None:
+        return st.rir
+    if planned and s.planned_session_id:
+        return planned.get((s.planned_session_id, st.exercise_id))
+    return None
+
+
 @dataclass
 class Rounded:
     load_kg: float | None
@@ -70,7 +84,11 @@ def kb_for_effort(level: str, loading: dict) -> Rounded:
 
 
 def best_recent_e1rm(
-    history: list[SessionRecord], exercise_id: str, today: dt.date, weeks: int = 6
+    history: list[SessionRecord],
+    exercise_id: str,
+    today: dt.date,
+    weeks: int = 6,
+    planned: PlannedRIR | None = None,
 ) -> float | None:
     since = today - dt.timedelta(weeks=weeks)
     best = None
@@ -80,7 +98,7 @@ def best_recent_e1rm(
         for st in s.sets:
             if st.exercise_id != exercise_id or st.set_type == "warmup" or not st.weight_kg or not st.reps:
                 continue
-            v = e1rm(st.weight_kg, st.reps, st.rir or 0.0)
+            v = e1rm(st.weight_kg, st.reps, set_rir(s, st, planned) or 0.0)
             best = v if best is None else max(best, v)
     return best
 
@@ -91,6 +109,7 @@ def current_e1rm(
     today: dt.date,
     recent_days: int = 21,
     layoff_factor: float = 0.95,
+    planned: PlannedRIR | None = None,
 ) -> tuple[float | None, str]:
     """What the athlete can do now, not their best ever: the top set of the most recent exposure within
     `recent_days`; after a longer gap, the best of the last 8 weeks reduced by `layoff_factor` (detraining)."""
@@ -103,11 +122,11 @@ def current_e1rm(
         ]
         if not work:
             continue
-        top = max(e1rm(st.weight_kg, st.reps, st.rir or 0.0) for st in work)  # type: ignore[arg-type]
+        top = max(e1rm(st.weight_kg, st.reps, set_rir(s, st, planned) or 0.0) for st in work)  # type: ignore[arg-type]
         if (today - s.date).days <= recent_days:
             return top, f"latest exposure {s.date}"
         break
-    best = best_recent_e1rm(history, exercise_id, today, weeks=8)
+    best = best_recent_e1rm(history, exercise_id, today, weeks=8, planned=planned)
     if best is None:
         return None, "no history"
     return best * layoff_factor, f"best of 8 weeks x {layoff_factor:g} (no exposure in {recent_days} days)"
@@ -176,12 +195,11 @@ def progression(
     target_reps: int,
     target_rir: float,
     today: dt.date,
-    target_kg: float | None = None,
+    planned: PlannedRIR | None = None,
 ) -> ProgressionDecision:
     """Add load when all target reps were hit at >= target RIR last time; hold/reduce after two misses.
-    A set logged without RPE/RIR is judged on reps alone (the e1RM already assumes 0 RIR for it), unless it was
-    heavier than today's target (`target_kg`): then it was a test or max set the e1RM already counts as all-out,
-    and a bump on top would count it twice (DECISIONS 107)."""
+    A set logged without RPE/RIR takes the RIR its session prescribed (`planned`; 0 for a test's max sets, so a
+    test is never also counted as a hit: DECISIONS 107); with no plan link it is judged on reps alone."""
 
     def work(s: SessionRecord) -> list:
         return [st for st in s.sets if st.exercise_id == exercise_id and st.set_type != "warmup"]
@@ -191,16 +209,13 @@ def progression(
         return ProgressionDecision(1.0, "no history: load from e1RM")
 
     def hit(s: SessionRecord) -> bool:
-        return all(
-            (st.reps or 0) >= target_reps and (st.rir is None or st.rir >= target_rir - 0.5) for st in work(s)
-        )
+        def ok(st) -> bool:
+            r = set_rir(s, st, planned)
+            return (st.reps or 0) >= target_reps and (r is None or r >= target_rir - 0.5)
+
+        return all(ok(st) for st in work(s))
 
     last = sessions[-1]
-    unlogged = [st for st in work(last) if st.rir is None and st.weight_kg]
-    if target_kg is not None and unlogged and max(st.weight_kg for st in unlogged) > target_kg * 1.01:
-        return ProgressionDecision(
-            1.0, "last session heavier than today's target (test/max set): load from e1RM"
-        )
     if hit(last):
         return ProgressionDecision(1.025, "all reps hit at target RIR last time: +2.5%")
     if len(sessions) >= 2 and not hit(sessions[-2]):

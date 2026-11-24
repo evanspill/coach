@@ -285,25 +285,78 @@ def test_bar_loads_round_down_and_warmups_use_whole_plates():
         assert rlb is not None and (rlb - 45) % 10 == 0
 
 
-def test_no_progression_bump_after_a_heavier_unlogged_test_set():
+def _tb_session(day, kg, reps, plan_id, rir=None):
     from coach.models import SessionRecord, SetRecord
 
-    today = dt.date(2026, 11, 23)
-    test = SessionRecord(
-        id="t",
-        date=dt.date(2026, 11, 16),
-        start=dt.datetime(2026, 11, 16, 9),
+    return SessionRecord(
+        id=str(day),
+        date=day,
+        start=dt.datetime(day.year, day.month, day.day, 9),
         sport="strength",
-        title="baseline",
+        title="x",
         duration_min=60,
-        sets=[SetRecord(exercise_id="trap_bar_deadlift_high", exercise_name="x", weight_kg=106.6, reps=5)],
+        planned_session_id=plan_id,
+        sets=[
+            SetRecord(
+                exercise_id="trap_bar_deadlift_high", exercise_name="x", weight_kg=kg, reps=reps, rir=rir
+            )
+            for _ in range(4)
+        ],
     )
-    e1rm = loads.e1rm(106.6, 5)
-    target = loads.load_for(e1rm, 4, 2)  # ~103.7 kg: lighter than the test set
-    d = loads.progression([test], "trap_bar_deadlift_high", 4, 2, today, target_kg=target)
-    assert d.factor == 1.0
-    # the same set at or below today's target still counts as a hit (reps alone, as before)
-    assert loads.progression([test], "trap_bar_deadlift_high", 4, 2, today, target_kg=110).factor > 1
+
+
+def test_no_progression_bump_after_an_unlogged_test_set():
+    ex = "trap_bar_deadlift_high"
+    today = dt.date(2026, 11, 23)
+    test = _tb_session(dt.date(2026, 11, 16), 106.6, 5, "2026-11-16-test")
+    planned = {("2026-11-16-test", ex): 0.0}  # a test's max sets
+    e1rm, _ = loads.current_e1rm([test], ex, today, planned=planned)
+    assert e1rm == pytest.approx(loads.e1rm(106.6, 5))
+    assert loads.progression([test], ex, 4, 2, today, planned=planned).factor == 1.0
+    # without the plan link the old rule (reps alone) still applies
+    assert loads.progression([test], ex, 4, 2, today).factor > 1
+
+
+def test_unlogged_sets_at_the_prescribed_load_keep_progressing():
+    """Several weeks of 4x4 @ 2 RIR done as prescribed with no RIR logged: the load rises, never drifts down."""
+    ex = "trap_bar_deadlift_high"
+    hist, planned = [], {}
+    load = 100.0
+    day = dt.date(2026, 11, 23)
+    for _ in range(4):
+        pid = f"{day}-lower"
+        planned[(pid, ex)] = 2.0
+        hist.append(_tb_session(day, load, 4, pid))
+        day += dt.timedelta(days=7)
+        est, _ = loads.current_e1rm(hist, ex, day, planned=planned)
+        nxt = loads.load_for(est, 4, 2) * loads.progression(hist, ex, 4, 2, day, planned=planned).factor
+        assert nxt > load
+        load = nxt
+
+
+def test_planned_rir_reads_the_plan_as_written():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import planned_rir
+
+    day = dt.date(2026, 11, 16)
+    item = lambda ex, rir=None: NS(exercise_id=ex, rir=rir)  # noqa: E731
+    plan = NS(
+        id="2026-11-16-test",
+        blocks=[
+            NS(
+                kind="test", items=[item("trap_bar_deadlift_high", 2.0)]
+            ),  # "RPE 8" work-up: still read as max
+            NS(kind="strength", items=[item("bulgarian_split_squat", 2.0), item("calf_raise")]),
+        ],
+    )
+    state = NS(day_record=lambda d: NS(planned_session=plan) if d == day else None)
+    linked = _tb_session(day, 106.6, 5, "2026-11-16-test")
+    other = _tb_session(day, 100.0, 5, "2026-11-16-other")  # plan id doesn't match the day record
+    assert planned_rir(state, [linked, other]) == {
+        ("2026-11-16-test", "trap_bar_deadlift_high"): 0.0,
+        ("2026-11-16-test", "bulgarian_split_squat"): 2.0,
+    }
 
 
 def test_hevy_weights_are_exact_pound_conversions():
