@@ -22,6 +22,27 @@ NO_WARMUP_TAGS = {
 LOADED_MODES = {"e1rm", "last_used", "kb"}
 
 
+def planned_rir(state, history: list[SessionRecord]) -> L.PlannedRIR:
+    """The RIR each logged session's plan prescribed per exercise, from its day record (`planned_session`, the
+    plan as written). A test block's sets count as 0 RIR whatever it prescribed: test scoring reads them as
+    all-out (Epley at 0 RIR), and rep-max work-ups drift toward the max. DECISIONS 107."""
+    out: L.PlannedRIR = {}
+    for s in history:
+        if not s.planned_session_id:
+            continue
+        rec = state.day_record(s.date)
+        plan = rec.planned_session if rec else None
+        if plan is None or plan.id != s.planned_session_id:
+            continue
+        for b in plan.blocks:
+            for it in b.items:
+                if b.kind == "test":
+                    out[(plan.id, it.exercise_id)] = 0.0
+                elif it.rir is not None:
+                    out.setdefault((plan.id, it.exercise_id), it.rir)
+    return out
+
+
 class Filler:
     def __init__(
         self,
@@ -31,7 +52,9 @@ class Filler:
         zones: Zones,
         today: dt.date,
         rules: TrainingRules | None = None,
+        planned: L.PlannedRIR | None = None,
     ):
+        self.planned = planned
         self.lib = library
         self.loading = loading
         self.history = history
@@ -42,11 +65,11 @@ class Filler:
 
     def e1rm(self, ex_id: str) -> float | None:
         if ex_id not in self._e1rm_cache:
-            v, _why = L.current_e1rm(self.history, ex_id, self.today)
+            v, _why = L.current_e1rm(self.history, ex_id, self.today, planned=self.planned)
             lib_ex = self.lib.get(ex_id)
             est = lib_ex.estimate_from if lib_ex else None
             if v is None and est is not None:
-                base, _ = L.current_e1rm(self.history, est.exercise, self.today)
+                base, _ = L.current_e1rm(self.history, est.exercise, self.today, planned=self.planned)
                 v = base * est.factor if base else None
             self._e1rm_cache[ex_id] = v
         return self._e1rm_cache[ex_id]
@@ -135,7 +158,7 @@ class Filler:
                         continue
                     rir = it.rir if it.rir is not None else 2.0
                     target = L.load_for(est, it.reps, rir)
-                    prog = L.progression(self.history, ex.id, it.reps, rir, self.today)
+                    prog = L.progression(self.history, ex.id, it.reps, rir, self.today, planned=self.planned)
                     target *= prog.factor
                     if ex.family in ecc:
                         target = L.apply_eccentric_rule(target)
@@ -143,7 +166,7 @@ class Filler:
                         notes.append(f"{ex.name}: -15% and 3 s eccentric (pain rule)")
                     if load_cap and ex.id in load_cap:
                         target = min(target, load_cap[ex.id])
-                    r = L.round_load(target, ex.implement, self.loading)
+                    r = L.round_load(target, ex.implement, self.loading, down=True)
                     it.load_kg, it.load_lb, it.load_note = r.load_kg, r.load_lb, r.note
                 elif ex.load_mode == "last_used":
                     last = L.last_used(self.history, ex.id, self.today)

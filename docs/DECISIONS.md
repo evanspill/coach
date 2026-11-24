@@ -653,3 +653,18 @@ Each entry: **decision** - why - how to reverse.
       them rather than copying.
     - `coach audit` lists high- or medium-impact records with no sources under `unsourced`, so the policy is checked
       rather than only stated (the model still accepts them: a record may be saved before its sources are found).
+107. **Loads the athlete can trust** (athlete report, 2026-11-23: trap bar 4x4 @ 2 RIR prescribed at 235 lb, their
+    baseline 5RM, and Hevy showing 235.01 / 89.95 lb):
+    - Unlogged RIR takes the plan's RIR. A logged set with no RIR now takes the RIR its planned session
+      prescribed for that exercise (read from the day record's `planned_session` via the session's
+      `planned_session_id`). A test block's sets always count as 0 RIR, even when the work-up asked for RPE 8:
+      test scoring reads them as all-out, and the athlete reported the baseline 235x5 was near max. Before, an unlogged set was read as all-out for
+      the e1RM but as a hit for progression, so a test set was counted twice (the 235 lb prescription) and sets done
+      as prescribed drifted the load down about 3% a week, offset only partly by the +2.5% bump. Sets with no plan
+      link keep the old reading (e1RM at 0 RIR, progression on reps alone).
+    - Bar loads (barbell, trap bars, SSB, Smith, landmine) round **down** to the plate step, never above the RIR
+      target. Dumbbells and kettlebells keep nearest-size rounding (their steps are coarse), and so do
+      `last_used` loads (a weight the athlete already lifted, not an RIR target).
+    - Warm-up ramps on bars use whole-plate jumps (5 lb a side), so no fractional plates before the work sets.
+    - Hevy's API takes kg only and the app shows the athlete's unit, so the push sends the exact conversion of the
+      pound load (`hevy_kg`) instead of kg rounded to 0.1. Stored `load_kg` stays rounded for reading.

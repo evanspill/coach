@@ -268,3 +268,100 @@ def test_progression_judges_unlogged_rir_on_reps_and_skips_warmup_only_sessions(
         sess(today - dt.timedelta(days=7), 5, None, set_type="warmup"),
     ]
     assert loads.progression(warm_only_last, "trap_bar_deadlift_high", 5, 2, today).factor > 1
+
+
+def test_bar_loads_round_down_and_warmups_use_whole_plates():
+    from coach.engine.units import lb_to_kg
+
+    L = load_config().equipment.loading
+    # 229 lb target on a 45 lb bar (2.5 lb steps): nearest is 230, down gives 227.5 (never above the RIR target)
+    assert loads.round_load(lb_to_kg(229), "barbell", L).load_lb == 230
+    assert loads.round_load(lb_to_kg(229), "barbell", L, down=True).load_lb == 227.5
+    assert loads.round_load(lb_to_kg(230), "barbell", L, down=True).load_lb == 230  # exact stays put
+    # warm-up at 50% of 235 lb = 117.5 lb would need fractional plates: whole plates (5 lb a side) give 115
+    _, lb = loads.round_warmup(lb_to_kg(117.5), "barbell", L)
+    assert lb == 115
+    for _, _, rlb in loads.ramp_sets(lb_to_kg(235), "barbell", L, 4):
+        assert rlb is not None and (rlb - 45) % 10 == 0
+
+
+def _tb_session(day, kg, reps, plan_id, rir=None):
+    from coach.models import SessionRecord, SetRecord
+
+    return SessionRecord(
+        id=str(day),
+        date=day,
+        start=dt.datetime(day.year, day.month, day.day, 9),
+        sport="strength",
+        title="x",
+        duration_min=60,
+        planned_session_id=plan_id,
+        sets=[
+            SetRecord(
+                exercise_id="trap_bar_deadlift_high", exercise_name="x", weight_kg=kg, reps=reps, rir=rir
+            )
+            for _ in range(4)
+        ],
+    )
+
+
+def test_no_progression_bump_after_an_unlogged_test_set():
+    ex = "trap_bar_deadlift_high"
+    today = dt.date(2026, 11, 23)
+    test = _tb_session(dt.date(2026, 11, 16), 106.6, 5, "2026-11-16-test")
+    planned = {("2026-11-16-test", ex): 0.0}  # a test's max sets
+    e1rm, _ = loads.current_e1rm([test], ex, today, planned=planned)
+    assert e1rm == pytest.approx(loads.e1rm(106.6, 5))
+    assert loads.progression([test], ex, 4, 2, today, planned=planned).factor == 1.0
+    # without the plan link the old rule (reps alone) still applies
+    assert loads.progression([test], ex, 4, 2, today).factor > 1
+
+
+def test_unlogged_sets_at_the_prescribed_load_keep_progressing():
+    """Several weeks of 4x4 @ 2 RIR done as prescribed with no RIR logged: the load rises, never drifts down."""
+    ex = "trap_bar_deadlift_high"
+    hist, planned = [], {}
+    load = 100.0
+    day = dt.date(2026, 11, 23)
+    for _ in range(4):
+        pid = f"{day}-lower"
+        planned[(pid, ex)] = 2.0
+        hist.append(_tb_session(day, load, 4, pid))
+        day += dt.timedelta(days=7)
+        est, _ = loads.current_e1rm(hist, ex, day, planned=planned)
+        nxt = loads.load_for(est, 4, 2) * loads.progression(hist, ex, 4, 2, day, planned=planned).factor
+        assert nxt > load
+        load = nxt
+
+
+def test_planned_rir_reads_the_plan_as_written():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import planned_rir
+
+    day = dt.date(2026, 11, 16)
+    item = lambda ex, rir=None: NS(exercise_id=ex, rir=rir)  # noqa: E731
+    plan = NS(
+        id="2026-11-16-test",
+        blocks=[
+            NS(
+                kind="test", items=[item("trap_bar_deadlift_high", 2.0)]
+            ),  # "RPE 8" work-up: still read as max
+            NS(kind="strength", items=[item("bulgarian_split_squat", 2.0), item("calf_raise")]),
+        ],
+    )
+    state = NS(day_record=lambda d: NS(planned_session=plan) if d == day else None)
+    linked = _tb_session(day, 106.6, 5, "2026-11-16-test")
+    other = _tb_session(day, 100.0, 5, "2026-11-16-other")  # plan id doesn't match the day record
+    assert planned_rir(state, [linked, other]) == {
+        ("2026-11-16-test", "trap_bar_deadlift_high"): 0.0,
+        ("2026-11-16-test", "bulgarian_split_squat"): 2.0,
+    }
+
+
+def test_hevy_weights_are_exact_pound_conversions():
+    from coach.integrations.push import hevy_kg
+
+    assert round(hevy_kg(106.6, 235.0) / 0.45359237, 4) == 235.0
+    assert round(hevy_kg(20.4, 45.0, pair=2) / 0.45359237, 4) == 90.0
+    assert hevy_kg(50.0, None) == 50.0

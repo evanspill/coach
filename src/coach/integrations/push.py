@@ -7,6 +7,7 @@ from typing import Any
 from coach.coaching.context import Context
 from coach.engine.paces import PACE_FACTORS
 from coach.engine.prescribe import belt_for, rest_for
+from coach.engine.units import lb_to_kg
 from coach.engine.validator import Violation, validate_session, validate_week
 from coach.integrations.base import Sources
 from coach.models import Session, WeekPlan
@@ -177,6 +178,14 @@ class PushRefused(Exception):
         self.violations = violations
 
 
+def hevy_kg(load_kg: float, load_lb: float | None, pair: int = 1) -> float:
+    """Hevy's API takes kg only and the app converts back to the athlete's unit. Send the exact conversion of the
+    pound load (not kg rounded to 0.1, which shows as 235.01 lb), so the app shows whole pounds (DECISIONS 107)."""
+    if load_lb is not None:
+        return round(lb_to_kg(load_lb * pair), 9)
+    return round(load_kg * pair, 2)
+
+
 def hevy_routine(
     s: Session, ctx: Context, resolver: TemplateResolver | None = None, folder_id=None
 ) -> dict | None:
@@ -227,7 +236,7 @@ def hevy_routine(
             pair = ex.implements if pair_total else 1
             sets: list[dict[str, Any]] = [
                 {"type": "warmup", "reps": r.reps}
-                | ({"weight_kg": round(r.load_kg * pair, 2)} if r.load_kg is not None else {})
+                | ({"weight_kg": hevy_kg(r.load_kg, r.load_lb, pair)} if r.load_kg is not None else {})
                 for r in it.ramp
             ]
             for _ in range(it.sets):
@@ -235,7 +244,7 @@ def hevy_routine(
                     "type": "warmup" if b.kind in {"warmup", "cooldown"} else "normal"
                 }  # Hevy has no cooldown type
                 if it.load_kg is not None:
-                    st["weight_kg"] = round(it.load_kg * pair, 2)
+                    st["weight_kg"] = hevy_kg(it.load_kg, it.load_lb, pair)
                 if calories:
                     if it.calories is not None:  # the target, prefilled; a max-effort test leaves it empty
                         st["reps"] = it.calories

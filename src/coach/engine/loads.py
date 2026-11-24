@@ -1,6 +1,7 @@
 """Training loads: e1RM, target loads from RIR, rounding to available implements, progression."""
 
 import datetime as dt
+import math
 from dataclasses import dataclass
 
 from coach.engine.units import kg_to_lb, lb_to_kg
@@ -20,6 +21,20 @@ def load_for(e1rm_kg: float, reps: int, rir: float) -> float:
     return e1rm_kg / (1 + (reps + rir) / 30.0)
 
 
+# (planned_session_id, exercise_id) -> the RIR that session prescribed for the exercise (0 for a test's max sets).
+PlannedRIR = dict[tuple[str, str], float]
+
+
+def set_rir(s: SessionRecord, st, planned: PlannedRIR | None) -> float | None:
+    """A set's RIR: as logged, else what its planned session prescribed (an athlete who did the prescribed work
+    without logging RIR did it at about that effort), else None (unknown). DECISIONS 107."""
+    if st.rir is not None:
+        return st.rir
+    if planned and s.planned_session_id:
+        return planned.get((s.planned_session_id, st.exercise_id))
+    return None
+
+
 @dataclass
 class Rounded:
     load_kg: float | None
@@ -27,15 +42,24 @@ class Rounded:
     note: str
 
 
-def round_load(target_kg: float, implement: str, loading: dict) -> Rounded:
-    """Round to what the gym actually has (lb plates, 1.25 lb fractional per side, DB 5 lb steps, KB sizes)."""
+BAR_IMPLEMENTS = {"barbell", "trap_bar", "open_trap_bar", "safety_squat_bar", "smith_machine", "landmine"}
+WARMUP_STEP_LB_PER_SIDE = 5.0  # warm-ups in whole-plate jumps: no fractional plates before the work sets
+
+
+def round_load(
+    target_kg: float, implement: str, loading: dict, down: bool = False, step_lb_per_side: float | None = None
+) -> Rounded:
+    """Round to what the gym actually has (lb plates, 1.25 lb fractional per side, DB 5 lb steps, KB sizes).
+    `down`: bar loads round down, never above the RIR target (DECISIONS 107). `step_lb_per_side` overrides the
+    smallest plate step (warm-ups use whole plates)."""
     lb = kg_to_lb(target_kg)
-    if implement in {"barbell", "trap_bar", "open_trap_bar", "safety_squat_bar", "smith_machine", "landmine"}:
+    if implement in BAR_IMPLEMENTS:
         spec = loading.get(implement, loading["barbell"])
         bar = float(spec["bar_lb"])
-        step = 2 * float(spec["smallest_step_lb_per_side"])
+        step = 2 * float(step_lb_per_side or spec["smallest_step_lb_per_side"])
         plates = max(0.0, lb - bar)
-        rounded = bar + round(plates / step) * step
+        n = math.floor(plates / step + 1e-9) if down else round(plates / step)
+        rounded = bar + n * step
         note = f"{rounded:g} lb" + (" on the sleeve" if implement == "landmine" else "")
         return Rounded(round(lb_to_kg(rounded), 1), rounded, note)
     if implement == "dumbbell":
@@ -60,7 +84,11 @@ def kb_for_effort(level: str, loading: dict) -> Rounded:
 
 
 def best_recent_e1rm(
-    history: list[SessionRecord], exercise_id: str, today: dt.date, weeks: int = 6
+    history: list[SessionRecord],
+    exercise_id: str,
+    today: dt.date,
+    weeks: int = 6,
+    planned: PlannedRIR | None = None,
 ) -> float | None:
     since = today - dt.timedelta(weeks=weeks)
     best = None
@@ -70,7 +98,7 @@ def best_recent_e1rm(
         for st in s.sets:
             if st.exercise_id != exercise_id or st.set_type == "warmup" or not st.weight_kg or not st.reps:
                 continue
-            v = e1rm(st.weight_kg, st.reps, st.rir or 0.0)
+            v = e1rm(st.weight_kg, st.reps, set_rir(s, st, planned) or 0.0)
             best = v if best is None else max(best, v)
     return best
 
@@ -81,6 +109,7 @@ def current_e1rm(
     today: dt.date,
     recent_days: int = 21,
     layoff_factor: float = 0.95,
+    planned: PlannedRIR | None = None,
 ) -> tuple[float | None, str]:
     """What the athlete can do now, not their best ever: the top set of the most recent exposure within
     `recent_days`; after a longer gap, the best of the last 8 weeks reduced by `layoff_factor` (detraining)."""
@@ -93,11 +122,11 @@ def current_e1rm(
         ]
         if not work:
             continue
-        top = max(e1rm(st.weight_kg, st.reps, st.rir or 0.0) for st in work)  # type: ignore[arg-type]
+        top = max(e1rm(st.weight_kg, st.reps, set_rir(s, st, planned) or 0.0) for st in work)  # type: ignore[arg-type]
         if (today - s.date).days <= recent_days:
             return top, f"latest exposure {s.date}"
         break
-    best = best_recent_e1rm(history, exercise_id, today, weeks=8)
+    best = best_recent_e1rm(history, exercise_id, today, weeks=8, planned=planned)
     if best is None:
         return None, "no history"
     return best * layoff_factor, f"best of 8 weeks x {layoff_factor:g} (no exposure in {recent_days} days)"
@@ -118,7 +147,7 @@ def round_warmup(target_kg: float, implement: str, loading: dict) -> tuple[float
     if implement in STACK_IMPLEMENTS:
         lb = round(kg_to_lb(target_kg) / 5) * 5
         return (round(lb_to_kg(lb), 1), float(lb)) if lb >= 5 else (None, None)
-    r = round_load(target_kg, implement, loading)
+    r = round_load(target_kg, implement, loading, step_lb_per_side=WARMUP_STEP_LB_PER_SIDE)
     return r.load_kg, r.load_lb
 
 
@@ -161,10 +190,16 @@ class ProgressionDecision:
 
 
 def progression(
-    history: list[SessionRecord], exercise_id: str, target_reps: int, target_rir: float, today: dt.date
+    history: list[SessionRecord],
+    exercise_id: str,
+    target_reps: int,
+    target_rir: float,
+    today: dt.date,
+    planned: PlannedRIR | None = None,
 ) -> ProgressionDecision:
     """Add load when all target reps were hit at >= target RIR last time; hold/reduce after two misses.
-    A set logged without RPE/RIR is judged on reps alone (the e1RM already assumes 0 RIR for it)."""
+    A set logged without RPE/RIR takes the RIR its session prescribed (`planned`; 0 for a test's max sets, so a
+    test is never also counted as a hit: DECISIONS 107); with no plan link it is judged on reps alone."""
 
     def work(s: SessionRecord) -> list:
         return [st for st in s.sets if st.exercise_id == exercise_id and st.set_type != "warmup"]
@@ -174,9 +209,11 @@ def progression(
         return ProgressionDecision(1.0, "no history: load from e1RM")
 
     def hit(s: SessionRecord) -> bool:
-        return all(
-            (st.reps or 0) >= target_reps and (st.rir is None or st.rir >= target_rir - 0.5) for st in work(s)
-        )
+        def ok(st) -> bool:
+            r = set_rir(s, st, planned)
+            return (st.reps or 0) >= target_reps and (r is None or r >= target_rir - 0.5)
+
+        return all(ok(st) for st in work(s))
 
     last = sessions[-1]
     if hit(last):

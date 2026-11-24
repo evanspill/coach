@@ -998,7 +998,7 @@ def test_dumbbell_pairs_are_logged_as_the_total_and_stored_per_hand(b1):
         it = Prescription(exercise_id=ex.id, sets=2, reps=5, rir=2, load_kg=36.3, load_lb=80)
         s = _one_block_session("strength", [it])
         r = hevy_routine(s, ctx, TemplateResolver(mock_sources(MockWorld.load()).hevy))["exercises"][0]
-        assert [st["weight_kg"] for st in r["sets"]] == [72.6, 72.6]
+        assert [round(st["weight_kg"] / 0.45359237, 3) for st in r["sets"]] == [160, 160]  # whole lb in Hevy
         assert "log 160 lb total (2 x 80)" in r["notes"]
         raw = [
             {
