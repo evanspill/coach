@@ -135,7 +135,7 @@ class Filler:
                         continue
                     rir = it.rir if it.rir is not None else 2.0
                     target = L.load_for(est, it.reps, rir)
-                    prog = L.progression(self.history, ex.id, it.reps, rir, self.today)
+                    prog = L.progression(self.history, ex.id, it.reps, rir, self.today, target_kg=target)
                     target *= prog.factor
                     if ex.family in ecc:
                         target = L.apply_eccentric_rule(target)
@@ -143,7 +143,7 @@ class Filler:
                         notes.append(f"{ex.name}: -15% and 3 s eccentric (pain rule)")
                     if load_cap and ex.id in load_cap:
                         target = min(target, load_cap[ex.id])
-                    r = L.round_load(target, ex.implement, self.loading)
+                    r = L.round_load(target, ex.implement, self.loading, down=True)
                     it.load_kg, it.load_lb, it.load_note = r.load_kg, r.load_lb, r.note
                 elif ex.load_mode == "last_used":
                     last = L.last_used(self.history, ex.id, self.today)

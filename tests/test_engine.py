@@ -268,3 +268,47 @@ def test_progression_judges_unlogged_rir_on_reps_and_skips_warmup_only_sessions(
         sess(today - dt.timedelta(days=7), 5, None, set_type="warmup"),
     ]
     assert loads.progression(warm_only_last, "trap_bar_deadlift_high", 5, 2, today).factor > 1
+
+
+def test_bar_loads_round_down_and_warmups_use_whole_plates():
+    from coach.engine.units import lb_to_kg
+
+    L = load_config().equipment.loading
+    # 229 lb target on a 45 lb bar (2.5 lb steps): nearest is 230, down gives 227.5 (never above the RIR target)
+    assert loads.round_load(lb_to_kg(229), "barbell", L).load_lb == 230
+    assert loads.round_load(lb_to_kg(229), "barbell", L, down=True).load_lb == 227.5
+    assert loads.round_load(lb_to_kg(230), "barbell", L, down=True).load_lb == 230  # exact stays put
+    # warm-up at 50% of 235 lb = 117.5 lb would need fractional plates: whole plates (5 lb a side) give 115
+    _, lb = loads.round_warmup(lb_to_kg(117.5), "barbell", L)
+    assert lb == 115
+    for _, _, rlb in loads.ramp_sets(lb_to_kg(235), "barbell", L, 4):
+        assert rlb is not None and (rlb - 45) % 10 == 0
+
+
+def test_no_progression_bump_after_a_heavier_unlogged_test_set():
+    from coach.models import SessionRecord, SetRecord
+
+    today = dt.date(2026, 11, 23)
+    test = SessionRecord(
+        id="t",
+        date=dt.date(2026, 11, 16),
+        start=dt.datetime(2026, 11, 16, 9),
+        sport="strength",
+        title="baseline",
+        duration_min=60,
+        sets=[SetRecord(exercise_id="trap_bar_deadlift_high", exercise_name="x", weight_kg=106.6, reps=5)],
+    )
+    e1rm = loads.e1rm(106.6, 5)
+    target = loads.load_for(e1rm, 4, 2)  # ~103.7 kg: lighter than the test set
+    d = loads.progression([test], "trap_bar_deadlift_high", 4, 2, today, target_kg=target)
+    assert d.factor == 1.0
+    # the same set at or below today's target still counts as a hit (reps alone, as before)
+    assert loads.progression([test], "trap_bar_deadlift_high", 4, 2, today, target_kg=110).factor > 1
+
+
+def test_hevy_weights_are_exact_pound_conversions():
+    from coach.integrations.push import hevy_kg
+
+    assert round(hevy_kg(106.6, 235.0) / 0.45359237, 4) == 235.0
+    assert round(hevy_kg(20.4, 45.0, pair=2) / 0.45359237, 4) == 90.0
+    assert hevy_kg(50.0, None) == 50.0

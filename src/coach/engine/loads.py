@@ -1,6 +1,7 @@
 """Training loads: e1RM, target loads from RIR, rounding to available implements, progression."""
 
 import datetime as dt
+import math
 from dataclasses import dataclass
 
 from coach.engine.units import kg_to_lb, lb_to_kg
@@ -27,15 +28,24 @@ class Rounded:
     note: str
 
 
-def round_load(target_kg: float, implement: str, loading: dict) -> Rounded:
-    """Round to what the gym actually has (lb plates, 1.25 lb fractional per side, DB 5 lb steps, KB sizes)."""
+BAR_IMPLEMENTS = {"barbell", "trap_bar", "open_trap_bar", "safety_squat_bar", "smith_machine", "landmine"}
+WARMUP_STEP_LB_PER_SIDE = 5.0  # warm-ups in whole-plate jumps: no fractional plates before the work sets
+
+
+def round_load(
+    target_kg: float, implement: str, loading: dict, down: bool = False, step_lb_per_side: float | None = None
+) -> Rounded:
+    """Round to what the gym actually has (lb plates, 1.25 lb fractional per side, DB 5 lb steps, KB sizes).
+    `down`: bar loads round down, never above the RIR target (DECISIONS 107). `step_lb_per_side` overrides the
+    smallest plate step (warm-ups use whole plates)."""
     lb = kg_to_lb(target_kg)
-    if implement in {"barbell", "trap_bar", "open_trap_bar", "safety_squat_bar", "smith_machine", "landmine"}:
+    if implement in BAR_IMPLEMENTS:
         spec = loading.get(implement, loading["barbell"])
         bar = float(spec["bar_lb"])
-        step = 2 * float(spec["smallest_step_lb_per_side"])
+        step = 2 * float(step_lb_per_side or spec["smallest_step_lb_per_side"])
         plates = max(0.0, lb - bar)
-        rounded = bar + round(plates / step) * step
+        n = math.floor(plates / step + 1e-9) if down else round(plates / step)
+        rounded = bar + n * step
         note = f"{rounded:g} lb" + (" on the sleeve" if implement == "landmine" else "")
         return Rounded(round(lb_to_kg(rounded), 1), rounded, note)
     if implement == "dumbbell":
@@ -118,7 +128,7 @@ def round_warmup(target_kg: float, implement: str, loading: dict) -> tuple[float
     if implement in STACK_IMPLEMENTS:
         lb = round(kg_to_lb(target_kg) / 5) * 5
         return (round(lb_to_kg(lb), 1), float(lb)) if lb >= 5 else (None, None)
-    r = round_load(target_kg, implement, loading)
+    r = round_load(target_kg, implement, loading, step_lb_per_side=WARMUP_STEP_LB_PER_SIDE)
     return r.load_kg, r.load_lb
 
 
@@ -161,10 +171,17 @@ class ProgressionDecision:
 
 
 def progression(
-    history: list[SessionRecord], exercise_id: str, target_reps: int, target_rir: float, today: dt.date
+    history: list[SessionRecord],
+    exercise_id: str,
+    target_reps: int,
+    target_rir: float,
+    today: dt.date,
+    target_kg: float | None = None,
 ) -> ProgressionDecision:
     """Add load when all target reps were hit at >= target RIR last time; hold/reduce after two misses.
-    A set logged without RPE/RIR is judged on reps alone (the e1RM already assumes 0 RIR for it)."""
+    A set logged without RPE/RIR is judged on reps alone (the e1RM already assumes 0 RIR for it), unless it was
+    heavier than today's target (`target_kg`): then it was a test or max set the e1RM already counts as all-out,
+    and a bump on top would count it twice (DECISIONS 107)."""
 
     def work(s: SessionRecord) -> list:
         return [st for st in s.sets if st.exercise_id == exercise_id and st.set_type != "warmup"]
@@ -179,6 +196,11 @@ def progression(
         )
 
     last = sessions[-1]
+    unlogged = [st for st in work(last) if st.rir is None and st.weight_kg]
+    if target_kg is not None and unlogged and max(st.weight_kg for st in unlogged) > target_kg * 1.01:
+        return ProgressionDecision(
+            1.0, "last session heavier than today's target (test/max set): load from e1RM"
+        )
     if hit(last):
         return ProgressionDecision(1.025, "all reps hit at target RIR last time: +2.5%")
     if len(sessions) >= 2 and not hit(sessions[-2]):
