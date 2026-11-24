@@ -1,7 +1,28 @@
 {
   "date": "2026-11-24",
-  "status": "planned",
-  "readiness": null,
+  "status": "waiting_for_recovery",
+  "readiness": {
+    "date": "2026-11-24",
+    "state": "yellow",
+    "reasons": [
+      "HRV trend below band 5 days"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {},
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": [
+      "whoop_recovery"
+    ]
+  },
   "weather": null,
   "planned_session_id": "2026-11-24-upper",
   "planned_session": {
@@ -581,16 +602,543 @@
     "recovery_note": "",
     "shoe": null
   },
-  "session": null,
-  "changes": [],
-  "recovery_prescription": [],
-  "nutrition": null,
-  "fueling_cue": "",
+  "session": {
+    "id": "2026-11-24-upper",
+    "date": "2026-11-24",
+    "start_time": "09:30",
+    "type": "upper",
+    "title": "Upper strength + skill + metcon + easy run",
+    "intent": "Skill primer fresh; DB press + strict pull-ups 4 x 5 @ 2 RIR; overhead ladder (half-kneeling landmine) 3 x 8; Yellow day: AMRAP -> 15 min Zone 2 bike + easy run (~35-40 min Zone 2 total)",
+    "location": "gym",
+    "route": null,
+    "expected_minutes": 120,
+    "key": true,
+    "carb_tier": "moderate",
+    "blocks": [
+      {
+        "kind": "warmup",
+        "title": "Upper prep: easy row, PT shoulder/serratus work, cuff, T-spine, scap pull-ups",
+        "items": [
+          {
+            "exercise_id": "row_erg",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 180,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "Raise: easy and smooth (RPE 3-4), long spine; any erg works",
+            "ramp": []
+          },
+          {
+            "exercise_id": "band_pull_apart",
+            "sets": 1,
+            "reps": 15,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "scap_push_up",
+            "sets": 1,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "serratus push-up (PT): push the floor away",
+            "ramp": []
+          },
+          {
+            "exercise_id": "band_serratus_flexion",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "PT: elbows in, forearms parallel",
+            "ramp": []
+          },
+          {
+            "exercise_id": "cable_external_rotation",
+            "sets": 1,
+            "reps": 12,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "by feel",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": "light (cuff primer, not a working set)",
+            "ramp": []
+          },
+          {
+            "exercise_id": "thoracic_open_book",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "pvc_pass_through",
+            "sets": 1,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "overhead mobility (the PVC overhead squat screen showed shoulder flexion / T-spine is the limiter): wide grip, ribs down, narrow the grip a little each week",
+            "ramp": []
+          },
+          {
+            "exercise_id": "scap_pull_up",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "skill",
+        "title": "Skill primer (10-12 min, fresh, <= 70%)",
+        "items": [
+          {
+            "exercise_id": "hollow_hold",
+            "sets": 4,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 4.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": "skill: Wall walk; stop when mechanics degrade",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "strength",
+        "title": "",
+        "items": [
+          {
+            "exercise_id": "db_bench_press_neutral",
+            "sets": 4,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": 34.0,
+            "load_lb": 75.0,
+            "load_note": "75 lb DBs",
+            "tempo": null,
+            "rest_s": 150,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": 15.9,
+                "load_lb": 35.0,
+                "pct": null
+              },
+              {
+                "reps": 3,
+                "load_kg": 22.7,
+                "load_lb": 50.0,
+                "pct": null
+              },
+              {
+                "reps": 1,
+                "load_kg": 29.5,
+                "load_lb": 65.0,
+                "pct": null
+              }
+            ]
+          },
+          {
+            "exercise_id": "strict_pull_up",
+            "sets": 4,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 150,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": [
+              {
+                "reps": 2,
+                "load_kg": null,
+                "load_lb": null,
+                "pct": null
+              }
+            ]
+          },
+          {
+            "exercise_id": "half_kneeling_landmine_press",
+            "sets": 3,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 3.0,
+            "load_kg": 27.2,
+            "load_lb": 60.0,
+            "load_note": "60 lb on the sleeve",
+            "tempo": null,
+            "rest_s": 150,
+            "per_side": false,
+            "alternating": null,
+            "notes": "overhead ladder exposure: smooth, ribs down, pain-free range",
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": 13.6,
+                "load_lb": 30.0,
+                "pct": null
+              },
+              {
+                "reps": 3,
+                "load_kg": 18.1,
+                "load_lb": 40.0,
+                "pct": null
+              }
+            ]
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "hypertrophy",
+        "title": "",
+        "items": [
+          {
+            "exercise_id": "incline_db_press",
+            "sets": 3,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": 24.9,
+            "load_lb": 55.0,
+            "load_note": "55 lb DBs",
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": 15.9,
+                "load_lb": 35.0,
+                "pct": null
+              }
+            ]
+          },
+          {
+            "exercise_id": "chest_supported_db_row",
+            "sets": 3,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": 27.2,
+            "load_lb": 60.0,
+            "load_note": "60 lb DBs",
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": 15.9,
+                "load_lb": 35.0,
+                "pct": null
+              }
+            ]
+          },
+          {
+            "exercise_id": "face_pull",
+            "sets": 1,
+            "reps": 15,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "by RIR (2)",
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "run",
+        "title": "Zone 2 bike (replaces the AMRAP: Yellow day)",
+        "items": [],
+        "run": [
+          {
+            "label": "Zone 2 Echo bike / BikeErg, conversational",
+            "zone": "Z2",
+            "duration_min": 15.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "bike",
+            "terrain": "flat",
+            "pace_s_per_mi": null,
+            "hr_bpm": [
+              137,
+              152
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": "Steady, nasal-breathing effort; any bike erg"
+      },
+      {
+        "kind": "run",
+        "title": "Easy treadmill run",
+        "items": [],
+        "run": [
+          {
+            "label": "Easy treadmill run",
+            "zone": "Z2",
+            "duration_min": null,
+            "distance_mi": 1.5,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "run",
+            "terrain": "treadmill",
+            "pace_s_per_mi": [
+              781,
+              864
+            ],
+            "hr_bpm": [
+              137,
+              152
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "cooldown",
+        "title": "~3 min easy + child's pose breathing (no hangs after pulling)",
+        "items": [
+          {
+            "exercise_id": "easy_cooldown",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 180,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "child_pose_breathing",
+            "sets": 2,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 30,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "changes": [
+    {
+      "what": "10-min AMRAP (and its ramp) -> 15 min Zone 2 bike; with the 1.5 mi easy run that is ~35-40 min Zone 2",
+      "why": "Yellow: HRV 7-day trend below band 5 days; keep the strength work, drop the glycolytic piece",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "'Evening mobility (coach)' in Hevy (~10 min, T-spine/lats/pecs + shoulders after the upper day; Venom shoulder heat first if the front of the shoulder is cranky) + magnesium at night",
+    "Bed 10-10:30 pm: HRV trend still below band; two rest days follow for Thanksgiving"
+  ],
+  "nutrition": {
+    "date": "2026-11-24",
+    "carb_tier": "moderate",
+    "kcal": 2651,
+    "protein_g": 180,
+    "fat_g": 72,
+    "carbs_g": 321,
+    "scaled": true,
+    "peri_workout": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.",
+    "note": "carbs scaled down proportionally: weekly target is tight; MacroFactor weekly target"
+  },
+  "fueling_cue": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.",
   "gear_alerts": [],
-  "pushed": null,
+  "pushed": {
+    "hevy": [
+      {
+        "session": "2026-11-24-upper",
+        "routine_id": "e904ef5a-bc10-487c-a5de-033e7c23574c"
+      }
+    ],
+    "intervals": [
+      159403109
+    ]
+  },
   "handoffs": [],
   "approvals_pending": [],
-  "stale_sources": [],
+  "stale_sources": [
+    "whoop: today's recovery not available yet"
+  ],
   "generated_by": "claude",
-  "notification": ""
+  "notification": "YELLOW: HRV trend still below baseline (Whoop recovery not in yet).\nToday: Upper strength + skill (~120 min, gym). DB press + strict pull-ups 4x5 @ 2 RIR, landmine press 3x8.\nFuel: carbs + LMNT 60-90 min pre; carbs + sodium during; 40 g protein after.\nTonight: Evening mobility (coach) + magnesium; bed 10-10:30.\nChanged: 10-min AMRAP -> 15 min Zone 2 bike, then the easy run (Yellow: keep strength, skip the glycolytic piece).\nUpdated session is in Hevy. Tell me when recovery is in and I'll finish the day."
 }
