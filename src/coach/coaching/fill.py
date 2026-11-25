@@ -6,7 +6,7 @@ import re
 from coach.engine import loads as L
 from coach.engine.paces import Zones
 from coach.engine.prescribe import rest_for
-from coach.models import Session, SessionRecord
+from coach.models import Change, Session, SessionRecord
 from coach.models.library import ExerciseLibrary
 from coach.models.plans import RampSet
 from coach.models.season import TrainingRules
@@ -43,6 +43,80 @@ def planned_rir(state, history: list[SessionRecord]) -> L.PlannedRIR:
     return out
 
 
+def planned_reps(state, history: list[SessionRecord]) -> L.PlannedReps:
+    """The reps per set each logged session's plan prescribed per exercise, from its day record (`planned_session`).
+    Test blocks are left out: a rep-max work-up's lighter sets aren't misses. DECISIONS 108."""
+    seen: dict[tuple[str, str], set[int]] = {}
+    for s in history:
+        if not s.planned_session_id:
+            continue
+        rec = state.day_record(s.date)
+        plan = rec.planned_session if rec else None
+        if plan is None or plan.id != s.planned_session_id:
+            continue
+        for b in plan.blocks:
+            if b.kind == "test":
+                continue
+            for it in b.items:
+                if it.reps:
+                    seen.setdefault((plan.id, it.exercise_id), set()).add(it.reps)
+    # an exercise prescribed at different reps in one session (top set + back-offs) has no single target: a set
+    # can't be matched to its prescription, so it is never read as a miss
+    return {k: next(iter(v)) for k, v in seen.items() if len(v) == 1}
+
+
+def _loads(s: Session) -> dict[str, tuple[float | None, float | None]]:
+    out: dict[str, tuple[float | None, float | None]] = {}
+    for b in s.blocks:
+        for it in list(b.items) + (list(b.metcon.movements) if b.metcon else []):
+            if it.load_kg is not None:
+                out.setdefault(it.exercise_id, (it.load_kg, it.load_lb))
+    return out
+
+
+def load_changes(
+    planned: Session | None,
+    session: Session | None,
+    library: ExerciseLibrary,
+    listed: list[Change] | None = None,
+) -> list[Change]:
+    """Working loads that differ between the plan as written and today's filled session (the same exercise in both),
+    as changes the athlete sees: a recalculation from newer logs or updated load rules is never silent
+    (DECISIONS 108). An exercise an existing change already names (`listed`: a swap, a cap, a pain rule) is left
+    to that change, which carries the real reason."""
+    if planned is None or session is None:
+        return []
+    before, after = _loads(planned), _loads(session)
+    named = " | ".join(c.what.lower() for c in listed or [])
+
+    def mentioned(term: str) -> bool:  # whole words only: "row" doesn't match "barrow" or "rower"
+        return bool(re.search(rf"(?<![\w]){re.escape(term.lower())}(?![\w])", named))
+
+    out = []
+    for ex_id, (kg, lb) in after.items():
+        if ex_id not in before:
+            continue
+        ex = library.get(ex_id)
+        if named and (mentioned(ex_id) or (ex is not None and mentioned(ex.name))):
+            continue
+        kg0, lb0 = before[ex_id]
+        if lb is not None and lb0 is not None:
+            if abs(lb - lb0) < 0.01:
+                continue
+            what = f"{lb0:g} -> {lb:g} lb"
+        else:
+            if kg is None or kg0 is None or abs(kg - kg0) < 0.05:
+                continue
+            what = f"{kg0:g} -> {kg:g} kg"
+        out.append(
+            Change(
+                what=f"{ex.name if ex else ex_id}: {what}",
+                why="load recalculated from the latest logs and load rules",
+            )
+        )
+    return out
+
+
 class Filler:
     def __init__(
         self,
@@ -53,8 +127,10 @@ class Filler:
         today: dt.date,
         rules: TrainingRules | None = None,
         planned: L.PlannedRIR | None = None,
+        planned_reps: L.PlannedReps | None = None,
     ):
         self.planned = planned
+        self.planned_reps = planned_reps
         self.lib = library
         self.loading = loading
         self.history = history
@@ -65,11 +141,19 @@ class Filler:
 
     def e1rm(self, ex_id: str) -> float | None:
         if ex_id not in self._e1rm_cache:
-            v, _why = L.current_e1rm(self.history, ex_id, self.today, planned=self.planned)
+            v, _why = L.current_e1rm(
+                self.history, ex_id, self.today, planned=self.planned, planned_reps=self.planned_reps
+            )
             lib_ex = self.lib.get(ex_id)
             est = lib_ex.estimate_from if lib_ex else None
             if v is None and est is not None:
-                base, _ = L.current_e1rm(self.history, est.exercise, self.today, planned=self.planned)
+                base, _ = L.current_e1rm(
+                    self.history,
+                    est.exercise,
+                    self.today,
+                    planned=self.planned,
+                    planned_reps=self.planned_reps,
+                )
                 v = base * est.factor if base else None
             self._e1rm_cache[ex_id] = v
         return self._e1rm_cache[ex_id]
@@ -158,7 +242,15 @@ class Filler:
                         continue
                     rir = it.rir if it.rir is not None else 2.0
                     target = L.load_for(est, it.reps, rir)
-                    prog = L.progression(self.history, ex.id, it.reps, rir, self.today, planned=self.planned)
+                    prog = L.progression(
+                        self.history,
+                        ex.id,
+                        it.reps,
+                        rir,
+                        self.today,
+                        planned=self.planned,
+                        planned_reps=self.planned_reps,
+                    )
                     target *= prog.factor
                     if ex.family in ecc:
                         target = L.apply_eccentric_rule(target)

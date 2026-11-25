@@ -365,3 +365,167 @@ def test_hevy_weights_are_exact_pound_conversions():
     assert round(hevy_kg(106.6, 235.0) / 0.45359237, 4) == 235.0
     assert round(hevy_kg(20.4, 45.0, pair=2) / 0.45359237, 4) == 90.0
     assert hevy_kg(50.0, None) == 50.0
+
+
+def _sets_session(day, ex, kg, reps_list, plan_id):
+    from coach.models import SessionRecord, SetRecord
+
+    return SessionRecord(
+        id=f"{day}-{ex}",
+        date=day,
+        start=dt.datetime(day.year, day.month, day.day, 9),
+        sport="strength",
+        title="x",
+        duration_min=60,
+        planned_session_id=plan_id,
+        sets=[SetRecord(exercise_id=ex, exercise_name="x", weight_kg=kg, reps=r) for r in reps_list],
+    )
+
+
+def test_missed_reps_count_as_zero_rir():
+    ex = "incline_db_press"
+    s = _sets_session(dt.date(2026, 11, 24), ex, 24.9, [10, 7, 6], "p")
+    rir, reps = {("p", ex): 2.0}, {("p", ex): 10}
+    assert [loads.set_rir(s, st, rir, reps) for st in s.sets] == [2.0, 0.0, 0.0]
+    # a logged RIR still wins, and without the reps map the old reading holds
+    logged = s.sets[1].model_copy(update={"rir": 1.0})
+    assert loads.set_rir(s, logged, rir, reps) == 1.0
+    assert loads.set_rir(s, s.sets[1], rir) == 2.0
+
+
+def test_missed_reps_average_the_work_sets():
+    """2026-11-24: incline DB press 3x10 @ 2 RIR at 55 lb went 10, 7, 6. The next load fits every set, not the
+    fresh first one."""
+    ex = "incline_db_press"
+    today = dt.date(2026, 11, 30)
+    s = _sets_session(dt.date(2026, 11, 24), ex, 24.9, [10, 7, 6], "p")
+    rir, reps = {("p", ex): 2.0}, {("p", ex): 10}
+    est, why = loads.current_e1rm([s], ex, today, planned=rir, planned_reps=reps)
+    expected = (loads.e1rm(24.9, 10, 2) + loads.e1rm(24.9, 7, 0) + loads.e1rm(24.9, 6, 0)) / 3
+    assert est == pytest.approx(expected)
+    assert "reps missed" in why
+    top, _ = loads.current_e1rm([s], ex, today, planned=rir)
+    assert est < top
+    assert loads.load_for(est, 10, 2) < 24.9  # below the load that missed
+    assert loads.progression([s], ex, 10, 2, today, planned=rir, planned_reps=reps).factor == 1.0
+
+
+def test_all_reps_hit_keeps_the_top_set():
+    ex = "chest_supported_db_row"
+    s = _sets_session(dt.date(2026, 11, 24), ex, 11.3, [10, 10, 10], "p")
+    rir, reps = {("p", ex): 2.0}, {("p", ex): 10}
+    est, why = loads.current_e1rm([s], ex, dt.date(2026, 11, 30), planned=rir, planned_reps=reps)
+    assert est == pytest.approx(loads.e1rm(11.3, 10, 2))
+    assert "top set" in why
+
+
+def test_planned_reps_skip_test_blocks():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import planned_reps
+
+    day = dt.date(2026, 11, 24)
+    item = lambda ex, reps=None: NS(exercise_id=ex, reps=reps, rir=2.0)  # noqa: E731
+    plan = NS(
+        id="p",
+        blocks=[
+            NS(kind="test", items=[item("db_bench_press_neutral", 5)]),
+            NS(kind="hypertrophy", items=[item("incline_db_press", 10), item("plank")]),
+        ],
+    )
+    state = NS(day_record=lambda d: NS(planned_session=plan) if d == day else None)
+    s = _sets_session(day, "incline_db_press", 24.9, [10], "p")
+    assert planned_reps(state, [s]) == {("p", "incline_db_press"): 10}
+
+
+def test_load_changes_lists_recalculated_loads():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import load_changes
+
+    def sess(lb_bench, lb_row=None):
+        items = [NS(exercise_id="db_bench_press_neutral", load_kg=lb_bench / 2.2046, load_lb=lb_bench)]
+        if lb_row is not None:
+            items.append(NS(exercise_id="chest_supported_db_row", load_kg=lb_row / 2.2046, load_lb=lb_row))
+        return NS(blocks=[NS(items=items, metcon=None)])
+
+    lib = NS(
+        get=lambda ex_id: NS(name="Neutral-grip DB bench press") if ex_id.startswith("db_bench") else None
+    )
+    out = load_changes(sess(80.0, 60.0), sess(75.0, 60.0), lib)
+    assert [c.what for c in out] == ["Neutral-grip DB bench press: 80 -> 75 lb"]
+    assert load_changes(sess(80.0), sess(80.0, 25.0), lib) == []  # new exercise: not a recalculation
+    assert load_changes(None, sess(75.0), lib) == []
+
+
+def test_planned_reps_skip_exercises_with_mixed_rep_targets():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import planned_reps
+
+    day = dt.date(2026, 11, 24)
+    item = lambda ex, reps: NS(exercise_id=ex, reps=reps, rir=2.0)  # noqa: E731
+    plan = NS(id="p", blocks=[NS(kind="strength", items=[item("back_squat", 5), item("back_squat", 8)])])
+    state = NS(day_record=lambda d: NS(planned_session=plan) if d == day else None)
+    s = _sets_session(day, "back_squat", 100.0, [5, 8, 8], "p")
+    assert planned_reps(state, [s]) == {}  # top set + back-offs: no single target, never a miss
+
+
+def test_load_changes_kg_fallback_metcons_and_listed():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import load_changes
+    from coach.models import Change
+
+    lib = NS(get=lambda ex_id: NS(name=ex_id.replace("_", " ").title()))
+
+    def sess(kg, metcon_kg=None):
+        items = [NS(exercise_id="sled_push", load_kg=kg, load_lb=None)]
+        metcon = None
+        if metcon_kg is not None:
+            metcon = NS(movements=[NS(exercise_id="wall_ball", load_kg=metcon_kg, load_lb=None)])
+        return NS(blocks=[NS(items=items, metcon=metcon)])
+
+    out = load_changes(sess(100.0, 9.0), sess(90.0, 6.0), lib)
+    assert [c.what for c in out] == ["Sled Push: 100 -> 90 kg", "Wall Ball: 9 -> 6 kg"]
+    listed = [Change(what="sled push swapped for a lighter variation", why="coach")]
+    assert [c.what for c in load_changes(sess(100.0, 9.0), sess(90.0, 6.0), lib, listed)] == [
+        "Wall Ball: 9 -> 6 kg"
+    ]
+
+
+def test_cap_load_never_rounds_up():
+    cfg = load_config()
+    loading = cfg.equipment.loading
+    lb = 2.2046
+    for implement, cap_lb in [
+        ("dumbbell", 77.0),
+        ("dumbbell", 79.9),
+        ("kettlebell", 60.0),
+        ("barbell", 186.0),
+    ]:
+        r = loads.cap_load(cap_lb / lb, implement, loading)
+        assert r.load_lb is not None and r.load_lb <= cap_lb + 1e-6
+        assert r.load_kg == pytest.approx(r.load_lb / lb, abs=0.1)
+    assert loads.cap_load(77.0 / lb, "dumbbell", loading).load_lb == 75.0
+    # nothing real under the cap (below the lightest DB / the empty bar), or no size table: the cap itself, kg + lb
+    for implement in ("dumbbell", "barbell", "machine"):
+        r = loads.cap_load(1.0, implement, loading)
+        assert r.load_kg == 1.0 and r.load_lb == pytest.approx(2.2)
+
+
+def test_load_changes_listed_matches_whole_words():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import load_changes
+    from coach.models import Change
+
+    lib = NS(get=lambda ex_id: NS(name="Row"))
+
+    def sess(lb):
+        return NS(blocks=[NS(items=[NS(exercise_id="row", load_kg=lb / 2.2046, load_lb=lb)], metcon=None)])
+
+    rower = [Change(what="rower intervals swapped for bike", why="coach")]
+    assert len(load_changes(sess(60.0), sess(50.0), lib, rower)) == 1  # "rower" doesn't name "Row"
+    own = [Change(what="row: lighter today", why="coach")]
+    assert load_changes(sess(60.0), sess(50.0), lib, own) == []

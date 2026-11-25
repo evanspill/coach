@@ -93,6 +93,12 @@ CODE_RULES: dict[str, tuple[str, str, str]] = {
         ">= 6 h between endurance and hypertrophy on the same day (two-a-days)",
         "v1",
     ),
+    "code.missed_reps_load": (
+        "engine/loads.py",
+        "a work set that missed its prescribed reps counts as 0 RIR, and the next load comes from the average of "
+        "that exposure's work sets instead of the top set (DECISIONS 108)",
+        "v1",
+    ),
     "code.epley_e1rm": (
         "engine/testing.py",
         "estimated 1RM = weight x (1 + reps/30) from rep-max tests",

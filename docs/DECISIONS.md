@@ -668,3 +668,29 @@ Each entry: **decision** - why - how to reverse.
     - Warm-up ramps on bars use whole-plate jumps (5 lb a side), so no fractional plates before the work sets.
     - Hevy's API takes kg only and the app shows the athlete's unit, so the push sends the exact conversion of the
       pound load (`hevy_kg`) instead of kg rounded to 0.1. Stored `load_kg` stays rounded for reading.
+108. **Missed reps and silent load changes** (athlete report, 2026-11-24: incline DB press 3x10 @ 2 RIR at 55 lb went
+    10, 7, 6; landmine 3x8 went 8, 8, 5; the DB bench showed 75 lb in Hevy while the week plan said 80, and nothing
+    said why):
+    - A work set with no logged RIR that fell short of the reps its plan prescribed counts as **0 RIR**: a set
+      stopped short had nothing left. A logged RIR still wins. If the athlete stopped for another reason (pain,
+      form, time), the estimate errs low, which is the safe side. Planned reps come from the day record's
+      `planned_session` like the planned RIR (DECISIONS 107); test blocks are left out (a rep-max work-up's lighter
+      sets aren't misses).
+    - When the latest exposure missed reps on any set, the e1RM is the **average over its work sets** (missed sets at
+      0 RIR), not the top set. The top set is the freshest one; the load has to fit every set of the scheme, with its
+      rests and its place in the session. Fully hit exposures keep the top set. The progression rule is unchanged
+      (hold after one miss, -5% after two), so two misses in a row lower the load twice: intended, since a second
+      miss means the first drop wasn't enough. On the 2026-11-24 logs this gives incline 50 lb (was 55) and landmine
+      40 lb (was 45); the row (all reps hit) and DB bench are unchanged. Tracked in the audit as
+      `code.missed_reps_load` v1.
+    - Recalculated loads are listed. Saving a day record (and the deterministic adjust-day) compares each working load
+      in the filled session with the plan as written, and adds a change for every exercise whose load moved
+      ("Neutral-grip DB bench press: 80 -> 75 lb", why "load recalculated from the latest logs and load rules"), so
+      the notification shows it. Exercises that only appear in one of the two aren't recalculations and are skipped,
+      and so is an exercise an existing change already names (a swap, a pain rule): that change carries the real
+      reason. Adjust-day diffs the refill before its own readiness caps, so a bar-speed cap is listed once, as a cap,
+      and the capped load becomes the heaviest real load at or below the cap for every implement (`loads.cap_load`:
+      plates, DB step or KB size; never rounded up), with kg, lb and note kept together. An existing change names an
+      exercise only as a whole word ("rower" doesn't name the row).
+    - An exercise prescribed at different reps in one session (a top set plus back-offs) has no single rep target, so
+      its sets are never read as misses.
