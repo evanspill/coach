@@ -1,14 +1,14 @@
 {
-  "last_sync": "2026-11-24",
+  "last_sync": "2026-11-25",
   "last_report": {
     "window": [
       "2026-11-21",
-      "2026-11-24"
+      "2026-11-25"
     ],
     "counts": {
-      "whoop_daily": 4,
+      "whoop_daily": 75,
       "nutrition_daily": 2,
-      "whoop_backup_days": 0,
+      "whoop_backup_days": 7,
       "weigh_ins": 1,
       "sessions": 7
     },

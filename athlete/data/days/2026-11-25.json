@@ -1,7 +1,26 @@
 {
   "date": "2026-11-25",
-  "status": "planned",
-  "readiness": null,
+  "status": "complete",
+  "readiness": {
+    "date": "2026-11-25",
+    "state": "green",
+    "reasons": [
+      "recovery >= 67"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {},
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": []
+  },
   "weather": null,
   "planned_session_id": "2026-11-25-rest",
   "planned_session": {
@@ -22,10 +41,30 @@
     "shoe": null
   },
   "session": null,
-  "changes": [],
-  "recovery_prescription": [],
-  "nutrition": null,
-  "fueling_cue": "",
+  "changes": [
+    {
+      "what": "None: planned holiday rest day",
+      "why": "Green readiness; rest as planned",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "'Evening mobility (coach)' in Hevy (~10 min; hips + T-spine; Venom heat first if the back is tight)",
+    "Golf league tonight counts as light rotation: no extra trunk work",
+    "Bed 10-10:30 pm"
+  ],
+  "nutrition": {
+    "date": "2026-11-25",
+    "carb_tier": "low",
+    "kcal": 2330,
+    "protein_g": 180,
+    "fat_g": 72,
+    "carbs_g": 241,
+    "scaled": true,
+    "peri_workout": "Rest day: normal meals, protein at each.",
+    "note": "carbs scaled down proportionally: weekly target is tight; weekly target (chat: MacroFactor maintenance, 209 g protein / 94 g fat / 288 g carbs per day (2834 kcal))"
+  },
+  "fueling_cue": "Rest day: normal meals, protein at each.",
   "gear_alerts": [],
   "pushed": null,
   "handoffs": [],
