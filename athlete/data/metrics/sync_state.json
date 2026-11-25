@@ -10,11 +10,11 @@
       "nutrition_daily": 2,
       "whoop_backup_days": 0,
       "weigh_ins": 1,
-      "sessions": 5
+      "sessions": 7
     },
     "stale": [],
     "errors": {},
-    "changed_files": 0,
+    "changed_files": 1,
     "recovery_today": true,
     "whoop_offline": false
   }
