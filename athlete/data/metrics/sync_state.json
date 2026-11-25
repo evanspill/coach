@@ -2,15 +2,15 @@
   "last_sync": "2026-11-25",
   "last_report": {
     "window": [
-      "2026-11-21",
+      "2026-11-22",
       "2026-11-25"
     ],
     "counts": {
-      "whoop_daily": 75,
-      "nutrition_daily": 2,
-      "whoop_backup_days": 7,
-      "weigh_ins": 1,
-      "sessions": 7
+      "whoop_daily": 4,
+      "nutrition_daily": 1,
+      "whoop_backup_days": 0,
+      "weigh_ins": 2,
+      "sessions": 5
     },
     "stale": [],
     "errors": {},
