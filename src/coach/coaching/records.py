@@ -38,6 +38,7 @@ def submit(
 ) -> dict:
     from coach.coaching.context import build
     from coach.coaching.daily import week_summary_md
+    from coach.coaching.fill import load_changes
     from coach.coaching.skills.plan_week import finalize
 
     c = store.collection(collection)
@@ -107,6 +108,13 @@ def submit(
             if v:
                 raise SubmitRefused(v)
             actions.append("filled and validated today's session")
+            listed = {c.what for c in obj.changes}
+            fresh = [
+                c for c in load_changes(obj.planned_session, obj.session, cfg.library) if c.what not in listed
+            ]
+            obj.changes += fresh
+            if fresh:
+                actions.append("listed recalculated loads: " + "; ".join(c.what for c in fresh))
         store.put(collection, obj)
     elif collection == "block_outlines":
         v = validate_outline(obj)

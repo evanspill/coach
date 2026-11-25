@@ -365,3 +365,94 @@ def test_hevy_weights_are_exact_pound_conversions():
     assert round(hevy_kg(106.6, 235.0) / 0.45359237, 4) == 235.0
     assert round(hevy_kg(20.4, 45.0, pair=2) / 0.45359237, 4) == 90.0
     assert hevy_kg(50.0, None) == 50.0
+
+
+def _sets_session(day, ex, kg, reps_list, plan_id):
+    from coach.models import SessionRecord, SetRecord
+
+    return SessionRecord(
+        id=f"{day}-{ex}",
+        date=day,
+        start=dt.datetime(day.year, day.month, day.day, 9),
+        sport="strength",
+        title="x",
+        duration_min=60,
+        planned_session_id=plan_id,
+        sets=[SetRecord(exercise_id=ex, exercise_name="x", weight_kg=kg, reps=r) for r in reps_list],
+    )
+
+
+def test_missed_reps_count_as_zero_rir():
+    ex = "incline_db_press"
+    s = _sets_session(dt.date(2026, 11, 24), ex, 24.9, [10, 7, 6], "p")
+    rir, reps = {("p", ex): 2.0}, {("p", ex): 10}
+    assert [loads.set_rir(s, st, rir, reps) for st in s.sets] == [2.0, 0.0, 0.0]
+    # a logged RIR still wins, and without the reps map the old reading holds
+    logged = s.sets[1].model_copy(update={"rir": 1.0})
+    assert loads.set_rir(s, logged, rir, reps) == 1.0
+    assert loads.set_rir(s, s.sets[1], rir) == 2.0
+
+
+def test_missed_reps_average_the_work_sets():
+    """2026-11-24: incline DB press 3x10 @ 2 RIR at 55 lb went 10, 7, 6. The next load fits every set, not the
+    fresh first one."""
+    ex = "incline_db_press"
+    today = dt.date(2026, 11, 30)
+    s = _sets_session(dt.date(2026, 11, 24), ex, 24.9, [10, 7, 6], "p")
+    rir, reps = {("p", ex): 2.0}, {("p", ex): 10}
+    est, why = loads.current_e1rm([s], ex, today, planned=rir, planned_reps=reps)
+    expected = (loads.e1rm(24.9, 10, 2) + loads.e1rm(24.9, 7, 0) + loads.e1rm(24.9, 6, 0)) / 3
+    assert est == pytest.approx(expected)
+    assert "reps missed" in why
+    top, _ = loads.current_e1rm([s], ex, today, planned=rir)
+    assert est < top
+    assert loads.load_for(est, 10, 2) < 24.9  # below the load that missed
+    assert loads.progression([s], ex, 10, 2, today, planned=rir, planned_reps=reps).factor == 1.0
+
+
+def test_all_reps_hit_keeps_the_top_set():
+    ex = "chest_supported_db_row"
+    s = _sets_session(dt.date(2026, 11, 24), ex, 11.3, [10, 10, 10], "p")
+    rir, reps = {("p", ex): 2.0}, {("p", ex): 10}
+    est, why = loads.current_e1rm([s], ex, dt.date(2026, 11, 30), planned=rir, planned_reps=reps)
+    assert est == pytest.approx(loads.e1rm(11.3, 10, 2))
+    assert "top set" in why
+
+
+def test_planned_reps_skip_test_blocks():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import planned_reps
+
+    day = dt.date(2026, 11, 24)
+    item = lambda ex, reps=None: NS(exercise_id=ex, reps=reps, rir=2.0)  # noqa: E731
+    plan = NS(
+        id="p",
+        blocks=[
+            NS(kind="test", items=[item("db_bench_press_neutral", 5)]),
+            NS(kind="hypertrophy", items=[item("incline_db_press", 10), item("plank")]),
+        ],
+    )
+    state = NS(day_record=lambda d: NS(planned_session=plan) if d == day else None)
+    s = _sets_session(day, "incline_db_press", 24.9, [10], "p")
+    assert planned_reps(state, [s]) == {("p", "incline_db_press"): 10}
+
+
+def test_load_changes_lists_recalculated_loads():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import load_changes
+
+    def sess(lb_bench, lb_row=None):
+        items = [NS(exercise_id="db_bench_press_neutral", load_kg=lb_bench / 2.2046, load_lb=lb_bench)]
+        if lb_row is not None:
+            items.append(NS(exercise_id="chest_supported_db_row", load_kg=lb_row / 2.2046, load_lb=lb_row))
+        return NS(blocks=[NS(items=items, metcon=None)])
+
+    lib = NS(
+        get=lambda ex_id: NS(name="Neutral-grip DB bench press") if ex_id.startswith("db_bench") else None
+    )
+    out = load_changes(sess(80.0, 60.0), sess(75.0, 60.0), lib)
+    assert [c.what for c in out] == ["Neutral-grip DB bench press: 80 -> 75 lb"]
+    assert load_changes(sess(80.0), sess(80.0, 25.0), lib) == []  # new exercise: not a recalculation
+    assert load_changes(None, sess(75.0), lib) == []

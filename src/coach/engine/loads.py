@@ -2,6 +2,7 @@
 
 import datetime as dt
 import math
+import statistics
 from dataclasses import dataclass
 
 from coach.engine.units import kg_to_lb, lb_to_kg
@@ -23,13 +24,28 @@ def load_for(e1rm_kg: float, reps: int, rir: float) -> float:
 
 # (planned_session_id, exercise_id) -> the RIR that session prescribed for the exercise (0 for a test's max sets).
 PlannedRIR = dict[tuple[str, str], float]
+# (planned_session_id, exercise_id) -> the reps that session prescribed per set (test blocks excluded).
+PlannedReps = dict[tuple[str, str], int]
 
 
-def set_rir(s: SessionRecord, st, planned: PlannedRIR | None) -> float | None:
-    """A set's RIR: as logged, else what its planned session prescribed (an athlete who did the prescribed work
-    without logging RIR did it at about that effort), else None (unknown). DECISIONS 107."""
+def missed_reps(s: SessionRecord, st, planned_reps: PlannedReps | None) -> bool:
+    """True when a work set fell short of the reps its planned session prescribed (DECISIONS 108)."""
+    if not planned_reps or not s.planned_session_id:
+        return False
+    target = planned_reps.get((s.planned_session_id, st.exercise_id))
+    return bool(target and st.reps is not None and st.reps < target)
+
+
+def set_rir(
+    s: SessionRecord, st, planned: PlannedRIR | None, planned_reps: PlannedReps | None = None
+) -> float | None:
+    """A set's RIR: as logged, else 0 when it missed the prescribed reps (a set stopped short had nothing left:
+    DECISIONS 108), else what its planned session prescribed (an athlete who did the prescribed work without
+    logging RIR did it at about that effort), else None (unknown). DECISIONS 107."""
     if st.rir is not None:
         return st.rir
+    if missed_reps(s, st, planned_reps):
+        return 0.0
     if planned and s.planned_session_id:
         return planned.get((s.planned_session_id, st.exercise_id))
     return None
@@ -89,6 +105,7 @@ def best_recent_e1rm(
     today: dt.date,
     weeks: int = 6,
     planned: PlannedRIR | None = None,
+    planned_reps: PlannedReps | None = None,
 ) -> float | None:
     since = today - dt.timedelta(weeks=weeks)
     best = None
@@ -98,7 +115,7 @@ def best_recent_e1rm(
         for st in s.sets:
             if st.exercise_id != exercise_id or st.set_type == "warmup" or not st.weight_kg or not st.reps:
                 continue
-            v = e1rm(st.weight_kg, st.reps, set_rir(s, st, planned) or 0.0)
+            v = e1rm(st.weight_kg, st.reps, set_rir(s, st, planned, planned_reps) or 0.0)
             best = v if best is None else max(best, v)
     return best
 
@@ -110,9 +127,12 @@ def current_e1rm(
     recent_days: int = 21,
     layoff_factor: float = 0.95,
     planned: PlannedRIR | None = None,
+    planned_reps: PlannedReps | None = None,
 ) -> tuple[float | None, str]:
     """What the athlete can do now, not their best ever: the top set of the most recent exposure within
-    `recent_days`; after a longer gap, the best of the last 8 weeks reduced by `layoff_factor` (detraining)."""
+    `recent_days`; after a longer gap, the best of the last 8 weeks reduced by `layoff_factor` (detraining).
+    When that exposure missed prescribed reps on any set, the average over its work sets instead (missed sets at
+    0 RIR): the top set was the freshest, and the load has to fit every set of the scheme (DECISIONS 108)."""
     sessions = sorted((s for s in history if s.date < today), key=lambda s: s.date, reverse=True)
     for s in sessions:
         work = [
@@ -122,11 +142,14 @@ def current_e1rm(
         ]
         if not work:
             continue
-        top = max(e1rm(st.weight_kg, st.reps, set_rir(s, st, planned) or 0.0) for st in work)  # type: ignore[arg-type]
+        per_set = [e1rm(st.weight_kg, st.reps, set_rir(s, st, planned, planned_reps) or 0.0) for st in work]  # type: ignore[arg-type]
+        missed = any(missed_reps(s, st, planned_reps) for st in work)
+        value = statistics.fmean(per_set) if missed else max(per_set)
         if (today - s.date).days <= recent_days:
-            return top, f"latest exposure {s.date}"
+            how = "average of work sets (reps missed)" if missed else "top set"
+            return value, f"latest exposure {s.date}, {how}"
         break
-    best = best_recent_e1rm(history, exercise_id, today, weeks=8, planned=planned)
+    best = best_recent_e1rm(history, exercise_id, today, weeks=8, planned=planned, planned_reps=planned_reps)
     if best is None:
         return None, "no history"
     return best * layoff_factor, f"best of 8 weeks x {layoff_factor:g} (no exposure in {recent_days} days)"
@@ -196,6 +219,7 @@ def progression(
     target_rir: float,
     today: dt.date,
     planned: PlannedRIR | None = None,
+    planned_reps: PlannedReps | None = None,
 ) -> ProgressionDecision:
     """Add load when all target reps were hit at >= target RIR last time; hold/reduce after two misses.
     A set logged without RPE/RIR takes the RIR its session prescribed (`planned`; 0 for a test's max sets, so a
@@ -210,7 +234,7 @@ def progression(
 
     def hit(s: SessionRecord) -> bool:
         def ok(st) -> bool:
-            r = set_rir(s, st, planned)
+            r = set_rir(s, st, planned, planned_reps)
             return (st.reps or 0) >= target_reps and (r is None or r >= target_rir - 0.5)
 
         return all(ok(st) for st in work(s))

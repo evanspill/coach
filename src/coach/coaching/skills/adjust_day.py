@@ -4,6 +4,7 @@ import datetime as dt
 import statistics
 
 from coach.coaching.context import Context
+from coach.coaching.fill import load_changes
 from coach.coaching.skills import design as D
 from coach.coaching.skills import fuel
 from coach.coaching.skills.design import Picker
@@ -291,6 +292,10 @@ def adjust(
         rec.session = session
 
     rec.changes = changes + rec.changes
+    listed = {c.what for c in rec.changes}
+    rec.changes += [
+        c for c in load_changes(rec.planned_session, rec.session, cfg.library) if c.what not in listed
+    ]
     # --- recovery prescription ---
     s = rec.session
     y_metrics = ctx.state.daily_metrics(day - dt.timedelta(days=1), day - dt.timedelta(days=1))

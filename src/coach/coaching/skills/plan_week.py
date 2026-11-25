@@ -5,7 +5,7 @@ import datetime as dt
 
 from coach import clock
 from coach.coaching.context import Context
-from coach.coaching.fill import Filler, planned_rir
+from coach.coaching.fill import Filler, planned_reps, planned_rir
 from coach.coaching.skills import design as D
 from coach.coaching.skills.templates import build_session
 from coach.engine import nutrition as nut
@@ -235,6 +235,7 @@ def finalize(ctx: Context, sessions: list[Session]) -> None:
         ctx.today,
         ctx.cfg.training.rules,
         planned=planned_rir(ctx.state, hist),
+        planned_reps=planned_reps(ctx.state, hist),
     )
     ordered = sorted(sessions, key=lambda s: s.date)
     for i, s in enumerate(ordered):

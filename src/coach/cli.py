@@ -231,11 +231,17 @@ def cmd_context(args):
         out["trailing_run_miles"] = ctx.trailing_miles(start)
         prev = st.week_plan(clock.iso_week_id(start - dt.timedelta(days=7)))
         out["last_week_review_md"] = st.report("week_reviews", prev.week_id) if prev else ""
-        from coach.coaching.fill import Filler, planned_rir
+        from coach.coaching.fill import Filler, planned_reps, planned_rir
 
         hist = st.sessions(today - dt.timedelta(weeks=8), today)
         f = Filler(
-            ctx.cfg.library, ctx.cfg.equipment.loading, hist, ctx.zones, today, planned=planned_rir(st, hist)
+            ctx.cfg.library,
+            ctx.cfg.equipment.loading,
+            hist,
+            ctx.zones,
+            today,
+            planned=planned_rir(st, hist),
+            planned_reps=planned_reps(st, hist),
         )
         fams = {
             fam: ctx.cfg.progressions.families[fam].rungs[ctx.movement.rung(fam)].exercises
