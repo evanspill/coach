@@ -88,12 +88,16 @@ def load_changes(
         return []
     before, after = _loads(planned), _loads(session)
     named = " | ".join(c.what.lower() for c in listed or [])
+
+    def mentioned(term: str) -> bool:  # whole words only: "row" doesn't match "barrow" or "rower"
+        return bool(re.search(rf"(?<![\w]){re.escape(term.lower())}(?![\w])", named))
+
     out = []
     for ex_id, (kg, lb) in after.items():
         if ex_id not in before:
             continue
         ex = library.get(ex_id)
-        if named and (ex_id.lower() in named or (ex is not None and ex.name.lower() in named)):
+        if named and (mentioned(ex_id) or (ex is not None and mentioned(ex.name))):
             continue
         kg0, lb0 = before[ex_id]
         if lb is not None and lb0 is not None:

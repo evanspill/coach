@@ -92,6 +92,29 @@ def round_load(
     return Rounded(None, None, "by RIR (start from last used weight in Hevy)")
 
 
+def cap_load(cap_kg: float, implement: str, loading: dict) -> Rounded:
+    """The heaviest real load at or below `cap_kg` (a readiness or bar-speed cap never rounds up, whatever the
+    implement). With no real load under the cap, or an implement with no size table, the cap itself, in kg and lb."""
+    lb = kg_to_lb(cap_kg)
+    exact = Rounded(round(cap_kg, 1), round(lb, 1), f"{round(lb, 1):g} lb (capped)")
+    if implement in BAR_IMPLEMENTS:
+        r = round_load(cap_kg, implement, loading, down=True)
+        return r if r.load_lb is not None and r.load_lb <= lb + 1e-6 else exact  # a cap below the empty bar
+    if implement == "dumbbell":
+        spec = loading["dumbbells_lb"]
+        r = math.floor(lb / spec["step"] + 1e-9) * spec["step"]
+        if r < spec["min"]:
+            return exact
+        r = min(r, spec["max"])
+        return Rounded(round(lb_to_kg(r), 1), float(r), f"{r:g} lb DBs")
+    if implement == "kettlebell":
+        under = [x for x in sorted(loading["kettlebells_lb"]) if x <= lb + 1e-9]
+        if not under:
+            return exact
+        return Rounded(round(lb_to_kg(under[-1]), 1), float(under[-1]), f"{under[-1]} lb KB")
+    return exact
+
+
 def kb_for_effort(level: str, loading: dict) -> Rounded:
     sizes = sorted(loading["kettlebells_lb"])
     idx = {"light": 0, "moderate": 1, "heavy": 2, "max": len(sizes) - 1}.get(level, 1)

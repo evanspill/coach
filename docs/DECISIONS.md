@@ -689,6 +689,8 @@ Each entry: **decision** - why - how to reverse.
       the notification shows it. Exercises that only appear in one of the two aren't recalculations and are skipped,
       and so is an exercise an existing change already names (a swap, a pain rule): that change carries the real
       reason. Adjust-day diffs the refill before its own readiness caps, so a bar-speed cap is listed once, as a cap,
-      and the capped load is re-rounded to real plates with lb kept in step with kg.
+      and the capped load becomes the heaviest real load at or below the cap for every implement (`loads.cap_load`:
+      plates, DB step or KB size; never rounded up), with kg, lb and note kept together. An existing change names an
+      exercise only as a whole word ("rower" doesn't name the row).
     - An exercise prescribed at different reps in one session (a top set plus back-offs) has no single rep target, so
       its sets are never read as misses.

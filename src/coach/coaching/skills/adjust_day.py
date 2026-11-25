@@ -285,15 +285,11 @@ def adjust(
                 for it in b.items:
                     if it.exercise_id in load_cap and it.load_kg and it.load_kg > load_cap[it.exercise_id]:
                         ex = cfg.library.get(it.exercise_id)
-                        capped = L.round_load(
-                            load_cap[it.exercise_id],
-                            ex.implement if ex else "barbell",
-                            cfg.equipment.loading,
-                            down=True,
+                        capped = L.cap_load(
+                            load_cap[it.exercise_id], ex.implement if ex else "", cfg.equipment.loading
                         )
-                        it.load_kg = capped.load_kg or round(load_cap[it.exercise_id], 1)
-                        it.load_lb = capped.load_lb  # kept in step with kg (load_changes compares lb first)
-                        it.load_note = capped.note or it.load_note
+                        # kg, lb and note move together (load_changes compares lb first)
+                        it.load_kg, it.load_lb, it.load_note = capped.load_kg, capped.load_lb, capped.note
         if rec.weather and rec.weather.tier == "slow":
             for seg in session.run_segments():
                 if seg.pace_s_per_mi:

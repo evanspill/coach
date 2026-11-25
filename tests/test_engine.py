@@ -492,3 +492,40 @@ def test_load_changes_kg_fallback_metcons_and_listed():
     assert [c.what for c in load_changes(sess(100.0, 9.0), sess(90.0, 6.0), lib, listed)] == [
         "Wall Ball: 9 -> 6 kg"
     ]
+
+
+def test_cap_load_never_rounds_up():
+    cfg = load_config()
+    loading = cfg.equipment.loading
+    lb = 2.2046
+    for implement, cap_lb in [
+        ("dumbbell", 77.0),
+        ("dumbbell", 79.9),
+        ("kettlebell", 60.0),
+        ("barbell", 186.0),
+    ]:
+        r = loads.cap_load(cap_lb / lb, implement, loading)
+        assert r.load_lb is not None and r.load_lb <= cap_lb + 1e-6
+        assert r.load_kg == pytest.approx(r.load_lb / lb, abs=0.1)
+    assert loads.cap_load(77.0 / lb, "dumbbell", loading).load_lb == 75.0
+    # nothing real under the cap (below the lightest DB / the empty bar), or no size table: the cap itself, kg + lb
+    for implement in ("dumbbell", "barbell", "machine"):
+        r = loads.cap_load(1.0, implement, loading)
+        assert r.load_kg == 1.0 and r.load_lb == pytest.approx(2.2)
+
+
+def test_load_changes_listed_matches_whole_words():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import load_changes
+    from coach.models import Change
+
+    lib = NS(get=lambda ex_id: NS(name="Row"))
+
+    def sess(lb):
+        return NS(blocks=[NS(items=[NS(exercise_id="row", load_kg=lb / 2.2046, load_lb=lb)], metcon=None)])
+
+    rower = [Change(what="rower intervals swapped for bike", why="coach")]
+    assert len(load_changes(sess(60.0), sess(50.0), lib, rower)) == 1  # "rower" doesn't name "Row"
+    own = [Change(what="row: lighter today", why="coach")]
+    assert load_changes(sess(60.0), sess(50.0), lib, own) == []
