@@ -108,10 +108,7 @@ def submit(
             if v:
                 raise SubmitRefused(v)
             actions.append("filled and validated today's session")
-            listed = {c.what for c in obj.changes}
-            fresh = [
-                c for c in load_changes(obj.planned_session, obj.session, cfg.library) if c.what not in listed
-            ]
+            fresh = load_changes(obj.planned_session, obj.session, cfg.library, obj.changes)
             obj.changes += fresh
             if fresh:
                 actions.append("listed recalculated loads: " + "; ".join(c.what for c in fresh))

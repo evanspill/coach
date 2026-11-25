@@ -46,7 +46,7 @@ def planned_rir(state, history: list[SessionRecord]) -> L.PlannedRIR:
 def planned_reps(state, history: list[SessionRecord]) -> L.PlannedReps:
     """The reps per set each logged session's plan prescribed per exercise, from its day record (`planned_session`).
     Test blocks are left out: a rep-max work-up's lighter sets aren't misses. DECISIONS 108."""
-    out: L.PlannedReps = {}
+    seen: dict[tuple[str, str], set[int]] = {}
     for s in history:
         if not s.planned_session_id:
             continue
@@ -59,8 +59,10 @@ def planned_reps(state, history: list[SessionRecord]) -> L.PlannedReps:
                 continue
             for it in b.items:
                 if it.reps:
-                    out.setdefault((plan.id, it.exercise_id), it.reps)
-    return out
+                    seen.setdefault((plan.id, it.exercise_id), set()).add(it.reps)
+    # an exercise prescribed at different reps in one session (top set + back-offs) has no single target: a set
+    # can't be matched to its prescription, so it is never read as a miss
+    return {k: next(iter(v)) for k, v in seen.items() if len(v) == 1}
 
 
 def _loads(s: Session) -> dict[str, tuple[float | None, float | None]]:
@@ -72,16 +74,26 @@ def _loads(s: Session) -> dict[str, tuple[float | None, float | None]]:
     return out
 
 
-def load_changes(planned: Session | None, session: Session | None, library: ExerciseLibrary) -> list[Change]:
+def load_changes(
+    planned: Session | None,
+    session: Session | None,
+    library: ExerciseLibrary,
+    listed: list[Change] | None = None,
+) -> list[Change]:
     """Working loads that differ between the plan as written and today's filled session (the same exercise in both),
     as changes the athlete sees: a recalculation from newer logs or updated load rules is never silent
-    (DECISIONS 108)."""
+    (DECISIONS 108). An exercise an existing change already names (`listed`: a swap, a cap, a pain rule) is left
+    to that change, which carries the real reason."""
     if planned is None or session is None:
         return []
     before, after = _loads(planned), _loads(session)
+    named = " | ".join(c.what.lower() for c in listed or [])
     out = []
     for ex_id, (kg, lb) in after.items():
         if ex_id not in before:
+            continue
+        ex = library.get(ex_id)
+        if named and (ex_id.lower() in named or (ex is not None and ex.name.lower() in named)):
             continue
         kg0, lb0 = before[ex_id]
         if lb is not None and lb0 is not None:
@@ -92,7 +104,6 @@ def load_changes(planned: Session | None, session: Session | None, library: Exer
             if kg is None or kg0 is None or abs(kg - kg0) < 0.05:
                 continue
             what = f"{kg0:g} -> {kg:g} kg"
-        ex = library.get(ex_id)
         out.append(
             Change(
                 what=f"{ex.name if ex else ex_id}: {what}",

@@ -809,3 +809,66 @@ def test_weekly_review_logs_readiness_against_outcome(b1):
     rows = summary["readiness_outcomes"]
     assert len(rows) == 7 and rows[0]["state"] == "yellow" and rows[0]["session"] == plan.sessions[0].type
     assert "## Readiness vs outcome" in md
+
+
+def _first_loaded(session, kinds=("strength",)):
+    return next(it for b in session.blocks if b.kind in kinds for it in b.items if it.load_lb)
+
+
+def test_adjust_day_lists_recalculated_loads_but_not_its_own_caps(home):
+    """DECISIONS 108: a load the refill moved is listed; a bar-speed cap is listed once, with its own reason, and
+    keeps lb in step with kg."""
+    from coach.coaching.skills import adjust_day
+    from coach.coaching.skills.plan_week import plan_week
+    from coach.models import Checkin
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 12, 1)
+    ctx = world_at(day)
+    plan = plan_week(ctx, dt.date(2026, 11, 30))
+    s = plan.session_on(day)
+    item = _first_loaded(s)
+    ex = ctx.cfg.library.get(item.exercise_id)
+    item.load_lb += 20  # the plan as written said more than today's refill will
+    item.load_kg = item.load_lb / 2.2046
+    rec = adjust_day.adjust(ctx, day, plan)
+    recalc = [c for c in rec.changes if c.what.startswith(f"{ex.name}:")]
+    assert len(recalc) == 1 and "recalculated" in recalc[0].why
+
+    # bar speed 15% slower than usual: the cap is the only change naming that load
+    for i, v in enumerate([0.8, 0.8, 0.8]):
+        ctx.state.put("checkins", Checkin(date=day - dt.timedelta(days=7 * (i + 1)), bar_speed_mps=v))
+    ctx.state.put("checkins", Checkin(date=day, bar_speed_mps=0.68))
+    plan = plan_week(ctx, dt.date(2026, 11, 30))
+    rec = adjust_day.adjust(ctx, day, plan)
+    assert any("capped" in c.what for c in rec.changes)
+    assert not any("recalculated" in c.why for c in rec.changes)
+    capped = _first_loaded(rec.session)
+    assert capped.load_kg == pytest.approx(capped.load_lb / 2.2046, abs=0.1)
+
+
+def test_submit_day_record_lists_recalculated_loads(home):
+    from coach.coaching.records import submit
+    from coach.coaching.skills.plan_week import plan_week
+    from coach.models import Change, DayRecord
+    from coach.sim.scenarios import world_at
+
+    day = dt.date(2026, 12, 1)
+    ctx = world_at(day)
+    s = plan_week(ctx, dt.date(2026, 11, 30)).session_on(day)
+    planned = s.model_copy(deep=True)
+    item = _first_loaded(planned)
+    ex = ctx.cfg.library.get(item.exercise_id)
+    item.load_lb += 20
+    item.load_kg = item.load_lb / 2.2046
+    rec = DayRecord(date=day, status="complete", planned_session=planned, session=s.model_copy(deep=True))
+    out = submit(ctx.state, ctx.cfg, "day_records", rec.model_dump(mode="json"), day)
+    assert any("recalculated loads" in a for a in out["actions"])
+    saved = ctx.state.day_record(day)
+    assert sum(c.what.startswith(f"{ex.name}:") for c in saved.changes) == 1
+    # saving again doesn't repeat it; a change the coach already wrote for the exercise keeps its own reason
+    submit(ctx.state, ctx.cfg, "day_records", saved.model_dump(mode="json"), day)
+    assert sum(c.what.startswith(f"{ex.name}:") for c in ctx.state.day_record(day).changes) == 1
+    own = rec.model_copy(update={"changes": [Change(what=f"{ex.name} swapped load", why="coach")]})
+    submit(ctx.state, ctx.cfg, "day_records", own.model_dump(mode="json"), day)
+    assert [c.why for c in ctx.state.day_record(day).changes] == ["coach"]

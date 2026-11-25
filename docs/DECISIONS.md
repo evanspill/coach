@@ -686,5 +686,9 @@ Each entry: **decision** - why - how to reverse.
     - Recalculated loads are listed. Saving a day record (and the deterministic adjust-day) compares each working load
       in the filled session with the plan as written, and adds a change for every exercise whose load moved
       ("Neutral-grip DB bench press: 80 -> 75 lb", why "load recalculated from the latest logs and load rules"), so
-      the notification shows it. Exercises that only appear in one of the two aren't recalculations and are skipped;
-      a change already listed isn't repeated.
+      the notification shows it. Exercises that only appear in one of the two aren't recalculations and are skipped,
+      and so is an exercise an existing change already names (a swap, a pain rule): that change carries the real
+      reason. Adjust-day diffs the refill before its own readiness caps, so a bar-speed cap is listed once, as a cap,
+      and the capped load is re-rounded to real plates with lb kept in step with kg.
+    - An exercise prescribed at different reps in one session (a top set plus back-offs) has no single rep target, so
+      its sets are never read as misses.

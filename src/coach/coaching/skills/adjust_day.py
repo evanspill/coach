@@ -10,6 +10,7 @@ from coach.coaching.skills import fuel
 from coach.coaching.skills.design import Picker
 from coach.coaching.skills.plan_week import finalize
 from coach.engine import gear as G
+from coach.engine import loads as L
 from coach.engine import nutrition as nut
 from coach.engine import testing as T
 from coach.engine.weather import weather_call
@@ -100,6 +101,7 @@ def adjust(
     rec.planned_session_id = planned.id if planned else None
     rec.planned_session = planned.model_copy(deep=True) if planned else None
     session = planned.model_copy(deep=True) if planned else None
+    recalculated: Session | None = None  # today's session as refilled, before readiness caps (load_changes)
     changes: list[Change] = []
     week_type = plan.week_type if plan else "training"
 
@@ -274,6 +276,7 @@ def adjust(
                     )
                 )
         finalize(ctx, [session])
+        recalculated = session.model_copy(deep=True)  # the caps below are listed with their own reason
         # finalize sees one session; the carb tier also depends on tomorrow (high before the long run)
         tomorrow = plan.session_on(day + dt.timedelta(days=1)) if plan else None
         session.carb_tier = nut.carb_tier_for(session, tomorrow, cfg.training.rules.carb_tiers)  # type: ignore[assignment]
@@ -281,7 +284,16 @@ def adjust(
             for b in session.blocks:
                 for it in b.items:
                     if it.exercise_id in load_cap and it.load_kg and it.load_kg > load_cap[it.exercise_id]:
-                        it.load_kg = round(load_cap[it.exercise_id], 1)
+                        ex = cfg.library.get(it.exercise_id)
+                        capped = L.round_load(
+                            load_cap[it.exercise_id],
+                            ex.implement if ex else "barbell",
+                            cfg.equipment.loading,
+                            down=True,
+                        )
+                        it.load_kg = capped.load_kg or round(load_cap[it.exercise_id], 1)
+                        it.load_lb = capped.load_lb  # kept in step with kg (load_changes compares lb first)
+                        it.load_note = capped.note or it.load_note
         if rec.weather and rec.weather.tier == "slow":
             for seg in session.run_segments():
                 if seg.pace_s_per_mi:
@@ -292,10 +304,7 @@ def adjust(
         rec.session = session
 
     rec.changes = changes + rec.changes
-    listed = {c.what for c in rec.changes}
-    rec.changes += [
-        c for c in load_changes(rec.planned_session, rec.session, cfg.library) if c.what not in listed
-    ]
+    rec.changes += load_changes(rec.planned_session, recalculated, cfg.library, rec.changes)
     # --- recovery prescription ---
     s = rec.session
     y_metrics = ctx.state.daily_metrics(day - dt.timedelta(days=1), day - dt.timedelta(days=1))

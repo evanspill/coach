@@ -456,3 +456,39 @@ def test_load_changes_lists_recalculated_loads():
     assert [c.what for c in out] == ["Neutral-grip DB bench press: 80 -> 75 lb"]
     assert load_changes(sess(80.0), sess(80.0, 25.0), lib) == []  # new exercise: not a recalculation
     assert load_changes(None, sess(75.0), lib) == []
+
+
+def test_planned_reps_skip_exercises_with_mixed_rep_targets():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import planned_reps
+
+    day = dt.date(2026, 11, 24)
+    item = lambda ex, reps: NS(exercise_id=ex, reps=reps, rir=2.0)  # noqa: E731
+    plan = NS(id="p", blocks=[NS(kind="strength", items=[item("back_squat", 5), item("back_squat", 8)])])
+    state = NS(day_record=lambda d: NS(planned_session=plan) if d == day else None)
+    s = _sets_session(day, "back_squat", 100.0, [5, 8, 8], "p")
+    assert planned_reps(state, [s]) == {}  # top set + back-offs: no single target, never a miss
+
+
+def test_load_changes_kg_fallback_metcons_and_listed():
+    from types import SimpleNamespace as NS
+
+    from coach.coaching.fill import load_changes
+    from coach.models import Change
+
+    lib = NS(get=lambda ex_id: NS(name=ex_id.replace("_", " ").title()))
+
+    def sess(kg, metcon_kg=None):
+        items = [NS(exercise_id="sled_push", load_kg=kg, load_lb=None)]
+        metcon = None
+        if metcon_kg is not None:
+            metcon = NS(movements=[NS(exercise_id="wall_ball", load_kg=metcon_kg, load_lb=None)])
+        return NS(blocks=[NS(items=items, metcon=metcon)])
+
+    out = load_changes(sess(100.0, 9.0), sess(90.0, 6.0), lib)
+    assert [c.what for c in out] == ["Sled Push: 100 -> 90 kg", "Wall Ball: 9 -> 6 kg"]
+    listed = [Change(what="sled push swapped for a lighter variation", why="coach")]
+    assert [c.what for c in load_changes(sess(100.0, 9.0), sess(90.0, 6.0), lib, listed)] == [
+        "Wall Ball: 9 -> 6 kg"
+    ]
