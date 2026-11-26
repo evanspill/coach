@@ -1,6 +1,6 @@
 {
   "date": "2026-11-26",
-  "status": "planned",
+  "status": "waiting_for_recovery",
   "readiness": null,
   "weather": null,
   "planned_session_id": "2026-11-26-rest",
@@ -22,15 +22,27 @@
     "shoe": null
   },
   "session": null,
-  "changes": [],
-  "recovery_prescription": [],
+  "changes": [
+    {
+      "what": "None: planned Thanksgiving rest day",
+      "why": "Rest as planned; readiness pending today's Whoop recovery",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "A walk with family is a bonus, not a session",
+    "'Evening mobility (coach)' in Hevy (~10 min; hips + T-spine) if you feel stiff after the meal",
+    "Bed 10-10:30 pm"
+  ],
   "nutrition": null,
   "fueling_cue": "",
   "gear_alerts": [],
   "pushed": null,
   "handoffs": [],
   "approvals_pending": [],
-  "stale_sources": [],
+  "stale_sources": [
+    "whoop: today's recovery not available yet"
+  ],
   "generated_by": "claude",
   "notification": ""
 }
