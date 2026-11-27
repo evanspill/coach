@@ -1,8 +1,26 @@
 {
   "date": "2026-11-27",
-  "status": "planned",
+  "status": "waiting_for_recovery",
   "readiness": null,
-  "weather": null,
+  "weather": {
+    "date": "2026-11-27",
+    "temp_f": null,
+    "dew_point_f": null,
+    "heat_sum": null,
+    "tier": "normal",
+    "icy": false,
+    "daylight": true,
+    "sunrise": "06:54",
+    "sunset": "16:24",
+    "pace_adjust_s_per_mi": [
+      0,
+      0
+    ],
+    "decision": "no forecast available: run as planned, check conditions at the door",
+    "reasons": [
+      "weather data missing (Open-Meteo rate-limited, HTTP 429)"
+    ]
+  },
   "planned_session_id": "2026-11-27-run-long",
   "planned_session": {
     "id": "2026-11-27-run-long",
@@ -171,16 +189,196 @@
     "recovery_note": "",
     "shoe": null
   },
-  "session": null,
-  "changes": [],
-  "recovery_prescription": [],
+  "session": {
+    "id": "2026-11-27-run-long",
+    "date": "2026-11-27",
+    "start_time": "09:30",
+    "type": "run_long",
+    "title": "Long run (short: first week back) + Z2 bike",
+    "intent": "1 mi easy run (long-run growth is capped at +1 mi/week from zero), then Z2 bike at the gym; if the gym is closed, walk 30 min instead",
+    "location": "outdoor",
+    "route": "farmington_river_trail",
+    "expected_minutes": 80,
+    "key": true,
+    "carb_tier": "high",
+    "blocks": [
+      {
+        "kind": "warmup",
+        "title": "Easy-run prep: tibs, pogos, lateral lunges (then the first 5-10 min truly easy)",
+        "items": [
+          {
+            "exercise_id": "tib_raise_wall",
+            "sets": 1,
+            "reps": 15,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "pogo_hops",
+            "sets": 1,
+            "reps": 20,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "lateral_lunge_bw",
+            "sets": 1,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": "inner-thigh prep for the left groin/hip history",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "run",
+        "title": "Long run",
+        "items": [],
+        "run": [
+          {
+            "label": "Long run",
+            "zone": "Z2",
+            "duration_min": null,
+            "distance_mi": 1.0,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "run",
+            "terrain": "flat",
+            "pace_s_per_mi": [
+              781,
+              864
+            ],
+            "hr_bpm": [
+              137,
+              152
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "run",
+        "title": "Erg extension (aerobic volume without impact)",
+        "items": [],
+        "run": [
+          {
+            "label": "Z2 bike (gym, after the run)",
+            "zone": "Z2",
+            "duration_min": 50.0,
+            "distance_mi": null,
+            "reps": 1,
+            "recovery_min": null,
+            "modality": "bike",
+            "terrain": "flat",
+            "pace_s_per_mi": null,
+            "hr_bpm": [
+              137,
+              152
+            ]
+          }
+        ],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "cooldown",
+        "title": "3-5 min walk",
+        "items": [
+          {
+            "exercise_id": "easy_cooldown",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 240,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "easy walk",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "changes": [
+    {
+      "what": "None: long run + Z2 bike as planned",
+      "why": "Readiness pending today's Whoop recovery; no joint flags, no health events",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "Evening 10-15 min soft tissue + mobility (hips/hamstrings/calves): foam roller, lacrosse ball, Theragun",
+    "'Evening mobility (coach)' in Hevy (~10 min) + magnesium at night",
+    "Bed 10-10:30 pm"
+  ],
   "nutrition": null,
-  "fueling_cue": "",
+  "fueling_cue": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium on the bike (session > 75 min); after: 40 g protein + carbs within 2 h.",
   "gear_alerts": [],
   "pushed": null,
   "handoffs": [],
   "approvals_pending": [],
-  "stale_sources": [],
+  "stale_sources": [
+    "whoop: today's recovery not available yet",
+    "weight: no weigh-in since 2026-11-23",
+    "weather: Open-Meteo HTTP 429, no forecast"
+  ],
   "generated_by": "claude",
   "notification": ""
 }
