@@ -1,7 +1,28 @@
 {
   "date": "2026-11-28",
-  "status": "planned",
-  "readiness": null,
+  "status": "complete",
+  "readiness": {
+    "date": "2026-11-28",
+    "state": "unknown",
+    "reasons": [
+      "Whoop offline, readiness not scored"
+    ],
+    "recovery_score": null,
+    "hrv": {
+      "mean7_ln": null,
+      "baseline_ln": null,
+      "lower_band": null,
+      "upper_band": null,
+      "below_days": 0
+    },
+    "rhr_delta": null,
+    "joints": {},
+    "joint_flags": [],
+    "sustained_red": false,
+    "data_missing": [
+      "whoop_recovery"
+    ]
+  },
   "weather": null,
   "planned_session_id": "2026-11-28-squat-hyrox",
   "planned_session": {
@@ -574,16 +595,618 @@
     "recovery_note": "",
     "shoe": null
   },
-  "session": null,
-  "changes": [],
-  "recovery_prescription": [],
-  "nutrition": null,
-  "fueling_cue": "",
+  "session": {
+    "id": "2026-11-28-squat-hyrox",
+    "date": "2026-11-28",
+    "start_time": "09:30",
+    "type": "full_body",
+    "title": "Squat + Hyrox threshold",
+    "intent": "Explosive primer, heavy squat, threshold Hyrox intervals",
+    "location": "gym",
+    "route": null,
+    "expected_minutes": 90,
+    "key": true,
+    "carb_tier": "high",
+    "blocks": [
+      {
+        "kind": "warmup",
+        "title": "Squat prep: easy bike, McGill Big 3, ankles, hips, band walks, paused squat",
+        "items": [
+          {
+            "exercise_id": "bike_erg",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 240,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "Raise: start easy, build to a light sweat (RPE 3-5). Echo bike or any bike if the BikeErg is taken.",
+            "ramp": []
+          },
+          {
+            "exercise_id": "cat_cow",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "PT cat-camel: slow, unloaded, mid-range only",
+            "ramp": []
+          },
+          {
+            "exercise_id": "mcgill_curl_up",
+            "sets": 1,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "10 s holds",
+            "ramp": []
+          },
+          {
+            "exercise_id": "side_plank",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 20,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "bird_dog",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "ankle_rocker",
+            "sets": 1,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "hip_90_90",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": "active hip rotation both ways; slow on the left (left external rotation is your tightest: GOWOD 2026-01)",
+            "ramp": []
+          },
+          {
+            "exercise_id": "lateral_band_walk",
+            "sets": 1,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": true,
+            "alternating": null,
+            "notes": "10 steps each way, knees out",
+            "ramp": []
+          },
+          {
+            "exercise_id": "bodyweight_squat",
+            "sets": 1,
+            "reps": 6,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "3 s pause at the bottom, heels down, spine neutral",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "power",
+        "title": "Neural primer",
+        "items": [
+          {
+            "exercise_id": "box_jump",
+            "sets": 3,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "bodyweight",
+            "tempo": null,
+            "rest_s": 60,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          },
+          {
+            "exercise_id": "med_ball_scoop_toss",
+            "sets": 2,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 120,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "skill",
+        "title": "Olympic positions (fresh, <= 70%)",
+        "items": [
+          {
+            "exercise_id": "snatch_positions_pvc",
+            "sets": 4,
+            "reps": 3,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 4.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": "positions first; stop when mechanics degrade",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "strength",
+        "title": "",
+        "items": [
+          {
+            "exercise_id": "ssb_box_squat",
+            "sets": 4,
+            "reps": 5,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": 110.2,
+            "load_lb": 243.0,
+            "load_note": "243 lb",
+            "tempo": null,
+            "rest_s": 180,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": 53.5,
+                "load_lb": 118.0,
+                "pct": null
+              },
+              {
+                "reps": 3,
+                "load_kg": 76.2,
+                "load_lb": 168.0,
+                "pct": null
+              },
+              {
+                "reps": 1,
+                "load_kg": 94.3,
+                "load_lb": 208.0,
+                "pct": null
+              }
+            ]
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "hypertrophy",
+        "title": "",
+        "items": [
+          {
+            "exercise_id": "hip_thrust",
+            "sets": 3,
+            "reps": 10,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 2.0,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": "by RIR (2); warm-up ~50% x5, ~75% x3 of your working weight",
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": null,
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": null,
+                "load_lb": null,
+                "pct": 0.5
+              },
+              {
+                "reps": 3,
+                "load_kg": null,
+                "load_lb": null,
+                "pct": 0.75
+              }
+            ]
+          },
+          {
+            "exercise_id": "half_kneeling_landmine_press",
+            "sets": 3,
+            "reps": 8,
+            "reps_max": null,
+            "duration_s": null,
+            "distance_m": null,
+            "calories": null,
+            "rir": 3.0,
+            "load_kg": 18.1,
+            "load_lb": 40.0,
+            "load_note": "40 lb on the sleeve",
+            "tempo": null,
+            "rest_s": 90,
+            "per_side": false,
+            "alternating": null,
+            "notes": "overhead ladder exposure: smooth, ribs down, pain-free range",
+            "ramp": [
+              {
+                "reps": 5,
+                "load_kg": 9.1,
+                "load_lb": 20.0,
+                "pct": null
+              },
+              {
+                "reps": 3,
+                "load_kg": 13.6,
+                "load_lb": 30.0,
+                "pct": null
+              }
+            ]
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "conditioning",
+        "title": "Metcon ramp: easy erg building to workout pace, then one light practice round",
+        "items": [
+          {
+            "exercise_id": "bike_erg",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 150,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 60,
+            "per_side": false,
+            "alternating": null,
+            "notes": "2 min easy, last 30 s at the pace you'll hold in the workout. Any erg. Then one easy practice round of the workout's movements at light load, rest ~1 min and start.",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "conditioning",
+        "title": "Hyrox threshold intervals",
+        "items": [],
+        "run": [],
+        "metcon": {
+          "name": "Hyrox threshold intervals",
+          "format": "intervals",
+          "time_cap_min": 20.0,
+          "rounds": 4,
+          "movements": [
+            {
+              "exercise_id": "ski_erg",
+              "sets": 1,
+              "reps": null,
+              "reps_max": null,
+              "duration_s": null,
+              "distance_m": 500,
+              "calories": null,
+              "rir": null,
+              "load_kg": null,
+              "load_lb": null,
+              "load_note": null,
+              "tempo": null,
+              "rest_s": null,
+              "per_side": false,
+              "alternating": null,
+              "notes": null,
+              "ramp": []
+            },
+            {
+              "exercise_id": "sled_push",
+              "sets": 1,
+              "reps": null,
+              "reps_max": null,
+              "duration_s": null,
+              "distance_m": 25,
+              "calories": null,
+              "rir": null,
+              "load_kg": null,
+              "load_lb": null,
+              "load_note": null,
+              "tempo": null,
+              "rest_s": null,
+              "per_side": false,
+              "alternating": null,
+              "notes": null,
+              "ramp": []
+            },
+            {
+              "exercise_id": "sled_pull",
+              "sets": 1,
+              "reps": null,
+              "reps_max": null,
+              "duration_s": null,
+              "distance_m": 25,
+              "calories": null,
+              "rir": null,
+              "load_kg": null,
+              "load_lb": null,
+              "load_note": null,
+              "tempo": null,
+              "rest_s": null,
+              "per_side": false,
+              "alternating": null,
+              "notes": null,
+              "ramp": []
+            },
+            {
+              "exercise_id": "burpee_broad_jump",
+              "sets": 1,
+              "reps": 10,
+              "reps_max": null,
+              "duration_s": null,
+              "distance_m": null,
+              "calories": null,
+              "rir": null,
+              "load_kg": null,
+              "load_lb": null,
+              "load_note": "bodyweight",
+              "tempo": null,
+              "rest_s": null,
+              "per_side": false,
+              "alternating": null,
+              "notes": null,
+              "ramp": []
+            }
+          ],
+          "stimulus": "Threshold (~RPE 7-8): 400 m treadmill run between stations, steady not all-out; practise transitions",
+          "scaling": "Hold the run at threshold pace; reduce station distance before slowing the run",
+          "score_type": "time"
+        },
+        "test_id": null,
+        "notes": ""
+      },
+      {
+        "kind": "cooldown",
+        "title": "5-8 min easy walk/jog/bike to HR < ~110, then slow breathing",
+        "items": [
+          {
+            "exercise_id": "easy_cooldown",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 360,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "keep moving easily until HR is under ~110 (5-8 min), don't sit or lie down straight away",
+            "ramp": []
+          },
+          {
+            "exercise_id": "child_pose_breathing",
+            "sets": 1,
+            "reps": null,
+            "reps_max": null,
+            "duration_s": 60,
+            "distance_m": null,
+            "calories": null,
+            "rir": null,
+            "load_kg": null,
+            "load_lb": null,
+            "load_note": null,
+            "tempo": null,
+            "rest_s": 15,
+            "per_side": false,
+            "alternating": null,
+            "notes": "slow nasal breathing, long exhales",
+            "ramp": []
+          }
+        ],
+        "run": [],
+        "metcon": null,
+        "test_id": null,
+        "notes": ""
+      }
+    ],
+    "tests": [],
+    "recovery_note": "",
+    "shoe": null
+  },
+  "changes": [
+    {
+      "what": "None: plan runs as written",
+      "why": "Whoop offline (no recovery since 11-26), readiness not scored; no joint flags",
+      "kind": "small"
+    },
+    {
+      "what": "Safety squat bar box squat: 250.5 -> 243 lb",
+      "why": "load recalculated from the latest logs and load rules",
+      "kind": "small"
+    },
+    {
+      "what": "Half-kneeling landmine press: 60 -> 40 lb",
+      "why": "load recalculated from the latest logs and load rules",
+      "kind": "small"
+    }
+  ],
+  "recovery_prescription": [
+    "Normatec boots 20-30 min at the gym after the session",
+    "Evening 10-15 min soft tissue + mobility (hips/hamstrings/calves): foam roller, lacrosse ball, bands, Theragun",
+    "'Evening mobility (coach)' in Hevy (~10 min; Hyperice heat first if the back is tight) + magnesium tonight"
+  ],
+  "nutrition": {
+    "date": "2026-11-28",
+    "carb_tier": "high",
+    "kcal": 3132,
+    "protein_g": 180,
+    "fat_g": 72,
+    "carbs_g": 441,
+    "scaled": true,
+    "peri_workout": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.",
+    "note": "carbs scaled down proportionally: weekly target is tight; weekly target (chat: MacroFactor maintenance, 209 g protein / 94 g fat / 288 g carbs per day (2834 kcal))"
+  },
+  "fueling_cue": "Pre: 30-60 g carbs + sodium (LMNT) 60-90 min out; beet juice + matcha; during: 45-60 g carbs/h + sodium (session > 75 min); after: 40 g protein + carbs within 2 h.",
   "gear_alerts": [],
   "pushed": null,
   "handoffs": [],
   "approvals_pending": [],
-  "stale_sources": [],
+  "stale_sources": [
+    "whoop: no recovery since 2026-11-26",
+    "weight: no weigh-in since 2026-11-23"
+  ],
   "generated_by": "claude",
   "notification": ""
 }
